@@ -5,19 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class DosenSeeder extends Seeder
+class MDosenSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        DB::table('dosen')->insert([
+        DB::table('m_dosen')->insert([
             [
-                'user_id' => 2, // Pastikan user dengan ID 4 ada di tabel users
-                'nip' => '1987654321',
+                'user_id' => 2, // Pastikan user dengan id_user=2 ada di m_user
+                'nip' => 1987654321,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
