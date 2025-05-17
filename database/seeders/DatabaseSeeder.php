@@ -12,19 +12,24 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run() :void
+    public function run()
     {
-        // Panggil semua seeder yang diperlukan
         $this->call([
             UserSeeder::class,
-            DosenSeeder::class,
-             ProgramStudiSeeder::class,
-              SkillsSeeder::class,
-            MahasiswaSeeder::class,
+            MSkillSeeder::class,
+            MProdiSeeder::class,
+            MJenisSeeder::class,
+            MMahasiswaSeeder::class,
+            MDosenSeeder::class,
+            MPerusahaanSeeder::class,
+            MPeriodeSeeder::class,
+            MLowonganSeeder::class,
+            TLamaranSeeder::class,
+            TSkillMahasiswaSeeder::class,
+            MMagangSeeder::class,
+            TLogSeeder::class,
+            TEvaluasiSeeder::class,
             DocumentSeeder::class,
-            CompaniesSeeder::class,
-            LowonganSeeder::class,
-            StudentSkillsSeeder::class,
         ]);
     }
 }

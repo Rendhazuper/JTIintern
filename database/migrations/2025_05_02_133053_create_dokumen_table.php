@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('documents', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('m_users')->onDelete('cascade');
+        Schema::create('m_dokumen', function (Blueprint $table) {
+            $table->id('id_dokumen'); // Primary key
+            $table->foreignId('id_user')->constrained('m_user', 'id_user')->onDelete('cascade'); // FK ke m_user
             $table->string('file_name');
             $table->string('file_path');
             $table->string('file_type'); // e.g., 'CV', 'Surat Pengantar', 'Sertifikat'
@@ -22,6 +22,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('documents');
+        Schema::dropIfExists('m_dokumen');
     }
 };
