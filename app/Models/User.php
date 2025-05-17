@@ -12,22 +12,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-<<<<<<< HEAD
-    protected $table = 'm_users';
-    protected $primaryKey = 'id';
-
-=======
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-
     protected $table = 'm_user';
-
     protected $primaryKey = 'id_user';
-    
->>>>>>> c4654e16a119f48982af3f9d7ae44da8f49bdc16
+
     protected $fillable = [
         'name',
         'email',
@@ -63,5 +50,15 @@ class User extends Authenticatable
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function mahasiswa()
+    {
+        return $this->hasOne(Mahasiswa::class, 'user_id', 'id_user');
+    }
+
+    public function dosen()
+    {
+        return $this->hasOne(Dosen::class, 'user_id', 'id_user');
     }
 }
