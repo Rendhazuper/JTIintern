@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -13,14 +12,19 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run() :void
     {
-        DB::table('users')->insert([
-            'username' => 'admin',
-            'firstname' => 'Admin',
-            'lastname' => 'Admin',
-            'email' => 'admin@argon.com',
-            'password' => bcrypt('secret')
+        // Panggil semua seeder yang diperlukan
+        $this->call([
+            UserSeeder::class,
+            DosenSeeder::class,
+             ProgramStudiSeeder::class,
+              SkillsSeeder::class,
+            MahasiswaSeeder::class,
+            DocumentSeeder::class,
+            CompaniesSeeder::class,
+            LowonganSeeder::class,
+            StudentSkillsSeeder::class,
         ]);
     }
 }

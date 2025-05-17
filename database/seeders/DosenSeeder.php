@@ -14,13 +14,13 @@ class DosenSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('dosen')->insert([
-            [
-                'user_id' => 2, // Pastikan user dengan ID 4 ada di tabel users
-                'nip' => '1987654321',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
+        // DB::table('dosen')->insert([
+        //     [
+        //         'user_id' => 2, // Pastikan user dengan ID 4 ada di tabel users
+        //         'nip' => '1987654321',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ]
+        // ]);
     }
 }

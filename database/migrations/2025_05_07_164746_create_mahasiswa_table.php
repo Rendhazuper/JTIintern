@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('mahasiswa', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Foreign key ke tabel users
+            $table->foreignId('user_id')->constrained('m_users')->onDelete('cascade'); // Foreign key ke tabel users
             $table->string('nim')->primary(); // Primary key NIM
             $table->foreignId('program_studi_id')->constrained('study_programs')->onDelete('cascade'); // Foreign key ke tabel study_programs
             $table->foreignId('skill_id')->nullable()->constrained('skills')->onDelete('set null'); // Foreign key ke tabel skills

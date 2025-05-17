@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('m_users')->onDelete('cascade');
             $table->string('file_name');
             $table->string('file_path');
             $table->string('file_type'); // e.g., 'CV', 'Surat Pengantar', 'Sertifikat'
