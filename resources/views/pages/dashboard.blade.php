@@ -21,7 +21,7 @@
                             </span>
                             <span class="d-flex align-items-center justify-content-center rounded"
                                 style="width:68px;height:68px;background:rgba(182,203,255,0.4);">
-                                <i class="fas fa-user-graduate" style="color:#5988FF; font-size:45px;"></i>
+                                <i class="bi bi-mortarboard-fill" style="color:#5988FF; font-size:45px;"></i>
                             </span>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                             </span>
                             <span class="d-flex align-items-center justify-content-center rounded"
                                 style="width:64px;height:64px;background:#FECDCD;">
-                                <i class="fas fa-suitcase" style="color:#FF5252; font-size:42px;"></i>
+                                <i class="bi bi-building-fill" style="color:#FF5252; font-size:42px;"></i>
                             </span>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                             </span>
                             <span class="d-flex align-items-center justify-content-center rounded"
                                 style="width:64px;height:64px;background:#FFE8BE;">
-                                <i class="fas fa-user-hard-hat" style="color:#F8A100; font-size:42px;"></i>
+                                <i class="bi bi-briefcase-fill" style="color:#F8A100; font-size:42px;"></i>
                             </span>
                         </div>
                     </div>
