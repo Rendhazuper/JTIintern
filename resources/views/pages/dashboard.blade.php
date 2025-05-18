@@ -3,28 +3,6 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Dashboard'])
 
-    <div class="container-fluid py-4" style="background: #F3F3FF; border-radius: 10px;">
-        <div class="row">
-            <div class="col-12 mb-4">
-                <h2 class="fw-bold" style="color: #2D2D2D; font-family: Poppins;">Dashboard</h2>
-            </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="fw-bold mb-2" style="color: #2D2D2D;">Mahasiswa Aktif Magang</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold" style="color: #5988FF; font-size: 48px;" id="mahasiswa-aktif">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </span>
-                            <span class="d-flex align-items-center justify-content-center rounded"
-                                style="width:68px;height:68px;background:rgba(182,203,255,0.4);">
-                                <i class="fas fa-user-graduate" style="color:#5988FF; font-size:45px;"></i>
-                            </span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -46,81 +24,33 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="fw-bold mb-2" style="color: #2D2D2D;">Lowongan Magang Aktif</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold" style="color: #5988FF; font-size: 48px;" id="lowongan-aktif">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </span>
-                            <span class="d-flex align-items-center justify-content-center rounded"
-                                style="width:64px;height:64px;background:#FFE8BE;">
-                                <i class="fas fa-user-hard-hat" style="color:#F8A100; font-size:42px;"></i>
-                            </span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold" style="color: #2D2D2D;">Permintaan Magang Terbaru</span>
-                            <a href="#" class="fw-semibold" style="color: #4278FF;">Semua Permintaan</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Nama</th>
-                                        <th>Perusahaan</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="latest-applications">
-                                    <tr>
-                                        <td colspan="3" class="text-center">
-                                            <div class="d-flex justify-content-center">
-                                                <div class="spinner-border text-primary" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 mb-4">
-                <div class="card shadow-sm h-100"
-                    style="background: linear-gradient(158deg, rgba(187,206,255,0.58) 0%, rgba(246,230,247,0.62) 100%);">
-                    <div class="card-body">
-                        <div class="fw-bold mb-3" style="color: #2D2D2D;">Menu Cepat</div>
-                        <div class="list-group">
-                            <a href="#"
-                                class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
-                                <i class="fas fa-graduation-cap" style="color:#FFAE00;"></i>
-                                <span class="fw-semibold" style="color: #2D2D2D;">Data Mahasiswa</span>
-                            </a>
-                            <a href="#"
-                                class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
-                                <i class="fas fa-city" style="color:#2F78FF;"></i>
-                                <span class="fw-semibold" style="color: #2D2D2D;">Data Perusahaan</span>
-                            </a>
-                            <a href="#"
-                                class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
-                                <i class="fas fa-user-tie" style="color:#E091FF;"></i>
-                                <span class="fw-semibold" style="color: #2D2D2D;">Data Dosen</span>
-                            </a>
-                        </div>
-                    </div>
+        </div> --}}
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100 quick-menu-card">
+                <div class="card-body">
+                <div class="fw-bold mb-3 text-dark">Menu Cepat</div>
+                <div class="list-group d-grid gap-2">
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-graduation-cap icon" style="color:#FFAE00;"></i>
+                    <span>Data Mahasiswa</span>
+                    </a>
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-city icon" style="color:#2F78FF;"></i>
+                    <span>Data Perusahaan</span>
+                    </a>
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-user-tie icon" style="color:#E091FF;"></i>
+                    <span>Data Dosen</span>
+                    </a>
+                </div>
                 </div>
             </div>
         </div>
