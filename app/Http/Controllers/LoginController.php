@@ -44,23 +44,19 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // Add remember me functionality
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-
-            // Generate API token for SPA or mobile usage
-            $user = User::where('email', $request->email)->first();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            // Store token in session for potential JS usage
-            session(['api_token' => $token]);
-
-            return redirect()->intended('dashboard');
+         $user = Auth::user();
+         $request->session()->regenerate();
+        
+        // Simpan data tambahan ke session jika diperlukan
+        session(['user_id' => $user->id]);
+        session(['user_email' => $user->email]);
+        
+        return redirect()->intended('dashboard');
         }
 
-        // Return with error
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput($request->only('email', 'remember'));

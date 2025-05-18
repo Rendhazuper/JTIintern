@@ -20,17 +20,16 @@ Route::get('/csrf-cookie', function () {
     return response()->json(['message' => 'CSRF cookie set']);
 })->middleware('web');
 
-// Public routes
-Route::post('/login', [AuthController::class, 'login']);
-
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+});
 
-    // Dashboard routes
+// Dashboard routes
+Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
 });
