@@ -5,11 +5,6 @@
     {{-- filepath: c:\laragon\www\JTIintern\resources\views\pages\dashboard.blade.php --}}
 {{-- ...existing code... --}}
 <div class="container-fluid py-4" style="background: #F3F3FF; border-radius: 10px;">
-    <div class="row">
-        <div class="col-12 mb-4">
-            <h2 class="fw-bold" style="color: #2D2D2D; font-family: Poppins;">Dashboard</h2>
-        </div>
-    </div>
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
             <div class="card shadow-sm h-100">
@@ -44,7 +39,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="fw-bold" style="color: #5988FF; font-size: 48px;">56</span>
                         <span class="d-flex align-items-center justify-content-center rounded" style="width:64px;height:64px;background:#FFE8BE;">
-                            <i class="fas fa-user-hard-hat" style="color:#F8A100; font-size:42px;"></i>
+                            <i class="fas fa-laptop-code" style="color:#F8A100; font-size:42px;"></i>
                         </span>
                     </div>
                 </div>
@@ -76,7 +71,7 @@
                                     </td>
                                     <td>PT. Bagus Sejahtera</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-primary">Diterima</span>
+                                        <span class="status-badge accepted"><span class="dot"></span>Diterima</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -86,7 +81,7 @@
                                     </td>
                                     <td>PT. Indah Sejahtera</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-secondary">Menunggu</span>
+                                        <span class="status-badge pending"><span class="dot"></span>Menunggu</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -96,7 +91,7 @@
                                     </td>
                                     <td>PT. Keren Sejahtera</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-secondary">Menunggu</span>
+                                        <span class="status-badge pending"><span class="dot"></span>Menunggu</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -106,7 +101,7 @@
                                     </td>
                                     <td>PT. Apik Sejahtera</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-secondary">Menunggu</span>
+                                        <span class="status-badge pending"><span class="dot"></span>Menunggu</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -116,7 +111,7 @@
                                     </td>
                                     <td>PT. Good Sejahtera</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-primary">Diterima</span>
+                                        <span class="status-badge accepted"><span class="dot"></span>Diterima</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -125,7 +120,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 mb-4">
+        {{-- <div class="col-lg-4 mb-4">
             <div class="card shadow-sm h-100" style="background: linear-gradient(158deg, rgba(187,206,255,0.58) 0%, rgba(246,230,247,0.62) 100%);">
                 <div class="card-body">
                     <div class="fw-bold mb-3" style="color: #2D2D2D;">Menu Cepat</div>
@@ -143,6 +138,28 @@
                             <span class="fw-semibold" style="color: #2D2D2D;">Data Dosen</span>
                         </a>
                     </div>
+                </div>
+            </div>
+        </div> --}}
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100 quick-menu-card">
+                <div class="card-body">
+                <div class="fw-bold mb-3 text-dark">Menu Cepat</div>
+                <div class="list-group d-grid gap-2">
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-graduation-cap icon" style="color:#FFAE00;"></i>
+                    <span>Data Mahasiswa</span>
+                    </a>
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-city icon" style="color:#2F78FF;"></i>
+                    <span>Data Perusahaan</span>
+                    </a>
+                    <a href="#" class="quick-menu-item">
+                    <i class="fas fa-user-tie icon" style="color:#E091FF;"></i>
+                    <span>Data Dosen</span>
+                    </a>
+                </div>
                 </div>
             </div>
         </div>
