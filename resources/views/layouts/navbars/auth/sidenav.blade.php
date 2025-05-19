@@ -23,7 +23,7 @@
             </li>
             <li class="nav-item">
             <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Mahasiswa</h6>
-            <a class="nav-link {{ Route::currentRouteName() == 'profile' ? 'active' : '' }}" href="{{ route('profile') }}">
+            <a class="nav-link {{ Route::currentRouteName() == 'Data_Mahasiswa' ? 'active' : '' }}" href="{{ route('Data_Mahasiswa') }}">
                 <div
                 class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="bi bi-mortarboard text-sm opacity-10 "></i>

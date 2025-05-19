@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\dataMhsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,8 +29,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+
+
 // Dashboard routes
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
+    Route::get('/mahasiswa', [dataMhsController::class, 'getData']);
+Route::get('/kelas', [dataMhsController::class, 'getKelas']);
 });

@@ -18,13 +18,11 @@ class Mahasiswa extends Model
         'nim',
         'user_id',
         'nama_mahasiswa',
-        'program_studi_id',
-        'semester',
+        'id_kelas',
         'alamat',
         'no_telepon',
         'email',
         'dosen_pembimbing_id',
-        'skills'
     ];
 
     public function user()
@@ -34,7 +32,7 @@ class Mahasiswa extends Model
 
     public function programStudi()
     {
-        return $this->belongsTo(Prodi::class, 'program_studi_id', 'kode_prodi');
+        return $this->belongsTo(Prodi::class, 'kode_prodi', 'kode_prodi');
     }
 
     public function dosenPembimbing()
@@ -49,8 +47,15 @@ class Mahasiswa extends Model
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id', 'user_id')
-                    ->withPivot('level', 'sertifikasi')
-                    ->withTimestamps();
+        return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id', 'id_user')
+                    ->withPivot('lama_skill');
+    }
+    public function magang()
+{
+    return $this->hasOne(Magang::class, 'id_mahasiswa', 'id_mahasiswa');
+}
+  public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
     }
 }
