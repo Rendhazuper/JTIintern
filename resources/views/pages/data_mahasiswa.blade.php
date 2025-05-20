@@ -258,6 +258,5 @@ function submitTambahMahasiswa(event) {
             alert('Terjadi kesalahan saat menambahkan mahasiswa.');
         });
 }
-
 </script>
 @endpush
