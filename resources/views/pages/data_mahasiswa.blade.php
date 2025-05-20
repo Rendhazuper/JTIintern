@@ -50,6 +50,49 @@
         </div>
     </div>
     
+    <!-- Modal Tambah Mahasiswa -->
+<div class="modal fade" id="modalTambahMahasiswa" tabindex="-1" aria-labelledby="modalTambahMahasiswaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formTambahMahasiswa" onsubmit="submitTambahMahasiswa(event)">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahMahasiswaLabel">Tambah Mahasiswa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="nama" class="form-label">Nama Mahasiswa</label>
+            <input type="text" id="nama" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="namaKelas" class="form-label">Pilih Kelas</label>
+            <select id="namaKelas" name="namaKelas" class="form-select" required>
+              <option value="">-- Pilih Kelas --</option>
+              <!-- Opsi kelas akan diisi oleh JS -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="alamat" class="form-label">Alamat</label>
+            <input type="text" id="alamat" name="alamat" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="nim" class="form-label">NIM</label>
+            <input type="text" id="nim" name="nim" class="form-control" maxlength="15" required>
+          </div>
+          <div class="mb-3">
+            <label for="ipk" class="form-label">IPK</label>
+            <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Tambah</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 
         @include('layouts.footers.auth.footer')
 @endsection
@@ -159,5 +202,61 @@ document.getElementById('prodiFilter').addEventListener('change', function(e) {
 document.getElementById('kelasFilter').addEventListener('change', function(e) {
     loadMahasiswaData({ kelas: e.target.value });
 });
+
+function tambahMahasiswa() {
+    // Isi dropdown kelas dulu jika belum terisi
+    const selectKelas = document.getElementById('namaKelas');
+    if (selectKelas.options.length <= 1) {
+        api.get('/kelas')
+            .then(res => {
+                if (res.data.success) {
+                    res.data.data.forEach(kelas => {
+                        const option = document.createElement('option');
+                        option.value = kelas.nama_kelas;
+                        option.text = `${kelas.nama_kelas} - ${kelas.prodi.nama_prodi} (${kelas.tahun_masuk})`;
+                        selectKelas.appendChild(option);
+                    });
+                }
+            });
+    }
+    // Tampilkan modal
+    var modal = new bootstrap.Modal(document.getElementById('modalTambahMahasiswa'));
+    modal.show();
+}
+
+function submitTambahMahasiswa(event) {
+    event.preventDefault();
+    const form = event.target;
+
+    const data = {
+        nama: form.nama.value,
+        nama_kelas: form.namaKelas.value,
+        alamat: form.alamat.value,
+        nim: form.nim.value,
+        ipk: form.ipk.value
+    };
+
+    api.post('/mahasiswa', data)
+        .then(res => {
+            if (res.data.success) {
+                alert('Mahasiswa berhasil ditambahkan!');
+                // Tutup modal
+                var modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahMahasiswa'));
+                modal.hide();
+
+                // Reset form
+                form.reset();
+
+                // Reload data mahasiswa
+                loadMahasiswaData();
+            } else {
+                alert('Gagal menambahkan mahasiswa: ' + (res.data.message || 'Error tidak diketahui'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Terjadi kesalahan saat menambahkan mahasiswa.');
+        });
+}
 </script>
 @endpush
