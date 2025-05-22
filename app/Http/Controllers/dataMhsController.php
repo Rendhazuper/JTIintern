@@ -62,4 +62,20 @@ public function getKelas()
     ]);
 }
 
+public function tambahMahasiswa(Request $request)
+{
+    $mahasiswa = new Mahasiswa();
+    $mahasiswa->nama = $request->input('nama');
+    $mahasiswa->nim = $request->input('nim');
+    $mahasiswa->id_kelas = $request->input('nama_kelas'); 
+    $mahasiswa->alamat = $request->input('alamat');
+    $mahasiswa->ipk = $request->input('ipk');
+    $mahasiswa->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Mahasiswa berhasil ditambahkan'
+    ]);
+
+}
 }

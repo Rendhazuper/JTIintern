@@ -1,0 +1,52 @@
+.skill-badge {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: "Open Sans", sans-serif;
+    display: inline-block;
+    margin: 2px;
+}
+
+/* PHP Skill */
+.skill-badge[data-skill="php"] {
+    background-color: #c9b7ff !important;
+    color: #9059ff !important;
+    border: 1px solid #9059ff !important;
+}
+
+/* JavaScript Skill */
+.skill-badge[data-skill="javascript"] {
+    background-color: #ffe3b7 !important;
+    color: #ee722f !important;
+    border: 1px solid #ee722f !important;
+}
+
+/* Other Skills */
+.skill-badge[data-skill="other"] {
+    background-color: #ffcdcd !important;
+    color: #ff5959 !important;
+    border: 1px solid #ff5959 !important;
+}
+
+/* Status Badge Styles */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: "Open Sans", sans-serif;
+    display: inline-block;
+}
+
+.status-badge.magang {
+    background-color: #b7cbff !important;
+    color: #1f5eff !important;
+    border: 1px solid #1f5eff !important;
+}
+
+.status-badge.belum {
+    background-color: #cccccc !important;
+    color: #2d2d2d !important;
+    border: 1px solid #2d2d2d !important;
+}

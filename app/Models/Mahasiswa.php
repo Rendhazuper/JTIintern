@@ -21,6 +21,7 @@ class Mahasiswa extends Model
         'id_kelas',
         'alamat',
         'no_telepon',
+        'username',
         'email',
         'dosen_pembimbing_id',
     ];

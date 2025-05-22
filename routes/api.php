@@ -36,5 +36,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
     Route::get('/mahasiswa', [dataMhsController::class, 'getData']);
-Route::get('/kelas', [dataMhsController::class, 'getKelas']);
+    Route::get('/kelas', [dataMhsController::class, 'getKelas']);
+    Route::post('/tambahMahasiswa',[dataMhsController::class, 'tambahMahasiswa']);
 });

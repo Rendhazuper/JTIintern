@@ -4,17 +4,19 @@
     @include('layouts.navbars.auth.topnav', ['title' => 'Data Mahasiswa'])
     <div class="container-fluid py-4">
         <div class="card pt-4"> 
-            <div class="d-flex justify-content-between mb-3 px-3">
-                <!-- Filter Section -->
+            <div class="d-flex justify-content-between mb-3 px-2">
                 <div class="d-flex gap-2">
-                    <select id="prodiFilter" class="form-select form-select-sm" style="width: auto;">
-                        <option value="">Semua Prodi</option>
+                    <select id="prodiFilter" class="form-select form-select-sm" style="width: auto; height: 38px">
+                        <option value="">
+                            <span>Semua Prodi</span>
+                        </option>
                     </select>
-                    <select id="kelasFilter" class="form-select form-select-sm" style="width: auto;">
-                        <option value="">Semua Kelas</option>
+                    <select id="kelasFilter" class="form-select form-select-sm" style="width: auto; padding-right: 2.75rem; height: 38px" >
+                        <option value="" > 
+                            <span>Semua Kelas</span>
+                        </option>
                     </select>
                 </div>
-                <!-- Button Section -->
                 <div class="d-flex gap-2">
                     <button type="button" class="btn" 
                             style="color: white; background: #02A232;" 
@@ -97,6 +99,10 @@
         @include('layouts.footers.auth.footer')
 @endsection
 
+@push('css')
+<link href="{{ asset('assets/css/data-mahasiswa.css') }}" rel="stylesheet" />
+@endpush
+
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
@@ -159,13 +165,16 @@ function loadMahasiswaData(filters = {}) {
                             <td>
                                 <p class="text-xs font-weight-bold mb-0">${mahasiswa.nim}</p>
                             </td>
-                            <td class="align-middle text-center text-sm">
-                                ${mahasiswa.skills.map(skill => 
-                                    `<span class="badge badge-sm bg-gradient-info">${skill.nama_skill}</span>`
-                                ).join(' ') || '-'}
+                            <td class="align-middle text-sm">
+                                ${mahasiswa.skills.map(skill => {
+                                    const skillName = skill.nama_skill.toLowerCase();
+                                    const skillType = skillName.includes('php') ? 'php' : 
+                                                     skillName.includes('javascript') ? 'javascript' : 'other';
+                                    return `<span class="skill-badge" data-skill="${skillType}">${skill.nama_skill}</span>`;
+                                }).join(' ') || '-'}
                             </td>
                             <td class="align-middle text-center">
-                                <span class="badge badge-sm ${mahasiswa.status_magang === 'Sedang Magang' ? 'bg-gradient-success' : 'bg-gradient-secondary'}">
+                                <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' : 'belum'}">
                                     ${mahasiswa.status_magang === 'Sedang Magang' ? 'Sedang Magang' : 'Belum Magang'}
                                 </span>
                             </td>
@@ -204,7 +213,6 @@ document.getElementById('kelasFilter').addEventListener('change', function(e) {
 });
 
 function tambahMahasiswa() {
-    // Isi dropdown kelas dulu jika belum terisi
     const selectKelas = document.getElementById('namaKelas');
     if (selectKelas.options.length <= 1) {
         api.get('/kelas')
@@ -219,7 +227,6 @@ function tambahMahasiswa() {
                 }
             });
     }
-    // Tampilkan modal
     var modal = new bootstrap.Modal(document.getElementById('modalTambahMahasiswa'));
     modal.show();
 }
@@ -227,7 +234,6 @@ function tambahMahasiswa() {
 function submitTambahMahasiswa(event) {
     event.preventDefault();
     const form = event.target;
-
     const data = {
         nama: form.nama.value,
         nama_kelas: form.namaKelas.value,
@@ -236,18 +242,13 @@ function submitTambahMahasiswa(event) {
         ipk: form.ipk.value
     };
 
-    api.post('/mahasiswa', data)
+    api.post('/tambahMahasiswa', data)
         .then(res => {
             if (res.data.success) {
                 alert('Mahasiswa berhasil ditambahkan!');
-                // Tutup modal
                 var modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahMahasiswa'));
                 modal.hide();
-
-                // Reset form
                 form.reset();
-
-                // Reload data mahasiswa
                 loadMahasiswaData();
             } else {
                 alert('Gagal menambahkan mahasiswa: ' + (res.data.message || 'Error tidak diketahui'));
