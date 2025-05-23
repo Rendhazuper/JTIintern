@@ -31,7 +31,7 @@
                 <span class="nav-link-text ms-1">Data Mahasiswa</span>
             </a>
 
-            <a class="nav-link {{ str_contains(request()->url(), 'user-management') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'user-management']) }}">
+            <a class="nav-link {{ str_contains(request()->url(), 'permintaan') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'permintaan']) }}">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="bi bi-envelope text-sm opacity-10 "></i>
                 </div>
@@ -42,7 +42,7 @@
             <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Perusahaan</h6>
             </li>
             <li class="nav-item">
-            <a class="nav-link {{ str_contains(request()->url(), 'tables') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'tables']) }}">
+            <a class="nav-link {{ str_contains(request()->url(), 'data_perusahaan') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'data_perusahaan']) }}">
                 <div
                 class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="bi bi-building text-sm opacity-10 "></i>
@@ -83,8 +83,12 @@
         </ul>
     </div>
         <div class="d-flex justify-content-center my-3">
-            <a class="btn btn-danger btn-sm w-90"
-                href="https://www.creative-tim.com/product/argon-dashboard-pro-laravel" target="_blank" type="button">Log out</a>
-        </div>
+    <form method="POST" action="{{ route('logout') }}" class="w-90">
+        @csrf
+        <button type="submit" class="btn btn-danger btn-sm w-100">
+            Log out
+        </button>
+    </form>
+</div>
     </div>
 </aside>

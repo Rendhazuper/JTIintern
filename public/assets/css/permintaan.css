@@ -1,0 +1,257 @@
+.card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.search-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 16px 8px 40px;
+    border-radius: 8px;
+    border: 1px solid #e7e7e7;
+    font-size: 14px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #757575;
+}
+.btn {
+    margin-bottom: 0 !important;
+}
+
+.filter-btn {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 1px solid #e7e7e7;
+    border-radius: 8px;
+    padding: 0.375rem 1rem;
+}
+
+.permintaan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.permintaan-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.search_card {
+    background-color: white;
+    padding: 10px 50px;
+    border-radius: 15px;
+    width: 100%;
+}
+
+.mahasiswa-info .nama {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.mahasiswa-info .nim {
+    font-size: 12px;
+    color: #757575;
+    margin: 0;
+}
+
+.job-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.company-badge {
+    background: #e3eaff;
+    color: #5988ff;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status {
+    background: #c9ffe2;
+    color: #00b341;
+    width: fit-content;
+    border-radius: 5px;
+}
+
+.status-badge.diterima {
+    font-weight: 100px;
+}
+
+.status-badge.menunggu {
+    background: #ffe3b7;
+    color: #ee722f;
+}
+
+.btn-detail {
+    background: #5988ff;
+    color: white;
+    border-radius: 5px;
+    padding: 25px 25px;
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.action {
+    position: relative;
+}
+.card-header {
+    background: transparent;
+    border-radius: 10px !important;
+    margin-bottom: 1rem;
+    border: none !important;
+}
+.hover-actions {
+    position: absolute;
+    right: -400px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 8px;
+    transition: all 0.3s ease-in-out; /* Changed to all for smoother transition */
+    opacity: 0;
+}
+
+.permintaan-item:hover .hover-actions {
+    right: 0;
+    opacity: 1;
+}
+
+/* Add transition for non-hover state */
+.permintaan-item .hover-actions {
+    right: -400px;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Optional: Add transform scale for more dynamic effect */
+.btn-tolak,
+.btn-terima,
+.btn-detail {
+    transform: scale(1);
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+}
+
+.btn-tolak:hover,
+.btn-terima:hover,
+.btn-detail:hover {
+    transform: scale(1.05);
+}
+
+.btn-tolak {
+    background: #ff5959;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-terima {
+    background: #02a232;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-tolak:hover,
+.btn-terima:hover,
+.btn-detail:hover {
+    color: white;
+}
+
+/* Modal Styles */
+.detail-content {
+    padding: 1rem;
+}
+
+.detail-nama {
+    font-size: 18px;
+    font-weight: 600;
+    color: #344767;
+}
+
+.detail-nim {
+    font-size: 14px;
+}
+
+.detail-posisi,
+.detail-perusahaan {
+    font-size: 14px;
+    color: #344767;
+}
+
+.download-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.download-btn i {
+    font-size: 16px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.modal-title {
+    color: #344767;
+    font-weight: 600;
+}
+
+.hover-actions.show-actions {
+    right: 0 !important;
+    opacity: 1 !important;
+}

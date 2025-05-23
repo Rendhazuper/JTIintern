@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Perusahaan extends Model
 {
-    use HasFactory;
-
     protected $table = 'm_perusahaan';
     protected $primaryKey = 'perusahaan_id';
 
     protected $fillable = [
-        'nama_perusahaan', 'alamat_perusahaan', 'kota',
-        'contact_person', 'email', 'instagram', 'website'
+        'nama_perusahaan',
+        'alamat_perusahaan',
+        'kota',
+        'contact_person',
+        'email',
+        'instagram',
+        'website'
     ];
 
     public function lowongan()

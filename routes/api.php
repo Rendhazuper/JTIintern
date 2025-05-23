@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\dataMhsController;
+use App\Http\Controllers\PerusahaanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,4 +39,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/mahasiswa', [dataMhsController::class, 'getData']);
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
     Route::post('/tambahMahasiswa',[dataMhsController::class, 'tambahMahasiswa']);
+    Route::get('/perusahaan', [PerusahaanController::class, 'getData']);
+Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
 });

@@ -1,10 +1,10 @@
-@extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
+@extends('layouts.app', ['class' => 'g-sidenav-show'])
 
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Data Mahasiswa'])
     <div class="container-fluid py-4">
         <div class="card pt-4"> 
-            <div class="d-flex justify-content-between mb-3 px-2">
+            <div class="d-flex justify-content-between mb-3 px-4">
                 <div class="d-flex gap-2">
                     <select id="prodiFilter" class="form-select form-select-sm" style="width: auto; height: 38px">
                         <option value="">
@@ -38,7 +38,6 @@
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mahasiswa</th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">NIM</th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Skills</th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                 <th class="text-uppercase text-xxs text-secondary opacity-7">Actions</th>
                             </tr>
@@ -94,9 +93,6 @@
     </form>
   </div>
 </div>
-
-
-        @include('layouts.footers.auth.footer')
 @endsection
 
 @push('css')
@@ -165,14 +161,7 @@ function loadMahasiswaData(filters = {}) {
                             <td>
                                 <p class="text-xs font-weight-bold mb-0">${mahasiswa.nim}</p>
                             </td>
-                            <td class="align-middle text-sm">
-                                ${mahasiswa.skills.map(skill => {
-                                    const skillName = skill.nama_skill.toLowerCase();
-                                    const skillType = skillName.includes('php') ? 'php' : 
-                                                     skillName.includes('javascript') ? 'javascript' : 'other';
-                                    return `<span class="skill-badge" data-skill="${skillType}">${skill.nama_skill}</span>`;
-                                }).join(' ') || '-'}
-                            </td>
+
                             <td class="align-middle text-center">
                                 <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' : 'belum'}">
                                     ${mahasiswa.status_magang === 'Sedang Magang' ? 'Sedang Magang' : 'Belum Magang'}

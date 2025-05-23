@@ -8,7 +8,7 @@
                     <div class="row">
                         <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
                             <div class="card card-plain">
-                                <div class="card-header pb-0 text-start">
+                                <div style = "background : transparent" class="card-header pb-0 text-start">
                                     <h4 class="font-weight-bolder">Log in</h4>
                                     <p class="mb-0">Masukkan email dan password yang terdaftar</p>
                                 </div>

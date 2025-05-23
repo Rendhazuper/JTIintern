@@ -1,0 +1,101 @@
+.search-header .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-box {
+    position: relative;
+    width: auto;
+}
+
+.search-box input {
+    padding: 8px 16px 8px 40px;
+    border-radius: 8px;
+    border: 1px solid #e7e7e7;
+    font-size: 14px;
+    font-weight: 600;
+    height: 38px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #e7e7e7;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    color: #7d7d7d;
+    height: 38px;
+}
+
+.filter-btn i {
+    font-size: 16px;
+}
+
+.filter-btn.active {
+    background: #5988ff;
+    color: white;
+    border-color: #5988ff;
+}
+
+.company-card {
+    border: 0.2px solid #a5a5a5;
+    border-radius: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.company-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.company-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d2d2d;
+}
+
+.company-location {
+    font-size: 12px;
+    color: #7d7d7d;
+}
+
+.vacancy-info {
+    font-size: 14px;
+}
+
+.action-buttons .btn-success,
+.action-buttons .btn-primary {
+    background: none;
+    border: none;
+}
+
+/* Keep the icons white in colored buttons */
+.btn[style*="background: #02A232"] i,
+.btn[style*="background: #5988FF"] i {
+    color: white;
+}
+
+/* Add this after existing styles */
+.bi {
+    color: #5988ff;
+}
+
+/* Update active filter button */
+.filter-btn.active i,
+.btn-success i,
+.btn-primary i {
+    color: white; /* Keep white icons for buttons with colored backgrounds */
+}
