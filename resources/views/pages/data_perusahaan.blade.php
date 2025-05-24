@@ -21,16 +21,60 @@
                         </button>
                     </div>
                     <div class="action-buttons d-flex gap-3">
-                        <button type="button" class="btn" 
-                                style="color: white; background: #02A232;" 
-                                onclick="tambahPerusahaan()">
+                        <button type="button" class="btn" style="color: white; background: #02A232;"
+                            onclick="tambahPerusahaan()">
                             <i class="bi bi-plus-square-fill me-2"></i>Tambah Perusahaan
                         </button>
-                        <button type="button" class="btn" 
-                                style="color: white; background: #5988FF;" 
-                                onclick="importCSV()">
+                        <button type="button" class="btn" style="color: white; background: #5988FF;" onclick="importCSV()">
                             <i class="bi bi-plus-square-fill me-2"></i>Import CSV
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Tambah Perusahaan -->
+        <div class="modal fade" id="tambahPerusahaanModal" tabindex="-1" aria-labelledby="tambahPerusahaanModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tambahPerusahaanModalLabel">Tambah Perusahaan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="tambahPerusahaanForm">
+                            <div class="mb-3">
+                                <label for="nama_perusahaan" class="form-label">Nama Perusahaan</label>
+                                <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alamat_perusahaan" class="form-label">Alamat Perusahaan</label>
+                                <input type="text" class="form-control" id="alamat_perusahaan" name="alamat_perusahaan">
+                            </div>
+                            <div class="mb-3">
+                                <label for="kota" class="form-label">Kota</label>
+                                <input type="text" class="form-control" id="kota" name="kota">
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact_person" class="form-label">Contact Person</label>
+                                <input type="text" class="form-control" id="contact_person" name="contact_person" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="instagram" class="form-label">Instagram</label>
+                                <input type="text" class="form-control" id="instagram" name="instagram">
+                            </div>
+                            <div class="mb-3">
+                                <label for="website" class="form-label">Website</label>
+                                <input type="text" class="form-control" id="website" name="website">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -45,78 +89,138 @@
 @endsection
 
 @push('css')
-<link rel="stylesheet" href="{{ asset('assets/css/data_perusahaan.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/data_perusahaan.css') }}">
 @endpush
 
 @push('js')
-<script>
-// Load data when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadPerusahaanData();
-});
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            loadPerusahaanData();
+        });
 
-function loadPerusahaanData() {
-    fetch('/api/perusahaan')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updatePerusahaanGrid(data.data);
+        let perusahaanData = []; // Variabel global untuk menyimpan data perusahaan
+
+        function loadPerusahaanData() {
+            fetch('/api/perusahaan')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        perusahaanData = data.data; // Simpan data perusahaan ke variabel global
+                        updatePerusahaanGrid(perusahaanData); // Tampilkan semua data perusahaan
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function filterPerusahaan() {
+            const searchInput = document.getElementById('searchPerusahaan').value.toLowerCase(); // Ambil nilai input pencarian
+            const filteredData = perusahaanData.filter(p =>
+                p.nama_perusahaan.toLowerCase().includes(searchInput) || // Filter berdasarkan nama perusahaan
+                p.kota.toLowerCase().includes(searchInput) // Filter berdasarkan kota
+            );
+            updatePerusahaanGrid(filteredData); // Perbarui grid dengan data yang difilter
+        }
+
+        document.getElementById('searchPerusahaan').addEventListener('input', filterPerusahaan);
+
+        function updatePerusahaanGrid(perusahaan) {
+            const grid = document.getElementById('perusahaanContainer');
+            if (!perusahaan.length) {
+                grid.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Belum ada data perusahaan.
+                            </div>
+                        </div>
+                    `;
+                return;
             }
-        })
-        .catch(error => console.error('Error:', error));
-}
 
-function updatePerusahaanGrid(perusahaan) {
-    const grid = document.getElementById('perusahaanContainer');
-    if (!perusahaan.length) {
-        grid.innerHTML = `
-            <div class="col-12">
-                <div class="alert alert-info">
-                    Belum ada data perusahaan.
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    grid.innerHTML = perusahaan.map(p => `
-        <div class="col-md-4">
-            <div class="card company-card" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="company-logo me-3">
-                            <i class="bi bi-building" style="font-size: 2rem;"></i>
-                        </div>
-                        <div>
-                            <h6 class="company-name mb-1">${p.nama_perusahaan}</h6>
-                            <p class="company-location mb-0">${p.kota}</p>
+            grid.innerHTML = perusahaan.map(p => `
+                    <div class="col-md-4">
+                        <div class="card company-card" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-4">
+                                    <div class="company-logo me-3">
+                                        <i class="bi bi-building" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="company-name mb-1">${p.nama_perusahaan}</h6>
+                                        <p class="company-location mb-0">${p.kota}</p>
+                                    </div>
+                                </div>
+                                <div class="vacancy-info">
+                                    <p class="text-muted mb-2">Lowongan Terbuka</p>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-briefcase me-2"></i>
+                                        <span class="">${p.lowongan_count} Lowongan</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="vacancy-info">
-                        <p class="text-muted mb-2">Lowongan Terbuka</p>
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-briefcase me-2"></i>
-                            <span class="">0 Lowongan</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
+                `).join('');
+        }
 
-function tambahPerusahaan() {
-    // Add your modal code here
-    console.log('Tambah Perusahaan clicked');
-}
+        function tambahPerusahaan() {
+            const modal = new bootstrap.Modal(document.getElementById('tambahPerusahaanModal'));
+            modal.show();
+        }
 
-function importCSV() {
-    // Add your import CSV code here
-    console.log('Import CSV clicked');
-}
+        document.getElementById('tambahPerusahaanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-function goToDetail(id) {
-    window.location.href = `/detail-perusahaan/${id}`;
-}
-</script>
+            const formData = new FormData(this);
+
+            fetch('/api/perusahaan', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message
+                        }).then(() => {
+                            // Tutup modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('tambahPerusahaanModal'));
+                            modal.hide();
+
+                            // Reload data perusahaan
+                            loadPerusahaanData();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan. Silakan coba lagi.'
+                    });
+                });
+        });
+
+        function importCSV() {
+            // Add your import CSV code here
+            console.log('Import CSV clicked');
+        }
+
+        function goToDetail(id) {
+            window.location.href = `/detail-perusahaan/${id}`;
+        }
+    </script>
 @endpush
