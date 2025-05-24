@@ -129,39 +129,42 @@
             const grid = document.getElementById('perusahaanContainer');
             if (!perusahaan.length) {
                 grid.innerHTML = `
-                        <div class="col-12">
-                            <div class="alert alert-info">
-                                Belum ada data perusahaan.
-                            </div>
-                        </div>
-                    `;
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Belum ada data perusahaan.
+                </div>
+            </div>
+        `;
                 return;
             }
 
             grid.innerHTML = perusahaan.map(p => `
-                    <div class="col-md-4">
-                        <div class="card company-card" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-4">
-                                    <div class="company-logo me-3">
-                                        <i class="bi bi-building" style="font-size: 2rem;"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="company-name mb-1">${p.nama_perusahaan}</h6>
-                                        <p class="company-location mb-0">${p.kota}</p>
-                                    </div>
-                                </div>
-                                <div class="vacancy-info">
-                                    <p class="text-muted mb-2">Lowongan Terbuka</p>
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-briefcase me-2"></i>
-                                        <span class="">${p.lowongan_count} Lowongan</span>
-                                    </div>
-                                </div>
+        <div class="col-md-4 mb-4">
+            <div class="card company-card" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="company-logo me-3">
+                            <i class="bi bi-building" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="company-name">${p.nama_perusahaan}</h6>
+                            <div class="company-location">
+                                <i class="bi bi-geo-alt"></i>
+                                <span>${p.kota}</span>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                    <div class="vacancy-info">
+                        <p class="text-muted">Lowongan Terbuka</p>
+                        <div class="vacancy-count">
+                            <i class="bi bi-briefcase"></i>
+                            <span>${p.lowongan_count || 0} Lowongan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
         }
 
         function tambahPerusahaan() {

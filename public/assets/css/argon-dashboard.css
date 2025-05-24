@@ -28,7 +28,7 @@
     --bs-gray-700: #495057;
     --bs-gray-800: #343a40;
     --bs-gray-900: #212529;
-    --bs-primary: #fb6340;
+    --bs-primary: #5988FF;
     --bs-secondary: #8392ab;
     --bs-success: #2dce89;
     --bs-info: #11cdef;
@@ -3597,8 +3597,7 @@ fieldset:disabled .btn {
 
 .btn-primary {
     color: #000;
-    background-color: #fb6340;
-    border-color: #fb6340;
+    background-color: #5988FF;
 }
 .btn-primary:hover {
     color: #000;
@@ -9791,7 +9790,7 @@ fieldset:disabled .btn {
 
 /* rtl:end:remove */
 .text-primary {
-    color: #fb6340 !important;
+    color: #5988FF !important;
 }
 
 .text-secondary {
@@ -9867,7 +9866,7 @@ fieldset:disabled .btn {
 }
 
 .bg-primary {
-    background-color: #fb6340 !important;
+    background-color: #5988FF !important;
 }
 
 .bg-secondary {
@@ -19545,7 +19544,7 @@ fieldset:disabled .btn {
 }
 
 .badge.bg-primary {
-    background: #fb6340;
+    background: #5988FF;
 }
 
 .badge.bg-secondary {
@@ -19677,8 +19676,7 @@ fieldset:disabled .btn {
 
 .btn-primary:hover,
 .btn.bg-gradient-primary:hover {
-    background-color: #fb6340;
-    border-color: #fb6340;
+    background-color: #5988FF;
 }
 .btn-primary .btn.bg-outline-primary,
 .btn.bg-gradient-primary .btn.bg-outline-primary {
@@ -21133,10 +21131,10 @@ label,
 }
 
 svg.text-primary .color-foreground {
-    fill: #fb6340;
+    fill: #5988FF;
 }
 svg.text-primary .color-background {
-    fill: #f56036;
+    fill: #5988FF;
 }
 
 svg.text-secondary .color-foreground {

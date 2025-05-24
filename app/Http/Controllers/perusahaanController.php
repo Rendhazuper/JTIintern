@@ -36,7 +36,9 @@ class PerusahaanController extends Controller
                 'contact_person' => 'required|string',
                 'email' => 'required|email',
                 'instagram' => 'nullable|string',
-                'website' => 'nullable|url'
+                'website' => 'nullable|url',
+                'deskripsi' => 'nullable|string',
+                'gmaps' => 'nullable|url'
             ]);
 
             $perusahaan = Perusahaan::create($request->all());
@@ -57,10 +59,16 @@ class PerusahaanController extends Controller
     public function show($id)
     {
         try {
-            $perusahaan = Perusahaan::findOrFail($id);
-            return view('pages.detail_perusahaan', compact('perusahaan'));
+            $perusahaan = Perusahaan::with('lowongan')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => $perusahaan
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('data-perusahaan')->with('error', 'Perusahaan tidak ditemukan');
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

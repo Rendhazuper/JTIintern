@@ -16,7 +16,10 @@ class Perusahaan extends Model
         'contact_person',
         'email',
         'instagram',
-        'website'
+        'website',
+        'deskripsi',
+        'logo',
+        'gmaps'
     ];
 
     public function lowongan()

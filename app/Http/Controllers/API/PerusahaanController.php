@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Log;
 
 class PerusahaanController extends Controller
 {
+    public function index()
+    {
+        return view('pages.data_perusahaan');
+    }
+
+    public function showDetail($id)
+    {
+        return view('pages.detail_perusahaan', ['id' => $id]);
+    }
 
     public function getPerusahaanData()
     {
@@ -55,15 +64,17 @@ class PerusahaanController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_perusahaan' => 'required|string|max:50',
-            'alamat_perusahaan' => 'nullable|string|max:50',
-            'kota' => 'nullable|string|max:50',
-            'contact_person' => 'required|string|max:50',
-            'email' => 'required|email|max:255',
-            'instagram' => 'nullable|string|max:255',
-            'website' => 'nullable|string|max:255',
-        ]);
+           $request->validate([
+                'nama_perusahaan' => 'required|string',
+                'alamat_perusahaan' => 'required|string',
+                'kota' => 'required|string',
+                'contact_person' => 'required|string',
+                'email' => 'required|email',
+                'instagram' => 'nullable|string',
+                'website' => 'nullable|url',
+                'deskripsi' => 'nullable|string',
+                'gmaps' => 'nullable|url'
+            ]);
 
         try {
             $perusahaan = Perusahaan::create($request->all());
@@ -77,6 +88,52 @@ class PerusahaanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan perusahaan. Silakan coba lagi.'
+            ], 500);
+        }
+    }
+
+    public function tambahPerusahaan(Request $request)
+    {
+        try {
+            $request->validate([
+                'nama_perusahaan' => 'required|string',
+                'alamat_perusahaan' => 'required|string',
+                'kota' => 'required|string',
+                'contact_person' => 'required|string',
+                'email' => 'required|email',
+                'instagram' => 'nullable|string',
+                'website' => 'nullable|url',
+                'deskripsi' => 'nullable|string',
+                'gmaps' => 'nullable|url'
+            ]);
+
+            $perusahaan = Perusahaan::create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perusahaan berhasil ditambahkan',
+                'data' => $perusahaan
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $perusahaan = Perusahaan::with('lowongan')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'data' => $perusahaan
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
