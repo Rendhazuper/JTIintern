@@ -13,9 +13,7 @@ class Skill extends Model
     protected $primaryKey = 'skill_id';
 
     protected $fillable = [
-        'nama_skill',
-        'kategori_id',
-        'deskripsi'
+        'nama',
     ];
 
     /**
@@ -23,9 +21,9 @@ class Skill extends Model
      */
     public function mahasiswa()
     {
-        return $this->belongsToMany(Mahasiswa::class, 't_skill_mahasiswa', 'skill_id', 'user_id');
+        return $this->belongsToMany(Mahasiswa::class, 't_skill_mahasiswa', 'skill_id', 'user_id')
+            ->withPivot('lama_skill'); // Kolom tambahan di tabel pivot
     }
-
     /**
      * Mendapatkan lowongan yang memerlukan skill ini
      */

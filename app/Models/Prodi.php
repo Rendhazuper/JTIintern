@@ -9,42 +9,14 @@ class Prodi extends Model
 {
     use HasFactory;
 
-    /**
-     * Nama tabel yang terkait dengan model
-     *
-     * @var string
-     */
     protected $table = 'm_prodi';
-
-    /**
-     * Primary key tabel
-     *
-     * @var string
-     */
     protected $primaryKey = 'kode_prodi';
-
-    /**
-     * Menentukan bahwa primary key bukan auto-increment
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * Menentukan tipe data primary key
-     *
-     * @var string
-     */
+    public $incrementing = false; // Jika kode_prodi bukan auto-increment
     protected $keyType = 'string';
 
-    /**
-     * Atribut yang dapat diisi
-     *
-     * @var array
-     */
     protected $fillable = [
         'kode_prodi',
-        'nama_prodi'
+        'nama_prodi',
     ];
 
     /**
