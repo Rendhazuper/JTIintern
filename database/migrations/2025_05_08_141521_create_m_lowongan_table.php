@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id('id_lowongan'); // Primary key
             $table->foreignId('perusahaan_id')->constrained('m_perusahaan', 'perusahaan_id')->onDelete('cascade');
             $table->foreignId('periode_id')->constrained('m_periode', 'periode_id')->onDelete('cascade');
-            $table->foreignId('skill_id')->nullable()->constrained('m_skill', 'skill_id')->onDelete('set null');
             $table->foreignId('jenis_id')->nullable()->constrained('m_jenis', 'jenis_id')->onDelete('set null');
             $table->string('judul_lowongan', 50);
             $table->integer('kapasitas');
