@@ -3,7 +3,7 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Dashboard'])
 
-    <div class="container-fluid py-4" >
+    <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12 mb-4">
             </div>
@@ -129,105 +129,111 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    const api = axios.create({
-        baseURL: '/api',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        withCredentials: true // Penting! Ini akan mengirim cookies dengan request
-    });
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const api = axios.create({
+            baseURL: '/api',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            withCredentials: true // Penting! Ini akan mengirim cookies dengan request
+        });
 
-    function showError(elementId, message) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.innerHTML = `<span class="text-danger">${message}</span>`;
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<span class="text-danger">${message}</span>`;
+            }
         }
-    }
 
-    // Fungsi untuk memuat data summary dashboard
-    function loadDashboardSummary() {
-        api.get('/dashboard/summary')
-            .then(function(response) {
-                if (response.data.success) {
-                    const data = response.data.data;
-                    document.getElementById('mahasiswa-aktif').innerText = data.mahasiswa_aktif || '0';
-                    document.getElementById('perusahaan-mitra').innerText = data.perusahaan_mitra || '0';
-                    document.getElementById('lowongan-aktif').innerText = data.lowongan_aktif || '0';
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                if (error.response && error.response.status === 401) {
-                    // Redirect ke login jika tidak terautentikasi
-                    window.location.href = '/login';
-                }
-                showError('mahasiswa-aktif', 'Error');
-                showError('perusahaan-mitra', 'Error');
-                showError('lowongan-aktif', 'Error');
-            });
-    }
-
-    // Fungsi untuk memuat data aplikasi terbaru
-    function loadLatestApplications() {
-        api.get('/dashboard/latest-applications')
-            .then(function(response) {
-                if (response.data.success) {
-                    const applications = response.data.data;
-                    const tableBody = document.getElementById('latest-applications');
-                    
-                    tableBody.innerHTML = '';
-                    
-                    if (applications.length === 0) {
-                        tableBody.innerHTML = `
-                            <tr>
-                                <td colspan="3" class="text-center">
-                                    Tidak ada permintaan magang terbaru
-                                </td>
-                            </tr>
-                        `;
-                        return;
+        // Fungsi untuk memuat data summary dashboard
+        function loadDashboardSummary() {
+            api.get('/dashboard/summary')
+                .then(function (response) {
+                    console.log('Respons dari server:', response.data); // Debugging
+                    if (response.data.success) {
+                        const data = response.data.data;
+                        document.getElementById('mahasiswa-aktif').innerText = data.mahasiswa_aktif || '0';
+                        document.getElementById('perusahaan-mitra').innerText = data.perusahaan_mitra || '0';
+                        document.getElementById('lowongan-aktif').innerText = data.lowongan_aktif || '0';
+                    } else {
+                        console.error('Error dari server:', response.data.message);
+                        showError('mahasiswa-aktif', 'Error');
+                        showError('perusahaan-mitra', 'Error');
+                        showError('lowongan-aktif', 'Error');
                     }
-                    
-                    applications.forEach(app => {
-                        const statusClass = app.status === 'diterima' ? 'bg-primary' : 'bg-secondary';
-                        const statusLabel = app.status === 'diterima' ? 'Diterima' : 'Menunggu';
-                        
-                        const row = `
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    if (error.response && error.response.status === 401) {
+                        // Redirect ke login jika tidak terautentikasi
+                        window.location.href = '/login';
+                    }
+                    showError('mahasiswa-aktif', 'Error');
+                    showError('perusahaan-mitra', 'Error');
+                    showError('lowongan-aktif', 'Error');
+                });
+        }
+
+        // Fungsi untuk memuat data aplikasi terbaru
+        function loadLatestApplications() {
+            api.get('/dashboard/latest-applications')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const applications = response.data.data;
+                        const tableBody = document.getElementById('latest-applications');
+
+                        tableBody.innerHTML = '';
+
+                        if (applications.length === 0) {
+                            tableBody.innerHTML = `
+                                    <tr>
+                                        <td colspan="3" class="text-center">
+                                            Tidak ada permintaan magang terbaru
+                                        </td>
+                                    </tr>
+                                `;
+                            return;
+                        }
+
+                        applications.forEach(app => {
+                            const statusClass = app.status === 'diterima' ? 'bg-primary' : 'bg-secondary';
+                            const statusLabel = app.status === 'diterima' ? 'Diterima' : 'Menunggu';
+
+                            const row = `
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold" style="color: #2D2D2D;">${app.nama_mahasiswa}</div>
+                                            <div class="text-muted small fw-bold">NIM : ${app.nim}</div>
+                                        </td>
+                                        <td>${app.perusahaan}</td>
+                                        <td>
+                                            <span class="badge rounded-pill ${statusClass}">${statusLabel}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            tableBody.innerHTML += row;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error loading latest applications:', error);
+                    document.getElementById('latest-applications').innerHTML = `
                             <tr>
-                                <td>
-                                    <div class="fw-bold" style="color: #2D2D2D;">${app.nama_mahasiswa}</div>
-                                    <div class="text-muted small fw-bold">NIM : ${app.nim}</div>
-                                </td>
-                                <td>${app.perusahaan}</td>
-                                <td>
-                                    <span class="badge rounded-pill ${statusClass}">${statusLabel}</span>
+                                <td colspan="3" class="text-center text-danger">
+                                    Gagal memuat data. Coba lagi nanti.
                                 </td>
                             </tr>
                         `;
-                        tableBody.innerHTML += row;
-                    });
-                }
-            })
-            .catch(function(error) {
-                console.error('Error loading latest applications:', error);
-                document.getElementById('latest-applications').innerHTML = `
-                    <tr>
-                        <td colspan="3" class="text-center text-danger">
-                            Gagal memuat data. Coba lagi nanti.
-                        </td>
-                    </tr>
-                `;
-            });
-    }
+                });
+        }
 
-    // Load data saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDashboardSummary();
-        loadLatestApplications();
-    });
-</script>
+        // Load data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboardSummary();
+            loadLatestApplications();
+        });
+    </script>
 @endpush
