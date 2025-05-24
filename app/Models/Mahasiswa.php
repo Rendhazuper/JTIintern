@@ -16,14 +16,12 @@ class Mahasiswa extends Model
 
     protected $fillable = [
         'nim',
-        'user_id',
-        'nama_mahasiswa',
-        'id_kelas',
+        'id_user',
+        'kode_prodi',
+        'ipk',
         'alamat',
         'no_telepon',
-        'username',
         'email',
-        'dosen_pembimbing_id',
     ];
 
     public function user()
@@ -48,15 +46,26 @@ class Mahasiswa extends Model
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id', 'id_user')
-                    ->withPivot('lama_skill');
+        return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id')
+            ->withPivot('lama_skill'); // Kolom tambahan di tabel pivot
     }
+
     public function magang()
-{
-    return $this->hasOne(Magang::class, 'id_mahasiswa', 'id_mahasiswa');
-}
-  public function kelas()
+    {
+        return $this->hasOne(Magang::class, 'id_mahasiswa', 'id_mahasiswa');
+    }
+    public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
+    }
+
+    public function dokumen()
+    {
+        return $this->hasMany(Dokumen::class, 'id_user', 'id_user');
+    }
+
+    public function prodi()
+    {
+        return $this->belongsTo(Prodi::class, 'kode_prodi', 'kode_prodi');
     }
 }

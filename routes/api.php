@@ -4,8 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\MahasiswaController;
+use App\Http\Controllers\API\ProdiController;
+use App\Http\Controllers\API\MagangController;
+use App\Http\Controllers\API\PerusahaanController;
 use App\Http\Controllers\dataMhsController;
-use App\Http\Controllers\PerusahaanController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +40,19 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
-    Route::get('/mahasiswa', [dataMhsController::class, 'getData']);
+    Route::get('/mahasiswa', [MahasiswaController::class, 'getData']);
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
-    Route::post('/tambahMahasiswa',[dataMhsController::class, 'tambahMahasiswa']);
-    Route::get('/perusahaan', [PerusahaanController::class, 'getData']);
-Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
+    Route::post('/mahasiswa', [MahasiswaController::class, 'store']);
+    Route::get('/mahasiswa/{id}', [MahasiswaController::class, 'show']);
+    Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update']);
+    Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
+    Route::get('/magang', [MagangController::class, 'index']);
+    Route::get('/magang/{id}', [MagangController::class, 'show']);
+    Route::post('/magang/{id}/accept', [MagangController::class, 'accept']);
+    Route::post('/magang/{id}/reject', [MagangController::class, 'reject']);
+    Route::get('/perusahaan', [PerusahaanController::class, 'getPerusahaanData']);
+    Route::get('/perusahaan/{id}', [PerusahaanController::class, 'getDetailPerusahaan']);
+    Route::post('/perusahaan', [PerusahaanController::class, 'store']);
+    Route::get('/prodi', [ProdiController::class, 'index']);
+    Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
 });

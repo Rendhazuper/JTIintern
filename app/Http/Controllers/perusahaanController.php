@@ -21,6 +21,11 @@ class PerusahaanController extends Controller
         ]);
     }
 
+    public function showDetail($id)
+    {
+        return view('pages.detail_perusahaan', ['id' => $id]);
+    }
+
     public function tambahPerusahaan(Request $request)
     {
         try {

@@ -8,35 +8,36 @@ use App\Models\Lowongan;
 use App\Models\Mahasiswa;
 use App\Models\Perusahaan;
 use Illuminate\Http\Request;
+use App\Models\Magang;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
     public function getSummary()
     {
         try {
-            // Get count of active internship students
-            $mahasiswaAktif = Mahasiswa::whereHas('lamaran', function ($query) {
-                $query->where('auth', 'diterima');
-            })->count();
+            // Hitung jumlah mahasiswa aktif magang
+            $mahasiswaAktif = Magang::where('status', 'aktif')->count();
 
-            // Get count of partner companies
+            // Hitung jumlah perusahaan mitra
             $perusahaanMitra = Perusahaan::count();
 
-            // Get count of active internship positions
-            $lowonganAktif = Lowongan::count();
+            // Hitung jumlah lowongan aktif
+            $lowonganAktif = Lowongan::where('id_lowongan', '!=', null)->count();
 
             return response()->json([
                 'success' => true,
                 'data' => [
                     'mahasiswa_aktif' => $mahasiswaAktif,
                     'perusahaan_mitra' => $perusahaanMitra,
-                    'lowongan_aktif' => $lowonganAktif
+                    'lowongan_aktif' => $lowonganAktif,
                 ]
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching dashboard summary: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving dashboard summary: ' . $e->getMessage()
+                'message' => 'Gagal memuat data summary dashboard.'
             ], 500);
         }
     }
@@ -49,18 +50,18 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get()
                 ->map(function ($lamaran) {
-                    // More robust null checking
+                    // Validasi null untuk relasi
                     $mahasiswa = $lamaran->mahasiswa;
-                    $user = $mahasiswa->user;
-                    $lowongan = $lamaran->lowongan;
-                    $perusahaan = $lowongan->perusahaan;
+                    $user = $mahasiswa->user ?? null;
+                    $lowongan = $lamaran->lowongan ?? null;
+                    $perusahaan = $lowongan->perusahaan ?? null;
 
                     return [
                         'id' => $lamaran->id_lamaran,
-                        'nama_mahasiswa' => $user -> name,
-                        'nim' => $mahasiswa -> nim,
-                        'perusahaan' => $perusahaan -> nama_perusahaan,
-                        'status' => $lamaran->auth,
+                        'nama_mahasiswa' => $user->name ?? 'Tidak Diketahui',
+                        'nim' => $mahasiswa->nim ?? 'Tidak Diketahui',
+                        'perusahaan' => $perusahaan->nama_perusahaan ?? 'Tidak Diketahui',
+                        'status' => $lamaran->auth ?? 'Tidak Diketahui', // Ambil status terbaru
                         'tanggal' => $lamaran->tanggal_lamaran ?? $lamaran->created_at
                     ];
                 });
@@ -70,6 +71,7 @@ class DashboardController extends Controller
                 'data' => $applications
             ]);
         } catch (\Exception $e) {
+            Log::error('Error retrieving latest applications: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving latest applications: ' . $e->getMessage()

@@ -32,9 +32,14 @@ class Lamaran extends Model
         return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa', 'id_mahasiswa');
     }
 
+    public function magang()
+    {
+        return $this->belongsTo(Magang::class, 'id_magang', 'id_magang');
+    }
+
     public function lowongan()
     {
-        return $this->belongsTo(Lowongan::class, 'id_lowongan', 'id_lowongan');
+        return $this->belongsTo(Lowongan::class, 'id_lowongan', 'id_lowongan')->withDefault();
     }
 
     public function dosen()
