@@ -11,6 +11,8 @@ use App\Http\Controllers\API\MagangController;
 use App\Http\Controllers\API\PerusahaanController;
 use App\Http\Controllers\dataMhsController;
 use App\Http\Controllers\API\LowonganController;
+use App\Http\Controllers\API\PeriodeController;
+use App\Http\Controllers\API\AdminController;
 
 
 /*
@@ -56,7 +58,13 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/perusahaan/{id}', [PerusahaanController::class, 'getDetailPerusahaan']);
     Route::post('/perusahaan', [PerusahaanController::class, 'store']);
     Route::get('/prodi', [ProdiController::class, 'index']);
+    Route::get('/periode', [PeriodeController::class, 'index']);
+    Route::get('/admin', [AdminController::class, 'index']);
     Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
     Route::get('/lowongan', [LowonganController::class, 'index']);
     Route::get('/dosen', [DosenController::class, 'index']);
+    Route::get('/kelas-options', [MahasiswaController::class, 'getKelasOptions']);
 });
+
+
+Route::get('/evaluasi/{filter?}', [App\Http\Controllers\API\EvaluasiController::class, 'index']);

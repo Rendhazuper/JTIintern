@@ -4,21 +4,21 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Prodi;
 use Illuminate\Support\Facades\DB;
 
-class ProdiController extends Controller
+class AdminController extends Controller
 {
     public function index()
     {
         try {
-            $prodi = DB::table('m_prodi')
-                      ->select('kode_prodi', 'nama_prodi')
-                      ->get();
+            $admins = DB::table('m_user')
+                       ->where('role', 'admin')
+                       ->select('id_user', 'name', 'email', 'username')
+                       ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $prodi
+                'data' => $admins
             ]);
         } catch (\Exception $e) {
             return response()->json([

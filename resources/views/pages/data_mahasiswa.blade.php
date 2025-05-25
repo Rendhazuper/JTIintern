@@ -6,11 +6,6 @@
         <div class="card pt-4">
             <div class="d-flex justify-content-between mb-3 px-4">
                 <div class="d-flex gap-2">
-                    <select id="prodiFilter" class="form-select form-select-sm" style="width: auto; height: 38px">
-                        <option value="">
-                            <span>Semua Prodi</span>
-                        </option>
-                    </select>
                     <select id="kelasFilter" class="form-select form-select-sm"
                         style="width: auto; padding-right: 2.75rem; height: 38px">
                         <option value="">
@@ -24,7 +19,7 @@
                         <i class="bi bi-plus-square-fill me-2"></i>Tambah Mahasiswa
                     </button>
                     <button type="button" class="btn" style="color: white; background: #5988FF;" onclick="importCSV()">
-                        <i class="bi bi-plus-square-fill me-2"></i>Import CSV
+                        <i class="bi bi-file-earmark-excel me-2"></i>Import CSV
                     </button>
                 </div>
             </div>
@@ -180,15 +175,20 @@
         });
 
         function loadFilterOptions() {
-            api.get('/prodi')
+            
+            // Load Kelas options
+            api.get('/kelas-options')
                 .then(function (response) {
                     if (response.data.success) {
-                        const prodiFilter = document.getElementById('prodiFilter');
-                        prodiFilter.innerHTML = '<option value="">Semua Prodi</option>';
-                        response.data.data.forEach(function (prodi) {
-                            prodiFilter.innerHTML += `<option value="${prodi.nama_prodi}">${prodi.nama_prodi}</option>`;
+                        const kelasFilter = document.getElementById('kelasFilter');
+                        kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
+                        response.data.data.forEach(function (kelas) {
+                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
+                })
+                .catch(function (error) {
+                    console.error('Error loading kelas options:', error);
                 });
         }
 
@@ -231,40 +231,38 @@
                 .then(function (response) {
                     if (response.data.success) {
                         const tableBody = document.getElementById('mahasiswa-table-body');
-                        tableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi ulang
+                        tableBody.innerHTML = '';
                         response.data.data.forEach(mahasiswa => {
                             tableBody.innerHTML += `
-                                                                                                                     <tr>
-                                                                                                                                <td>
-                                                                                                                                    ${mahasiswa.name}
-                                                                                                                                    <br>
-                                                                                                                                    <small class="text-muted">${mahasiswa.email}</small>
-                                                                                                                                </td>
-                                                                                                                                <td>${mahasiswa.nim}</td>
-                                                                                                                                <td class="text-center">
-                                                                                                                                    <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' :
-                                    mahasiswa.status_magang === 'Selesai Magang' ? 'selesai' :
-                                        mahasiswa.status_magang === 'Menunggu Konfirmasi' ? 'menunggu' : 'belum'
-                                }">
-                                                                                                                                        ${mahasiswa.status_magang}
-                                                                                                                                    </span>
-                                                                                                                                </td>
-                                                                                                                                <td>
-                                                                                                                                    <button class="btn btn-sm btn-info" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">Detail</button>
-                                                                                                                                    <button class="btn btn-sm btn-primary" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">Edit</button>
-                                                                                                                                    <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">Hapus</button>
-                                                                                                                                </td>
-                                                                                                                            </tr>
-                                                                                                                        `;
+                                <tr>
+                                    <td>
+                                        ${mahasiswa.name}
+                                        <br>
+                                        <small class="text-muted">${mahasiswa.email}</small>
+                                        <br>
+                                        <small class="text-muted">Kelas: ${mahasiswa.nama_kelas || '-'}</small>
+                                    </td>
+                                    <td>${mahasiswa.nim}</td>
+                                    <td class="text-center">
+                                        <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' :
+                                            mahasiswa.status_magang === 'Selesai Magang' ? 'selesai' :
+                                            mahasiswa.status_magang === 'Menunggu Konfirmasi' ? 'menunggu' : 'belum'}">
+                                            ${mahasiswa.status_magang}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">Detail</button>
+                                        <button class="btn btn-sm btn-primary" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">Edit</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">Hapus</button>
+                                    </td>
+                                </tr>
+                            `;
                         });
-                    } else {
-                        console.error('Error response:', response.data.message);
-                        alert('Gagal memuat data mahasiswa');
                     }
                 })
                 .catch(function (error) {
                     console.error('Error:', error);
-                    alert('Gagal memuat data mahasiswa');
+                    Swal.fire('Error', 'Gagal memuat data mahasiswa', 'error');
                 });
         }
 
@@ -275,12 +273,10 @@
         });
 
         // Add event listeners for filters
-        document.getElementById('prodiFilter').addEventListener('change', function (e) {
-            loadMahasiswaData({ prodi: e.target.value });
-        });
-
         document.getElementById('kelasFilter').addEventListener('change', function (e) {
-            loadMahasiswaData({ kelas: e.target.value });
+            const selectedKelas = e.target.value;
+            console.log('Selected kelas:', selectedKelas); // Debug log
+            loadMahasiswaData({ kelas: selectedKelas });
         });
 
         function tambahMahasiswa() {

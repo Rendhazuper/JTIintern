@@ -4,21 +4,20 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Prodi;
 use Illuminate\Support\Facades\DB;
 
-class ProdiController extends Controller
+class PeriodeController extends Controller
 {
     public function index()
     {
         try {
-            $prodi = DB::table('m_prodi')
-                      ->select('kode_prodi', 'nama_prodi')
-                      ->get();
+            $periode = DB::table('m_periode')
+                        ->select('periode_id', 'waktu')
+                        ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $prodi
+                'data' => $periode
             ]);
         } catch (\Exception $e) {
             return response()->json([

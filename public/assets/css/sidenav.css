@@ -1,0 +1,134 @@
+/* Sidenav Container */
+.sidenav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh !important;
+    margin: 0;
+    max-width: 15.625rem !important;
+    font-size: 0.875rem;
+    transition: 0.2s ease;
+    z-index: 1040;
+}
+
+/* Content wrapper */
+.sidenav-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px); /* Adjust based on header height */
+    overflow: hidden;
+}
+
+/* Navbar Collapse - Main Navigation Area */
+#sidenav-collapse-main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Footer area */
+.sidenav-footer {
+    margin-top: auto;
+    padding: 1rem 0;
+}
+
+/* Custom Scrollbar */
+.navbar-collapse::-webkit-scrollbar {
+    width: 6px;
+}
+
+.navbar-collapse::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.navbar-collapse::-webkit-scrollbar-thumb {
+    background-color: rgba(136, 152, 170, 0.3);
+    border-radius: 3px;
+}
+
+.navbar-collapse::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(136, 152, 170, 0.5);
+}
+
+/* Navigation Items */
+.navbar-nav {
+    width: 100%;
+    padding-top: 0.5rem;
+}
+
+.nav-item {
+    width: 100%;
+    margin-bottom: 1.5px;
+}
+
+.nav-link {
+    padding: 0.675rem 1rem;
+    font-weight: 500;
+    color: #67748e;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    color: #344767;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.nav-link.active {
+    background-color: #5988ff !important;
+    color: white !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(89, 136, 255, 0.2);
+}
+
+/* Icon Styles */
+.icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.nav-link.active i.bi,
+.nav-link.active i.fas,
+.nav-link.active i.fa {
+    color: white !important;
+}
+
+/* Icon Colors for Inactive State */
+.nav-link:not(.active) i.bi-grid-fill {
+    color: #5988ff;
+}
+
+.nav-link:not(.active) i.bi-mortarboard,
+.nav-link:not(.active) i.bi-envelope {
+    color: #ffae00;
+}
+
+.nav-link:not(.active) i.bi-building,
+.nav-link:not(.active) i.bi-briefcase {
+    color: #2f78ff;
+}
+
+.nav-link:not(.active) i.bi-file-person,
+.nav-link:not(.active) i.bi-file-bar-graph {
+    color: #e091ff;
+}
+
+/* Section Headers */
+.nav-item h6 {
+    color: #8392ab;
+    margin: 1rem 0 0.5rem;
+    padding: 0 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Logout Button Area */
+.sidenav .btn-danger {
+    margin: 0 1rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}

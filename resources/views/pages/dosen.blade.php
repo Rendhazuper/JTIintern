@@ -29,11 +29,11 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0">Daftar Dosen</h5>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success" onclick="tambahDosen()">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Dosen
+                        <button type="button"style ="color: white; background: #02A232;"class="btn" onclick="tambahDosen()">
+                            <i class="bi bi-plus-square-fill me-2"></i>Tambah Dosen
                         </button>
                         <button type="button" class="btn btn-primary" onclick="importCSV()">
-                            <i class="bi bi-file-earmark-excel me-2"></i>Import CSV
+                            <i class="bi w me-2"></i>Import CSV
                         </button>
                     </div>
                 </div>

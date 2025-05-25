@@ -6,6 +6,7 @@ use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class MahasiswaController extends Controller
 {
@@ -203,6 +204,73 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menghapus data mahasiswa'
+            ], 500);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        try {
+            $query = DB::table('m_mahasiswa as m')
+                ->join('m_user as u', 'm.id_user', '=', 'u.id_user')
+                ->join('m_prodi as p', 'm.kode_prodi', '=', 'p.kode_prodi')
+                ->leftJoin('m_magang as mg', 'm.id_mahasiswa', '=', 'mg.id_mahasiswa')
+                ->leftJoin('m_kelas as k', 'm.id_kelas', '=', 'k.id_kelas')
+                ->select(
+                    'm.id_mahasiswa',
+                    'u.name',
+                    'u.email',
+                    'm.nim',
+                    'm.alamat',
+                    'm.ipk',
+                    'm.kode_prodi',
+                    'p.nama_prodi as prodi',
+                    'k.id_kelas',
+                    'k.nama_kelas',
+                    DB::raw('CASE 
+                        WHEN mg.status = "active" THEN "Sedang Magang"
+                        WHEN mg.status = "completed" THEN "Selesai Magang"
+                        WHEN mg.status = "pending" THEN "Menunggu Konfirmasi"
+                        ELSE "Belum Magang"
+                    END as status_magang')
+                );
+
+            // Apply kelas filter
+            if ($request->has('kelas') && $request->kelas !== '') {
+                $query->where('m.id_kelas', '=', $request->kelas);
+            }
+
+            $mahasiswa = $query->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $mahasiswa
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Add new method to get kelas options
+    public function getKelasOptions()
+    {
+        try {
+            $kelas = DB::table('m_kelas')
+                ->select('id_kelas', 'nama_kelas', 'kode_prodi', 'tahun_masuk')
+                ->orderBy('nama_kelas')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $kelas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }

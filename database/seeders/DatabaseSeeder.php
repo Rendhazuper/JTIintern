@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             TLogSeeder::class,
             TEvaluasiSeeder::class,
             DocumentSeeder::class,
+            WilayahSeeder::class
         ]);
     }
 }

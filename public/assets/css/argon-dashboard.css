@@ -28,7 +28,7 @@
     --bs-gray-700: #495057;
     --bs-gray-800: #343a40;
     --bs-gray-900: #212529;
-    --bs-primary: #5988FF;
+    --bs-primary: #5988ff;
     --bs-secondary: #8392ab;
     --bs-success: #2dce89;
     --bs-info: #11cdef;
@@ -63,7 +63,7 @@
     --bs-body-font-weight: 400;
     --bs-body-line-height: 1.5;
     --bs-body-color: #67748e;
-    --bs-body-bg: #F3F3FF;
+    --bs-body-bg: #f3f3ff;
 }
 
 *,
@@ -3597,7 +3597,7 @@ fieldset:disabled .btn {
 
 .btn-primary {
     color: #000;
-    background-color: #5988FF;
+    background-color: #5988ff;
 }
 .btn-primary:hover {
     color: #000;
@@ -4805,31 +4805,29 @@ fieldset:disabled .btn {
     border-radius: 8px;
 }
 
-
 .sidenav .nav-link.active i.bi,
 .sidenav .nav-link.active i.fas,
 .sidenav .nav-link.active i.fa {
     color: white !important;
 }
 
-
 .sidenav .nav-link:not(.active) i.bi-grid-fill {
-    color: #5988FF;
+    color: #5988ff;
 }
 
 .sidenav .nav-link:not(.active) i.bi-mortarboard,
 .sidenav .nav-link:not(.active) i.bi-envelope {
-    color: #FFAE00;
+    color: #ffae00;
 }
 
 .sidenav .nav-link:not(.active) i.bi-building,
 .sidenav .nav-link:not(.active) i.bi-briefcase {
-    color: #2F78FF;
+    color: #2f78ff;
 }
 
 .sidenav .nav-link:not(.active) i.bi-file-person,
 .sidenav .nav-link:not(.active) i.bi-file-bar-graph {
-    color: #E091FF;
+    color: #e091ff;
 }
 
 .nav-fill .nav-item .nav-link,
@@ -9789,7 +9787,7 @@ fieldset:disabled .btn {
 
 /* rtl:end:remove */
 .text-primary {
-    color: #5988FF !important;
+    color: #5988ff !important;
 }
 
 .text-secondary {
@@ -9865,7 +9863,7 @@ fieldset:disabled .btn {
 }
 
 .bg-primary {
-    background-color: #5988FF !important;
+    background-color: #5988ff !important;
 }
 
 .bg-secondary {
@@ -19543,7 +19541,7 @@ fieldset:disabled .btn {
 }
 
 .badge.bg-primary {
-    background: #5988FF;
+    background: #5988ff;
 }
 
 .badge.bg-secondary {
@@ -19675,7 +19673,7 @@ fieldset:disabled .btn {
 
 .btn-primary:hover,
 .btn.bg-gradient-primary:hover {
-    background-color: #5988FF;
+    background-color: #5988ff;
 }
 .btn-primary .btn.bg-outline-primary,
 .btn.bg-gradient-primary .btn.bg-outline-primary {
@@ -21130,10 +21128,10 @@ label,
 }
 
 svg.text-primary .color-foreground {
-    fill: #5988FF;
+    fill: #5988ff;
 }
 svg.text-primary .color-background {
-    fill: #5988FF;
+    fill: #5988ff;
 }
 
 svg.text-secondary .color-foreground {
@@ -21792,8 +21790,8 @@ hr.horizontal.gray-light {
 }
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
     display: block;
-    overflow: auto;
-    height: calc(100vh - 360px);
+
+    
 }
 .navbar-vertical.navbar-expand-xs > [class*="container"] {
     flex-direction: column;
