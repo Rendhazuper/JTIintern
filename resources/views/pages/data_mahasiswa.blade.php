@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Data Mahasiswa'])
+ @include('layouts.navbars.auth.topnav', ['title' => 'Data Mahasiswa'])
     <div class="container-fluid py-4">
         <div class="card pt-4">
             <div class="d-flex justify-content-between mb-3 px-4">
@@ -234,7 +234,7 @@
                         tableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi ulang
                         response.data.data.forEach(mahasiswa => {
                             tableBody.innerHTML += `
-                                                                                                                            <tr>
+                                                                                                                     <tr>
                                                                                                                                 <td>
                                                                                                                                     ${mahasiswa.name}
                                                                                                                                     <br>

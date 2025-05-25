@@ -3617,8 +3617,8 @@ fieldset:disabled .btn {
 .btn-primary.active,
 .show > .btn-primary.dropdown-toggle {
     color: #000;
-    background-color: #fc8266;
-    border-color: #fb7353;
+    background-color: #5e72e4;
+    border-color: #5e72e4;
 }
 .btn-check:checked + .btn-primary:focus,
 .btn-check:active + .btn-primary:focus,
@@ -5659,8 +5659,7 @@ fieldset:disabled .btn {
 .page-item.active .page-link {
     z-index: 3;
     color: #fff;
-    background-color: #fb6340;
-    border-color: #fb6340;
+    background-color: #5e72e4;
 }
 .page-item.disabled .page-link {
     color: #6c757d;

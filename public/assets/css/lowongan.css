@@ -1,0 +1,96 @@
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+/* Filter Styles */
+.form-select {
+    height: 38px;
+    padding-right: 2.75rem;
+}
+
+/* Button Styles */
+.btn-add {
+    background: #02a232;
+    color: white;
+}
+
+.btn-add:hover {
+    background: #028a2a;
+    color: white;
+}
+
+.btn-import {
+    background: #5988ff;
+    color: white;
+}
+
+.btn-import:hover {
+    background: #4b74e8;
+    color: white;
+}
+
+/* Table Styles */
+.table th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #8898aa;
+}
+
+.table td {
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+/* Status Badge Styles */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background-color: #def7ec;
+    color: #03543f;
+}
+
+.status-inactive {
+    background-color: #fde8e8;
+    color: #9b1c1c;
+}
+
+/* Company Info */
+.company-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.company-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.company-location {
+    font-size: 0.75rem;
+    color: #8898aa;
+}
+
+/* Actions Button Group */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}

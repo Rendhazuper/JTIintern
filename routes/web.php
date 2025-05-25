@@ -48,4 +48,5 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 	Route::get('/data-perusahaan', [PerusahaanController::class, 'index'])->name('data-perusahaan');
 	Route::get('/detail-perusahaan/{id}', [PerusahaanController::class, 'showDetail']);
+	Route::get('/plotting', [PageController::class, 'plotting'])->name('plotting');
 });

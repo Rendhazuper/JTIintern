@@ -18,7 +18,7 @@ class Dosen extends Model
         'user_id',
         'nip',
         'nama_dosen',
-        'program_studi_id',
+        'perusahaan_id', // Tambah ini
         'alamat',
         'nomor_telepon',
         'email'
@@ -30,6 +30,14 @@ class Dosen extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');
+    }
+
+    /**
+     * Mendapatkan perusahaan yang dibimbing oleh dosen
+     */
+    public function perusahaan()
+    {
+        return $this->belongsTo(Perusahaan::class, 'perusahaan_id', 'perusahaan_id');
     }
 
     /**

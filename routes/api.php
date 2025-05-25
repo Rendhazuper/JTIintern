@@ -4,11 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\DosenController;
 use App\Http\Controllers\API\MahasiswaController;
 use App\Http\Controllers\API\ProdiController;
 use App\Http\Controllers\API\MagangController;
 use App\Http\Controllers\API\PerusahaanController;
 use App\Http\Controllers\dataMhsController;
+use App\Http\Controllers\API\LowonganController;
 
 
 /*
@@ -55,4 +57,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/perusahaan', [PerusahaanController::class, 'store']);
     Route::get('/prodi', [ProdiController::class, 'index']);
     Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
+    Route::get('/lowongan', [LowonganController::class, 'index']);
+    Route::get('/dosen', [DosenController::class, 'index']);
 });
