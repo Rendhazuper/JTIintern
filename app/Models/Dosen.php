@@ -15,13 +15,18 @@ class Dosen extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        // 'user_id',
+        // 'nip',
+        // 'nama_dosen',
+        // 'wilayah_id',
+        // 'perusahaan_id', // Tambah ini
+        // 'alamat',
+        // 'nomor_telepon',
+        // 'email'
+
         'user_id',
+        'wilayah_id',
         'nip',
-        'nama_dosen',
-        'perusahaan_id', // Tambah ini
-        'alamat',
-        'nomor_telepon',
-        'email'
     ];
 
     /**
@@ -32,13 +37,6 @@ class Dosen extends Model
         return $this->belongsTo(User::class, 'user_id', 'id_user');
     }
 
-    /**
-     * Mendapatkan perusahaan yang dibimbing oleh dosen
-     */
-    public function perusahaan()
-    {
-        return $this->belongsTo(Perusahaan::class, 'perusahaan_id', 'perusahaan_id');
-    }
 
     /**
      * Mendapatkan mahasiswa bimbingan
@@ -54,5 +52,13 @@ class Dosen extends Model
     public function lamaran()
     {
         return $this->hasMany(Lamaran::class, 'id_dosen', 'nip');
+    }
+
+    /**
+     * Mendapatkan wilayah dosen
+     */
+    public function wilayah()
+    {
+        return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
     }
 }

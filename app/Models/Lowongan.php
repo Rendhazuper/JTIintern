@@ -9,60 +9,39 @@ class Lowongan extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'm_lowongan';
+    protected $table = 'm_lowongan'; // Nama tabel
+    protected $primaryKey = 'id_lowongan'; // Kolom ID utama
+    public $timestamps = true; // Jika tabel memiliki kolom created_at dan updated_at
 
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id_lowongan';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'judul',
-        'id_perusahaan',
+        'judul_lowongan',
+        'perusahaan_id',
+        'periode_id',
+        'kapasitas',
         'deskripsi',
-        'persyaratan',
-        'tanggal_mulai',
-        'tanggal_selesai',
-        'status',
-        'kuota',
-        'gaji'
+        'skill_id',
+        'jenis_id',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
-    ];
-
-    /**
-     * Get the perusahaan that owns the lowongan.
-     */
+    // Relasi ke model Perusahaan
     public function perusahaan()
     {
         return $this->belongsTo(Perusahaan::class, 'perusahaan_id', 'perusahaan_id');
     }
 
-    /**
-     * Get the lamaran for the lowongan.
-     */
-    public function lamaran()
+    // Relasi ke model Periode
+    public function periode()
     {
-        return $this->hasMany(Lamaran::class, 'id_lowongan', 'id_lowongan');
+        return $this->belongsTo(Periode::class, 'periode_id', 'periode_id');
+    }
+
+    public function skill()
+    {
+        return $this->belongsTo(Skill::class, 'skill_id', 'skill_id');
+    }
+
+    public function jenis()
+    {
+        return $this->belongsTo(Jenis::class, 'jenis_id', 'jenis_id');
     }
 }
