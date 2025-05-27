@@ -6,11 +6,6 @@
         <div class="card pt-4">
             <div class="d-flex justify-content-between mb-3 px-4">
                 <div class="d-flex gap-2">
-                    <select id="prodiFilter" class="form-select form-select-sm" style="width: auto; height: 38px">
-                        <option value="">
-                            <span>Semua Prodi</span>
-                        </option>
-                    </select>
                     <select id="kelasFilter" class="form-select form-select-sm"
                         style="width: auto; padding-right: 2.75rem; height: 38px">
                         <option value="">
@@ -68,10 +63,10 @@
                             <input type="text" id="nama" name="name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label for="kode_prodi" class="form-label">Pilih Prodi</label>
-                            <select id="kode_prodi" name="kode_prodi" class="form-select form-select-sm" required>
-                                <option value="">Pilih Prodi</option>
-                                <!-- Option prodi akan diisi via JS -->
+                            <label for="id_kelas" class="form-label">Pilih Kelas</label>
+                            <select id="id_kelas" name="id_kelas" class="form-select form-select-sm" required>
+                                <option value="">Pilih Kelas</option>
+                                <!-- Option kelas akan diisi via JS -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -131,10 +126,10 @@
                             <input type="text" id="edit_name" name="name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_kode_prodi" class="form-label">Pilih Prodi</label>
-                            <select id="edit_kode_prodi" name="kode_prodi" class="form-select form-select-sm" required>
-                                <option value="">Pilih Prodi</option>
-                                <!-- Option prodi akan diisi via JS -->
+                            <label for="edit_id_kelas" class="form-label">Pilih Kelas</label>
+                            <select id="edit_id_kelas" name="id_kelas" class="form-select form-select-sm" required>
+                                <option value="">Pilih Kelas</option>
+                                <!-- Option kelas akan diisi via JS -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -169,6 +164,29 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        let filterState = { prodi: '', kelas: '' }; // Tambahkan let
+
+        document.addEventListener('DOMContentLoaded', function () {
+            filterState = { prodi: '', kelas: '' }; // Reset untuk keamanan
+            loadKelasFilterOptions();
+            loadMahasiswaData(filterState);
+
+            const kelasFilter = document.getElementById('kelasFilter');
+            if (kelasFilter) {
+                kelasFilter.addEventListener('change', function (e) {
+                    filterState.kelas = e.target.value;
+                    // Reset filter lain jika ada
+                    filterState.prodi = '';
+
+                    // Debug log - lihat nilai filter yang dikirim
+                    console.log('Filter dikirim:', filterState);
+
+                    loadMahasiswaData(filterState);
+                });
+            }
+        });
+
         const api = axios.create({
             baseURL: '/api',
             headers: {
@@ -179,162 +197,192 @@
             withCredentials: true
         });
 
-        function loadFilterOptions() {
-            api.get('/prodi')
+        function loadKelasFilterOptions() {
+            api.get('/kelas')
                 .then(function (response) {
                     if (response.data.success) {
-                        const prodiFilter = document.getElementById('prodiFilter');
-                        prodiFilter.innerHTML = '<option value="">Semua Prodi</option>';
-                        response.data.data.forEach(function (prodi) {
-                            prodiFilter.innerHTML += `<option value="${prodi.nama_prodi}">${prodi.nama_prodi}</option>`;
-                        });
-                    }
-                });
-        }
-
-        function loadProdiOptions() {
-            api.get('/prodi')
-                .then(function (response) {
-                    if (response.data.success) {
-                        const select = document.getElementById('kode_prodi');
-                        select.innerHTML = '<option value="">Pilih Prodi</option>';
-                        response.data.data.forEach(function (prodi) {
-                            select.innerHTML += `<option value="${prodi.kode_prodi}">${prodi.nama_prodi}</option>`;
+                        const kelasFilter = document.getElementById('kelasFilter');
+                        kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
+                        response.data.data.forEach(function (kelas) {
+                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
                 .catch(function (error) {
-                    console.error('Gagal memuat data prodi:', error);
+                    console.error('Gagal memuat data kelas:', error);
                 });
         }
 
-        function loadEditProdiOptions(selectedKodeProdi = '') {
-            api.get('/prodi')
+        function loadKelasOptions() {
+            api.get('/kelas')
                 .then(function (response) {
                     if (response.data.success) {
-                        const select = document.getElementById('edit_kode_prodi');
-                        select.innerHTML = '<option value="">Pilih Prodi</option>';
-                        response.data.data.forEach(function (prodi) {
-                            select.innerHTML += `<option value="${prodi.kode_prodi}" ${prodi.kode_prodi === selectedKodeProdi ? 'selected' : ''}>
-                                        ${prodi.nama_prodi}
-                                    </option>`;
+                        const select = document.getElementById('id_kelas');
+                        select.innerHTML = '<option value="">Pilih Kelas</option>';
+                        response.data.data.forEach(function (kelas) {
+                            select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
                 .catch(function (error) {
-                    console.error('Gagal memuat data prodi:', error);
+                    console.error('Gagal memuat data kelas:', error);
+                });
+        }
+
+        function loadEditKelasOptions(selectedIdKelas = '') {
+            api.get('/kelas')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const select = document.getElementById('edit_id_kelas');
+                        select.innerHTML = '<option value="">Pilih Kelas</option>';
+                        response.data.data.forEach(function (kelas) {
+                            select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
+                                                                                                            ${kelas.nama_kelas}
+                                                                                                        </option>`;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadMahasiswaData(filters = {}) {
             api.get('/mahasiswa', { params: filters })
                 .then(function (response) {
-                    if (response.data.success) {
+
+                    // Periksa apakah response memiliki data, terlepas dari status success
+                    if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
                         const tableBody = document.getElementById('mahasiswa-table-body');
-                        tableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi ulang
-                        response.data.data.forEach(mahasiswa => {
-                            tableBody.innerHTML += `
-                                                                                                                            <tr>
-                                                                                                                                <td>
-                                                                                                                                    ${mahasiswa.name}
-                                                                                                                                    <br>
-                                                                                                                                    <small class="text-muted">${mahasiswa.email}</small>
-                                                                                                                                </td>
-                                                                                                                                <td>${mahasiswa.nim}</td>
-                                                                                                                                <td class="text-center">
-                                                                                                                                    <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' :
-                                    mahasiswa.status_magang === 'Selesai Magang' ? 'selesai' :
-                                        mahasiswa.status_magang === 'Menunggu Konfirmasi' ? 'menunggu' : 'belum'
-                                }">
-                                                                                                                                        ${mahasiswa.status_magang}
-                                                                                                                                    </span>
-                                                                                                                                </td>
-                                                                                                                                <td>
-                                                                                                                                    <button class="btn btn-sm btn-info" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">Detail</button>
-                                                                                                                                    <button class="btn btn-sm btn-primary" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">Edit</button>
-                                                                                                                                    <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">Hapus</button>
-                                                                                                                                </td>
-                                                                                                                            </tr>
-                                                                                                                        `;
-                        });
+                        tableBody.innerHTML = '';
+
+                        // Ambil data dengan aman, pastikan selalu array
+                        const mahasiswaData = (response.data.data || []);
+
+                        // Tampilkan pesan jika data kosong
+                        if (mahasiswaData.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Tidak ada data mahasiswa</td></tr>';
+                            return;
+                        }
+
+                        // Render data dengan penanganan error
+                        try {
+                            mahasiswaData.forEach(mahasiswa => {
+                                tableBody.innerHTML += `
+                                                <tr>
+                                                    <td>
+                                                        ${mahasiswa.name || '-'}
+                                                        <br>
+                                                        <small class="text-muted">${mahasiswa.email || '-'}</small>
+                                                    </td>
+                                                    <td>${mahasiswa.nim || '-'}</td>
+                                                    <td class="text-center">
+                                                        <span class="status-badge ${mahasiswa.status_magang === 'Sedang Magang' ? 'magang' :
+                                        mahasiswa.status_magang === 'Selesai Magang' ? 'selesai' :
+                                            mahasiswa.status_magang === 'Menunggu Konfirmasi' ? 'menunggu' : 'belum'
+                                    }">
+                                                            ${mahasiswa.status_magang || '-'}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-info" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">Detail</button>
+                                                        <button class="btn btn-sm btn-primary" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">Edit</button>
+                                                        <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">Hapus</button>
+                                                    </td>
+                                                </tr>
+                                            `;
+                            });
+                        } catch (err) {
+                            console.error('Error rendering mahasiswa:', err);
+                            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Error saat menampilkan data</td></tr>';
+                        }
                     } else {
-                        console.error('Error response:', response.data.message);
-                        alert('Gagal memuat data mahasiswa');
+                        console.error('Error response:', response.data);
+                        document.getElementById('mahasiswa-table-body').innerHTML =
+                            '<tr><td colspan="4" class="text-center">Gagal memuat data mahasiswa</td></tr>';
                     }
                 })
                 .catch(function (error) {
                     console.error('Error:', error);
-                    alert('Gagal memuat data mahasiswa');
+                    document.getElementById('mahasiswa-table-body').innerHTML =
+                        '<tr><td colspan="4" class="text-center">Gagal memuat data mahasiswa</td></tr>';
                 });
         }
 
-        // Load data when page loads
-        document.addEventListener('DOMContentLoaded', function () {
-            loadFilterOptions();
-            loadMahasiswaData();
-        });
-
-        // Add event listeners for filters
-        document.getElementById('prodiFilter').addEventListener('change', function (e) {
-            loadMahasiswaData({ prodi: e.target.value });
-        });
-
-        document.getElementById('kelasFilter').addEventListener('change', function (e) {
-            loadMahasiswaData({ kelas: e.target.value });
-        });
-
         function tambahMahasiswa() {
-            loadProdiOptions();
+            loadKelasOptions();
             var modal = new bootstrap.Modal(document.getElementById('modalTambahMahasiswa'));
             modal.show();
         }
 
         function detailMahasiswa(id) {
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Mengambil data mahasiswa',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             api.get(`/mahasiswa/${id}`)
                 .then(function (response) {
+                    Swal.close();
+
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
 
-                        console.log('Data skills:', mahasiswa.skills); // Debug log
+                        // Logging untuk debugging
+                        console.log('Data mahasiswa:', mahasiswa);
+                        console.log('Data skills:', mahasiswa.skills);
 
-                        // Render skills
-                        const skills = mahasiswa.skills.map(skill => `
-                                                                <span class="badge bg-primary me-1">
-                                                                    ${skill.name || 'Tidak Diketahui'} (${skill.lama_skill || 'Tidak Diketahui'})
-                                                                </span>
-                                                            `).join('');
+                        // Render skills badges dengan penanganan data yang fleksibel
+                        // Render skills badges dengan penanganan data yang fleksibel
+                        const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0
+                            ? mahasiswa.skills.map(skill => `
+            <span class="badge bg-primary me-1">
+                ${skill.nama || 'Tidak Diketahui'} 
+                (${skill.lama_skill || 'Tidak Diketahui'})
+            </span>
+          `).join('')
+                            : '<span class="text-muted">Tidak ada skill</span>';
 
-                        // Render dokumen
-                        const dokumen = mahasiswa.dokumen.map(doc => `
-                                                                <li class="list-group-item">
-                                                                    <strong>${doc.file_type}:</strong> 
-                                                                    <a href="${doc.file_url}" target="_blank">${doc.file_name}</a>
-                                                                    <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
-                                                                </li>
-                                                            `).join('');
+                        // Render dokumen dengan pengecekan array
+                        const dokumen = Array.isArray(mahasiswa.dokumen) && mahasiswa.dokumen.length > 0
+                            ? mahasiswa.dokumen.map(doc => `
+                                <li class="list-group-item">
+                                    <strong>${doc.file_type || 'Dokumen'}:</strong> 
+                                    <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
+                                    <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
+                                </li>
+                              `).join('')
+                            : '<li class="list-group-item">Tidak ada dokumen</li>';
 
                         // Isi modal dengan data mahasiswa
-                        document.getElementById('detailMahasiswaModalLabel').innerText = `Detail Mahasiswa - ${mahasiswa.name}`;
+                        document.getElementById('detailMahasiswaModalLabel').innerText =
+                            `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
+
                         document.getElementById('detailMahasiswaBody').innerHTML = `
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <p><strong>Nama:</strong> ${mahasiswa.name}</p>
-                                                                        <p><strong>Email:</strong> ${mahasiswa.email}</p>
-                                                                        <p><strong>NIM:</strong> ${mahasiswa.nim}</p>
-                                                                        <p><strong>Prodi:</strong> ${mahasiswa.prodi}</p>
-                                                                        <p><strong>Status:</strong> ${mahasiswa.status_magang}</p>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <p><strong>Alamat:</strong> ${mahasiswa.alamat}</p>
-                                                                        <p><strong>IPK:</strong> ${mahasiswa.ipk}</p>
-                                                                        <p><strong>Skills:</strong></p>
-                                                                        <div>${skills}</div>
-                                                                    </div>
-                                                                </div>
-                                                                <hr>
-                                                                <p><strong>Dokumen:</strong></p>
-                                                                <ul class="list-group">${dokumen}</ul>
-                                                            `;
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
+                                    <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
+                                    <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
+                                    <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
+                                    <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
+                                    <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
+                                    <p><strong>Skills:</strong></p>
+                                    <div>${skills}</div>
+                                </div>
+                            </div>
+                            <hr>
+                            <p><strong>Dokumen:</strong></p>
+                            <ul class="list-group">${dokumen}</ul>
+                        `;
 
                         // Tampilkan modal
                         const modal = new bootstrap.Modal(document.getElementById('detailMahasiswaModal'));
@@ -344,8 +392,20 @@
                     }
                 })
                 .catch(function (error) {
+                    Swal.close();
                     console.error('Error:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat memuat detail mahasiswa', 'error');
+
+                    // Tampilkan pesan error yang lebih informatif
+                    let errorMessage = 'Terjadi kesalahan saat memuat detail mahasiswa';
+                    if (error.response) {
+                        if (error.response.status === 404) {
+                            errorMessage = 'Mahasiswa tidak ditemukan';
+                        } else if (error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message;
+                        }
+                    }
+
+                    Swal.fire('Error', errorMessage, 'error');
                 });
         }
 
@@ -354,18 +414,12 @@
                 .then(function (response) {
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
-
-                        // Isi data ke dalam form edit
                         document.getElementById('edit_id_mahasiswa').value = mahasiswa.id_mahasiswa;
                         document.getElementById('edit_name').value = mahasiswa.name;
                         document.getElementById('edit_alamat').value = mahasiswa.alamat;
                         document.getElementById('edit_nim').value = mahasiswa.nim;
                         document.getElementById('edit_ipk').value = mahasiswa.ipk;
-
-                        // Muat data prodi ke dropdown dan pilih prodi yang sesuai
-                        loadEditProdiOptions(mahasiswa.kode_prodi);
-
-                        // Tampilkan modal edit
+                        loadEditKelasOptions(mahasiswa.id_kelas);
                         const modal = new bootstrap.Modal(document.getElementById('modalEditMahasiswa'));
                         modal.show();
                     } else {
@@ -384,7 +438,7 @@
             const id = document.getElementById('edit_id_mahasiswa').value;
             const data = {
                 name: form.name.value,
-                kode_prodi: form.kode_prodi.value,
+                id_kelas: form.id_kelas.value,
                 alamat: form.alamat.value,
                 nim: form.nim.value,
                 ipk: form.ipk.value
@@ -454,7 +508,7 @@
                 email: nim + '@student.com',
                 password: nim,
                 nim: nim,
-                kode_prodi: form.kode_prodi.value,
+                id_kelas: form.id_kelas.value,
                 alamat: form.alamat.value,
                 ipk: form.ipk.value
             };
