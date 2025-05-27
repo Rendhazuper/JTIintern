@@ -102,18 +102,19 @@
                     style="background: linear-gradient(158deg, rgba(187,206,255,0.58) 0%, rgba(246,230,247,0.62) 100%);">
                     <div class="card-body">
                         <div class="fw-bold mb-3" style="color: #2D2D2D;">Menu Cepat</div>
+                        <!-- Menu Cepat dengan URL yang sudah diperbarui -->
                         <div class="list-group">
-                            <a href="#"
+                            <a href="/dataMhs"
                                 class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
                                 <i class="fas fa-graduation-cap" style="color:#FFAE00;"></i>
                                 <span class="fw-semibold" style="color: #2D2D2D;">Data Mahasiswa</span>
                             </a>
-                            <a href="#"
+                            <a href="/data_perusahaan"
                                 class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
                                 <i class="fas fa-city" style="color:#2F78FF;"></i>
                                 <span class="fw-semibold" style="color: #2D2D2D;">Data Perusahaan</span>
                             </a>
-                            <a href="#"
+                            <a href="/dosen"
                                 class="list-group-item list-group-item-action d-flex align-items-center gap-2 rounded mb-2">
                                 <i class="fas fa-user-tie" style="color:#E091FF;"></i>
                                 <span class="fw-semibold" style="color: #2D2D2D;">Data Dosen</span>
@@ -189,12 +190,12 @@
 
                         if (applications.length === 0) {
                             tableBody.innerHTML = `
-                                    <tr>
-                                        <td colspan="3" class="text-center">
-                                            Tidak ada permintaan magang terbaru
-                                        </td>
-                                    </tr>
-                                `;
+                                            <tr>
+                                                <td colspan="3" class="text-center">
+                                                    Tidak ada permintaan magang terbaru
+                                                </td>
+                                            </tr>
+                                        `;
                             return;
                         }
 
@@ -203,17 +204,17 @@
                             const statusLabel = app.status === 'diterima' ? 'Diterima' : 'Menunggu';
 
                             const row = `
-                                    <tr>
-                                        <td>
-                                            <div class="fw-bold" style="color: #2D2D2D;">${app.nama_mahasiswa}</div>
-                                            <div class="text-muted small fw-bold">NIM : ${app.nim}</div>
-                                        </td>
-                                        <td>${app.perusahaan}</td>
-                                        <td>
-                                            <span class="badge rounded-pill ${statusClass}">${statusLabel}</span>
-                                        </td>
-                                    </tr>
-                                `;
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold" style="color: #2D2D2D;">${app.nama_mahasiswa}</div>
+                                                    <div class="text-muted small fw-bold">NIM : ${app.nim}</div>
+                                                </td>
+                                                <td>${app.perusahaan}</td>
+                                                <td>
+                                                    <span class="badge rounded-pill ${statusClass}">${statusLabel}</span>
+                                                </td>
+                                            </tr>
+                                        `;
                             tableBody.innerHTML += row;
                         });
                     }
@@ -221,12 +222,12 @@
                 .catch(function (error) {
                     console.error('Error loading latest applications:', error);
                     document.getElementById('latest-applications').innerHTML = `
-                            <tr>
-                                <td colspan="3" class="text-center text-danger">
-                                    Gagal memuat data. Coba lagi nanti.
-                                </td>
-                            </tr>
-                        `;
+                                    <tr>
+                                        <td colspan="3" class="text-center text-danger">
+                                            Gagal memuat data. Coba lagi nanti.
+                                        </td>
+                                    </tr>
+                                `;
                 });
         }
 
