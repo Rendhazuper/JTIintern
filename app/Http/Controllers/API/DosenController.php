@@ -5,34 +5,102 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DosenController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        try {
-            $query = Dosen::with(['user', 'perusahaan'])
-                         ->select('m_dosen.*', 'm_user.name as nama_dosen')
-                         ->join('m_user', 'm_dosen.user_id', '=', 'm_user.id_user')
-                         ->orderBy('nama_dosen');
+        $dosen = Dosen::with(['user', 'wilayah'])->get();
+        $data = $dosen->map(function ($item) {
+            return [
+                'id_dosen' => $item->id_dosen,
+                'nama_dosen' => $item->user->name ?? '-',
+                'email' => $item->user->email ?? '-',
+                'wilayah' => $item->wilayah->nama_kota ?? '-', // pastikan relasi wilayah ada
+                'nip' => $item->nip ?? '-',
+            ];
+        });
+        return response()->json(['success' => true, 'data' => $data]);
+    }
 
-            if ($request->has('perusahaan_id') && $request->perusahaan_id) {
-                $query->where('perusahaan_id', $request->perusahaan_id);
-            }
+    public function store(Request $request)
+    {
 
-            $dosen = $query->get();
+        $request->validate([
+            'nama_dosen' => 'required|string|max:255',
+            'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
+            'nip' => 'required|unique:m_dosen,nip',
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'data' => $dosen
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching dosen: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat data dosen: ' . $e->getMessage()
-            ], 500);
-        }
+        // Email dan password sama dengan NIP
+        $nip = $request->nip;
+        $email = $nip . '@gmail.com';
+
+        // Buat user baru
+        $user = User::create([
+            'name' => $request->nama_dosen,
+            'email' => $email,
+            'password' => bcrypt($nip),
+            'role' => 'dosen'
+        ]);
+
+        // Buat dosen baru
+        Dosen::create([
+            'user_id' => $user->id_user,
+            'wilayah_id' => $request->wilayah_id,
+            'nip' => $nip
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+    public function show($id)
+    {
+        $dosen = Dosen::with(['user', 'wilayah'])->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id_dosen' => $dosen->id_dosen,
+                'nama_dosen' => $dosen->user->name ?? '-',
+                'email' => $dosen->user->email ?? '-',
+                'wilayah_id' => $dosen->wilayah_id,
+                'wilayah' => $dosen->wilayah->nama_kota ?? '-',
+                'nip' => $dosen->nip ?? '-',
+            ]
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama_dosen' => 'required|string|max:255',
+            'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
+            'nip' => 'required|unique:m_dosen,nip,' . $id . ',id_dosen',
+        ]);
+
+        $dosen = Dosen::findOrFail($id);
+        $user = $dosen->user;
+
+        // Update user (nama)
+        $user->name = $request->nama_dosen;
+        $user->save();
+
+        // Update dosen
+        $dosen->wilayah_id = $request->wilayah_id;
+        $dosen->nip = $request->nip;
+        $dosen->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroy($id)
+    {
+        $dosen = Dosen::findOrFail($id);
+        $user = $dosen->user;
+        $dosen->delete();
+        if ($user) $user->delete();
+        return response()->json(['success' => true]);
     }
 }
