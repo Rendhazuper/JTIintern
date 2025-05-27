@@ -17,7 +17,6 @@
                     <table class="table align-items-center mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Waktu</th>
                                 <th>Actions</th>
                             </tr>
@@ -57,51 +56,130 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    // Initialize axios instance
-    const api = axios.create({
-        baseURL: '/api',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        withCredentials: true
-    });
-    function loadPeriodeData() {
-        api.get('/periode')
-            .then(response => {
-                if (response.data.success) {
-                    const tableBody = document.getElementById('periode-table-body');
-                    tableBody.innerHTML = '';
-                    
-                    response.data.data.forEach(periode => {
-                        tableBody.innerHTML += `
-                            <tr>
-                                <td>${periode.periode_id}</td>
-                                <td>${periode.waktu}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="editPeriode(${periode.periode_id})">
-                                        Edit
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deletePeriode(${periode.periode_id})">
-                                        Hapus
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error', 'Gagal memuat data periode', 'error');
-            });
-    }
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Initialize axios instance
+        const api = axios.create({
+            baseURL: '/api',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            withCredentials: true
+        });
+        function loadPeriodeData() {
+            api.get('/periode')
+                .then(response => {
+                    if (response.data.success) {
+                        const tableBody = document.getElementById('periode-table-body');
+                        tableBody.innerHTML = '';
 
-    document.addEventListener('DOMContentLoaded', function() {
-        loadPeriodeData();
-    });
-</script>
+                        response.data.data.forEach(periode => {
+                            tableBody.innerHTML += `
+                                        <tr>
+                                            <td>${periode.waktu}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="editPeriode(${periode.periode_id})">
+                                                    Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deletePeriode(${periode.periode_id})">
+                                                    Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Gagal memuat data periode', 'error');
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadPeriodeData();
+        });
+
+        function tambahPeriode() {
+            document.getElementById('periodeForm').reset();
+            document.getElementById('periodeModalLabel').innerText = 'Tambah Periode';
+            document.getElementById('periodeForm').removeAttribute('data-id');
+            const modal = new bootstrap.Modal(document.getElementById('periodeModal'));
+            modal.show();
+        }
+
+        function editPeriode(id) {
+            api.get(`/periode/${id}`)
+                .then(response => {
+                    if (response.data.success) {
+                        const periode = response.data.data;
+                        document.getElementById('periodeModalLabel').innerText = 'Edit Periode';
+                        document.getElementById('waktu').value = periode.waktu;
+                        document.getElementById('periodeForm').setAttribute('data-id', periode.periode_id);
+                        const modal = new bootstrap.Modal(document.getElementById('periodeModal'));
+                        modal.show();
+                    } else {
+                        Swal.fire('Gagal', 'Data periode tidak ditemukan.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Gagal', 'Terjadi kesalahan saat mengambil data periode.', 'error');
+                });
+        }
+
+        function handleSubmitPeriode(event) {
+            event.preventDefault();
+            const id = document.getElementById('periodeForm').getAttribute('data-id');
+            const formData = {
+                waktu: document.getElementById('waktu').value
+            };
+            const method = id ? 'put' : 'post';
+            const url = id ? `/periode/${id}` : '/periode';
+
+            api[method](url, formData)
+                .then(response => {
+                    if (response.data.success) {
+                        Swal.fire('Berhasil', 'Periode berhasil disimpan!', 'success');
+                        bootstrap.Modal.getInstance(document.getElementById('periodeModal')).hide();
+                        loadPeriodeData();
+                    } else {
+                        Swal.fire('Gagal', response.data.message || 'Gagal menyimpan periode.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Gagal', 'Terjadi kesalahan saat menyimpan periode.', 'error');
+                });
+        }
+
+        function deletePeriode(id) {
+            Swal.fire({
+                title: 'Yakin ingin menghapus periode ini?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    api.delete(`/periode/${id}`)
+                        .then(response => {
+                            if (response.data.success) {
+                                Swal.fire('Berhasil', 'Periode berhasil dihapus!', 'success');
+                                loadPeriodeData();
+                            } else {
+                                Swal.fire('Gagal', response.data.message || 'Gagal menghapus periode.', 'error');
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire('Gagal', 'Terjadi kesalahan saat menghapus periode.', 'error');
+                        });
+                }
+            });
+        }
+    </script>
 @endpush
