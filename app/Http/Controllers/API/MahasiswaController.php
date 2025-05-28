@@ -10,55 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class MahasiswaController extends Controller
 {
-    public function getData(Request $request)
-    {
-        try {
-            $query = Mahasiswa::with(['user', 'skills', 'magang', 'programStudi', 'lamaran']);
-
-            // Filter by prodi jika ada parameter prodi
-            if ($request->has('prodi') && $request->prodi != '') {
-                $query->whereHas('programStudi', function ($q) use ($request) {
-                    $q->where('nama_prodi', $request->prodi);
-                });
-            }
-
-            $mahasiswa = $query->get()->map(function ($mahasiswa) {
-                $status = 'Belum Magang'; // Default status
-
-                if ($mahasiswa->magang) {
-                    if ($mahasiswa->magang->status === 'aktif') {
-                        $status = 'Sedang Magang';
-                    } elseif ($mahasiswa->magang->status === 'selesai') {
-                        $status = 'Selesai Magang';
-                    } elseif ($mahasiswa->magang->status === 'tidak aktif') {
-                        $status = $mahasiswa->lamaran->isNotEmpty() ? 'Menunggu Konfirmasi' : 'Belum Magang';
-                    }
-                }
-
-                return [
-                    'id_mahasiswa' => $mahasiswa->id_mahasiswa,
-                    'name' => $mahasiswa->user->name ?? '-',
-                    'email' => $mahasiswa->user->email ?? '-',
-                    'nim' => $mahasiswa->nim,
-                    'prodi' => $mahasiswa->programStudi->nama_prodi ?? '-',
-                    'status_magang' => $status,
-                ];
-            });
-
-            Log::info('Data mahasiswa:', $mahasiswa->toArray()); // Tambahkan log untuk debugging
-
-            return response()->json([
-                'success' => true,
-                'data' => $mahasiswa
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error memuat data mahasiswa: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat data mahasiswa'
-            ], 500);
-        }
-    }
     public function store(Request $request)
     {
         $request->validate([
@@ -66,7 +17,7 @@ class MahasiswaController extends Controller
             'email' => 'required|email|unique:m_user,email',
             'password' => 'required|string|min:6',
             'nim' => 'required|string|unique:m_mahasiswa,nim',
-            'kode_prodi' => 'required|string|exists:m_prodi,kode_prodi',
+            'id_kelas' => 'required|exists:m_kelas,id_kelas',
             'alamat' => 'required|string',
             'ipk' => 'nullable|numeric|min:0|max:4'
         ]);
@@ -83,7 +34,7 @@ class MahasiswaController extends Controller
         $mahasiswa = \App\Models\Mahasiswa::create([
             'nim' => $request->nim,
             'id_user' => $user->id_user,
-            'kode_prodi' => $request->kode_prodi,
+            'id_kelas' => $request->id_kelas,
             'alamat' => $request->alamat,
             'ipk' => $request->ipk,
         ]);
@@ -97,10 +48,11 @@ class MahasiswaController extends Controller
             ]
         ]);
     }
+
     public function show($id)
     {
         try {
-            $mahasiswa = Mahasiswa::with(['user', 'magang', 'programStudi', 'skills', 'dokumen'])
+            $mahasiswa = Mahasiswa::with(['user', 'magang', 'programStudi', 'kelas'])
                 ->where('id_mahasiswa', $id)
                 ->first();
 
@@ -111,6 +63,13 @@ class MahasiswaController extends Controller
                 ], 404);
             }
 
+            // Load skills melalui user_id dari tabel t_skill_mahasiswa
+            $skills = DB::table('t_skill_mahasiswa as sm')
+                ->join('m_skill as s', 'sm.skill_id', '=', 's.skill_id')
+                ->where('sm.user_id', $mahasiswa->id_user)
+                ->select('s.nama', 'sm.lama_skill')
+                ->get();
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -118,16 +77,11 @@ class MahasiswaController extends Controller
                     'name' => $mahasiswa->user->name ?? '-',
                     'email' => $mahasiswa->user->email ?? '-',
                     'nim' => $mahasiswa->nim,
-                    'prodi' => $mahasiswa->programStudi->nama_prodi ?? '-',
+                    'nama_kelas' => $mahasiswa->kelas->nama_kelas ?? '-',
                     'status_magang' => $mahasiswa->magang->status ?? 'Belum Magang',
                     'alamat' => $mahasiswa->alamat ?? '-',
                     'ipk' => $mahasiswa->ipk ?? '-',
-                    'skills' => $mahasiswa->skills->map(function ($skill) {
-                        return [
-                            'name' => $skill->nama ?? 'Tidak Diketahui',
-                            'lama_skill' => $skill->pivot->lama_skill ?? 'Tidak Diketahui'
-                        ];
-                    }),
+                    'skills' => $skills,
                     'dokumen' => $mahasiswa->dokumen->map(function ($dokumen) {
                         return [
                             'file_name' => $dokumen->file_name,
@@ -154,7 +108,7 @@ class MahasiswaController extends Controller
 
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'kode_prodi' => 'required|string|max:10',
+                'id_kelas' => 'required|exists:m_kelas,id_kelas',
                 'alamat' => 'required|string|max:255',
                 'nim' => 'required|string|max:15',
                 'ipk' => 'required|numeric|min:0|max:4',
@@ -162,7 +116,7 @@ class MahasiswaController extends Controller
 
             // Update data mahasiswa
             $mahasiswa->update([
-                'kode_prodi' => $validatedData['kode_prodi'],
+                'id_kelas' => $validatedData['id_kelas'],
                 'alamat' => $validatedData['alamat'],
                 'nim' => $validatedData['nim'],
                 'ipk' => $validatedData['ipk']
@@ -212,8 +166,7 @@ class MahasiswaController extends Controller
     {
         try {
             $query = DB::table('m_mahasiswa as m')
-                ->join('m_user as u', 'm.id_user', '=', 'u.id_user')
-                ->join('m_prodi as p', 'm.kode_prodi', '=', 'p.kode_prodi')
+                ->leftJoin('m_user as u', 'm.id_user', '=', 'u.id_user')
                 ->leftJoin('m_magang as mg', 'm.id_mahasiswa', '=', 'mg.id_mahasiswa')
                 ->leftJoin('m_kelas as k', 'm.id_kelas', '=', 'k.id_kelas')
                 ->select(
@@ -223,20 +176,18 @@ class MahasiswaController extends Controller
                     'm.nim',
                     'm.alamat',
                     'm.ipk',
-                    'm.kode_prodi',
-                    'p.nama_prodi as prodi',
                     'k.id_kelas',
                     'k.nama_kelas',
                     DB::raw('CASE 
-                        WHEN mg.status = "active" THEN "Sedang Magang"
-                        WHEN mg.status = "completed" THEN "Selesai Magang"
-                        WHEN mg.status = "pending" THEN "Menunggu Konfirmasi"
-                        ELSE "Belum Magang"
-                    END as status_magang')
+                WHEN mg.status = "active" THEN "Sedang Magang"
+                WHEN mg.status = "completed" THEN "Selesai Magang"
+                WHEN mg.status = "pending" THEN "Menunggu Konfirmasi"
+                ELSE "Belum Magang"
+            END as status_magang')
                 );
 
-            // Apply kelas filter
-            if ($request->has('kelas') && $request->kelas !== '') {
+            // Perubahan cara pengecekan parameter kelas
+            if ($request->filled('kelas')) {  // Menggunakan filled() untuk memastikan parameter ada dan tidak kosong
                 $query->where('m.id_kelas', '=', $request->kelas);
             }
 

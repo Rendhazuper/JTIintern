@@ -18,9 +18,10 @@
                         <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Username</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Actions</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email
+                                </th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="admin-table-body">
@@ -50,10 +51,7 @@
                             <label for="email_admin" class="form-label">Email</label>
                             <input type="email" id="email_admin" name="email_admin" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="username_admin" class="form-label">Username</label>
-                            <input type="text" id="username_admin" name="username_admin" class="form-control" required>
-                        </div>
+
                         <div class="mb-3">
                             <label for="password_admin" class="form-label">Password</label>
                             <input type="password" id="password_admin" name="password_admin" class="form-control" required>
@@ -86,10 +84,6 @@
                         <div class="mb-3">
                             <label for="edit_email_admin" class="form-label">Email</label>
                             <input type="email" id="edit_email_admin" name="email_admin" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_username_admin" class="form-label">Username</label>
-                            <input type="text" id="edit_username_admin" name="username_admin" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_password_admin" class="form-label">Password</label>
@@ -129,29 +123,26 @@
                 .then(function (response) {
                     if (response.data.success) {
                         const tableBody = document.getElementById('admin-table-body');
-                        tableBody.innerHTML = ''; 
+                        tableBody.innerHTML = '';
                         response.data.data.forEach(admin => {
                             tableBody.innerHTML += `
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2">
-                                            <div class="my-auto">
-                                                <h6 class="mb-0 text-sm">${admin.name}</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="text-sm font-weight-normal">${admin.email}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-sm font-weight-normal">${admin.username || '-'}</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" onclick="editAdmin(${admin.id_user})">Edit</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteAdmin(${admin.id_user})">Hapus</button>
-                                    </td>
-                                </tr>
-                            `;
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex px-2">
+                                                                    <div class="my-auto">
+                                                                        <h6 class="mb-0 text-sm">${admin.name}</h6>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <span class="text-sm font-weight-normal">${admin.email}</span>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-info" onclick="editAdmin(${admin.id_user})">Edit</button>
+                                                                <button class="btn btn-sm btn-danger" onclick="deleteAdmin(${admin.id_user})">Hapus</button>
+                                                            </td>
+                                                        </tr>
+                                                    `;
                         });
                     } else {
                         console.error('Error response:', response.data.message);
@@ -179,14 +170,9 @@
                 .then(function (response) {
                     if (response.data.success) {
                         const admin = response.data.data;
-
-                        // Isi data ke dalam form edit
-                        document.getElementById('edit_id_admin').value = admin.id_admin;
-                        document.getElementById('edit_nama_admin').value = admin.nama_admin;
-                        document.getElementById('edit_email_admin').value = admin.email_admin;
-                        document.getElementById('edit_username_admin').value = admin.username_admin;
-
-                        // Tampilkan modal edit
+                        document.getElementById('edit_id_admin').value = admin.id_user;
+                        document.getElementById('edit_nama_admin').value = admin.name;
+                        document.getElementById('edit_email_admin').value = admin.email;
                         const modal = new bootstrap.Modal(document.getElementById('modalEditAdmin'));
                         modal.show();
                     } else {
@@ -194,7 +180,6 @@
                     }
                 })
                 .catch(function (error) {
-                    console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat memuat data admin', 'error');
                 });
         }
@@ -204,10 +189,9 @@
             const form = event.target;
             const id = document.getElementById('edit_id_admin').value;
             const data = {
-                nama_admin: form.nama_admin.value,
-                email_admin: form.email_admin.value,
-                username_admin: form.username_admin.value,
-                password_admin: form.password_admin.value
+                name: form.nama_admin.value,
+                email: form.email_admin.value,
+                password: form.password_admin.value
             };
 
             api.put(`/admin/${id}`, data)
@@ -269,10 +253,9 @@
             event.preventDefault();
             const form = event.target;
             const data = {
-                nama_admin: form.nama_admin.value,
-                email_admin: form.email_admin.value,
-                username_admin: form.username_admin.value,
-                password_admin: form.password_admin.value
+                name: form.nama_admin.value,
+                email: form.email_admin.value,
+                password: form.password_admin.value
             };
 
             api.post('/admin', data)

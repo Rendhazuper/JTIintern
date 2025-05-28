@@ -71,7 +71,7 @@
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link {{ str_contains(request()->url(), 'data_dosen') == true ? 'active' : ''  }}" href="{{ route('page', ['page' => 'dosen'])  }}">
+                <a class="nav-link {{ str_contains(request()->url(), 'dosen') == true ? 'active' : ''  }}" href="{{ route('page', ['page' => 'dosen'])  }}">
                     <div
                     class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-file-person text-sm opacity-10 text-purple"></i>
@@ -92,11 +92,11 @@
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Umum</h6>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ str_contains(request()->url(), 'prodi') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'prodi']) }}">
+                    <a class="nav-link {{ str_contains(request()->url(), 'kelas') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'kelas']) }}">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-building-gear text-sm opacity-10" style="color: #5988FF;"></i>
                         </div>
-                        <span class="nav-link-text ms-1">Manajemen Prodi</span>
+                        <span class="nav-link-text ms-1">Manajemen Kelas</span>
                     </a>
                 </li>
                 <li class="nav-item">

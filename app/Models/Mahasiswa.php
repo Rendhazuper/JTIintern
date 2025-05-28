@@ -17,7 +17,7 @@ class Mahasiswa extends Model
     protected $fillable = [
         'nim',
         'id_user',
-        'kode_prodi',
+        'id_kelas',
         'ipk',
         'alamat',
         'no_telepon',
@@ -46,8 +46,10 @@ class Mahasiswa extends Model
 
     public function skills()
     {
+        // Menggunakan user_id dari mahasiswa untuk relasi ke t_skill_mahasiswa
         return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id')
-            ->withPivot('lama_skill'); // Kolom tambahan di tabel pivot
+            ->withPivot('lama_skill')
+            ->withTimestamps();
     }
 
     public function magang()
@@ -62,10 +64,5 @@ class Mahasiswa extends Model
     public function dokumen()
     {
         return $this->hasMany(Dokumen::class, 'id_user', 'id_user');
-    }
-
-    public function prodi()
-    {
-        return $this->belongsTo(Prodi::class, 'kode_prodi', 'kode_prodi');
     }
 }
