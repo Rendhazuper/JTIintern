@@ -46,10 +46,9 @@ class Mahasiswa extends Model
 
     public function skills()
     {
-        // Menggunakan user_id dari mahasiswa untuk relasi ke t_skill_mahasiswa
         return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id')
             ->withPivot('lama_skill')
-            ->withTimestamps();
+            ->withTimestamps(false); // Add this line
     }
 
     public function magang()

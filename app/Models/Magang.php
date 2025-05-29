@@ -14,11 +14,9 @@ class Magang extends Model
 
     protected $fillable = [
         'id_mahasiswa',
-        'id_perusahaan',
-        'posisi',
+        'id_lowongan',  // Tambahkan ini
+        'id_dosen',     // Tambahkan ini
         'status',
-        'surat_url',
-        'cv_url',
     ];
 
     public function mahasiswa()
@@ -38,13 +36,14 @@ class Magang extends Model
 
     public function lamaran()
     {
+        // Jika masih ingin menggunakan relasi ini, perbaiki parameter-nya
         return $this->hasManyThrough(
-            Lamaran::class,  // Model tujuan
-            Lowongan::class, // Model perantara
-            'id_lowongan',   // Foreign key di tabel `m_magang` yang merujuk ke `lowongan`
-            'id_lowongan',   // Foreign key di tabel `t_lamaran` yang merujuk ke `lowongan`
-            'id_lowongan',   // Local key di tabel `m_magang`
-            'id_lowongan'    // Local key di tabel `t_lamaran`
+            Lamaran::class,
+            Lowongan::class,
+            'id_lowongan', // FK di Lowongan model yang terhubung ke Magang
+            'id_lowongan', // FK di Lamaran model yang terhubung ke Lowongan
+            'id_lowongan', // PK di Magang
+            'id_lowongan'  // PK di Lowongan
         );
     }
 }

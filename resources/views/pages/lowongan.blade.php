@@ -378,15 +378,24 @@
                 });
         }
 
-        // Fungsi untuk memuat data lowongan
         function loadLowonganData(filters = {}) {
+            // Show loading state
+            const tableBody = document.getElementById('lowongan-table-body');
+            tableBody.innerHTML = `
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5">
+                                                <div class="spinner-border text-primary" role="status"></div>
+                                                <p class="mt-2 text-sm text-secondary">Memuat data lowongan...</p>
+                                            </td>
+                                        </tr>
+                                    `;
+
             api.get('/lowongan', { params: filters })
                 .then(function (response) {
-                    const tableBody = document.getElementById('lowongan-table-body');
                     tableBody.innerHTML = ''; // Kosongkan tabel sebelum memuat data baru
 
                     if (response.data.success && response.data.data.length > 0) {
-                        response.data.data.forEach(lowongan => {
+                        response.data.data.forEach((lowongan, index) => {
                             const date = new Date(lowongan.created_at);
                             const formattedDate = date.toLocaleDateString('id-ID', {
                                 day: '2-digit',
@@ -394,100 +403,177 @@
                                 year: 'numeric'
                             });
 
-                            tableBody.innerHTML += `
-                                                                                                    <tr>
-                                                                                                        <td>
-                                                                                                            <p class="text-sm font-weight-bold mb-0">${lowongan.judul_lowongan}</p>
-                                                                                                        </td>
-                                                                                                        <td>
-                                                                                                            <div class="d-flex px-2 py-1">
-                                                                                                                <div class="d-flex flex-column justify-content-center">
-                                                                                                                    <h6 class="mb-0 text-sm">${lowongan.perusahaan.nama_perusahaan}</h6>
-                                                                                                                    <p class="text-xs text-secondary mb-0">${lowongan.perusahaan.nama_kota}</p>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        </td>
-                                                                                                        <td class="align-middle text-center">
-                                                                                                            <span class="text-secondary text-xs font-weight-bold">${lowongan.kapasitas} Orang</span>
-                                                                                                        </td>
-                                                                                                        <td class="align-middle text-center">
-                                                                                                            <span class="text-secondary text-xs font-weight-bold">${formattedDate}</span>
-                                                                                                        </td>
-                                                                                                        <td class="align-middle">
-                                                                                                            <button class="btn btn-sm btn-info" onclick="detailLowongan(${lowongan.id_lowongan})">
-                                                                                                                Detail
-                                                                                                            </button>
-                                                                                                            <button class="btn btn-sm btn-primary" onclick="editLowongan(${lowongan.id_lowongan})">
-                                                                                                                Edit
-                                                                                                            </button>
-                                                                                                            <button class="btn btn-sm btn-danger" onclick="deleteLowongan(${lowongan.id_lowongan})">
-                                                                                                                Hapus
-                                                                                                            </button>
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                `;
+                            const row = document.createElement('tr');
+                            row.style.animation = `fadeIn 0.3s ease forwards ${index * 0.05}s`;
+                            row.innerHTML = `
+                                                        <td>
+                                                            <p class="text-sm font-weight-bold mb-0">${lowongan.judul_lowongan}</p>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex px-2 py-1">
+                                                                <div class="d-flex flex-column justify-content-center">
+                                                                    <h6 class="mb-0 text-sm">${lowongan.perusahaan.nama_perusahaan}</h6>
+                                                                    <p class="text-xs text-secondary mb-0">${lowongan.perusahaan.nama_kota}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold">${lowongan.kapasitas} Orang</span>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold">${formattedDate}</span>
+                                                        </td>
+                                                    <td class="align-middle">
+        <div class="action-buttons">  <!-- Ganti class dari "d-flex gap-1" menjadi "action-buttons" -->
+            <button class="btn btn-sm btn-info me-1" onclick="detailLowongan(${lowongan.id_lowongan})" title="Lihat Detail">
+                <i class="fas fa-eye me-1"></i>Detail
+            </button>
+            <button class="btn btn-sm btn-primary me-1" onclick="editLowongan(${lowongan.id_lowongan})" title="Edit Lowongan">
+                <i class="fas fa-edit me-1"></i>Edit
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteLowongan(${lowongan.id_lowongan})" title="Hapus Lowongan">
+                <i class="fas fa-trash-alt me-1"></i>Hapus
+            </button>
+        </div>
+    </td>
+                                                    `;
+                            tableBody.appendChild(row);
                         });
                     } else {
                         tableBody.innerHTML = `
-                                                                                                <tr>
-                                                                                                    <td colspan="5">
-                                                                                                        <div class="text-center py-4">
-                                                                                                            <div class="empty-state-icon mb-3">
-                                                                                                                <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #8898aa;"></i>
-                                                                                                            </div>
-                                                                                                            <h6 class="text-muted">Tidak ada lowongan tersedia</h6>
-                                                                                                            <p class="text-xs text-secondary mb-0">
-                                                                                                                ${filters.perusahaan_id ? 'Belum ada lowongan untuk perusahaan ini' : 'Belum ada lowongan yang ditambahkan'}
-                                                                                                            </p>
-                                                                                                        </div>
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            `;
+                                                    <tr>
+                                                        <td colspan="5">
+                                                            <div class="text-center py-5">
+                                                                <div class="empty-state-icon mb-3">
+                                                                    <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #8898aa;"></i>
+                                                                </div>
+                                                                <h6 class="text-muted">Tidak ada lowongan tersedia</h6>
+                                                                <p class="text-xs text-secondary mb-0">
+                                                                    ${filters.perusahaan_id ? 'Belum ada lowongan untuk perusahaan ini' : 'Belum ada lowongan yang ditambahkan'}
+                                                                </p>
+                                                                <button class="btn btn-sm btn-outline-primary mt-3" onclick="tambahLowongan()">
+                                                                    <i class="bi bi-plus-lg me-1"></i>Tambah Lowongan Baru
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                `;
                     }
                 })
                 .catch(function (error) {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'Gagal memuat data lowongan', 'error');
+                    tableBody.innerHTML = `
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="alert alert-danger mx-3 my-4">
+                                                            <div class="d-flex">
+                                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                <div>
+                                                                    <h6 class="alert-heading mb-1">Gagal memuat data</h6>
+                                                                    <p class="mb-0">Terjadi kesalahan saat memuat data lowongan. Silakan coba lagi.</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
                 });
         }
 
-        // Fungsi untuk menampilkan detail lowongan
         function detailLowongan(id) {
-            console.log('Fetching detail for Lowongan ID:', id); // Debugging
+            console.log('Fetching detail for Lowongan ID:', id);
+
+            // Show modal with loading state
+            const detailModal = document.getElementById('detailLowonganModal');
+            const modalBody = detailModal.querySelector('.modal-body');
+
+            modalBody.innerHTML = `
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                                        <p class="text-muted">Memuat detail lowongan...</p>
+                                    </div>
+                                `;
+
+            // Show the modal while loading
+            const modal = new bootstrap.Modal(detailModal);
+            modal.show();
 
             api.get(`/lowongan/${id}`)
                 .then(function (response) {
                     if (response.data.success) {
                         const lowongan = response.data.data;
-                        console.log('Lowongan Detail Data:', lowongan); // Debugging
+                        console.log('Lowongan Detail Data:', lowongan);
 
-                        // Isi data ke dalam modal detail
-                        document.getElementById('detailJudulLowongan').textContent = lowongan.judul_lowongan;
-                        document.getElementById('detailPerusahaan').textContent = lowongan.perusahaan.nama_perusahaan;
-                        document.getElementById('detailPeriode').textContent = lowongan.periode.waktu;
-                        document.getElementById('detailKapasitas').textContent = `${lowongan.kapasitas} Orang`;
-                        document.getElementById('detailDeskripsi').textContent = lowongan.deskripsi;
-                        document.getElementById('detailSkill').textContent = lowongan.skill.nama_skill;
-                        document.getElementById('detailJenis').textContent = lowongan.jenis.nama_jenis;
+                        // Add animation to the content when it loads
+                        modalBody.style.opacity = "0";
+                        modalBody.innerHTML = `
+                                                <div class="row">
+                                                    <!-- Kolom Kiri -->
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Judul Lowongan</label>
+                                                            <p id="detailJudulLowongan" class="form-control-plaintext text-secondary">${lowongan.judul_lowongan}</p>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Perusahaan</label>
+                                                            <p id="detailPerusahaan" class="form-control-plaintext text-secondary">${lowongan.perusahaan.nama_perusahaan}</p>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Periode</label>
+                                                            <p id="detailPeriode" class="form-control-plaintext text-secondary">${lowongan.periode.waktu}</p>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Kolom Kanan -->
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Kapasitas</label>
+                                                            <p id="detailKapasitas" class="form-control-plaintext text-secondary">${lowongan.kapasitas} Orang</p>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Skill</label>
+                                                            <p id="detailSkill" class="form-control-plaintext text-secondary">${lowongan.skill.nama_skill}</p>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Jenis</label>
+                                                            <p id="detailJenis" class="form-control-plaintext text-secondary">${lowongan.jenis.nama_jenis}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Deskripsi</label>
+                                                            <div class="p-3 bg-light rounded-3">
+                                                                ${lowongan.deskripsi}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
 
-                        // Tampilkan modal detail
-                        const modal = new bootstrap.Modal(document.getElementById('detailLowonganModal'));
-                        modal.show();
+                        // Fade in animation
+                        setTimeout(() => {
+                            modalBody.style.transition = "opacity 0.3s ease";
+                            modalBody.style.opacity = "1";
+                        }, 150);
+
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.data.message || 'Gagal memuat detail lowongan.',
-                        });
+                        modalBody.innerHTML = `
+                                                <div class="alert alert-danger">
+                                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                                    Gagal memuat detail lowongan.
+                                                </div>
+                                            `;
                     }
                 })
                 .catch(function (error) {
                     console.error('Error fetching detail lowongan:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: 'Terjadi kesalahan saat memuat detail lowongan.',
-                    });
+                    modalBody.innerHTML = `
+                                            <div class="alert alert-danger">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                Terjadi kesalahan saat memuat detail lowongan.
+                                            </div>
+                                        `;
                 });
         }
 
@@ -503,21 +589,33 @@
         }
 
         document.getElementById('tambahLowonganForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Mencegah form melakukan submit secara default
+            e.preventDefault();
 
-            const formData = new FormData(this); // Ambil data dari form
+            // Show loading state on button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...`;
+
+            const formData = new FormData(this);
 
             api.post('/lowongan', formData)
                 .then(function (response) {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+
                     if (response.data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
                             text: 'Lowongan berhasil ditambahkan!',
+                            showConfirmButton: false,
+                            timer: 1500
                         }).then(() => {
                             const modal = bootstrap.Modal.getInstance(document.getElementById('tambahLowonganModal'));
-                            modal.hide(); // Tutup modal tambah
-                            loadLowonganData(); // Muat ulang data lowongan
+                            modal.hide();
+                            loadLowonganData();
                         });
                     } else {
                         Swal.fire({
@@ -528,6 +626,10 @@
                     }
                 })
                 .catch(function (error) {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+
                     console.error('Error adding lowongan:', error);
                     Swal.fire({
                         icon: 'error',
@@ -565,22 +667,34 @@
         }
 
         document.getElementById('editLowonganForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Mencegah form melakukan submit secara default
+            e.preventDefault();
 
-            const id = document.getElementById('editLowonganId').value; // Ambil ID lowongan
-            const formData = new FormData(this); // Ambil data dari form
+            const id = document.getElementById('editLowonganId').value;
+            const formData = new FormData(this);
+
+            // Show loading state on button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...`;
 
             api.put(`/lowongan/${id}`, formData)
                 .then(function (response) {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+
                     if (response.data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
                             text: 'Lowongan berhasil diperbarui!',
+                            showConfirmButton: false,
+                            timer: 1500
                         }).then(() => {
                             const modal = bootstrap.Modal.getInstance(document.getElementById('editLowonganModal'));
-                            modal.hide(); // Tutup modal edit
-                            loadLowonganData(); // Muat ulang data lowongan
+                            modal.hide();
+                            loadLowonganData();
                         });
                     } else {
                         Swal.fire({
@@ -591,6 +705,10 @@
                     }
                 })
                 .catch(function (error) {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+
                     console.error('Error updating lowongan:', error);
                     Swal.fire({
                         icon: 'error',
@@ -610,37 +728,34 @@
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Kirim permintaan DELETE ke server
-                    api.delete(`/lowongan/${id}`)
-                        .then(function (response) {
-                            if (response.data.success) {
-                                Swal.fire(
-                                    'Terhapus!',
-                                    'Lowongan berhasil dihapus.',
-                                    'success'
-                                ).then(() => {
-                                    // Muat ulang data lowongan
-                                    loadLowonganData();
-                                });
-                            } else {
-                                Swal.fire(
-                                    'Gagal!',
-                                    response.data.message || 'Gagal menghapus lowongan.',
-                                    'error'
-                                );
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return api.delete(`/lowongan/${id}`)
+                        .then(response => {
+                            if (!response.data.success) {
+                                throw new Error(response.data.message || 'Gagal menghapus lowongan');
                             }
+                            return response.data;
                         })
-                        .catch(function (error) {
-                            console.error('Error deleting lowongan:', error);
-                            Swal.fire(
-                                'Gagal!',
-                                'Terjadi kesalahan saat menghapus lowongan.',
-                                'error'
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                `Terjadi kesalahan: ${error.response?.data?.message || error.message}`
                             );
                         });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Lowongan berhasil dihapus.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        loadLowonganData();
+                    });
                 }
             });
         }

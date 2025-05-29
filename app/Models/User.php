@@ -41,16 +41,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * Always encrypt the password when it is updated.
-     *
-     * @param $value
-     * @return string
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
 
     public function mahasiswa()
     {
@@ -60,5 +50,12 @@ class User extends Authenticatable
     public function dosen()
     {
         return $this->hasOne(Dosen::class, 'user_id', 'id_user');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 't_skill_mahasiswa', 'user_id', 'skill_id')
+            ->withPivot('lama_skill')
+            ->withTimestamps(false); // Add this line to disable timestamp columns
     }
 }

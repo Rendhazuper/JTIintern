@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\Magang;
 
 class DosenController extends Controller
 {
@@ -102,5 +103,161 @@ class DosenController extends Controller
         $dosen->delete();
         if ($user) $user->delete();
         return response()->json(['success' => true]);
+    }
+
+    public function withPerusahaan()
+    {
+        try {
+            // Remove this line:
+            // DB::statement("SET SESSION query_cache_type = OFF");
+
+            // Keep everything else the same
+            $dosens = Dosen::with(['user', 'wilayah'])->get();
+
+            $dosens = $dosens->map(function ($dosen) {
+                try {
+                    // Load magangBimbingan relationship manually
+                    $bimbingan = Magang::where('id_dosen', $dosen->id_dosen)
+                        ->where(function ($query) {
+                            $query->where('status', '!=', 'ditolak')
+                                ->orWhereNull('status');
+                        })
+                        ->get(['id_magang', 'id_mahasiswa', 'id_lowongan', 'status', 'created_at']);
+
+                    // Log count for debugging
+                    Log::info("Dosen ID {$dosen->id_dosen} has {$bimbingan->count()} bimbingan");
+
+                    // Create consistent property names
+                    $dosen->magangBimbingan = $bimbingan;
+                    $dosen->magang_bimbingan = $bimbingan;
+                } catch (\Exception $e) {
+                    Log::error('Error loading magangBimbingan for dosen ID ' . $dosen->id_dosen . ': ' . $e->getMessage());
+                    $dosen->magangBimbingan = [];
+                    $dosen->magang_bimbingan = [];
+                }
+
+                return $dosen;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $dosens,
+                'timestamp' => now()->timestamp
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in withPerusahaan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function withDetails()
+    {
+        try {
+            // Get dosen with relevant relationships
+            $dosens = Dosen::with([
+                'user',
+                'wilayah',
+                'skills.skill'
+            ])->get();
+
+            $dosens = $dosens->map(function ($dosen) {
+                try {
+                    // Load magangBimbingan relationship manually
+                    $bimbingan = Magang::where('id_dosen', $dosen->id_dosen)
+                        ->where(function ($query) {
+                            $query->where('status', '!=', 'ditolak')
+                                ->orWhereNull('status');
+                        })
+                        ->get(['id_magang', 'id_mahasiswa', 'id_lowongan', 'status', 'created_at']);
+
+                    // Create consistent property names
+                    $dosen->magangBimbingan = $bimbingan;
+                    $dosen->magang_bimbingan = $bimbingan;
+                } catch (\Exception $e) {
+                    Log::error('Error loading magangBimbingan: ' . $e->getMessage());
+                    $dosen->magangBimbingan = [];
+                    $dosen->magang_bimbingan = [];
+                }
+
+                return $dosen;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $dosens,
+                'timestamp' => now()->timestamp
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in withDetails: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function removeAssignments($id)
+    {
+        try {
+            // Log the request for debugging
+            Log::info('Removing assignments for dosen ID: ' . $id);
+
+            // Find all magang records where id_dosen matches $id and reset them
+            $count = Magang::where('id_dosen', $id)->update(['id_dosen' => null]);
+
+            Log::info('Removed ' . $count . ' assignments for dosen ID: ' . $id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Assignments removed successfully',
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error removing assignments: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove assignments: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function assignMahasiswa(Request $request, $id)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'magang_ids' => 'required|array',
+                'magang_ids.*' => 'integer|exists:m_magang,id_magang'
+            ]);
+
+            // Log the assignment request
+            Log::info('Assigning magang to dosen', [
+                'dosen_id' => $id,
+                'magang_ids' => $request->magang_ids
+            ]);
+
+            // Update the magang records with the dosen ID
+            $count = Magang::whereIn('id_magang', $request->magang_ids)
+                ->update(['id_dosen' => $id]);
+
+            Log::info("Successfully assigned $count magang to dosen ID: $id");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully assigned $count magang",
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error assigning mahasiswa: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

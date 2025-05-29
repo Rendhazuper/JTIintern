@@ -191,6 +191,15 @@ class MahasiswaController extends Controller
                 $query->where('m.id_kelas', '=', $request->kelas);
             }
 
+            if ($request->filled('search')) {
+                $searchTerm = $request->search;
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('u.name', 'like', "%{$searchTerm}%")
+                        ->orWhere('m.nim', 'like', "%{$searchTerm}%")
+                        ->orWhere('u.email', 'like', "%{$searchTerm}%");
+                });
+            }
+
             $mahasiswa = $query->get();
 
             return response()->json([

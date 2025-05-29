@@ -13,6 +13,40 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $query = Mahasiswa::with(['kelas']);
+
+        // Filter by kelas
+        if ($request->has('kelas') && !empty($request->kelas)) {
+            $query->where('id_kelas', $request->kelas);
+        }
+
+        // Filter by search
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('nim', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        $mahasiswa = $query->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $mahasiswa->items(),
+            'meta' => [
+                'current_page' => $mahasiswa->currentPage(),
+                'last_page' => $mahasiswa->lastPage(),
+                'per_page' => $mahasiswa->perPage(),
+                'total' => $mahasiswa->total()
+            ]
+        ]);
+    }
+
     public function getSummary()
     {
         try {
@@ -55,6 +89,7 @@ class DashboardController extends Controller
                     $user = $mahasiswa->user ?? null;
                     $lowongan = $lamaran->lowongan ?? null;
                     $perusahaan = $lowongan->perusahaan ?? null;
+                    
 
                     return [
                         'id' => $lamaran->id_lamaran,

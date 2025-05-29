@@ -14,6 +14,8 @@ use App\Http\Controllers\API\LowonganController;
 use App\Http\Controllers\API\PeriodeController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
+use App\Http\Controllers\API\EvaluasiController;
+use App\Http\Controllers\API\PlottingController;
 
 
 /*
@@ -39,10 +41,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+Route::get('/dosen/with-perusahaan', [DosenController::class, 'withPerusahaan']);
+Route::get('/dosen/with-details', [DosenController::class, 'withDetails']);
+Route::get('/wilayah', [WilayahController::class, 'index']);
 
 
 // Dashboard routes
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
@@ -52,13 +57,13 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update']);
     Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
     Route::get('/magang', [MagangController::class, 'index']);
-    Route::get('/magang/{id}', [MagangController::class, 'show']);
     Route::post('/magang/{id}/accept', [MagangController::class, 'accept']);
     Route::post('/magang/{id}/reject', [MagangController::class, 'reject']);
     Route::get('/perusahaan', [PerusahaanController::class, 'getPerusahaanData']);
     Route::get('/perusahaan/{id}', [PerusahaanController::class, 'getDetailPerusahaan']);
     Route::post('/perusahaan', [PerusahaanController::class, 'store']);
-    Route::get('/wilayah', [WilayahController::class, 'index']);
+    Route::put('/perusahaan/{id}', [PerusahaanController::class, 'update']);
+    Route::delete('/perusahaan/{id}', [PerusahaanController::class, 'destroy']);
     Route::post('/lowongan', [LowonganController::class, 'store']);
     Route::get('/lowongan/{id}', [LowonganController::class, 'show']);
     Route::put('/lowongan/{id}', [LowonganController::class, 'update']);
@@ -86,10 +91,14 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/admin/{id}', [AdminController::class, 'show']);
     Route::put('/admin/{id}', [AdminController::class, 'update']);
     Route::delete('/admin/{id}', [AdminController::class, 'destroy']);
+    Route::get('/evaluasi', [EvaluasiController::class, 'index']);
     Route::post('/tambah-perusahaan', [PerusahaanController::class, 'tambahPerusahaan']);
     Route::get('/lowongan', [LowonganController::class, 'index']);
     Route::get('/kelas-options', [MahasiswaController::class, 'getKelasOptions']);
+    Route::post('/plotting/auto', [PlottingController::class, 'autoPlot']);
+    Route::get('/plotting/matrix', [PlottingController::class, 'getPlottingMatrixDetails']);
+    Route::get('/magang/available', [MagangController::class, 'getAvailable']);
+    Route::get('/magang/{id}', [MagangController::class, 'show']);
+    Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
+    Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
 });
-
-
-Route::get('/evaluasi/{filter?}', [App\Http\Controllers\API\EvaluasiController::class, 'index']);
