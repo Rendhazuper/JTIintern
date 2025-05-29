@@ -1,9 +1,20 @@
+/* Card Structure */
 .card {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
+.card-header {
+    background: white;
+    border-radius: 10px !important;
+    margin-bottom: 1rem;
+    border: none !important;
+    padding: 16px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Search and Filter components */
 .search-filter {
     display: flex;
     align-items: center;
@@ -23,6 +34,13 @@
     border-radius: 8px;
     border: 1px solid #e7e7e7;
     font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #5988ff;
+    box-shadow: 0 0 0 3px rgba(89, 136, 255, 0.1);
+    outline: none;
 }
 
 .search-icon {
@@ -31,9 +49,6 @@
     top: 50%;
     transform: translateY(-50%);
     color: #757575;
-}
-.btn {
-    margin-bottom: 0 !important;
 }
 
 .filter-btn {
@@ -45,8 +60,23 @@
     border: 1px solid #e7e7e7;
     border-radius: 8px;
     padding: 0.375rem 1rem;
+    transition: all 0.2s ease;
 }
 
+.filter-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #d1d1d1;
+}
+
+.search_card {
+    background-color: white;
+    padding: 10px 50px;
+    border-radius: 15px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+/* Permintaan List and Item styling */
 .permintaan-list {
     display: flex;
     flex-direction: column;
@@ -56,26 +86,27 @@
 .permintaan-item {
     position: relative;
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+    grid-template-columns: 1.8fr 1.5fr 1.5fr 1fr 1.5fr;
     align-items: center;
-    padding: 1rem;
+    padding: 16px;
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
 }
 
-.search_card {
-    background-color: white;
-    padding: 10px 50px;
-    border-radius: 15px;
-    width: 100%;
+.permintaan-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
+/* Mahasiswa info */
 .mahasiswa-info .nama {
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 4px;
+    color: #344767;
 }
 
 .mahasiswa-info .nim {
@@ -84,11 +115,14 @@
     margin: 0;
 }
 
+/* Job info */
 .job-title {
     font-size: 14px;
     font-weight: 500;
+    color: #344767;
 }
 
+/* Company */
 .company-badge {
     background: #e3eaff;
     color: #5988ff;
@@ -96,95 +130,114 @@
     border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Status badges */
 .status-badge {
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
 }
 
-.status {
-    background: #c9ffe2;
-    color: #00b341;
-    width: fit-content;
-    border-radius: 5px;
+.status-badge:before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 5px;
 }
 
 .status-badge.diterima {
-    font-weight: 100px;
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: #10b981 !important;
+    border: none !important;
+}
+
+.status-badge.diterima:before {
+    background-color: #10b981;
+}
+
+.status-badge.ditolak {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+    border: none !important;
+}
+
+.status-badge.ditolak:before {
+    background-color: #ef4444;
 }
 
 .status-badge.menunggu {
-    background: #ffe3b7;
-    color: #ee722f;
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: #f59e0b !important;
+    border: none !important;
+}
+
+.status-badge.menunggu:before {
+    background-color: #f59e0b;
+}
+
+/* Action buttons */
+.action {
+    position: relative;
+}
+
+.hover-actions {
+    position: static;
+    display: flex;
+    gap: 8px;
+    opacity: 1;
+    transition: transform 0.2s ease;
+}
+
+.btn {
+    margin-bottom: 0 !important;
+}
+
+.btn-tolak,
+.btn-terima,
+.btn-detail {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-tolak:hover,
+.btn-terima:hover,
+.btn-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
 }
 
 .btn-detail {
     background: #5988ff;
     color: white;
     border-radius: 5px;
-    padding: 25px 25px;
-    font-size: 10px;
-    font-weight: 700;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.action {
-    position: relative;
-}
-.card-header {
-    background: transparent;
-    border-radius: 10px !important;
-    margin-bottom: 1rem;
-    border: none !important;
-}
-.hover-actions {
-    position: absolute;
-    right: -400px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 8px;
-    transition: all 0.3s ease-in-out; /* Changed to all for smoother transition */
-    opacity: 0;
-}
-
-.permintaan-item:hover .hover-actions {
-    right: 0;
-    opacity: 1;
-}
-
-/* Add transition for non-hover state */
-.permintaan-item .hover-actions {
-    right: -400px;
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-}
-
-/* Optional: Add transform scale for more dynamic effect */
-.btn-tolak,
-.btn-terima,
-.btn-detail {
-    transform: scale(1);
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease;
-}
-
-.btn-tolak:hover,
-.btn-terima:hover,
-.btn-detail:hover {
-    transform: scale(1.05);
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .btn-tolak {
     background: #ff5959;
     color: white;
     border-radius: 5px;
-    padding: 5px 15px;
-    font-size: 10px;
-    font-weight: 700;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -194,21 +247,25 @@
     background: #02a232;
     color: white;
     border-radius: 5px;
-    padding: 5px 15px;
-    font-size: 10px;
-    font-weight: 700;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.btn-tolak:hover,
-.btn-terima:hover,
-.btn-detail:hover {
-    color: white;
+/* Modal Styles */
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
 }
 
-/* Modal Styles */
+.modal-title {
+    color: #344767;
+    font-weight: 600;
+}
+
 .detail-content {
     padding: 1rem;
 }
@@ -239,19 +296,74 @@
 
 .download-btn i {
     font-size: 16px;
+    margin-right: 6px;
 }
 
-.modal-header {
-    border-bottom: 1px solid #e9ecef;
-    background-color: #f8f9fa;
+/* Empty State styling */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
 }
 
-.modal-title {
-    color: #344767;
-    font-weight: 600;
+.empty-state-icon {
+    font-size: 48px;
+    color: #e2e8f0;
+    margin-bottom: 15px;
 }
 
-.hover-actions.show-actions {
-    right: 0 !important;
-    opacity: 1 !important;
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .permintaan-item {
+        grid-template-columns: 1.5fr 1fr 1fr 0.8fr 1.2fr;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .permintaan-item {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .search-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .permintaan-item {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .company-badge, .status-badge {
+        display: inline-flex;
+        margin-top: 4px;
+    }
+    
+    .hover-actions {
+        justify-content: flex-start;
+        margin-top: 8px;
+    }
 }

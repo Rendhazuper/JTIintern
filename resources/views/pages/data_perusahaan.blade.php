@@ -1,3 +1,4 @@
+<!-- filepath: d:\laragon\www\JTIintern\resources\views\pages\data_perusahaan.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -29,17 +30,58 @@
                             <i class="bi bi-plus-square-fill me-2"></i>Tambah Perusahaan
                         </button>
                         <button type="button" class="btn" style="color: white; background: #5988FF;" onclick="importCSV()">
-                            <i class="bi bi-plus-square-fill me-2"></i>Import CSV
+                            <i class="bi bi-file-earmark-arrow-up me-2"></i>Import CSV
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="mt-3 text-primary">Memuat Data Perusahaan</h5>
+            <p class="text-muted">Mohon tunggu sebentar...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5 d-none">
+            <div class="empty-state-icon mb-4">
+                <i class="bi bi-building" style="font-size: 3rem; opacity: 0.5;"></i>
+            </div>
+            <h5 class="mb-2">Tidak ada data perusahaan</h5>
+            <p class="text-muted mb-4">Tambahkan perusahaan baru untuk mulai mengelola data</p>
+            <button type="button" class="btn" style="color: white; background: #02A232;"
+                onclick="tambahPerusahaan()">
+                <i class="bi bi-plus-square-fill me-2"></i>Tambah Perusahaan
+            </button>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="text-center py-5 d-none">
+            <div class="error-state-icon mb-4">
+                <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+            </div>
+            <h5 class="text-danger mb-2">Gagal Memuat Data</h5>
+            <p class="text-muted mb-4" id="errorMessage">Terjadi kesalahan saat memuat data perusahaan</p>
+            <button class="btn btn-primary" onclick="loadPerusahaanData()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Coba Lagi
+            </button>
+        </div>
+
+        <!-- Data Container -->
+        <div class="perusahaan-grid" id="dataContainer">
+            <div class="row g-4" id="perusahaanContainer">
+                <!-- Data will be loaded here -->
+            </div>
+        </div>
+
         <!-- Modal Tambah Perusahaan -->
         <div class="modal fade" id="tambahPerusahaanModal" tabindex="-1" aria-labelledby="tambahPerusahaanModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="tambahPerusahaanModalLabel">Tambah Perusahaan</h5>
@@ -47,65 +89,202 @@
                     </div>
                     <div class="modal-body">
                         <form id="tambahPerusahaanForm" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label for="nama_perusahaan" class="form-label">Nama Perusahaan</label>
-                                <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan"
-                                    required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nama_perusahaan" class="form-label">Nama Perusahaan <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="wilayah_id" class="form-label">Wilayah <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="wilayah_id" name="wilayah_id" required>
+                                        <option value="">Pilih Wilayah</option>
+                                        <!-- Wilayah akan dimuat di sini -->
+                                    </select>
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
                                 <label for="alamat_perusahaan" class="form-label">Alamat Perusahaan</label>
                                 <input type="text" class="form-control" id="alamat_perusahaan" name="alamat_perusahaan">
                             </div>
-                            <div class="mb-3">
-                                <label for="wilayah_id" class="form-label">Wilayah</label>
-                                <select class="form-control" id="wilayah_id" name="wilayah_id" required>
-                                    <option value="">Pilih Wilayah</option>
-                                    <!-- Wilayah akan dimuat di sini -->
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="contact_person" class="form-label">Contact Person</label>
-                                <input type="text" class="form-control" id="contact_person" name="contact_person" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="instagram" class="form-label">Instagram</label>
-                                <input type="text" class="form-control" id="instagram" name="instagram">
-                            </div>
-                            <div class="mb-3">
-                                <label for="website" class="form-label">Website</label>
-                                <input type="text" class="form-control" id="website" name="website">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="contact_person" class="form-label">Contact Person <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contact_person" name="contact_person" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
                             </div>
 
-                            <!-- Tambahkan field baru di sini -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="instagram" class="form-label">Instagram</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">@</span>
+                                        <input type="text" class="form-control" id="instagram" name="instagram" placeholder="username">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="text" class="form-control" id="website" name="website" placeholder="https://example.com">
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="deskripsi" class="form-label">Deskripsi Perusahaan</label>
                                 <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3"></textarea>
                             </div>
-                            <div class="mb-3">
-                                <label for="logo" class="form-label">Logo Perusahaan</label>
-                                <input type="file" class="form-control" id="logo" name="logo">
-                                <small class="form-text text-muted">Format: JPG, PNG, SVG. Maks: 2MB</small>
-                            </div>
+
                             <div class="mb-3">
                                 <label for="gmaps" class="form-label">Link Google Maps</label>
                                 <input type="text" class="form-control" id="gmaps" name="gmaps"
                                     placeholder="https://goo.gl/maps/...">
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <div class="mb-4">
+                                <label for="logo" class="form-label">Logo Perusahaan</label>
+                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                <small class="form-text text-muted">Format: JPG, PNG, SVG. Maks: 2MB</small>
+                                <div id="logoPreview" class="mt-2 d-none">
+                                    <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
+                                </div>
+                            </div>
+
+                            <div class="modal-footer px-0 pb-0">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary" id="btnSimpan">
+                                    <i class="bi bi-save me-1"></i>Simpan
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="perusahaan-grid">
-            <div class="row g-4" id="perusahaanContainer">
-                <!-- Data will be loaded here -->
+        <!-- Modal Edit Perusahaan -->
+        <div class="modal fade" id="editPerusahaanModal" tabindex="-1" aria-labelledby="editPerusahaanModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editPerusahaanModalLabel">Edit Perusahaan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editPerusahaanForm" enctype="multipart/form-data">
+                            <input type="hidden" id="edit_perusahaan_id" name="perusahaan_id">
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_nama_perusahaan" class="form-label">Nama Perusahaan <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_nama_perusahaan" name="nama_perusahaan" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_wilayah_id" class="form-label">Wilayah <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="edit_wilayah_id" name="wilayah_id" required>
+                                        <option value="">Pilih Wilayah</option>
+                                        <!-- Wilayah akan dimuat di sini -->
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="edit_alamat_perusahaan" class="form-label">Alamat Perusahaan</label>
+                                <input type="text" class="form-control" id="edit_alamat_perusahaan" name="alamat_perusahaan">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_contact_person" class="form-label">Contact Person <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_contact_person" name="contact_person" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="edit_email" name="email" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_instagram" class="form-label">Instagram</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">@</span>
+                                        <input type="text" class="form-control" id="edit_instagram" name="instagram" placeholder="username">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_website" class="form-label">Website</label>
+                                    <input type="text" class="form-control" id="edit_website" name="website" placeholder="https://example.com">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="edit_deskripsi" class="form-label">Deskripsi Perusahaan</label>
+                                <textarea class="form-control" id="edit_deskripsi" name="deskripsi" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="edit_gmaps" class="form-label">Link Google Maps</label>
+                                <input type="text" class="form-control" id="edit_gmaps" name="gmaps"
+                                    placeholder="https://goo.gl/maps/...">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="edit_logo" class="form-label">Logo Perusahaan</label>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div id="currentLogoPreview" class="me-3">
+                                        <!-- Current logo preview will be displayed here -->
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" class="form-control" id="edit_logo" name="logo" accept="image/*">
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Format: JPG, PNG, SVG. Maks: 2MB. Kosongkan jika tidak ingin mengubah logo.</small>
+                                <div id="editLogoPreview" class="mt-2 d-none">
+                                    <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
+                                </div>
+                            </div>
+
+                            <div class="modal-footer px-0 pb-0">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary" id="btnUpdate">
+                                    <i class="bi bi-save me-1"></i>Perbarui
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Import CSV -->
+        <div class="modal fade" id="importCSVModal" tabindex="-1" aria-labelledby="importCSVModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importCSVModalLabel">Import Data Perusahaan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="importCSVForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="csv_file" class="form-label">File CSV</label>
+                                <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv" required>
+                                <div class="form-text">Download <a href="#" class="link-primary">template CSV</a> untuk format yang benar</div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">Import</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -113,11 +292,115 @@
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/css/data_perusahaan.css') }}">
+    <style>
+        .company-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .company-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        .company-actions {
+            display: flex;
+            gap: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-card:hover .company-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn.edit:hover {
+            color: #0d6efd;
+        }
+
+        .action-btn.delete:hover {
+            color: #dc3545;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Loading spinner */
+        .spinner-border {
+            animation: spinner-border 1s linear infinite;
+        }
+
+        /* Make image previews consistent */
+        #logoPreview img, #editLogoPreview img, #currentLogoPreview img {
+            object-fit: contain;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        #currentLogoPreview {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 6px;
+            border: 1px dashed #dee2e6;
+            background-color: #f8f9fa;
+        }
+
+        #currentLogoPreview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
 @endpush
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Variable global untuk menyimpan data perusahaan
+        let perusahaanData = [];
+
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', function () {
             loadWilayahOptions();
@@ -131,7 +414,36 @@
                 wilayah: '',
                 search: ''
             };
+
+            // Preview logo saat file dipilih untuk tambah perusahaan
+            document.getElementById('logo').addEventListener('change', function(e) {
+                previewImage(this, 'logoPreview');
+            });
+
+            // Preview logo saat file dipilih untuk edit perusahaan
+            document.getElementById('edit_logo').addEventListener('change', function(e) {
+                previewImage(this, 'editLogoPreview');
+            });
         });
+
+        // Fungsi untuk preview gambar
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const previewImg = preview.querySelector('img');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('d-none');
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('d-none');
+            }
+        }
 
         function loadWilayahOptions() {
             fetch('/api/wilayah')
@@ -140,20 +452,29 @@
                     if (data.success) {
                         // Dropdown di form tambah perusahaan
                         const wilayahSelect = document.getElementById('wilayah_id');
+                        // Dropdown di form edit perusahaan
+                        const editWilayahSelect = document.getElementById('edit_wilayah_id');
                         // Dropdown di tombol filter wilayah
                         const wilayahDropdown = document.getElementById('wilayahDropdown');
 
                         // Kosongkan dropdown sebelum menambahkan data baru
                         wilayahSelect.innerHTML = '<option value="">Pilih Wilayah</option>';
+                        editWilayahSelect.innerHTML = '<option value="">Pilih Wilayah</option>';
                         wilayahDropdown.innerHTML = '<li><a class="dropdown-item active" href="#" data-wilayah-id="">Semua Wilayah</a></li>';
 
                         // Tambahkan data wilayah ke kedua dropdown
                         data.data.forEach(wilayah => {
-                            // Tambahkan ke dropdown form
+                            // Tambahkan ke dropdown form tambah
                             const option = document.createElement('option');
                             option.value = wilayah.wilayah_id;
                             option.textContent = wilayah.nama_kota;
                             wilayahSelect.appendChild(option);
+                            
+                            // Tambahkan ke dropdown form edit
+                            const editOption = document.createElement('option');
+                            editOption.value = wilayah.wilayah_id;
+                            editOption.textContent = wilayah.nama_kota;
+                            editWilayahSelect.appendChild(editOption);
 
                             // Tambahkan ke dropdown filter wilayah
                             const li = document.createElement('li');
@@ -185,7 +506,10 @@
                         });
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorMessage('Gagal memuat data wilayah');
+                });
         }
 
         function applyFilters() {
@@ -216,81 +540,256 @@
         }
 
         function loadPerusahaanData() {
+            // Tampilkan loading state
+            document.getElementById('loadingState').classList.remove('d-none');
+            document.getElementById('dataContainer').classList.add('d-none');
+            document.getElementById('emptyState').classList.add('d-none');
+            document.getElementById('errorState').classList.add('d-none');
+            
             fetch('/api/perusahaan')
                 .then(response => response.json())
                 .then(data => {
+                    // Sembunyikan loading state
+                    document.getElementById('loadingState').classList.add('d-none');
+                    
                     if (data.success) {
                         perusahaanData = data.data; // Simpan data perusahaan ke variabel global
-                        console.log('Data Perusahaan:', perusahaanData); // Debugging
-                        updatePerusahaanGrid(perusahaanData); // Tampilkan semua data perusahaan
+                        
+                        if (perusahaanData.length === 0) {
+                            // Tampilkan empty state jika tidak ada data
+                            document.getElementById('emptyState').classList.remove('d-none');
+                        } else {
+                            // Tampilkan container data dan update grid
+                            document.getElementById('dataContainer').classList.remove('d-none');
+                            updatePerusahaanGrid(perusahaanData); // Tampilkan semua data perusahaan
+                        }
+                    } else {
+                        showErrorMessage(data.message || 'Gagal memuat data perusahaan');
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorMessage('Terjadi kesalahan saat memuat data. Silakan coba lagi.');
+                });
         }
 
-        function filterPerusahaan() {
-            const searchInput = document.getElementById('searchPerusahaan').value.toLowerCase(); // Ambil nilai input pencarian
-            const filteredData = perusahaanData.filter(p =>
-                p.nama_perusahaan.toLowerCase().includes(searchInput) || // Filter berdasarkan nama perusahaan
-                p.wilayah.toLowerCase().includes(searchInput) // Filter berdasarkan wilayah
-            );
-            updatePerusahaanGrid(filteredData); // Perbarui grid dengan data yang difilter
+        function showErrorMessage(message) {
+            document.getElementById('loadingState').classList.add('d-none');
+            document.getElementById('dataContainer').classList.add('d-none');
+            document.getElementById('emptyState').classList.add('d-none');
+            document.getElementById('errorState').classList.remove('d-none');
+            document.getElementById('errorMessage').textContent = message;
         }
-
-        document.getElementById('searchPerusahaan').addEventListener('input', filterPerusahaan);
 
         function updatePerusahaanGrid(perusahaan) {
             const grid = document.getElementById('perusahaanContainer');
+            
             if (!perusahaan.length) {
                 grid.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        Belum ada data perusahaan.
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Tidak ditemukan data perusahaan yang sesuai dengan filter yang dipilih.
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
                 return;
             }
 
-            grid.innerHTML = perusahaan.map(p => `
-            <div class="col-md-4 mb-4">
-                <div class="card company-card" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="company-logo me-3">
-                                ${p.logo
-                    ? `<img src="/storage/${p.logo}" alt="${p.nama_perusahaan}" class="img-fluid" style="width: 50px; height: 50px; object-fit: contain;">`
-                    : `<i class="bi bi-building" style="font-size: 2rem;"></i>`
-                }
+            grid.innerHTML = '';
+            
+            perusahaan.forEach((p, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4';
+                col.style.opacity = '0';
+                col.style.animation = `fadeIn 0.5s ease-out forwards ${index * 0.1}s`;
+                
+                col.innerHTML = `
+                    <div class="card company-card position-relative">
+                        <div class="company-actions">
+                            <button class="action-btn edit" title="Edit Perusahaan" onclick="event.stopPropagation(); editPerusahaan(${p.perusahaan_id})">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="action-btn delete" title="Hapus Perusahaan" onclick="event.stopPropagation(); deletePerusahaan(${p.perusahaan_id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <div class="card-body" onclick="goToDetail(${p.perusahaan_id})" style="cursor: pointer;">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="company-logo me-3">
+                                    ${p.logo
+                                        ? `<img src="/storage/${p.logo}" alt="${p.nama_perusahaan}" class="img-fluid" style="width: 50px; height: 50px; object-fit: contain;">`
+                                        : `<i class="bi bi-building" style="font-size: 2rem;"></i>`
+                                    }
+                                </div>
+                                <div>
+                                    <h6 class="company-name mb-1">${p.nama_perusahaan}</h6>
+                                    <div class="company-location">
+                                        <i class="bi bi-geo-alt"></i>
+                                        <span>${p.wilayah}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="company-name">${p.nama_perusahaan}</h6>
-                                <div class="company-location">
-                                    <i class="bi bi-geo-alt"></i>
-                                    <span>${p.wilayah}</span>
+                            <div class="vacancy-info">
+                                <p class="text-muted mb-1">Lowongan Terbuka</p>
+                                <div class="vacancy-count">
+                                    <i class="bi bi-briefcase"></i>
+                                    <span>${p.lowongan_count || 0} Lowongan</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="vacancy-info">
-                            <p class="text-muted">Lowongan Terbuka</p>
-                            <div class="vacancy-count">
-                                <i class="bi bi-briefcase"></i>
-                                <span>${p.lowongan_count || 0} Lowongan</span>
-                            </div>
-                        </div>
                     </div>
-                </div>
-            </div>
-        `).join('');
+                `;
+                
+                grid.appendChild(col);
+            });
         }
 
         function tambahPerusahaan() {
+            // Reset form
+            document.getElementById('tambahPerusahaanForm').reset();
+            document.getElementById('logoPreview').classList.add('d-none');
+            
             const modal = new bootstrap.Modal(document.getElementById('tambahPerusahaanModal'));
             modal.show();
         }
 
+        function editPerusahaan(id) {
+            // Reset form and preview
+            document.getElementById('editPerusahaanForm').reset();
+            document.getElementById('editLogoPreview').classList.add('d-none');
+            
+            // Tampilkan loading pada button
+            const btnUpdate = document.getElementById('btnUpdate');
+            const originalBtnText = btnUpdate.innerHTML;
+            btnUpdate.disabled = true;
+            btnUpdate.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Memuat Data...';
+            
+            // Ambil data perusahaan untuk edit
+            fetch(`/api/perusahaan/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const perusahaan = data.data;
+                        
+                        // Isi form dengan data perusahaan
+                        document.getElementById('edit_perusahaan_id').value = perusahaan.perusahaan_id;
+                        document.getElementById('edit_nama_perusahaan').value = perusahaan.nama_perusahaan;
+                        document.getElementById('edit_alamat_perusahaan').value = perusahaan.alamat_perusahaan || '';
+                        document.getElementById('edit_wilayah_id').value = perusahaan.wilayah_id;
+                        document.getElementById('edit_contact_person').value = perusahaan.contact_person || '';
+                        document.getElementById('edit_email').value = perusahaan.email || '';
+                        document.getElementById('edit_instagram').value = perusahaan.instagram || '';
+                        document.getElementById('edit_website').value = perusahaan.website || '';
+                        document.getElementById('edit_deskripsi').value = perusahaan.deskripsi || '';
+                        document.getElementById('edit_gmaps').value = perusahaan.gmaps || '';
+                        
+                        // Tampilkan preview logo jika ada
+                        const currentLogoPreview = document.getElementById('currentLogoPreview');
+                        if (perusahaan.logo) {
+                            currentLogoPreview.innerHTML = `<img src="/storage/${perusahaan.logo}" alt="Logo" style="max-width: 100%; max-height: 100%;">`;
+                        } else {
+                            currentLogoPreview.innerHTML = `<i class="bi bi-building" style="font-size: 2rem; color: #adb5bd;"></i>`;
+                        }
+                        
+                        // Tampilkan modal edit
+                        const modal = new bootstrap.Modal(document.getElementById('editPerusahaanModal'));
+                        modal.show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Gagal memuat data perusahaan'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan saat memuat data perusahaan'
+                    });
+                })
+                .finally(() => {
+                    // Kembalikan button ke state semula
+                    btnUpdate.disabled = false;
+                    btnUpdate.innerHTML = originalBtnText;
+                });
+        }
+
+        function deletePerusahaan(id) {
+            Swal.fire({
+                title: 'Hapus Perusahaan?',
+                text: "Data perusahaan dan semua lowongan terkait akan dihapus secara permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Tampilkan loading
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        html: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Kirim request hapus
+                    fetch(`/api/perusahaan/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: data.message || 'Perusahaan berhasil dihapus',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            
+                            // Reload data perusahaan
+                            loadPerusahaanData();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: data.message || 'Gagal menghapus perusahaan'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan saat menghapus perusahaan'
+                        });
+                    });
+                }
+            });
+        }
+
+        // Fungsi untuk handle submit tambah perusahaan
         document.getElementById('tambahPerusahaanForm').addEventListener('submit', function (e) {
             e.preventDefault();
+
+            // Tampilkan loading di button
+            const btnSimpan = document.getElementById('btnSimpan');
+            const originalBtnText = btnSimpan.innerHTML;
+            btnSimpan.disabled = true;
+            btnSimpan.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Menyimpan...';
 
             // Membuat FormData untuk menangani file upload
             const formData = new FormData(this);
@@ -303,45 +802,118 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: data.message
-                        }).then(() => {
-                            // Tutup modal
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('tambahPerusahaanModal'));
-                            modal.hide();
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message || 'Perusahaan berhasil ditambahkan',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Tutup modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('tambahPerusahaanModal'));
+                    modal.hide();
 
-                            // Reset form
-                            document.getElementById('tambahPerusahaanForm').reset();
+                    // Reset form
+                    this.reset();
+                    document.getElementById('logoPreview').classList.add('d-none');
 
-                            // Reload data perusahaan
-                            loadPerusahaanData();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: data.message
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                    // Reload data perusahaan
+                    loadPerusahaanData();
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text: 'Terjadi kesalahan. Silakan coba lagi.'
+                        text: data.message || 'Gagal menambahkan perusahaan'
                     });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan. Silakan coba lagi.'
                 });
+            })
+            .finally(() => {
+                // Kembalikan button ke state semula
+                btnSimpan.disabled = false;
+                btnSimpan.innerHTML = originalBtnText;
+            });
+        });
+
+        // Fungsi untuk handle submit edit perusahaan
+        document.getElementById('editPerusahaanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Tampilkan loading di button
+            const btnUpdate = document.getElementById('btnUpdate');
+            const originalBtnText = btnUpdate.innerHTML;
+            btnUpdate.disabled = true;
+            btnUpdate.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Memperbarui...';
+
+            // Ambil ID perusahaan
+            const id = document.getElementById('edit_perusahaan_id').value;
+
+            // Membuat FormData untuk menangani file upload
+            const formData = new FormData(this);
+            formData.append('_method', 'PUT'); // Untuk method spoofing di Laravel
+
+            // Kirim data ke server
+            fetch(`/api/perusahaan/${id}`, {
+                method: 'POST', // Tetap gunakan POST untuk FormData dengan method spoofing
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message || 'Perusahaan berhasil diperbarui',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Tutup modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editPerusahaanModal'));
+                    modal.hide();
+
+                    // Reload data perusahaan
+                    loadPerusahaanData();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal memperbarui perusahaan'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan. Silakan coba lagi.'
+                });
+            })
+            .finally(() => {
+                // Kembalikan button ke state semula
+                btnUpdate.disabled = false;
+                btnUpdate.innerHTML = originalBtnText;
+            });
         });
 
         function importCSV() {
-            // Add your import CSV code here
-            console.log('Import CSV clicked');
+            const modal = new bootstrap.Modal(document.getElementById('importCSVModal'));
+            modal.show();
         }
 
         function goToDetail(id) {

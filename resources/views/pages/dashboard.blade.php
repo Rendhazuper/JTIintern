@@ -70,7 +70,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold" style="color: #2D2D2D;">Permintaan Magang Terbaru</span>
-                            <a href="#" class="fw-semibold" style="color: #4278FF;">Semua Permintaan</a>
+                            <a href="/permintaan" class="fw-semibold" style="color: #4278FF;">Semua Permintaan</a>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle mb-0">
