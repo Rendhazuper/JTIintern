@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
@@ -8,11 +9,18 @@ class WilayahController extends Controller
 {
     public function index()
     {
-        $wilayah = Wilayah::all();
+        try {
+            $wilayah = Wilayah::all();
 
-        return response()->json([
-            'success' => true,
-            'data' => $wilayah,
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $wilayah
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data wilayah: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

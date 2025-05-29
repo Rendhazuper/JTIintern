@@ -44,4 +44,9 @@ class Lowongan extends Model
     {
         return $this->belongsTo(Jenis::class, 'jenis_id', 'jenis_id');
     }
+
+    public function lamaran()
+    {
+        return $this->hasMany(Lamaran::class, 'id_lowongan', 'id_lowongan');
+    }
 }

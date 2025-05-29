@@ -1,4 +1,5 @@
 <?php
+// filepath: app/Models/Dosen.php
 
 namespace App\Models;
 
@@ -11,54 +12,46 @@ class Dosen extends Model
 
     protected $table = 'm_dosen';
     protected $primaryKey = 'id_dosen';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
-        // 'user_id',
-        // 'nip',
-        // 'nama_dosen',
-        // 'wilayah_id',
-        // 'perusahaan_id', // Tambah ini
-        // 'alamat',
-        // 'nomor_telepon',
-        // 'email'
-
         'user_id',
-        'wilayah_id',
         'nip',
+        'wilayah_id'
     ];
 
-    /**
-     * Mendapatkan user yang terkait dengan dosen
-     */
+    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');
     }
 
-
-    /**
-     * Mendapatkan mahasiswa bimbingan
-     */
-    public function mahasiswaBimbingan()
-    {
-        return $this->hasMany(Mahasiswa::class, 'dosen_pembimbing_id', 'nip');
-    }
-
-    /**
-     * Mendapatkan lamaran yang disetujui dosen
-     */
-    public function lamaran()
-    {
-        return $this->hasMany(Lamaran::class, 'id_dosen', 'nip');
-    }
-
-    /**
-     * Mendapatkan wilayah dosen
-     */
+    // Relasi ke Wilayah
     public function wilayah()
     {
         return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
+    }
+
+    // Relasi ke Skills
+    public function skills()
+    {
+        return $this->hasMany(SkillDosen::class, 'id_dosen', 'id_dosen');
+    }
+
+    // Relasi ke Perusahaan
+    public function perusahaan()
+    {
+        return $this->belongsToMany(Perusahaan::class, 't_dosen_perusahaan', 'id_dosen', 'perusahaan_id');
+    }
+
+    // Relasi ke Beban Kerja
+    public function workload()
+    {
+        return $this->hasOne(DosenBebanKerja::class, 'id_dosen', 'id_dosen');
+    }
+
+    // Relasi ke Magang yang dibimbing
+    public function magangBimbingan()
+    {
+        return $this->hasMany(Magang::class, 'id_dosen', 'id_dosen');
     }
 }

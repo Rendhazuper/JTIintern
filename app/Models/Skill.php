@@ -31,4 +31,11 @@ class Skill extends Model
     {
         return $this->belongsToMany(Lowongan::class, 't_skill_lowongan', 'skill_id', 'id_lowongan');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 't_skill_mahasiswa', 'skill_id', 'user_id')
+            ->withPivot('lama_skill')
+            ->withTimestamps(false); // Add this line
+    }
 }

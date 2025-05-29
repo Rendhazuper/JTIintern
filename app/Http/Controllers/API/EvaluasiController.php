@@ -1,57 +1,65 @@
 <?php
+// filepath: d:\laragon\www\JTIintern\app\Http\Controllers\API\EvaluasiController.php
 
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Evaluasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EvaluasiController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Mendapatkan semua data evaluasi dengan join ke tabel terkait
+     */
+    public function index()
     {
         try {
-            $query = DB::table('t_evaluasi as e')
-                ->join('m_magang as mg', 'e.id_magang', '=', 'mg.id_magang')
-                ->join('m_mahasiswa as mhs', 'mg.id_mahasiswa', '=', 'mhs.id_mahasiswa')
-                ->join('m_user as u', 'mhs.id_user', '=', 'u.id_user')
-                ->join('m_dosen as d', 'mg.id_dosen', '=', 'd.id_dosen')
-                ->join('m_user as ud', 'd.user_id', '=', 'ud.id_user')
-                ->join('m_lowongan as l', 'mg.id_lowongan', '=', 'l.id_lowongan')
-                ->join('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
+            Log::info('Fetching evaluations data...');
+            
+            // Query untuk mendapatkan evaluasi dengan join tabel lain untuk data tambahan
+            $evaluations = DB::table('t_evaluasi AS e')
+                ->leftJoin('m_magang AS m', 'e.id_magang', '=', 'm.id_magang')
+                ->leftJoin('m_mahasiswa AS mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
+                ->leftJoin('m_dosen AS d', 'm.id_dosen', '=', 'd.id_dosen')
+                ->leftJoin('m_lowongan AS l', 'm.id_lowongan', '=', 'l.id_lowongan')
+                ->leftJoin('m_perusahaan AS p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
+                ->leftJoin('m_user AS u_mhs', 'mhs.id_user', '=', 'u_mhs.id_user')
+                ->leftJoin('m_user AS u_dsn', 'd.user_id', '=', 'u_dsn.id_user')
                 ->select(
                     'e.id_evaluasi',
+                    'e.id_magang',
                     'e.nilai',
-                    'e.eval as evaluasi',
+                    'e.eval',
                     'e.created_at',
-                    'u.name as nama_mahasiswa',
-                    'ud.name as nama_dosen',
+                    'e.updated_at',
+                    'u_mhs.name AS nama_mahasiswa',
+                    'mhs.nim',
+                    'u_dsn.name AS nama_dosen',
+                    'd.id_dosen',
                     'p.nama_perusahaan',
-                    'p.perusahaan_id',
-                    'd.id_dosen'
+                    'p.perusahaan_id'
                 )
-                ->orderBy('e.created_at', 'desc');
-
-            // Apply filters
-            if ($request->has('dosen_id')) {
-                $query->where('d.id_dosen', $request->dosen_id);
-            }
-
-            if ($request->has('perusahaan_id')) {
-                $query->where('p.perusahaan_id', $request->perusahaan_id);
-            }
-
-            $evaluations = $query->get();
-
+                ->orderBy('e.created_at', 'desc')
+                ->get();
+            
+            Log::info('Evaluations fetched: ' . count($evaluations));
+            
             return response()->json([
                 'success' => true,
-                'data' => $evaluations
+                'data' => $evaluations,
+                'message' => 'Data evaluasi berhasil ditemukan',
+                'count' => count($evaluations)
             ]);
         } catch (\Exception $e) {
+            // Log error untuk debug
+            Log::error('Error fetching evaluations: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching evaluations: ' . $e->getMessage()
+                'message' => 'Gagal memuat data evaluasi',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
