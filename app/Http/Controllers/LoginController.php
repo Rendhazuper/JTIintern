@@ -39,27 +39,28 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        $remember = $request->boolean('remember');
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $request->session()->regenerate();
 
-        if (Auth::attempt($credentials, $remember)) {
-         $user = Auth::user();
-         $request->session()->regenerate();
-        
-        // Simpan data tambahan ke session jika diperlukan
-        session(['user_id' => $user->id]);
-        session(['user_email' => $user->email]);
-        
-        return redirect()->intended('dashboard');
+            // Check user role and redirect accordingly
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended('/dashboard');
+            } else if (Auth::user()->role === 'mahasiswa') {
+                return redirect()->intended('/mahasiswa/dashboard');
+            }
+
+            // Default fallback
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
-        ])->withInput($request->only('email', 'remember'));
+        ]);
     }
 
     /**
