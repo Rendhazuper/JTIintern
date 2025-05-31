@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\MahasiswaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,4 +43,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/data-perusahaan', [PerusahaanController::class, 'index'])->name('data-perusahaan');
 	Route::get('/detail-perusahaan/{id}', [PerusahaanController::class, 'showDetail']);
 	Route::get('/plotting', [PageController::class, 'plotting'])->name('plotting');
+});
+
+Route::prefix('mahasiswa')->group(function () {
+    Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+    Route::get('/lowongan', [MahasiswaController::class, 'lowongan'])->name('mahasiswa.lowongan');
+    Route::get('/lamaran', [MahasiswaController::class, 'lamaran'])->name('mahasiswa.lamaran');
+    Route::get('/evaluasi', [MahasiswaController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
+    Route::get('/profile', [MahasiswaController::class, 'profile'])->name('mahasiswa.profile');
 });

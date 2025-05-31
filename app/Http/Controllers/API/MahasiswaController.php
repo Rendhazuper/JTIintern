@@ -234,4 +234,11 @@ class MahasiswaController extends Controller
             ], 500);
         }
     }
+
+    public function dashboard()
+    {
+        
+        return view('pages.mahasiswa.dashboard');
+    }
+
 }
