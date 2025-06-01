@@ -12,11 +12,14 @@ class Dosen extends Model
 
     protected $table = 'm_dosen';
     protected $primaryKey = 'id_dosen';
+    public $timestamps = true;
 
     protected $fillable = [
         'user_id',
         'nip',
-        'wilayah_id'
+        'wilayah_id',
+        'created_at',
+        'updated_at',
     ];
 
     // Relasi ke User

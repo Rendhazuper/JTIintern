@@ -17,22 +17,21 @@ class PeriodeController extends Controller
     public function index()
     {
         try {
-            $periodes = DB::table('m_periode')
-                ->orderBy('waktu', 'desc')
+            $periodes = Periode::select('m_periode.*')
+                ->leftJoin('t_periode as tp', 'm_periode.periode_id', '=', 'tp.periode_id')
+                ->selectRaw('CASE WHEN tp.periode_id IS NOT NULL THEN true ELSE false END as is_active')
+                ->orderBy('m_periode.created_at', 'desc')
                 ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $periodes,
-                'message' => 'Data periode berhasil ditemukan'
+                'data' => $periodes
             ]);
         } catch (\Exception $e) {
-            Log::error('Error fetching periodes: ' . $e->getMessage());
-            
+            Log::error('Error fetching periode: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memuat data periode',
-                'error' => $e->getMessage()
+                'message' => 'Terjadi kesalahan saat mengambil data periode'
             ], 500);
         }
     }
@@ -61,7 +60,7 @@ class PeriodeController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching periode details: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat detail periode',
@@ -75,30 +74,25 @@ class PeriodeController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'waktu' => 'required|string|max:255|unique:m_periode,waktu'
-            ], [
-                'waktu.required' => 'Waktu periode wajib diisi',
-                'waktu.unique' => 'Periode dengan waktu tersebut sudah ada'
-            ]);
+        $request->validate([
+            'waktu' => 'required|string|max:255',
+            'tgl_mulai' => 'required|date',
+            'tgl_selesai' => 'required|date|after:tgl_mulai',
+        ]);
 
-            $periodeId = DB::table('m_periode')->insertGetId([
-                'waktu' => $request->waktu,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+        try {
+            $periode = new \App\Models\Periode();
+            $periode->waktu = $request->waktu;
+            $periode->tgl_mulai = $request->tgl_mulai;
+            $periode->tgl_selesai = $request->tgl_selesai;
+            $periode->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Periode berhasil ditambahkan',
-                'data' => [
-                    'periode_id' => $periodeId
-                ]
-            ], 201);
+                'data' => $periode
+            ]);
         } catch (\Exception $e) {
-            Log::error('Error creating periode: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan periode: ' . $e->getMessage()
@@ -106,47 +100,41 @@ class PeriodeController extends Controller
         }
     }
 
-    /**
-     * Memperbarui periode yang ada
-     */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'waktu' => 'required|string|max:255',
+            'tgl_mulai' => 'required|date',
+            'tgl_selesai' => 'required|date|after:tgl_mulai',
+        ]);
+
         try {
-            $request->validate([
-                'waktu' => 'required|string|max:255|unique:m_periode,waktu,' . $id . ',periode_id'
-            ], [
-                'waktu.required' => 'Waktu periode wajib diisi',
-                'waktu.unique' => 'Periode dengan waktu tersebut sudah ada'
-            ]);
+            $periode = \App\Models\Periode::find($id);
 
-            $affected = DB::table('m_periode')
-                ->where('periode_id', $id)
-                ->update([
-                    'waktu' => $request->waktu,
-                    'updated_at' => now()
-                ]);
-
-            if (!$affected) {
+            if (!$periode) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Periode tidak ditemukan'
                 ], 404);
             }
 
+            $periode->waktu = $request->waktu;
+            $periode->tgl_mulai = $request->tgl_mulai;
+            $periode->tgl_selesai = $request->tgl_selesai;
+            $periode->save();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Periode berhasil diperbarui'
+                'message' => 'Periode berhasil diperbarui',
+                'data' => $periode
             ]);
         } catch (\Exception $e) {
-            Log::error('Error updating periode: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui periode: ' . $e->getMessage()
             ], 500);
         }
     }
-
     /**
      * Menghapus periode
      */
@@ -182,10 +170,39 @@ class PeriodeController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error deleting periode: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus periode: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function setActive($id)
+    {
+        try {
+            // Validate if the periode exists
+            $periode = Periode::findOrFail($id);
+
+            // Clear any existing active periode by truncating the t_periode table
+            DB::table('t_periode')->truncate();
+
+            // Insert the new active periode
+            DB::table('t_periode')->insert([
+                'periode_id' => $id,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Periode berhasil diaktifkan',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error setting active periode: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengaktifkan periode'
             ], 500);
         }
     }

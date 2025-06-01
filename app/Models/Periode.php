@@ -15,6 +15,10 @@ class Periode extends Model
 
     protected $fillable = [
         'waktu', // Kolom yang dapat diisi
+        'tgl_mulai', // Tanggal mulai periode
+        'tgl_selesai', // Tanggal selesai periode
+        'created_at', // Tanggal dibuat
+        'updated_at', // Tanggal diperbarui
     ];
 
     // Relasi ke model Lowongan (jika ada)

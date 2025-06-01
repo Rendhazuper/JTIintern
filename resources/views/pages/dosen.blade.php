@@ -185,18 +185,18 @@
             // Tampilkan loading state
             const tableBody = document.getElementById('dosen-table-body');
             tableBody.innerHTML = `
-                                        <tr>
-                        <td colspan="4" class="text-center">
-                            <div class="py-5">
-                                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-                                <div class="mt-3">
-                                    <h6 class="text-primary mb-1">Memuat data dosen</h6>
-                                    <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                                                <tr>
+                                <td colspan="4" class="text-center">
+                                    <div class="py-5">
+                                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                        <div class="mt-3">
+                                            <h6 class="text-primary mb-1">Memuat data dosen</h6>
+                                            <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
 
             // Fetch data dari API
             axios.get('/api/dosen')
@@ -216,34 +216,34 @@
                                 row.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
 
                                 row.innerHTML = `
-                                                               <td>
-                            <div class="d-flex">
-                                <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
-                                    ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
-                                </div>
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
-                                    <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-weight-normal">${dosen.wilayah || '-'}</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
-                        </td>
-                        <td class="text-end">
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
-                                    <i class="fas fa-edit me-1"></i>Edit
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
-                                    <i class="fas fa-trash me-1"></i>Hapus
-                                </button>
-                            </div>
-                        </td>
-                    `;
+                                                                       <td>
+                                    <div class="d-flex">
+                                        <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
+                                            ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
+                                        </div>
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
+                                            <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-sm font-weight-normal">${dosen.wilayah || '-'}</span>
+                                </td>
+                                <td>
+                                    <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
+                                            <i class="fas fa-trash me-1"></i>Hapus
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
                                 tableBody.appendChild(row);
                             });
 
@@ -252,11 +252,11 @@
                                 const style = document.createElement('style');
                                 style.id = 'fade-in-animation';
                                 style.textContent = `
-                                                            @keyframes fadeIn {
-                                                                from { opacity: 0; transform: translateY(10px); }
-                                                                to { opacity: 1; transform: translateY(0); }
-                                                            }
-                                                        `;
+                                                                    @keyframes fadeIn {
+                                                                        from { opacity: 0; transform: translateY(10px); }
+                                                                        to { opacity: 1; transform: translateY(0); }
+                                                                    }
+                                                                `;
                                 document.head.appendChild(style);
                             }
 
@@ -278,41 +278,41 @@
         // Helper function untuk menampilkan empty state
         function showEmptyState(tableBody) {
             tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="4">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
-                                </div>
-                                <h6 class="text-muted">Tidak ada data dosen</h6>
-                                <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
-                                <button class="btn btn-sm btn-success" onclick="tambahDosen()">
-                                    <i class="fas fa-plus me-1"></i>Tambah Dosen
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
+                                        </div>
+                                        <h6 class="text-muted">Tidak ada data dosen</h6>
+                                        <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
+                                        <button class="btn btn-sm btn-success" onclick="tambahDosen()">
+                                            <i class="fas fa-plus me-1"></i>Tambah Dosen
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
         }
 
         // Helper function untuk menampilkan error state
         function showErrorState(tableBody) {
             tableBody.innerHTML = `
-                <tr>
-                    <td colspan="4">
-                        <div class="error-state">
-                            <div class="error-state-icon">
-                                <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
-                            </div>
-                            <h6 class="text-danger">Gagal memuat data</h6>
-                            <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
-                            <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
-                                <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        <tr>
+                            <td colspan="4">
+                                <div class="error-state">
+                                    <div class="error-state-icon">
+                                        <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
+                                    </div>
+                                    <h6 class="text-danger">Gagal memuat data</h6>
+                                    <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
+                                    <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
+                                        <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
         }
 
         function tambahDosen() {
@@ -471,25 +471,25 @@
                         Swal.fire({
                             title: 'Detail Dosen',
                             html: `
-                                                    <div class="text-start">
-                                                        <div class="mb-3">
-                                                            <label class="fw-bold d-block">Nama:</label>
-                                                            <span>${dosen.nama_dosen || '-'}</span>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="fw-bold d-block">NIP:</label>
-                                                            <span>${dosen.nip || '-'}</span>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="fw-bold d-block">Email:</label>
-                                                            <span>${dosen.email || '-'}</span>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="fw-bold d-block">Wilayah:</label>
-                                                            <span>${dosen.wilayah || '-'}</span>
-                                                        </div>
-                                                    </div>
-                                                `,
+                                                            <div class="text-start">
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold d-block">Nama:</label>
+                                                                    <span>${dosen.nama_dosen || '-'}</span>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold d-block">NIP:</label>
+                                                                    <span>${dosen.nip || '-'}</span>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold d-block">Email:</label>
+                                                                    <span>${dosen.email || '-'}</span>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold d-block">Wilayah:</label>
+                                                                    <span>${dosen.wilayah || '-'}</span>
+                                                                </div>
+                                                            </div>
+                                                        `,
                             confirmButtonText: 'Tutup',
                             confirmButtonColor: '#5e72e4',
                         });
@@ -506,13 +506,18 @@
         // Add this function after your existing JavaScript code
 
         function importCSV() {
-            // Create and show modal
             Swal.fire({
                 title: 'Import Data Dosen',
                 html: `
-                    <div class="alert alert-info">
+                    <div class="alert alert-info mb-3">
                         <i class="fas fa-info-circle me-2"></i>
-                        File CSV harus memiliki kolom: nama, nip, wilayah
+                        <strong>Format CSV:</strong> File CSV harus memiliki kolom berikut:
+                        <ul class="mb-0 mt-1 text-start">
+                            <li><strong>nama_dosen</strong> (wajib)</li>
+                            <li><strong>nip</strong> (wajib)</li>
+                            <li><strong>wilayah</strong> atau <strong>wilayah_id</strong> (wajib)</li>
+                            <li><strong>email</strong> (opsional - akan digenerate otomatis jika kosong)</li>
+                        </ul>
                     </div>
                     <div class="mb-3">
                         <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
@@ -521,6 +526,17 @@
                         <div class="custom-file">
                             <input type="file" class="form-control" id="csvFile" accept=".csv">
                         </div>
+                        <div class="form-text text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Tips: Pastikan file CSV menggunakan koma (,) sebagai pemisah.
+                        </div>
+                    </div>
+                    <div class="alert alert-warning small mb-0">
+                        <strong>Catatan Penting:</strong>
+                        <ul class="mb-0 mt-1 text-start">
+                            <li>Setiap dosen akan otomatis dibuatkan akun dengan password acak</li>
+                            <li>Gunakan nama wilayah yang sudah ada di sistem</li>
+                        </ul>
                     </div>
                 `,
                 showCancelButton: true,
@@ -530,42 +546,47 @@
                 preConfirm: () => {
                     const fileInput = document.getElementById('csvFile');
                     const formData = new FormData();
-                    
+
                     if (!fileInput.files[0]) {
                         Swal.showValidationMessage('Silakan pilih file CSV terlebih dahulu');
                         return false;
                     }
-                    
+
                     formData.append('csv_file', fileInput.files[0]);
-                    
+
                     return axios.post('/api/dosen/import', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
                     })
-                    .then(response => {
-                        if (!response.data.success) {
-                            throw new Error(response.data.message);
-                        }
-                        return response.data;
-                    })
-                    .catch(error => {
-                        throw new Error(error.response?.data?.message || 'Terjadi kesalahan saat mengimpor data');
-                    });
+                        .then(response => {
+                            if (!response.data.success) {
+                                throw new Error(response.data.message);
+                            }
+                            return response.data;
+                        })
+                        .catch(error => {
+                            throw new Error(error.response?.data?.message || 'Terjadi kesalahan saat mengimpor data');
+                        });
                 },
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (result.value.errors && result.value.errors.length > 0) {
                         // Show warning if there are errors but some data was imported
+                        let errorList = '';
+                        result.value.errors.forEach(err => {
+                            errorList += `<li class="text-start small">${err}</li>`;
+                        });
+
                         Swal.fire({
                             title: 'Import Sebagian Berhasil',
                             html: `
-                                ${result.value.message}<br><br>
+                                <p>${result.value.message}</p>
                                 <div class="alert alert-warning">
                                     <strong>Beberapa data tidak dapat diimpor:</strong>
                                     <ul class="mb-0 mt-1">
-                                        ${result.value.errors.map(err => `<li class="text-start small">${err}</li>`).join('')}
+                                        ${errorList}
                                     </ul>
                                 </div>
                             `,
@@ -581,27 +602,121 @@
         }
 
         function downloadTemplate() {
+            // Show loading state
+            Swal.fire({
+                title: 'Membuat Template',
+                text: 'Sedang menyiapkan template CSV...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             // Fetch wilayah for template
             axios.get('/api/wilayah')
                 .then(function (response) {
                     if (response.data.success) {
                         const wilayah = response.data.data;
 
-                        // Create CSV header
-                        let csvContent = "nama,nip,wilayah\n";
+                        // CSV headers - adjusted for both m_user and m_dosen tables
+                        const headers = [
+                            'nama_dosen',  // This will go into m_user.name
+                            'nip',         // This will go into m_dosen.nip
+                            'email',       // This will go into m_user.email
+                            'wilayah',     // This will be converted to wilayah_id for m_dosen.wilayah_id
+                            'password'     // Optional - will be auto-generated if not provided
+                        ];
 
-                        // Add example data
-                        csvContent += `Nama Dosen,198601012019031001,${wilayah[0]?.nama_kota || 'Jember'}\n`;
+                        // Example data
+                        const exampleData = [
+                            // Example row 1
+                            [
+                                'Dr. Ahmad Fauzi',
+                                '198601012019031001',
+                                'ahmad.fauzi@example.com',
+                                wilayah[0]?.nama_kota || 'Jember',
+                                '' // Leave blank for auto-generated password
+                            ],
+                            // Example row 2
+                            [
+                                'Ir. Budi Santoso M.Kom',
+                                '197505202005011002',
+                                'budi.santoso@example.com',
+                                wilayah.length > 1 ? wilayah[1].nama_kota : 'Surabaya',
+                                'custom123' // Example of custom password
+                            ]
+                        ];
 
-                        // Create file and trigger download
-                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement("a");
+                        // Create CSV content with UTF-8 BOM for Excel compatibility
+                        let csvContent = '\uFEFF' + headers.join(',') + '\r\n';
+
+                        // Add example rows
+                        exampleData.forEach(row => {
+                            // Properly escape values that contain commas or quotes
+                            const escapedRow = row.map(value => {
+                                if (value && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+                                    return `"${value.replace(/"/g, '""')}"`;
+                                }
+                                return value || '';
+                            });
+                            csvContent += escapedRow.join(',') + '\r\n';
+                        });
+
+                        // Create blob and download
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
                         const url = URL.createObjectURL(blob);
-                        link.setAttribute("href", url);
-                        link.setAttribute("download", "template_dosen.csv");
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'template_dosen.csv';
                         document.body.appendChild(link);
                         link.click();
+                        URL.revokeObjectURL(url);
                         document.body.removeChild(link);
+
+                        Swal.close();
+
+                        // Show wilayah reference and field explanations
+                        let wilayahRows = '';
+                        wilayah.slice(0, 5).forEach(w => {
+                            wilayahRows += `<tr><td>${w.nama_kota}</td><td>${w.wilayah_id}</td></tr>`;
+                        });
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Template CSV Berhasil Diunduh',
+                            html: `
+                            <p>Template berhasil diunduh. Silakan isi dengan data dosen Anda.</p>
+
+                            <div class="alert alert-info mt-3">
+                                <strong>Penjelasan Kolom:</strong>
+                                <ul class="text-start mb-0 mt-2">
+                                    <li><strong>nama_dosen</strong>: Nama lengkap dosen (wajib)</li>
+                                    <li><strong>nip</strong>: Nomor Induk Pegawai (wajib)</li>
+                                    <li><strong>email</strong>: Alamat email untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                    <li><strong>wilayah</strong>: Nama wilayah atau ID wilayah (wajib)</li>
+                                    <li><strong>password</strong>: Password untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                </ul>
+                            </div>
+
+                            <p class="mb-2 mt-3"><strong>Referensi Wilayah:</strong></p>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Wilayah</th>
+                                            <th>ID Wilayah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${wilayahRows}
+                                        ${wilayah.length > 5 ? '<tr><td colspan="2" class="text-center">Dan lainnya...</td></tr>' : ''}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `,
+                            confirmButtonText: 'Mengerti',
+                            width: '600px'
+                        });
                     } else {
                         Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data wilayah', 'error');
                     }
