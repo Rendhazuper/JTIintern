@@ -9907,7 +9907,7 @@ fieldset:disabled .btn {
 }
 
 .bg-gray-100 {
-    background-color: #f8f9fa !important;
+    background-color: #FAFAFA !important;
 }
 
 .bg-gray-200 {
@@ -21790,8 +21790,6 @@ hr.horizontal.gray-light {
 }
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
     display: block;
-
-    
 }
 .navbar-vertical.navbar-expand-xs > [class*="container"] {
     flex-direction: column;

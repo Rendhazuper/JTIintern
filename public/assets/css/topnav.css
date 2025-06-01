@@ -1,23 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+
 .navbar {
     background: transparent;
     box-shadow: none !important;
+    margin-top: 0 !important;
 }
 
 .navbar .nav-link {
     padding: 8px 16px;
     border-radius: 6px;
     transition: all 0.3s ease;
-    font-weight: 500;
+    font-family: "Open Sans", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #7d7d7d;
 }
 
 .navbar .nav-link:hover {
-    color: #3b82f6;
+    color: #5988ff;
     background: transparent;
 }
 
 .navbar .nav-link.active {
     color: #ffffff !important;
-    background-color: #3b82f6 !important;
+    background-color: #5988ff !important;
+    border-radius: 15px;
+    width: 190px;
 }
 
 .navbar .dropdown-toggle::after {
@@ -27,12 +38,6 @@
 .navbar .btn.dropdown-toggle {
     background-color: #eff6ff;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .navbar .navbar-nav .nav-item {
@@ -43,32 +48,55 @@
     border: none;
     border-radius: 8px;
     margin-top: 8px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.navbar .dropdown-menu.show {
+    display: block;
+    opacity: 1;
 }
 
 .navbar .dropdown-item {
     padding: 8px 16px;
     color: #4b5563;
+    font-size: 14px;
+    font-family: "Open Sans", sans-serif;
 }
 
 .navbar .dropdown-item:hover {
     background-color: #f3f4f6;
-    color: #3b82f6;
+    color: #5988ff;
 }
 
 .navbar .dropdown-divider {
     margin: 4px 0;
     border-color: #e5e7eb;
 }
+.dropdown-menu {
+    margin-top: 0.5rem !important;
+    padding: 0.5rem 0;
+}
 
 .dropdown-item button {
     background: none;
     border: none;
-    width: 100%;
     text-align: left;
-    padding: 8px 16px;
 }
 
 .dropdown-item button:hover {
     background-color: #f3f4f6;
     color: #dc2626;
+}
+
+.profile-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.profile-button:hover {
+    background-color: #e5e7eb !important;
 }

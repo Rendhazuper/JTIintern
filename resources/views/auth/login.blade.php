@@ -1,4 +1,5 @@
-@extends('layouts.app')
+@extends('layouts.app', ['class' => 'bg-gray-100'])
+
 
 @section('content')
     <main class="main-content">
@@ -8,11 +9,11 @@
                     <div class="row">
                         <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
                             <div class="card card-plain">
-                                <div style = "background : transparent" class="card-header pb-0 text-start">
+                                <div style="background: transparent !important;" class="card-header pb-0 text-start">
                                     <h4 class="font-weight-bolder">Log in</h4>
                                     <p class="mb-0">Masukkan email dan password yang terdaftar</p>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body" >
                                     <form role="form" method="POST" action="{{ route('login.perform') }}">
                                         @csrf
                                         @method('post')

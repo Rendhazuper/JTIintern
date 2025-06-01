@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController;
 use App\Http\Controllers\API\MahasiswaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -70,7 +71,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
-    Route::get('/lowongan', [MahasiswaController::class, 'lowongan'])->name('mahasiswa.lowongan');
+    Route::get('/lowongan', [MahasiswaLowonganController::class, 'view'])->name('mahasiswa.lowongan');
     Route::get('/lamaran', [MahasiswaController::class, 'lamaran'])->name('mahasiswa.lamaran');
     Route::get('/evaluasi', [MahasiswaController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
     Route::get('/profile', [MahasiswaController::class, 'profile'])->name('mahasiswa.profile');

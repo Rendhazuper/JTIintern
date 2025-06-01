@@ -1,0 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap");
+
+body {
+    font-family: "Open Sans", sans-serif;
+    background-color: #f3f3ff;
+}
+.container-fluid {
+    padding-top: 2rem;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+    background-color: #fff;
+}
+
+.lowongan-card {
+    cursor: pointer;
+}
+
+.lowongan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.company-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.badge-location {
+    background-color: #f3f4f6;
+    color: #374151;
+    font-weight: 500;
+}
+
+.form-select {
+    border: 1px solid #e5e7eb;
+    font-size: 14px;    
+    padding: 8px 12px;
+}
+
+h3 {
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: #5988ff;
+    border-color: #5988ff;
+}
+
+.btn-primary:hover {
+    background-color: #4b6cd9;
+    border-color: #4b6cd9;
+}

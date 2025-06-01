@@ -15,6 +15,7 @@ use App\Http\Controllers\API\PeriodeController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
 use App\Http\Controllers\API\EvaluasiController;
+use App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController;
 use App\Http\Controllers\API\PlottingController;
 
 
@@ -107,4 +108,10 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/magang/{id}', [MagangController::class, 'show']);
     Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
     Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
+});
+
+// Add these routes inside the middleware group
+Route::middleware(['api', 'auth:sanctum'])->prefix('mahasiswa')->group(function () {
+    Route::get('/lowongan', [MahasiswaLowonganController::class, 'index']);
+    Route::get('/lowongan/{id}', [MahasiswaLowonganController::class, 'show']);
 });

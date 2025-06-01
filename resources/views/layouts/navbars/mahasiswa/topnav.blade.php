@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg ">
+<nav class="navbar navbar-expand-lg px-9 ">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="#">
@@ -15,17 +15,17 @@
         <div class="collapse navbar-collapse" id="navbar">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item px-2">
-                    <a href="#" class="nav-link active fw-medium">
+                    <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link {{ request()->routeIs('mahasiswa.dashboard') ? 'active' : '' }} fw-medium">
                         Dashboard
                     </a>
                 </li>
                 <li class="nav-item px-2">
-                    <a href="#" class="nav-link fw-medium">
-                        Daftar Lowongan
+                    <a href="{{ route('mahasiswa.lowongan') }}" class="nav-link {{ request()->routeIs('mahasiswa.lowongan') ? 'active' : '' }} fw-medium">
+                        Lowongan Magang
                     </a>
                 </li>
                 <li class="nav-item px-2">
-                    <a href="#" class="nav-link fw-medium">
+                    <a href="{{ route('mahasiswa.lamaran') }}" class="nav-link {{ request()->routeIs('mahasiswa.lamaran') ? 'active' : '' }} fw-medium">
                         Lamaran Saya
                     </a>
                 </li>
@@ -35,7 +35,7 @@
                     </a>
                 </li>
                 <li class="nav-item px-2">
-                    <a href="#" class="nav-link fw-medium">
+                    <a href="{{ route('mahasiswa.evaluasi') }}" class="nav-link {{ request()->routeIs('mahasiswa.evaluasi') ? 'active' : '' }} fw-medium">
                         Evaluasi
                     </a>
                 </li>
@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle p-0" type="button" data-bs-toggle="dropdown">
+                    <button class="btn rounded-circle profile-button" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" style="width: 32px; height: 32px; background: #EFF6FF;">
                         <span class="me-2 fw-medium">R</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">

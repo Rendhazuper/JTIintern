@@ -49,4 +49,9 @@ class Lowongan extends Model
     {
         return $this->hasMany(Lamaran::class, 'id_lowongan', 'id_lowongan');
     }
+
+    public function skillLowongan()
+    {
+        return $this->hasMany(SkillLowongan::class, 'id_lowongan', 'id_lowongan');
+    }
 }
