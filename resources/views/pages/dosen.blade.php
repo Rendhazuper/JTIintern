@@ -36,6 +36,9 @@
                         <button type="button" class="btn btn-primary" onclick="importCSV()">
                             <i class="fas fa-file-import me-2"></i>Import CSV
                         </button>
+                        <button type="button" class="btn btn-primary" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
                     </div>
                 </div>
 
@@ -497,6 +500,157 @@
                 .catch(function (error) {
                     Swal.close();
                     Swal.fire('Gagal', 'Terjadi kesalahan saat mengambil data dosen.', 'error');
+                });
+        }
+
+        // Add this function after your existing JavaScript code
+
+        function importCSV() {
+            // Create and show modal
+            Swal.fire({
+                title: 'Import Data Dosen',
+                html: `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        File CSV harus memiliki kolom: nama, nip, wilayah
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
+                            <i class="fas fa-download me-1"></i>Download Template
+                        </button>
+                        <div class="custom-file">
+                            <input type="file" class="form-control" id="csvFile" accept=".csv">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Import',
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const fileInput = document.getElementById('csvFile');
+                    const formData = new FormData();
+                    
+                    if (!fileInput.files[0]) {
+                        Swal.showValidationMessage('Silakan pilih file CSV terlebih dahulu');
+                        return false;
+                    }
+                    
+                    formData.append('csv_file', fileInput.files[0]);
+                    
+                    return axios.post('/api/dosen/import', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.data.success) {
+                            throw new Error(response.data.message);
+                        }
+                        return response.data;
+                    })
+                    .catch(error => {
+                        throw new Error(error.response?.data?.message || 'Terjadi kesalahan saat mengimpor data');
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (result.value.errors && result.value.errors.length > 0) {
+                        // Show warning if there are errors but some data was imported
+                        Swal.fire({
+                            title: 'Import Sebagian Berhasil',
+                            html: `
+                                ${result.value.message}<br><br>
+                                <div class="alert alert-warning">
+                                    <strong>Beberapa data tidak dapat diimpor:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        ${result.value.errors.map(err => `<li class="text-start small">${err}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `,
+                            icon: 'warning'
+                        });
+                    } else {
+                        // All data imported successfully
+                        Swal.fire('Berhasil!', result.value.message, 'success');
+                    }
+                    loadDosenData(); // Refresh the data table
+                }
+            });
+        }
+
+        function downloadTemplate() {
+            // Fetch wilayah for template
+            axios.get('/api/wilayah')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const wilayah = response.data.data;
+
+                        // Create CSV header
+                        let csvContent = "nama,nip,wilayah\n";
+
+                        // Add example data
+                        csvContent += `Nama Dosen,198601012019031001,${wilayah[0]?.nama_kota || 'Jember'}\n`;
+
+                        // Create file and trigger download
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement("a");
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", "template_dosen.csv");
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data wilayah', 'error');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
+                });
+        }
+
+        // Add this function to your JavaScript code
+        function exportPDF() {
+            // Show loading state
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we generate your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Make request to export endpoint
+            fetch('/api/dosen/export/pdf')
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `data_dosen_${new Date().getTime()}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    Swal.close();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Export Failed',
+                        text: error.message || 'Failed to generate PDF'
+                    });
                 });
         }
     </script>
