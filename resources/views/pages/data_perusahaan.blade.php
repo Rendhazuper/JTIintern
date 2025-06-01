@@ -32,6 +32,9 @@
                         <button type="button" class="btn" style="color: white; background: #5988FF;" onclick="importCSV()">
                             <i class="bi bi-file-earmark-arrow-up me-2"></i>Import CSV
                         </button>
+                        <button type="button" class="btn" style="color: white; background: #5988FF;" onclick="exportPDF()">
+                            <i class="bi bi-file-pdf me-2"></i>Export PDF
+                        </button>
                     </div>
                 </div>
             </div>
@@ -263,28 +266,41 @@
         </div>
 
         <!-- Modal Import CSV -->
-        <div class="modal fade" id="importCSVModal" tabindex="-1" aria-labelledby="importCSVModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="importCSVModal" tabindex="-1" aria-labelledby="importCSVModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="importCSVModalLabel">Import Data Perusahaan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="importCSVForm" enctype="multipart/form-data">
+                <form id="importCSVForm" enctype="multipart/form-data">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="importCSVModalLabel">Import Data Perusahaan CSV</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                File CSV harus memiliki kolom: nama_perusahaan, alamat_perusahaan, contact_person, email, wilayah
+                            </div>
                             <div class="mb-3">
-                                <label for="csv_file" class="form-label">File CSV</label>
-                                <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv" required>
-                                <div class="form-text">Download <a href="#" class="link-primary">template CSV</a> untuk format yang benar</div>
+                                <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
+                                    <i class="bi bi-download me-1"></i>Download Template
+                                </button>
+                                <label for="csvFile" class="form-label">Pilih File CSV</label>
+                                <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv" required>
                             </div>
-                            <div class="d-flex justify-content-end">
-                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-primary">Import</button>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="headerRow" name="headerRow" checked>
+                                <label class="form-check-label" for="headerRow">
+                                    File memiliki baris header
+                                </label>
                             </div>
-                        </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-upload me-1"></i>Import
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -919,5 +935,154 @@
         function goToDetail(id) {
             window.location.href = `/detail-perusahaan/${id}`;
         }
+
+        function downloadTemplate() {
+            // Fetch wilayah untuk membuat template
+            fetch('/api/wilayah')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        // Buat header CSV
+                        let csvContent = "nama_perusahaan,alamat_perusahaan,contact_person,email,wilayah\n";
+
+                        // Tambahkan contoh data
+                        csvContent += `PT Contoh Perusahaan,Jl. Contoh No.123,John Doe,contact@example.com,${data.data[0]?.nama_kota || 'Jember'}\n`;
+
+                        // Buat file dan trigger download
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement("a");
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", "template_perusahaan.csv");
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data wilayah', 'error');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
+                });
+        }
+
+        // Add this to your existing JavaScript code
+        document.getElementById('importCSVForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Show loading in button
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengimpor...';
+
+            const formData = new FormData(this);
+
+            fetch('/api/perusahaan/import', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    let message = `${data.message}`;
+                    if (data.errors && data.errors.length > 0) {
+                        message += '\n\nBeberapa data tidak dapat diimpor:\n' + data.errors.join('\n');
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: message,
+                        confirmButtonText: 'OK'
+                    });
+
+                    // Close modal and reset form
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('importCSVModal'));
+                    modal.hide();
+                    this.reset();
+
+                    // Reload data
+                    loadPerusahaanData();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal mengimpor data'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan saat mengimpor data'
+                });
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            });
+        });
+
+        function exportPDF() {
+    // Show loading state
+    Swal.fire({
+        title: 'Generating PDF...',
+        text: 'Please wait while we generate your PDF',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Get current filters
+    const params = new URLSearchParams();
+    if (window.activeFilters?.wilayah) params.append('wilayah', window.activeFilters.wilayah);
+    if (window.activeFilters?.search) params.append('search', window.activeFilters.search);
+
+    // Make request to export endpoint
+    fetch(`/api/perusahaan/export/pdf?${params.toString()}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            const filename = response.headers.get('Content-Disposition')
+                ?.split('filename=')[1]
+                ?.replace(/"/g, '') 
+                ?? `data_perusahaan_${new Date().getTime()}.pdf`;
+            
+            return response.blob().then(blob => ({ blob, filename }));
+        })
+        .then(({ blob, filename }) => {
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            Swal.close();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: error.message || 'Failed to generate PDF'
+            });
+        });
+}
     </script>
 @endpush

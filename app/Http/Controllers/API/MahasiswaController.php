@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Carbon;
 
 class MahasiswaController extends Controller
 {
@@ -234,6 +237,192 @@ class MahasiswaController extends Controller
             ], 500);
         }
     }
+
+
+    public function import(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        try {
+            $path = $request->file('csv_file')->getRealPath();
+
+            if (!$path) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak dapat diakses'
+                ], 400);
+            }
+
+            $file = fopen($path, 'r');
+            $header = fgetcsv($file); // Get header row
+
+            // Expected headers (ubah id_kelas menjadi nama_kelas)
+            $expectedHeaders = ['nama', 'nim', 'alamat', 'ipk', 'nama_kelas'];
+
+            // Validate headers
+            if ($header !== $expectedHeaders) {
+                fclose($file);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Format CSV tidak sesuai. Header yang diharapkan: ' . implode(', ', $expectedHeaders)
+                ], 400);
+            }
+
+            $imported = 0;
+            $errors = [];
+
+            // Ambil semua data kelas untuk mapping
+            $allKelas = \App\Models\Kelas::pluck('id_kelas', 'nama_kelas')->toArray();
+
+            DB::beginTransaction();
+
+            while (($row = fgetcsv($file)) !== false) {
+                // Skip if row doesn't have enough columns
+                if (count($row) !== count($expectedHeaders)) {
+                    continue;
+                }
+
+                $namaKelas = trim($row[4]); // Mengambil nama_kelas dari CSV
+                
+                // Cari id_kelas berdasarkan nama_kelas
+                $idKelas = array_key_exists($namaKelas, $allKelas) ? $allKelas[$namaKelas] : null;
+
+                $data = [
+                    'nama' => $row[0],
+                    'nim' => $row[1],
+                    'alamat' => $row[2],
+                    'ipk' => $row[3],
+                    'id_kelas' => $idKelas, // Gunakan id_kelas hasil pencarian
+                    'nama_kelas' => $namaKelas // Simpan juga nama_kelas untuk pesan error
+                ];
+
+                // Validate data
+                $validator = Validator::make($data, [
+                    'nama' => 'required|string|max:255',
+                    'nim' => 'required|string|unique:m_mahasiswa,nim',
+                    'alamat' => 'required|string',
+                    'ipk' => 'nullable|numeric|min:0|max:4',
+                    'id_kelas' => 'required|exists:m_kelas,id_kelas',
+                ], [
+                    'id_kelas.required' => "Nama kelas '{$namaKelas}' tidak ditemukan",
+                    'id_kelas.exists' => "Nama kelas '{$namaKelas}' tidak ditemukan"
+                ]);
+
+                if ($validator->fails()) {
+                    $errors[] = "Error pada baris data {$data['nim']}: " . implode(', ', $validator->errors()->all());
+                    continue;
+                }
+
+                try {
+                    // Create user
+                    $user = \App\Models\User::create([
+                        'name' => $data['nama'],
+                        'email' => strtolower($data['nim']) . '@student.com',
+                        'password' => bcrypt($data['nim']),
+                        'role' => 'mahasiswa'
+                    ]);
+
+                    // Create mahasiswa
+                    Mahasiswa::create([
+                        'nim' => $data['nim'],
+                        'id_user' => $user->id_user,
+                        'alamat' => $data['alamat'],
+                        'ipk' => $data['ipk'],
+                        'id_kelas' => $data['id_kelas'], // ID kelas yang sudah dikonversi
+                    ]);
+
+                    $imported++;
+                } catch (\Exception $e) {
+                    $errors[] = "Error pada data {$data['nim']}: " . $e->getMessage();
+                }
+            }
+
+            fclose($file);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil mengimpor {$imported} data mahasiswa",
+                'errors' => $errors
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if (isset($file)) {
+                fclose($file);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function exportPDF(Request $request)
+    {
+        try {
+            // Get filtered data
+            $query = DB::table('m_mahasiswa as m')
+                ->leftJoin('m_user as u', 'm.id_user', '=', 'u.id_user')
+                ->leftJoin('m_magang as mg', 'm.id_mahasiswa', '=', 'mg.id_mahasiswa')
+                ->leftJoin('m_kelas as k', 'm.id_kelas', '=', 'k.id_kelas')
+                ->select(
+                    'u.name',
+                    'm.nim',
+                    'k.nama_kelas',
+                    'm.alamat',
+                    'm.ipk',
+                    DB::raw('CASE 
+                        WHEN mg.status = "active" THEN "Sedang Magang"
+                        WHEN mg.status = "completed" THEN "Selesai Magang"
+                        WHEN mg.status = "pending" THEN "Menunggu Konfirmasi"
+                        ELSE "Belum Magang"
+                    END as status_magang')
+                );
+
+            // Apply filters if any
+            if ($request->filled('kelas')) {
+                $query->where('m.id_kelas', '=', $request->kelas);
+            }
+
+            if ($request->filled('search')) {
+                $searchTerm = $request->search;
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('u.name', 'like', "%{$searchTerm}%")
+                        ->orWhere('m.nim', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $mahasiswa = $query->orderBy('u.name')->get();
+
+            // Get current timestamp
+            $timestamp = Carbon::now()->format('d-m-Y_H-i-s');
+
+            // Load the view for PDF
+            $pdf = PDF::loadView('exports.mahasiswa-pdf', [
+                'mahasiswa' => $mahasiswa,
+                'timestamp' => Carbon::now()->format('d F Y H:i:s'),
+                'total' => $mahasiswa->count()
+            ]);
+
+            // Set paper to landscape for better table viewing
+            $pdf->setPaper('a4', 'landscape');
+
+            // Return the PDF for download
+            return $pdf->download("data_mahasiswa_{$timestamp}.pdf");
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting PDF: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengeksport PDF'
+            ], 500);
+        }
+    
 
     public function dashboard()
     {

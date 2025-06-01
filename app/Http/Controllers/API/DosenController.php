@@ -9,6 +9,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Magang;
+use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Carbon;
 
 class DosenController extends Controller
 {
@@ -257,6 +260,172 @@ class DosenController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function import(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        try {
+            $path = $request->file('csv_file')->getRealPath();
+
+            if (!$path) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak dapat diakses'
+                ], 400);
+            }
+
+            $file = fopen($path, 'r');
+            $header = fgetcsv($file); // Get header row
+
+            // Expected headers
+            $expectedHeaders = ['nama', 'nip', 'wilayah'];
+
+            // Validate headers
+            if ($header !== $expectedHeaders) {
+                fclose($file);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Format CSV tidak sesuai. Header yang diharapkan: ' . implode(', ', $expectedHeaders)
+                ], 400);
+            }
+
+            $imported = 0;
+            $errors = [];
+
+            // Get all wilayah for mapping
+            $allWilayah = \App\Models\Wilayah::pluck('wilayah_id', 'nama_kota')->toArray();
+
+            DB::beginTransaction();
+
+            while (($row = fgetcsv($file)) !== false) {
+                // Skip if row doesn't have enough columns
+                if (count($row) !== count($expectedHeaders)) {
+                    continue;
+                }
+
+                $namaWilayah = trim($row[2]); // Get wilayah from CSV
+                
+                // Find wilayah_id based on nama_kota
+                $wilayahId = array_key_exists($namaWilayah, $allWilayah) ? $allWilayah[$namaWilayah] : null;
+
+                $data = [
+                    'nama_dosen' => $row[0],
+                    'nip' => $row[1],
+                    'wilayah_id' => $wilayahId,
+                    'nama_wilayah' => $namaWilayah // Store for error message
+                ];
+
+                // Validate data
+                $validator = Validator::make($data, [
+                    'nama_dosen' => 'required|string|max:255',
+                    'nip' => 'required|string|unique:m_dosen,nip',
+                    'wilayah_id' => 'required|exists:m_wilayah,wilayah_id',
+                ], [
+                    'wilayah_id.required' => "Wilayah '{$namaWilayah}' tidak ditemukan",
+                    'wilayah_id.exists' => "Wilayah '{$namaWilayah}' tidak ditemukan"
+                ]);
+
+                if ($validator->fails()) {
+                    $errors[] = "Error pada baris data {$data['nip']}: " . implode(', ', $validator->errors()->all());
+                    continue;
+                }
+
+                try {
+                    // Create user
+                    $user = \App\Models\User::create([
+                        'name' => $data['nama_dosen'],
+                        'email' => strtolower($data['nip']) . '@dosen.com',
+                        'password' => bcrypt($data['nip']),
+                        'role' => 'dosen'
+                    ]);
+
+                    // Create dosen
+                    \App\Models\Dosen::create([
+                        'nip' => $data['nip'],
+                        'user_id' => $user->id_user,
+                        'wilayah_id' => $data['wilayah_id'],
+                    ]);
+
+                    $imported++;
+                } catch (\Exception $e) {
+                    $errors[] = "Error pada data {$data['nip']}: " . $e->getMessage();
+                }
+            }
+
+            fclose($file);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil mengimpor {$imported} data dosen",
+                'errors' => $errors
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if (isset($file)) {
+                fclose($file);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function exportPDF(Request $request)
+    {
+        try {
+            // Get filtered data
+            $query = DB::table('m_dosen')
+                ->leftJoin('m_user', 'm_dosen.user_id', '=', 'm_user.id_user')
+                ->leftJoin('m_wilayah', 'm_dosen.wilayah_id', '=', 'm_wilayah.wilayah_id')
+                ->leftJoin(
+                    DB::raw('(SELECT id_dosen, COUNT(*) as bimbingan_count FROM m_magang WHERE status != "ditolak" OR status IS NULL GROUP BY id_dosen) m'),
+                    'm_dosen.id_dosen',
+                    '=',
+                    'm.id_dosen'
+                )
+                ->select(
+                    'm_dosen.id_dosen',
+                    'm_dosen.nip',
+                    'm_user.name as nama_dosen',
+                    'm_user.email',
+                    'm_wilayah.nama_kota as wilayah',
+                    DB::raw('COALESCE(m.bimbingan_count, 0) as jumlah_bimbingan')
+                );
+
+            $dosen = $query->orderBy('m_user.name')->get();
+
+            // Get current timestamp
+            $timestamp = Carbon::now()->format('d-m-Y_H-i-s');
+
+            // Load the view for PDF
+            $pdf = PDF::loadView('exports.dosen-pdf', [
+                'dosen' => $dosen,
+                'timestamp' => Carbon::now()->format('d F Y H:i:s'),
+                'total' => $dosen->count()
+            ]);
+
+            // Set paper to landscape for better table viewing
+            $pdf->setPaper('a4', 'landscape');
+
+            // Return the PDF for download
+            return $pdf->download("data_dosen_{$timestamp}.pdf");
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting PDF: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengeksport PDF: ' . $e->getMessage()
             ], 500);
         }
     }

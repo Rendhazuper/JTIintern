@@ -56,6 +56,8 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/mahasiswa/{id}', [MahasiswaController::class, 'show']);
     Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update']);
     Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
+    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+    Route::get('/mahasiswa/export/pdf', [MahasiswaController::class, 'exportPDF']);
     Route::get('/magang', [MagangController::class, 'index']);
     Route::post('/magang/{id}/accept', [MagangController::class, 'accept']);
     Route::post('/magang/{id}/reject', [MagangController::class, 'reject']);
@@ -64,6 +66,8 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::post('/perusahaan', [PerusahaanController::class, 'store']);
     Route::put('/perusahaan/{id}', [PerusahaanController::class, 'update']);
     Route::delete('/perusahaan/{id}', [PerusahaanController::class, 'destroy']);
+    Route::post('/perusahaan/import', [PerusahaanController::class, 'import']);
+    Route::get('/perusahaan/export/pdf', [PerusahaanController::class, 'exportPDF']);
     Route::post('/lowongan', [LowonganController::class, 'store']);
     Route::get('/lowongan/{id}', [LowonganController::class, 'show']);
     Route::put('/lowongan/{id}', [LowonganController::class, 'update']);
@@ -73,6 +77,8 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/dosen/{id}', [DosenController::class, 'show']);
     Route::put('/dosen/{id}', [DosenController::class, 'update']);
     Route::delete('/dosen/{id}', [DosenController::class, 'destroy']);
+    Route::post('/dosen/import', [DosenController::class, 'import']);
+    Route::get('/dosen/export/pdf', [DosenController::class, 'exportPDF']);
     Route::get('/skill', [LowonganController::class, 'getSkill']);
     Route::get('/jenis', [LowonganController::class, 'getJenis']);
     Route::get('/prodi', [KelasController::class, 'getProdi']);

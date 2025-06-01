@@ -31,6 +31,9 @@
                     <button type="button" class="btn btn-primary btn-sm" onclick="importCSV()">
                         <i class="fas fa-file-import me-1"></i>Import CSV
                     </button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf me-1"></i>Export PDF
+                    </button>
                 </div>
             </div>
 
@@ -179,11 +182,15 @@
                     <div class="modal-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            File CSV harus memiliki kolom: nama, nim, kelas, alamat, ipk
+                            File CSV harus memiliki kolom: nama, nim, alamat, ipk, nama_kelas
                         </div>
                         <div class="mb-3">
+                            <button type="button" class="btn btn-outline-secondary btn-sm mb-3"
+                                onclick="downloadTemplate()">
+                                <i class="fas fa-download me-1"></i>Download Template
+                            </button>
                             <label for="csvFile" class="form-label">Pilih File CSV</label>
-                            <input type="file" id="csvFile" name="csvFile" class="form-control" accept=".csv" required>
+                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv" required>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="headerRow" name="headerRow" checked>
@@ -320,8 +327,8 @@
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
                         response.data.data.forEach(function (kelas) {
                             select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
-                                                                                                                                                                                                ${kelas.nama_kelas}
-                                                                                                                                                                                            </option>`;
+                                                                                                                                                                                                        ${kelas.nama_kelas}
+                                                                                                                                                                                                    </option>`;
                         });
                     }
                 })
@@ -334,16 +341,16 @@
             // Show loading state
             const tableBody = document.getElementById('mahasiswa-table-body');
             tableBody.innerHTML = `
-                                                                        <tr>
-                                                                            <td colspan="4" class="text-center p-5">
-                                                                                <div class="d-flex flex-column align-items-center">
-                                                                                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                                                                                    <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
-                                                                                    <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    `;
+                                                                                <tr>
+                                                                                    <td colspan="4" class="text-center p-5">
+                                                                                        <div class="d-flex flex-column align-items-center">
+                                                                                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                                                                            <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
+                                                                                            <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            `;
 
             // Add slight delay for better UX when loading is very fast
             setTimeout(() => {
@@ -379,11 +386,11 @@
                                     const style = document.createElement('style');
                                     style.id = 'fade-in-animation';
                                     style.textContent = `
-                                                                                                @keyframes fadeIn {
-                                                                                                    from { opacity: 0; transform: translateY(10px); }
-                                                                                                    to { opacity: 1; transform: translateY(0); }
-                                                                                                }
-                                                                                            `;
+                                                                                                        @keyframes fadeIn {
+                                                                                                            from { opacity: 0; transform: translateY(10px); }
+                                                                                                            to { opacity: 1; transform: translateY(0); }
+                                                                                                        }
+                                                                                                    `;
                                     document.head.appendChild(style);
                                 }
 
@@ -431,39 +438,39 @@
             // Helper function to create a mahasiswa row
             function createMahasiswaRow(mahasiswa) {
                 return `
-                                                                            <td>
-                                                                                <div class="d-flex align-items-center">
-                                                                                    <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
-                                                                                        <span class="text-white" style="font-weight: 600;">${mahasiswa.name.charAt(0) || '?'}</span>
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <h6 class="mb-0 text-sm">${mahasiswa.name || '-'}</h6>
-                                                                                        <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td>
-                                                                                <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
-                                                                            </td>
-                                                                            <td class="text-center">
-                                                                                <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
-                                                                                    ${mahasiswa.status_magang || 'Belum Magang'}
-                                                                                </span>
-                                                                            </td>
-                                                                            <td>
-                                                                               <div class="action-buttons">
-                                                                        <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
-                                                                            <i class="fas fa-eye me-1"></i>Detail
-                                                                        </button>
-                                                                        <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
-                                                                            <i class="fas fa-edit me-1"></i>Edit
-                                                                        </button>
-                                                                        <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
-                                                                            <i class="fas fa-trash-alt me-1"></i>Hapus
-                                                                        </button>
-                                                                    </div>
-                                                                            </td>
-                                                                        `;
+                                                                                    <td>
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
+                                                                                                <span class="text-white" style="font-weight: 600;">${mahasiswa.name.charAt(0) || '?'}</span>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <h6 class="mb-0 text-sm">${mahasiswa.name || '-'}</h6>
+                                                                                                <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
+                                                                                            ${mahasiswa.status_magang || 'Belum Magang'}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                       <div class="action-buttons">
+                                                                                <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
+                                                                                    <i class="fas fa-eye me-1"></i>Detail
+                                                                                </button>
+                                                                                <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
+                                                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                                                </button>
+                                                                                <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
+                                                                                    <i class="fas fa-trash-alt me-1"></i>Hapus
+                                                                                </button>
+                                                                            </div>
+                                                                                    </td>
+                                                                                `;
             }
 
             // Helper function to determine status badge class
@@ -490,50 +497,50 @@
                 }
 
                 tableBody.innerHTML = `
-                                                                            <tr>
-                                                                                <td colspan="4">
-                                                                                    <div class="empty-state py-5">
-                                                                                        <div class="empty-state-icon mb-3">
-                                                                                            <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
-                                                                                        </div>
-                                                                                        <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
-                                                                                        <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
-                                                                                        <div class="d-flex justify-content-center gap-2">
-                                                                                            <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
-                                                                                                <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
-                                                                                            </button>
-                                                                                            ${filters && (filters.kelas || filters.prodi) ? `
-                                                                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                                                                                    <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                                                                                </button>
-                                                                                            ` : ''}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        `;
+                                                                                    <tr>
+                                                                                        <td colspan="4">
+                                                                                            <div class="empty-state py-5">
+                                                                                                <div class="empty-state-icon mb-3">
+                                                                                                    <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
+                                                                                                </div>
+                                                                                                <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
+                                                                                                <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
+                                                                                                <div class="d-flex justify-content-center gap-2">
+                                                                                                    <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
+                                                                                                        <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
+                                                                                                    </button>
+                                                                                                    ${filters && (filters.kelas || filters.prodi) ? `
+                                                                                                        <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                                                                                            <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                                                                                        </button>
+                                                                                                    ` : ''}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                `;
             }
 
             // Helper function to show error state
             function showErrorState(message, isSystemError = false) {
                 tableBody.innerHTML = `
-                                                                            <tr>
-                                                                                <td colspan="4">
-                                                                                    <div class="text-center py-4">
-                                                                                        <div class="mb-3">
-                                                                                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                                                                                        </div>
-                                                                                        <h5 class="text-danger">${message}</h5>
-                                                                                        ${isSystemError ? `
-                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                        ` : ''}
-                                                                                        <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
-                                                                                            <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        `;
+                                                                                    <tr>
+                                                                                        <td colspan="4">
+                                                                                            <div class="text-center py-4">
+                                                                                                <div class="mb-3">
+                                                                                                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                                                                                                </div>
+                                                                                                <h5 class="text-danger">${message}</h5>
+                                                                                                ${isSystemError ? `
+                                                                                                    <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                ` : ''}
+                                                                                                <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
+                                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                `;
             }
 
             // Helper function to add hover effects
@@ -570,43 +577,43 @@
                     const lastPage = responseData.meta.last_page;
 
                     let paginationHtml = `
-                                                                                <nav aria-label="Page navigation">
-                                                                                    <ul class="pagination pagination-sm justify-content-center my-3">
-                                                                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                            <a class="page-link" href="#" onclick="changePage(1)">
-                                                                                                <i class="fas fa-angle-double-left"></i>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                                                                                                <i class="fas fa-angle-left"></i>
-                                                                                            </a>
-                                                                                        </li>
-                                                                            `;
+                                                                                        <nav aria-label="Page navigation">
+                                                                                            <ul class="pagination pagination-sm justify-content-center my-3">
+                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                                                                    <a class="page-link" href="#" onclick="changePage(1)">
+                                                                                                        <i class="fas fa-angle-double-left"></i>
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                                                                                                        <i class="fas fa-angle-left"></i>
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                    `;
 
                     // Generate page numbers
                     for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
                         paginationHtml += `
-                                                                                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                                                                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                                                                    </li>
-                                                                                `;
+                                                                                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                                                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                                                                                            </li>
+                                                                                        `;
                     }
 
                     paginationHtml += `
-                                                                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                                                                                                <i class="fas fa-angle-right"></i>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                            <a class="page-link" href="#" onclick="changePage(${lastPage})">
-                                                                                                <i class="fas fa-angle-double-right"></i>
-                                                                                            </a>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </nav>
-                                                                            `;
+                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                                                                                                        <i class="fas fa-angle-right"></i>
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                                                                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
+                                                                                                        <i class="fas fa-angle-double-right"></i>
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                            </ul>
+                                                                                        </nav>
+                                                                                    `;
 
                     paginationContainer.innerHTML = paginationHtml;
                 }
@@ -681,22 +688,22 @@
                         // Render skills badges dengan penanganan data yang fleksibel
                         const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0
                             ? mahasiswa.skills.map(skill => `
-                                                                                                <span class="badge bg-primary me-1">
-                                                                                                    ${skill.nama || 'Tidak Diketahui'} 
-                                                                                                    (${skill.lama_skill || 'Tidak Diketahui'})
-                                                                                                </span>
-                                                                                              `).join('')
+                                                                                                        <span class="badge bg-primary me-1">
+                                                                                                            ${skill.nama || 'Tidak Diketahui'} 
+                                                                                                            (${skill.lama_skill || 'Tidak Diketahui'})
+                                                                                                        </span>
+                                                                                                      `).join('')
                             : '<span class="text-muted">Tidak ada skill</span>';
 
                         // Render dokumen dengan pengecekan array
                         const dokumen = Array.isArray(mahasiswa.dokumen) && mahasiswa.dokumen.length > 0
                             ? mahasiswa.dokumen.map(doc => `
-                                                                                                                    <li class="list-group-item">
-                                                                                                                        <strong>${doc.file_type || 'Dokumen'}:</strong> 
-                                                                                                                        <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
-                                                                                                                        <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
-                                                                                                                    </li>
-                                                                                                                  `).join('')
+                                                                                                                            <li class="list-group-item">
+                                                                                                                                <strong>${doc.file_type || 'Dokumen'}:</strong> 
+                                                                                                                                <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
+                                                                                                                                <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
+                                                                                                                            </li>
+                                                                                                                          `).join('')
                             : '<li class="list-group-item">Tidak ada dokumen</li>';
 
                         // Isi modal dengan data mahasiswa
@@ -704,25 +711,25 @@
                             `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
 
                         document.getElementById('detailMahasiswaBody').innerHTML = `
-                                                                                                                <div class="row">
-                                                                                                                    <div class="col-md-6">
-                                                                                                                        <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
-                                                                                                                        <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
-                                                                                                                        <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
-                                                                                                                        <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
-                                                                                                                        <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
-                                                                                                                    </div>
-                                                                                                                    <div class="col-md-6">
-                                                                                                                        <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
-                                                                                                                        <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
-                                                                                                                        <p><strong>Skills:</strong></p>
-                                                                                                                        <div>${skills}</div>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                                <hr>
-                                                                                                                <p><strong>Dokumen:</strong></p>
-                                                                                                                <ul class="list-group">${dokumen}</ul>
-                                                                                                            `;
+                                                                                                                        <div class="row">
+                                                                                                                            <div class="col-md-6">
+                                                                                                                                <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
+                                                                                                                                <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
+                                                                                                                                <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
+                                                                                                                                <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
+                                                                                                                                <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
+                                                                                                                            </div>
+                                                                                                                            <div class="col-md-6">
+                                                                                                                                <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
+                                                                                                                                <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
+                                                                                                                                <p><strong>Skills:</strong></p>
+                                                                                                                                <div>${skills}</div>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                        <hr>
+                                                                                                                        <p><strong>Dokumen:</strong></p>
+                                                                                                                        <ul class="list-group">${dokumen}</ul>
+                                                                                                                    `;
 
                         // Tampilkan modal
                         const modal = new bootstrap.Modal(document.getElementById('detailMahasiswaModal'));
@@ -876,13 +883,13 @@
 
         function loadLatestApplications() {
             document.getElementById('latest-applications').innerHTML = `
-                                <tr>
-                                    <td colspan="4" class="text-center py-3">
-                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                                        <span class="text-sm">Memuat data...</span>
-                                    </td>
-                                </tr>
-                            `;
+                                        <tr>
+                                            <td colspan="4" class="text-center py-3">
+                                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                                <span class="text-sm">Memuat data...</span>
+                                            </td>
+                                        </tr>
+                                    `;
 
             api.get('/dashboard/latest-applications')
                 .then(function (response) {
@@ -894,13 +901,13 @@
 
                         if (applications.length === 0) {
                             tableBody.innerHTML = `
-                                                <tr>
-                                                    <td colspan="4" class="text-center py-4">
-                                                        <img src="/assets/img/empty-data.svg" height="60" class="mb-3 opacity-60">
-                                                        <p class="mb-0 text-muted">Tidak ada permintaan magang terbaru</p>
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                        <tr>
+                                                            <td colspan="4" class="text-center py-4">
+                                                                <img src="/assets/img/empty-data.svg" height="60" class="mb-3 opacity-60">
+                                                                <p class="mb-0 text-muted">Tidak ada permintaan magang terbaru</p>
+                                                            </td>
+                                                        </tr>
+                                                    `;
                             return;
                         }
 
@@ -924,27 +931,27 @@
                             }
 
                             const row = `
-                                                <tr>
-                                                    <td class="ps-3">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="avatar avatar-xs me-2 bg-gradient-primary rounded-circle">
-                                                                <span class="text-white font-weight-bold">${app.nama_mahasiswa.charAt(0)}</span>
-                                                            </div>
-                                                            <div>
-                                                                <h6 class="mb-0 text-sm">${app.nama_mahasiswa}</h6>
-                                                                <p class="text-xs text-muted mb-0">${app.nim}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-sm">${app.perusahaan}</td>
-                                                    <td class="text-sm">${statusBadge}</td>
-                                                    <td class="text-center">
-                                                        <a href="/magang/detail/${app.id_lamaran}" class="btn btn-link btn-sm m-0 p-0" data-toggle="tooltip" title="Lihat Detail">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                        <tr>
+                                                            <td class="ps-3">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="avatar avatar-xs me-2 bg-gradient-primary rounded-circle">
+                                                                        <span class="text-white font-weight-bold">${app.nama_mahasiswa.charAt(0)}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h6 class="mb-0 text-sm">${app.nama_mahasiswa}</h6>
+                                                                        <p class="text-xs text-muted mb-0">${app.nim}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-sm">${app.perusahaan}</td>
+                                                            <td class="text-sm">${statusBadge}</td>
+                                                            <td class="text-center">
+                                                                <a href="/magang/detail/${app.id_lamaran}" class="btn btn-link btn-sm m-0 p-0" data-toggle="tooltip" title="Lihat Detail">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    `;
                             tableBody.innerHTML += row;
                         });
 
@@ -962,14 +969,168 @@
                         console.error('Response data:', error.response.data);
                     }
                     document.getElementById('latest-applications').innerHTML = `
-                                        <tr>
-                                            <td colspan="4" class="text-center text-danger py-3">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                Gagal memuat data. Coba lagi nanti.
-                                            </td>
-                                        </tr>
-                                    `;
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-danger py-3">
+                                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                                        Gagal memuat data. Coba lagi nanti.
+                                                    </td>
+                                                </tr>
+                                            `;
                 });
+        }
+
+
+
+        function importCSV() {
+            // Tampilkan modal import CSV
+            const modal = new bootstrap.Modal(document.getElementById('modalImportCSV'));
+            modal.show();
+
+            // Reset form
+            document.getElementById('formImportCSV').reset();
+        }
+
+        function submitImportCSV(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('csvFile');
+
+            if (!fileInput.files[0]) {
+                Swal.fire('Error', 'Silakan pilih file CSV terlebih dahulu', 'error');
+                return;
+            }
+
+            // Ambil nama file yang benar dari input
+            formData.append('csv_file', fileInput.files[0]);
+
+            // Ambil info header row jika diperlukan
+            const headerRow = document.getElementById('headerRow').checked;
+            formData.append('header_row', headerRow ? '1' : '0');
+
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Mengimpor Data...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Kirim request ke endpoint yang sesuai
+            axios.post('/api/mahasiswa/import', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => {
+                    if (response.data.success) {
+                        // Success handling
+                        let message = response.data.message;
+
+                        // Jika ada error pada beberapa data, tampilkan warning
+                        if (response.data.errors && response.data.errors.length > 0) {
+                            Swal.fire({
+                                title: 'Import Sebagian Berhasil',
+                                html: `
+                                ${message}<br><br>
+                                <div class="alert alert-warning">
+                                    <strong>Beberapa data tidak dapat diimpor:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        ${response.data.errors.map(err => `<li class="text-start small">${err}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `,
+                                icon: 'warning',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            // Semua data berhasil diimpor
+                            Swal.fire('Berhasil', message, 'success');
+                        }
+
+                        // Tutup modal dan refresh data
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
+                        modal.hide();
+                        document.getElementById('formImportCSV').reset();
+
+                        // Refresh data mahasiswa
+                        loadMahasiswaData();
+                    } else {
+                        Swal.fire('Gagal', response.data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let message = 'Terjadi kesalahan saat mengimpor data';
+
+                    if (error.response) {
+                        if (error.response.data && error.response.data.message) {
+                            message = error.response.data.message;
+                        }
+                    }
+
+                    Swal.fire('Error', message, 'error');
+                });
+        }
+
+        function downloadTemplate() {
+            // Fetch kelas untuk membuat template
+            api.get('/kelas')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const kelas = response.data.data;
+
+                        // Buat header CSV
+                        let csvContent = "nama,nim,alamat,ipk,nama_kelas\n";
+
+                        // Tambahkan contoh data
+                        csvContent += `Nama Mahasiswa,E41230001,Jl. Contoh No.123,3.50,${kelas[0]?.nama_kelas || 'TIF-3A'}\n`;
+
+                        // Buat file dan trigger download
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement("a");
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", "template_mahasiswa.csv");
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data kelas', 'error');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
+                });
+        }
+
+        function exportPDF() {
+            // Show loading state
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we generate your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Get current filters
+            const params = new URLSearchParams();
+            if (filterState.kelas) params.append('kelas', filterState.kelas);
+            if (filterState.search) params.append('search', filterState.search);
+
+            // Make request to export endpoint
+            window.location.href = `/api/mahasiswa/export/pdf?${params.toString()}`;
+
+            // Close loading after a short delay
+            setTimeout(() => {
+                Swal.close();
+            }, 2000);
         }
     </script>
 @endpush
