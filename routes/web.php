@@ -11,6 +11,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\dataMhsController;
 use App\Http\Controllers\PerusahaanController;
+use App\Http\Controllers\SkillController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,11 +41,11 @@ Route::middleware('guest')->group(function () {
     // Registration routes
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.perform');
-    
+
     // Login routes
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.perform');
-    
+
     // Password recovery routes
     Route::get('/reset-password', [ResetPassword::class, 'show'])->name('reset-password');
     Route::post('/reset-password', [ResetPassword::class, 'send'])->name('reset.perform');
@@ -64,6 +65,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/data-perusahaan', [PerusahaanController::class, 'index'])->name('data-perusahaan');
     Route::get('/detail-perusahaan/{id}', [PerusahaanController::class, 'showDetail']);
     Route::get('/plotting', [PageController::class, 'plotting'])->name('plotting');
+    Route::get('/skill', [App\Http\Controllers\SkillController::class, 'index'])->name('skill');
     Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
 
