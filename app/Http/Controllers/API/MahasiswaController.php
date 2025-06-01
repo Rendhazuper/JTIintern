@@ -238,6 +238,7 @@ class MahasiswaController extends Controller
         }
     }
 
+
     public function import(Request $request)
     {
         // Validate the request
@@ -421,5 +422,12 @@ class MahasiswaController extends Controller
                 'message' => 'Terjadi kesalahan saat mengeksport PDF'
             ], 500);
         }
+    
+
+    public function dashboard()
+    {
+        
+        return view('pages.mahasiswa.dashboard');
     }
+
 }
