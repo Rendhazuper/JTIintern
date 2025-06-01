@@ -3,11 +3,8 @@
 @section('content')
     @include('layouts.navbars.mahasiswa.topnav')
     
-    <div class="container-fluid py-4">
-        <!-- Welcome Section - No background -->
-        <h3 class="mb-4">Selamat Datang Rendha Putra 👋</h3>
-        
-        <!-- Status Magang Section - White background -->
+    <div class="container-fluid px-8">
+        <h3 class="mb-4">Selamat Datang Rendha Putra 👋</h3>     
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-0">
@@ -18,14 +15,11 @@
                             </div>
                             <div class="flex-grow-1 ms-3">
                                 <h5>Belum Magang</h5>
-                                <p class="mb-0">Saat ini kamu belum terdaftar pada program magang manapun.</p>
-                                <p class="mb-0">Yuk segera eksplorasi berbagai lowongan yang tersedia dan ajukan lamaran agar tidak tertinggal!</p>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ route('mahasiswa.lowongan') }}" class="btn btn-primary">
+                                <p style = "width : 70%" class="mb-3">Saat ini kamu belum terdaftar pada program magang manapun. Yuk segera eksplorasi berbagai lowongan yang tersedia dan ajukan lamaran agar tidak tertinggal!</p>
+                                 <a href="{{ route('mahasiswa.lowongan') }}" class="btn btn-primary">
                                 <i class="bi bi-search me-2"></i>Cari Lowongan
                             </a>
+                            </div>
                         </div>
                     </div>
                 </div>

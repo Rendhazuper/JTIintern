@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg mt-3">
+<nav class="navbar navbar-expand-lg ">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="#">
@@ -61,9 +61,12 @@
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item text-danger" href="#">
-                                <i class="bi bi-box-arrow-right me-2"></i>Logout
-                            </a>
+                            <form method="POST" action="{{ route('logout') }}" class="dropdown-item p-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </div>

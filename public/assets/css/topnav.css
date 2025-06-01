@@ -59,3 +59,16 @@
     margin: 4px 0;
     border-color: #e5e7eb;
 }
+
+.dropdown-item button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+}
+
+.dropdown-item button:hover {
+    background-color: #f3f4f6;
+    color: #dc2626;
+}

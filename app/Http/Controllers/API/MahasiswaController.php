@@ -8,8 +8,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Carbon;
+
 
 class MahasiswaController extends Controller
 {
@@ -422,6 +423,7 @@ class MahasiswaController extends Controller
                 'message' => 'Terjadi kesalahan saat mengeksport PDF'
             ], 500);
         }
+    }
     
 
     public function dashboard()
