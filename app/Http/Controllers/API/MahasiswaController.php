@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Barryvdh\DomPDF\Facade\Pdf as PDF;
-use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 
 class MahasiswaController extends Controller
@@ -404,7 +404,7 @@ class MahasiswaController extends Controller
             $timestamp = Carbon::now()->format('d-m-Y_H-i-s');
 
             // Load the view for PDF
-            $pdf = PDF::loadView('exports.mahasiswa-pdf', [
+            $pdf = Pdf::loadView('exports.mahasiswa-pdf', [
                 'mahasiswa' => $mahasiswa,
                 'timestamp' => Carbon::now()->format('d F Y H:i:s'),
                 'total' => $mahasiswa->count()
@@ -428,7 +428,6 @@ class MahasiswaController extends Controller
 
     public function dashboard()
     {
-        
         return view('pages.mahasiswa.dashboard');
     }
 

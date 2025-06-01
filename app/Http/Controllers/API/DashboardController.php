@@ -10,6 +10,7 @@ use App\Models\Perusahaan;
 use Illuminate\Http\Request;
 use App\Models\Magang;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -89,7 +90,7 @@ class DashboardController extends Controller
                     $user = $mahasiswa->user ?? null;
                     $lowongan = $lamaran->lowongan ?? null;
                     $perusahaan = $lowongan->perusahaan ?? null;
-                    
+
 
                     return [
                         'id' => $lamaran->id_lamaran,
@@ -110,6 +111,63 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving latest applications: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getActivePeriod()
+    {
+        try {
+            Log::info('Getting active period');
+            // Get active period_id from t_periode table
+            $activePeriodeRecord = DB::table('t_periode')->first();
+
+            if (!$activePeriodeRecord) {
+                Log::info('No active period found in t_periode table');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada periode aktif'
+                ]);
+            }
+
+            Log::info('Active period ID: ' . $activePeriodeRecord->periode_id);
+
+            // Get the full period details from m_periode
+            $activePeriod = \App\Models\Periode::find($activePeriodeRecord->periode_id);
+
+            if (!$activePeriod) {
+                Log::warning('Period ID exists in t_periode but not found in m_periode: ' . $activePeriodeRecord->periode_id);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Periode aktif tidak ditemukan'
+                ]);
+            }
+
+            // Log the raw data for debugging
+            Log::info('Active period data:', $activePeriod->toArray());
+
+            // If dates are not set, use default values
+            if (!$activePeriod->tgl_mulai) {
+                Log::info('Start date not set, using created_at');
+                $activePeriod->tgl_mulai = $activePeriod->created_at->format('Y-m-d');
+            }
+
+            if (!$activePeriod->tgl_selesai) {
+                Log::info('End date not set, setting to 1 year after start date');
+                // Default to one year duration if not set
+                $activePeriod->tgl_selesai = date('Y-m-d', strtotime('+1 year', strtotime($activePeriod->tgl_mulai)));
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $activePeriod
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getActivePeriod: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }

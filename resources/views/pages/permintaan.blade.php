@@ -109,11 +109,11 @@
             const permintaanList = document.querySelector('.permintaan-list');
             if (permintaanList) {
                 permintaanList.innerHTML = `
-                                            <div class="text-center py-5">
-                                                <div class="spinner-border text-primary mb-3" role="status"></div>
-                                                <p class="text-muted mb-0">Memuat data permintaan magang...</p>
-                                            </div>
-                                        `;
+                                                    <div class="text-center py-5">
+                                                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                                                        <p class="text-muted mb-0">Memuat data permintaan magang...</p>
+                                                    </div>
+                                                `;
             }
         }
 
@@ -131,13 +131,13 @@
 
             if (items.length === 0) {
                 permintaanList.innerHTML = `
-                                        <div class="empty-state text-center py-5">
-                                            <div class="empty-state-icon mb-3">
-                                                <i class="fas fa-clipboard-list text-muted" style="font-size: 60px; opacity: 0.2;"></i>
-                                            </div>
-                                            <h5 class="mb-1">Tidak ada data permintaan</h5>
-                                            <p class="text-muted mb-0">Tidak ada data permintaan yang sesuai dengan filter Anda.</p>
-                                        </div>`;
+                                                <div class="empty-state text-center py-5">
+                                                    <div class="empty-state-icon mb-3">
+                                                        <i class="fas fa-clipboard-list text-muted" style="font-size: 60px; opacity: 0.2;"></i>
+                                                    </div>
+                                                    <h5 class="mb-1">Tidak ada data permintaan</h5>
+                                                    <p class="text-muted mb-0">Tidak ada data permintaan yang sesuai dengan filter Anda.</p>
+                                                </div>`;
                 return;
             }
 
@@ -164,41 +164,41 @@
                 }
 
                 item.innerHTML = `
-                                        <div class="mahasiswa-info">
-                                            <h6 class="nama">${permintaan.mahasiswa.name}</h6>
-                                            <p class="nim">NIM: ${permintaan.mahasiswa.nim}</p>
-                                        </div>
+                                                <div class="mahasiswa-info">
+                                                    <h6 class="nama">${permintaan.mahasiswa.name}</h6>
+                                                    <p class="nim">NIM: ${permintaan.mahasiswa.nim}</p>
+                                                </div>
 
-                                        <div class="posisi">
-                                            <span class="job-title font-weight-bold">${permintaan.judul_lowongan}</span>
-                                        </div>
+                                                <div class="posisi">
+                                                    <span class="job-title font-weight-bold">${permintaan.judul_lowongan}</span>
+                                                </div>
 
-                                        <div class="perusahaan">
-                                            <span class="company-badge font-weight-bold">
-                                                ${permintaan.perusahaan.nama_perusahaan}
-                                            </span>
-                                        </div>
+                                                <div class="perusahaan">
+                                                    <span class="company-badge font-weight-bold">
+                                                        ${permintaan.perusahaan.nama_perusahaan}
+                                                    </span>
+                                                </div>
 
-                                        <div class="status">
-                                            <span class="status-badge ${statusBadgeClass}">
-                                                ${permintaan.auth}
-                                            </span>
-                                        </div>
+                                                <div class="status">
+                                                    <span class="status-badge ${statusBadgeClass}">
+                                                        ${permintaan.auth}
+                                                    </span>
+                                                </div>
 
-                                       <div class="action">
-        <div class="hover-actions">
-            <button class="btn btn-sm btn-info me-1" onclick="showDetail(${permintaan.id})" title="Lihat Detail"> 
-                <i class="fas fa-eye me-md-1"></i><span class="d-none d-md-inline">Detail</span>
-            </button>
-            <button class="btn btn-sm btn-success me-1" onclick="acceptRequest(${permintaan.id})" title="Terima Permintaan">
-                <i class="fas fa-check me-md-1"></i><span class="d-none d-md-inline">Terima</span>
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="rejectRequest(${permintaan.id})" title="Tolak Permintaan">
-                <i class="fas fa-times me-md-1"></i><span class="d-none d-md-inline">Tolak</span>
-            </button>
-        </div>
-    </div>
-                                    `;
+                                               <div class="action">
+                <div class="hover-actions">
+                    <button class="btn btn-sm btn-info me-1" onclick="showDetail(${permintaan.id})" title="Lihat Detail"> 
+                        <i class="fas fa-eye me-md-1"></i><span class="d-none d-md-inline">Detail</span>
+                    </button>
+                    <button class="btn btn-sm btn-success me-1" onclick="acceptRequest(${permintaan.id})" title="Terima Permintaan">
+                        <i class="fas fa-check me-md-1"></i><span class="d-none d-md-inline">Terima</span>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="rejectRequest(${permintaan.id})" title="Tolak Permintaan">
+                        <i class="fas fa-times me-md-1"></i><span class="d-none d-md-inline">Tolak</span>
+                    </button>
+                </div>
+            </div>
+                                            `;
 
                 permintaanList.appendChild(item);
             });
@@ -208,17 +208,17 @@
                 const style = document.createElement('style');
                 style.id = 'fadeInUp-animation';
                 style.textContent = `
-                                        @keyframes fadeInUp {
-                                            from {
-                                                opacity: 0;
-                                                transform: translateY(10px);
-                                            }
-                                            to {
-                                                opacity: 1;
-                                                transform: translateY(0);
-                                            }
-                                        }
-                                    `;
+                                                @keyframes fadeInUp {
+                                                    from {
+                                                        opacity: 0;
+                                                        transform: translateY(10px);
+                                                    }
+                                                    to {
+                                                        opacity: 1;
+                                                        transform: translateY(0);
+                                                    }
+                                                }
+                                            `;
                 document.head.appendChild(style);
             }
         }
@@ -377,11 +377,11 @@
             // Tampilkan loading state
             const detailModalBody = document.querySelector('#detailModal .modal-body');
             detailModalBody.innerHTML = `
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary mb-2" role="status"></div>
-                                    <p class="mb-0">Memuat detail permintaan...</p>
-                                </div>
-                            `;
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary mb-2" role="status"></div>
+                                            <p class="mb-0">Memuat detail permintaan...</p>
+                                        </div>
+                                    `;
 
             // Tampilkan modal dengan loading state
             const modal = new bootstrap.Modal(document.getElementById('detailModal'));
@@ -405,140 +405,179 @@
 
                         // Tambahkan konten detail dengan styling yang lebih baik
                         detailModalBody.innerHTML = `
-                                        <div class="p-2 mb-3 rounded-3" style="background-color: rgba(89, 136, 255, 0.05);">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="avatar avatar-md bg-gradient-primary rounded-circle p-2 me-3">
-                                                    <span class="text-white fs-5">${data.mahasiswa.name.charAt(0)}</span>
+                                                <div class="p-2 mb-3 rounded-3" style="background-color: rgba(89, 136, 255, 0.05);">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="avatar avatar-md bg-gradient-primary rounded-circle p-2 me-3">
+                                                            <span class="text-white fs-5">${data.mahasiswa.name.charAt(0)}</span>
+                                                        </div>
+                                                        <div>
+                                                            <h5 class="mb-0">${data.mahasiswa.name}</h5>
+                                                            <p class="text-muted mb-0">${data.mahasiswa.nim} | ${data.mahasiswa.email}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h5 class="mb-0">${data.mahasiswa.name}</h5>
-                                                    <p class="text-muted mb-0">${data.mahasiswa.nim} | ${data.mahasiswa.email}</p>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="row">
-                                            <div class="col-md-6 mb-4">
-                                                <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Mahasiswa</h6>
-                                                <div class="mb-2">
-                                                    <label class="text-muted small">Prodi</label>
-                                                    <p class="mb-0">${data.mahasiswa.prodi || '-'}</p>
-                                                </div>
-                                                <div>
-                                                    <label class="text-muted small">Skills</label>
-                                                    <div>
-                                                        ${(data.mahasiswa.skills || []).map(skill =>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-4">
+                                                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Mahasiswa</h6>
+                                                        <div class="mb-2">
+                                                            <label class="text-muted small">Prodi</label>
+                                                            <p class="mb-0">${data.mahasiswa.prodi || '-'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-muted small">Skills</label>
+                                                            <div>
+                                                                ${(data.mahasiswa.skills || []).map(skill =>
                             `<span class="badge bg-light text-dark me-1 mb-1">${skill}</span>`
                         ).join('')}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6 mb-4">
+                                                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Lowongan</h6>
+                                                        <div class="mb-2">
+                                                            <label class="text-muted small">Judul</label>
+                                                            <p class="mb-0">${data.lowongan.judul_lowongan}</p>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="text-muted small">Kapasitas</label>
+                                                            <p class="mb-0">${data.lowongan.persyaratan} Kandidat</p>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="text-muted small">Periode</label>
+                                                            <p class="mb-0">${data.lowongan.tanggal_mulai} s/d ${data.lowongan.tanggal_selesai}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="col-md-6 mb-4">
-                                                <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Lowongan</h6>
-                                                <div class="mb-2">
-                                                    <label class="text-muted small">Judul</label>
-                                                    <p class="mb-0">${data.lowongan.judul_lowongan}</p>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="text-muted small">Kapasitas</label>
-                                                    <p class="mb-0">${data.lowongan.persyaratan} Kandidat</p>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="text-muted small">Periode</label>
-                                                    <p class="mb-0">${data.lowongan.tanggal_mulai} s/d ${data.lowongan.tanggal_selesai}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-12 mb-4">
-                                                <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Perusahaan</h6>
                                                 <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-2">
-                                                            <label class="text-muted small">Nama Perusahaan</label>
-                                                            <p class="mb-0">${data.perusahaan.nama_perusahaan}</p>
+                                                    <div class="col-12 mb-4">
+                                                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Perusahaan</h6>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2">
+                                                                    <label class="text-muted small">Nama Perusahaan</label>
+                                                                    <p class="mb-0">${data.perusahaan.nama_perusahaan}</p>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="text-muted small">Kota</label>
+                                                                    <p class="mb-0">${data.perusahaan.kota}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-2">
+                                                                    <label class="text-muted small">Contact Person</label>
+                                                                    <p class="mb-0">${data.perusahaan.contact_person}</p>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="text-muted small">Email</label>
+                                                                    <p class="mb-0">${data.perusahaan.email}</p>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="mb-2">
-                                                            <label class="text-muted small">Kota</label>
-                                                            <p class="mb-0">${data.perusahaan.kota}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-2">
-                                                            <label class="text-muted small">Contact Person</label>
-                                                            <p class="mb-0">${data.perusahaan.contact_person}</p>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <label class="text-muted small">Email</label>
-                                                            <p class="mb-0">${data.perusahaan.email}</p>
+                                                        <div>
+                                                            <label class="text-muted small">Alamat</label>
+                                                            <p class="mb-0">${data.perusahaan.alamat_perusahaan}</p>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <label class="text-muted small">Alamat</label>
-                                                    <p class="mb-0">${data.perusahaan.alamat_perusahaan}</p>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Dokumen</h6>
-                                                <div class="d-flex gap-2">
-                                                    <a href="${data.dokumen.cv_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-file-alt me-1"></i>Download CV
-                                                    </a>
-                                                    <a href="${data.dokumen.surat_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-file-pdf me-1"></i>Download Surat Lamaran
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-4 pt-3 border-top">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <label class="text-uppercase text-muted small">Status</label>
-                                                    <div>
-                                                        <span class="status-badge ${data.status === 'aktif' ? 'diterima' : data.status === 'tidak aktif' ? 'ditolak' : 'menunggu'}">
-                                                            ${data.status || 'Menunggu'}
-                                                        </span>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Dokumen</h6>
+                                                        <div class="d-flex gap-2">
+                                                            <a href="${data.dokumen.cv_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-file-alt me-1"></i>Download CV
+                                                            </a>
+                                                            <a href="${data.dokumen.surat_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-file-pdf me-1"></i>Download Surat Lamaran
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="action-buttons">
-                                                    <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                                        <i class="fas fa-times me-1"></i>Tolak
-                                                    </button>
-                                                    <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                                        <i class="fas fa-check me-1"></i>Terima
-                                                    </button>
+
+                                                <div class="mt-4 pt-3 border-top">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <label class="text-uppercase text-muted small">Status</label>
+                                                            <div>
+                                                                <span class="status-badge ${data.status === 'aktif' ? 'diterima' : data.status === 'tidak aktif' ? 'ditolak' : 'menunggu'}">
+                                                                    ${data.status || 'Menunggu'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="action-buttons">
+                                                            <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                                                <i class="fas fa-times me-1"></i>Tolak
+                                                            </button>
+                                                            <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                                                <i class="fas fa-check me-1"></i>Terima
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    `;
+                                            `;
                     } else {
                         detailModalBody.innerHTML = `
-                                        <div class="alert alert-danger">
-                                            Gagal memuat detail: ${response.message || 'Terjadi kesalahan.'}
-                                        </div>
-                                    `;
+                                                <div class="alert alert-danger">
+                                                    Gagal memuat detail: ${response.message || 'Terjadi kesalahan.'}
+                                                </div>
+                                            `;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     detailModalBody.innerHTML = `
-                                    <div class="alert alert-danger">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Gagal memuat detail permintaan magang
-                                    </div>
-                                `;
+                                            <div class="alert alert-danger">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                Gagal memuat detail permintaan magang
+                                            </div>
+                                        `;
                 });
         }
 
         function acceptRequest(id) {
-            // Tampilkan dialog konfirmasi yang lebih konsisten
+            // First, check if this magang has an assigned dosen
+            fetch(`/api/magang/${id}/check-dosen`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.has_dosen) {
+                        // Proceed with acceptance - dosen is assigned
+                        proceedWithAcceptance(id);
+                    } else {
+                        // Show warning with plotting link
+                        Swal.fire({
+                            title: 'Tidak Dapat Menerima!',
+                            text: 'Magang tidak dapat diterima karena belum memiliki dosen pembimbing.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Ke Plotting Dosen',
+                            cancelButtonText: 'Tutup'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Navigate to plotting page
+                                window.location.href = '/plotting';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'Terjadi kesalahan saat memeriksa data dosen pembimbing.', 'error');
+                });
+        }
+
+        function proceedWithAcceptance(id) {
+            // This contains the original acceptance logic
             Swal.fire({
                 title: 'Terima Permintaan Magang?',
                 text: "Permintaan ini akan diterima dan mahasiswa akan memulai magang",

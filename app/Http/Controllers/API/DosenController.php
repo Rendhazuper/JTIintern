@@ -12,6 +12,9 @@ use App\Models\Magang;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Exception;
+
 
 class DosenController extends Controller
 {
@@ -266,117 +269,207 @@ class DosenController extends Controller
 
     public function import(Request $request)
     {
-        // Validate the request
+        // Validate request
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt|max:2048'
         ]);
 
         try {
-            $path = $request->file('csv_file')->getRealPath();
+            $file = $request->file('csv_file');
+            $path = $file->getRealPath();
+            $content = file_get_contents($path);
 
-            if (!$path) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'File tidak dapat diakses'
-                ], 400);
+            // Detect delimiter (comma or semicolon)
+            $delimiter = ',';
+            if (strpos($content, ';') !== false) {
+                $delimiter = ';';
             }
 
             $file = fopen($path, 'r');
-            $header = fgetcsv($file); // Get header row
 
-            // Expected headers
-            $expectedHeaders = ['nama', 'nip', 'wilayah'];
+            // Handle UTF-8 BOM
+            $firstRow = fgets($file, 4);
+            if (strpos($firstRow, "\xEF\xBB\xBF") === 0) {
+                rewind($file);
+                fread($file, 3);
+            } else {
+                rewind($file);
+            }
 
-            // Validate headers
-            if ($header !== $expectedHeaders) {
+            // Read header
+            $header = fgetcsv($file, 0, $delimiter);
+
+            if (!$header) {
                 fclose($file);
                 return response()->json([
                     'success' => false,
-                    'message' => 'Format CSV tidak sesuai. Header yang diharapkan: ' . implode(', ', $expectedHeaders)
+                    'message' => 'Format file tidak valid atau file kosong'
                 ], 400);
             }
 
-            $imported = 0;
-            $errors = [];
+            // Map headers to expected field names (case insensitive)
+            $header = array_map('strtolower', array_map('trim', $header));
+
+            // Define header mappings
+            $headerMap = [
+                'nama' => 'nama_dosen',
+                'nama dosen' => 'nama_dosen',
+                'nama_dosen' => 'nama_dosen',
+                'nip' => 'nip',
+                'wilayah' => 'wilayah',
+                'wilayah_id' => 'wilayah_id'
+            ];
+
+            // Map column indices
+            $columnMap = [];
+            foreach ($header as $index => $columnName) {
+                if (isset($headerMap[$columnName])) {
+                    $fieldName = $headerMap[$columnName];
+                    $columnMap[$fieldName] = $index;
+                }
+            }
+
+            // Verify required fields
+            $requiredFields = ['nama_dosen', 'nip'];
+            $missingColumns = [];
+
+            foreach ($requiredFields as $field) {
+                if (!isset($columnMap[$field])) {
+                    $missingColumns[] = $field;
+                }
+            }
+
+            // Either wilayah or wilayah_id must be present
+            if (!isset($columnMap['wilayah']) && !isset($columnMap['wilayah_id'])) {
+                $missingColumns[] = 'wilayah/wilayah_id';
+            }
+
+            if (count($missingColumns) > 0) {
+                fclose($file);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak memiliki kolom wajib: ' . implode(', ', $missingColumns)
+                ], 400);
+            }
 
             // Get all wilayah for mapping
-            $allWilayah = \App\Models\Wilayah::pluck('wilayah_id', 'nama_kota')->toArray();
+            $allWilayahById = \App\Models\Wilayah::pluck('nama_kota', 'wilayah_id')->toArray();
+            $allWilayahByName = \App\Models\Wilayah::pluck('wilayah_id', 'nama_kota')->toArray();
+            $allWilayahByNameLower = array_change_key_case($allWilayahByName, CASE_LOWER);
+
+            $imported = 0;
+            $errors = [];
+            $rowNumber = 1; // Start with row 1 (after header)
 
             DB::beginTransaction();
 
-            while (($row = fgetcsv($file)) !== false) {
-                // Skip if row doesn't have enough columns
-                if (count($row) !== count($expectedHeaders)) {
-                    continue;
-                }
+            while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
+                $rowNumber++;
 
-                $namaWilayah = trim($row[2]); // Get wilayah from CSV
-                
-                // Find wilayah_id based on nama_kota
-                $wilayahId = array_key_exists($namaWilayah, $allWilayah) ? $allWilayah[$namaWilayah] : null;
-
-                $data = [
-                    'nama_dosen' => $row[0],
-                    'nip' => $row[1],
-                    'wilayah_id' => $wilayahId,
-                    'nama_wilayah' => $namaWilayah // Store for error message
-                ];
-
-                // Validate data
-                $validator = Validator::make($data, [
-                    'nama_dosen' => 'required|string|max:255',
-                    'nip' => 'required|string|unique:m_dosen,nip',
-                    'wilayah_id' => 'required|exists:m_wilayah,wilayah_id',
-                ], [
-                    'wilayah_id.required' => "Wilayah '{$namaWilayah}' tidak ditemukan",
-                    'wilayah_id.exists' => "Wilayah '{$namaWilayah}' tidak ditemukan"
-                ]);
-
-                if ($validator->fails()) {
-                    $errors[] = "Error pada baris data {$data['nip']}: " . implode(', ', $validator->errors()->all());
+                // Skip empty rows
+                if (empty(array_filter($row))) {
                     continue;
                 }
 
                 try {
-                    // Create user
-                    $user = \App\Models\User::create([
+                    // Extract data
+                    $data = [];
+                    $data['nama_dosen'] = isset($columnMap['nama_dosen']) && isset($row[$columnMap['nama_dosen']])
+                        ? trim($row[$columnMap['nama_dosen']]) : null;
+                    $data['nip'] = isset($columnMap['nip']) && isset($row[$columnMap['nip']])
+                        ? trim($row[$columnMap['nip']]) : null;
+
+                    // Handle wilayah_id
+                    if (isset($columnMap['wilayah_id']) && isset($row[$columnMap['wilayah_id']]) && !empty($row[$columnMap['wilayah_id']])) {
+                        // Direct wilayah_id provided
+                        $wilayahId = trim($row[$columnMap['wilayah_id']]);
+                        if (!isset($allWilayahById[$wilayahId])) {
+                            $errors[] = "Error pada baris {$rowNumber}: Wilayah ID '{$wilayahId}' tidak ditemukan";
+                            continue;
+                        }
+                        $data['wilayah_id'] = $wilayahId;
+                    } elseif (isset($columnMap['wilayah']) && isset($row[$columnMap['wilayah']]) && !empty($row[$columnMap['wilayah']])) {
+                        // Wilayah name provided, need to find ID
+                        $wilayahName = trim($row[$columnMap['wilayah']]);
+
+                        if (isset($allWilayahByName[$wilayahName])) {
+                            $data['wilayah_id'] = $allWilayahByName[$wilayahName];
+                        } elseif (isset($allWilayahByNameLower[strtolower($wilayahName)])) {
+                            $data['wilayah_id'] = $allWilayahByNameLower[strtolower($wilayahName)];
+                        } else {
+                            $errors[] = "Error pada baris {$rowNumber}: Wilayah '{$wilayahName}' tidak ditemukan";
+                            continue;
+                        }
+                    } else {
+                        $errors[] = "Error pada baris {$rowNumber}: Wilayah tidak valid atau kosong";
+                        continue;
+                    }
+
+                    // Check if NIP already exists
+                    $existingDosen = Dosen::where('nip', $data['nip'])->first();
+                    if ($existingDosen) {
+                        $errors[] = "Error pada baris {$rowNumber}: NIP '{$data['nip']}' sudah terdaftar";
+                        continue;
+                    }
+
+                    // Generate email based on NIP (to match store method)
+                    $email = $data['nip'] . '@gmail.com';
+
+                    // Check if email already exists
+                    $existingUser = User::where('email', $email)->first();
+                    if ($existingUser) {
+                        $errors[] = "Error pada baris {$rowNumber}: Email '{$email}' sudah digunakan";
+                        continue;
+                    }
+
+                    // Create a user account for the dosen (using NIP as password)
+                    $user = User::create([
                         'name' => $data['nama_dosen'],
-                        'email' => strtolower($data['nip']) . '@dosen.com',
-                        'password' => bcrypt($data['nip']),
-                        'role' => 'dosen'
+                        'email' => $email,
+                        'password' => bcrypt($data['nip']), // Use NIP as password to match store method
+                        'role' => 'dosen',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
 
-                    // Create dosen
-                    \App\Models\Dosen::create([
+                    // Create dosen record with user_id
+                    Dosen::create([
+                        'user_id' => $user->id_user, // Note: using id_user, not id
                         'nip' => $data['nip'],
-                        'user_id' => $user->id_user,
                         'wilayah_id' => $data['wilayah_id'],
+                        'created_at' => now(),
+                        'updated_at' => now()
                     ]);
 
                     $imported++;
                 } catch (\Exception $e) {
-                    $errors[] = "Error pada data {$data['nip']}: " . $e->getMessage();
+                    $errors[] = "Error pada baris {$rowNumber}: " . $e->getMessage();
                 }
             }
 
             fclose($file);
-            DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => "Berhasil mengimpor {$imported} data dosen",
-                'errors' => $errors
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            if (isset($file)) {
-                fclose($file);
+            if ($imported > 0) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil mengimpor {$imported} data dosen" . (count($errors) > 0 ? " (dengan " . count($errors) . " error)" : ""),
+                    'imported' => $imported,
+                    'errors' => $errors
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tidak ada data yang berhasil diimpor",
+                    'errors' => $errors
+                ]);
             }
-
+        } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat mengimpor data dosen: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -420,8 +513,7 @@ class DosenController extends Controller
 
             // Return the PDF for download
             return $pdf->download("data_dosen_{$timestamp}.pdf");
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error exporting PDF: ' . $e->getMessage());
             return response()->json([
                 'success' => false,

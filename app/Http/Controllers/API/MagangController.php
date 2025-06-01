@@ -238,4 +238,21 @@ class MagangController extends Controller
             ], 500);
         }
     }
+
+    public function checkDosen($id)
+    {
+        try {
+            $magang = Magang::findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'has_dosen' => !empty($magang->id_dosen)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memeriksa data dosen pembimbing'
+            ], 500);
+        }
+    }
 }

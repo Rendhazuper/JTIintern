@@ -23,8 +23,11 @@
                     <table class="table align-items-center mb-0">
                         <thead>
                             <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Waktu</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">Actions</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Waktu
+                                </th>
+                                <th
+                                    class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody id="periode-table-body">
@@ -32,7 +35,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Empty State -->
                 <div id="empty-state" class="text-center py-5 d-none">
                     <div class="empty-state-icon mb-3">
@@ -73,12 +76,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="periodeForm" onsubmit="handleSubmitPeriode(event)">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="waktu" class="form-label">Waktu Periode</label>
-                            <input type="text" class="form-control" id="waktu" required>
-                            <div class="form-text">Contoh: Ganjil 2023/2024, Genap 2022/2023</div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="waktu" class="form-label">Tahun Akademik</label>
+                        <input type="text" class="form-control" id="waktu" name="waktu" placeholder="Contoh: 2024/2025"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tgl_mulai" class="form-label">Tanggal Mulai</label>
+                        <input type="date" class="form-control" id="tgl_mulai" name="tgl_mulai" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tgl_selesai" class="form-label">Tanggal Selesai</label>
+                        <input type="date" class="form-control" id="tgl_selesai" name="tgl_selesai" required>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -88,7 +99,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Detail Modal -->
     <div class="modal fade" id="detailPeriodeModal" tabindex="-1">
         <div class="modal-dialog">
@@ -102,6 +113,14 @@
                         <tr>
                             <th width="130">Waktu</th>
                             <td><span id="detail-waktu"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Tanggal Mulai</th>
+                            <td><span id="detail-tgl-mulai"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Tanggal Selesai</th>
+                            <td><span id="detail-tgl-selesai"></span></td>
                         </tr>
                         <tr>
                             <th>Dibuat pada</th>
@@ -122,21 +141,23 @@
 @endsection
 
 @push('css')
-<style>
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-        justify-content: flex-end;
-    }
-    
-    .empty-state-icon, .error-state-icon {
-        opacity: 0.5;
-    }
-    
-    .table td, .table th {
-        white-space: nowrap;
-    }
-</style>
+    <style>
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .empty-state-icon,
+        .error-state-icon {
+            opacity: 0.5;
+        }
+
+        .table td,
+        .table th {
+            white-space: nowrap;
+        }
+    </style>
 @endpush
 
 @push('js')
@@ -171,13 +192,13 @@
         function loadPeriodeData() {
             const tableBody = document.getElementById('periode-table-body');
             tableBody.innerHTML = `
-                <tr>
-                    <td colspan="2" class="text-center py-3">
-                        <i class="fas fa-circle-notch fa-spin me-2"></i>Memuat data...
-                    </td>
-                </tr>
-            `;
-            
+                                                <tr>
+                                                    <td colspan="2" class="text-center py-3">
+                                                        <i class="fas fa-circle-notch fa-spin me-2"></i>Memuat data...
+                                                    </td>
+                                                </tr>
+                                            `;
+
             document.getElementById('empty-state').classList.add('d-none');
             document.getElementById('error-state').classList.add('d-none');
 
@@ -185,7 +206,7 @@
                 .then(response => {
                     if (response.data.success) {
                         tableBody.innerHTML = '';
-                        
+
                         if (response.data.data.length === 0) {
                             document.getElementById('empty-state').classList.remove('d-none');
                             return;
@@ -193,28 +214,40 @@
 
                         response.data.data.forEach((periode, index) => {
                             const row = document.createElement('tr');
+
+                            // Format dates for display
+                            const startDateStr = periode.tgl_mulai ? new Date(periode.tgl_mulai).toLocaleDateString('id-ID') : '-';
+                            const endDateStr = periode.tgl_selesai ? new Date(periode.tgl_selesai).toLocaleDateString('id-ID') : '-';
+
                             row.innerHTML = `
-                                <td>
-                                    <div class="d-flex px-3 py-1">
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">${periode.waktu}</h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="align-middle text-end pe-4">
-                                    <div class="action-buttons">
-                                        <button class="btn btn-sm btn-info me-1" onclick="detailPeriode(${periode.periode_id})" title="Lihat Detail">
-                                            <i class="fas fa-eye me-1"></i>Detail
-                                        </button>
-                                        <button class="btn btn-sm btn-primary me-1" onclick="editPeriode(${periode.periode_id})" title="Edit Periode">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deletePeriode(${periode.periode_id})" title="Hapus Periode">
-                                            <i class="fas fa-trash me-1"></i>Hapus
-                                        </button>
-                                    </div>
-                                </td>
-                            `;
+        <td>
+            <div class="d-flex px-3 py-1">
+                <div class="d-flex flex-column justify-content-center">
+                    <h6 class="mb-0 text-sm">${periode.waktu}</h6>
+                    ${periode.is_active ? '<span class="badge bg-success ms-2">Periode Aktif</span>' : ''}
+                    <small class="text-muted mt-1">${startDateStr} - ${endDateStr}</small>
+                </div>
+            </div>
+        </td>
+                                        <td class="align-middle text-end pe-4">
+                                            <div class="action-buttons">
+                                                <button class="btn btn-sm btn-info me-1" onclick="detailPeriode(${periode.periode_id})" title="Lihat Detail">
+                                                    <i class="fas fa-eye me-1"></i>Detail
+                                                </button>
+                                                ${!periode.is_active ?
+                                    `<button class="btn btn-sm btn-success me-1" onclick="setActivePeriode(${periode.periode_id})" title="Jadikan Periode Aktif">
+                                                        <i class="fas fa-check-circle me-1"></i>Set Aktif
+                                                    </button>` : ''
+                                }
+                                                <button class="btn btn-sm btn-primary me-1" onclick="editPeriode(${periode.periode_id})" title="Edit Periode">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deletePeriode(${periode.periode_id})" title="Hapus Periode">
+                                                    <i class="fas fa-trash me-1"></i>Hapus
+                                                </button>
+                                            </div>
+                                        </td>
+                                    `;
                             tableBody.appendChild(row);
                         });
                     } else {
@@ -242,6 +275,60 @@
             modal.show();
         }
 
+        // Function to set a period as active
+        function setActivePeriode(id) {
+            Swal.fire({
+                title: 'Jadikan Periode Aktif?',
+                text: "Periode ini akan dijadikan sebagai periode yang aktif dan ditampilkan di dashboard",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Aktifkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Sedang mengaktifkan periode',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    api.post(`/periode/set-active/${id}`)
+                        .then(response => {
+                            if (response.data.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Periode berhasil diaktifkan',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    loadPeriodeData(); // Reload data to show updated active status
+                                });
+                            } else {
+                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan periode.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            let errorMsg = 'Terjadi kesalahan saat mengaktifkan periode.';
+
+                            if (error.response && error.response.data && error.response.data.message) {
+                                errorMsg = error.response.data.message;
+                            }
+
+                            Swal.fire('Gagal', errorMsg, 'error');
+                        });
+                }
+            });
+        }
+
+        // Fungsi untuk membuka modal detail periode
         // Fungsi untuk membuka modal detail periode
         function detailPeriode(id) {
             api.get(`/periode/${id}`)
@@ -249,9 +336,20 @@
                     if (response.data.success) {
                         const periode = response.data.data;
                         document.getElementById('detail-waktu').textContent = periode.waktu || '-';
+
+                        // Format and display the date fields
+                        const startDate = periode.tgl_mulai ? new Date(periode.tgl_mulai) : null;
+                        const endDate = periode.tgl_selesai ? new Date(periode.tgl_selesai) : null;
+
+                        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                        document.getElementById('detail-tgl-mulai').textContent = startDate ?
+                            startDate.toLocaleDateString('id-ID', dateOptions) : '-';
+                        document.getElementById('detail-tgl-selesai').textContent = endDate ?
+                            endDate.toLocaleDateString('id-ID', dateOptions) : '-';
+
                         document.getElementById('detail-created').textContent = formatDate(periode.created_at);
                         document.getElementById('detail-updated').textContent = formatDate(periode.updated_at);
-                        
+
                         const modal = new bootstrap.Modal(document.getElementById('detailPeriodeModal'));
                         modal.show();
                     } else {
@@ -272,6 +370,24 @@
                         const periode = response.data.data;
                         document.getElementById('periodeModalLabel').innerText = 'Edit Periode';
                         document.getElementById('waktu').value = periode.waktu;
+
+                        // Set date fields if they exist
+                        if (periode.tgl_mulai) {
+                            // Convert to YYYY-MM-DD format for input field
+                            const startDate = new Date(periode.tgl_mulai);
+                            document.getElementById('tgl_mulai').value = startDate.toISOString().split('T')[0];
+                        } else {
+                            document.getElementById('tgl_mulai').value = '';
+                        }
+
+                        if (periode.tgl_selesai) {
+                            // Convert to YYYY-MM-DD format for input field
+                            const endDate = new Date(periode.tgl_selesai);
+                            document.getElementById('tgl_selesai').value = endDate.toISOString().split('T')[0];
+                        } else {
+                            document.getElementById('tgl_selesai').value = '';
+                        }
+
                         document.getElementById('periodeForm').setAttribute('data-id', periode.periode_id);
                         const modal = new bootstrap.Modal(document.getElementById('periodeModal'));
                         modal.show();
@@ -291,16 +407,39 @@
 
             const id = document.getElementById('periodeForm').getAttribute('data-id');
             const waktu = document.getElementById('waktu').value;
+            const tgl_mulai = document.getElementById('tgl_mulai').value;
+            const tgl_selesai = document.getElementById('tgl_selesai').value;
 
             if (!waktu) {
                 Swal.fire('Peringatan', 'Waktu periode harus diisi', 'warning');
                 return;
             }
 
-            const formData = { waktu };
+            if (!tgl_mulai) {
+                Swal.fire('Peringatan', 'Tanggal mulai harus diisi', 'warning');
+                return;
+            }
+
+            if (!tgl_selesai) {
+                Swal.fire('Peringatan', 'Tanggal selesai harus diisi', 'warning');
+                return;
+            }
+
+            // Check if end date is after start date
+            if (new Date(tgl_selesai) <= new Date(tgl_mulai)) {
+                Swal.fire('Peringatan', 'Tanggal selesai harus setelah tanggal mulai', 'warning');
+                return;
+            }
+
+            const formData = {
+                waktu,
+                tgl_mulai,
+                tgl_selesai
+            };
+
             const method = id ? 'put' : 'post';
             const url = id ? `/periode/${id}` : '/periode';
-            
+
             const submitBtn = document.querySelector('#periodeForm button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -319,11 +458,11 @@
                 .catch(error => {
                     console.error('Error:', error);
                     let errorMsg = 'Terjadi kesalahan saat menyimpan periode.';
-                    
+
                     if (error.response && error.response.data && error.response.data.message) {
                         errorMsg = error.response.data.message;
                     }
-                    
+
                     Swal.fire('Gagal', errorMsg, 'error');
                 })
                 .finally(() => {
@@ -357,11 +496,11 @@
                         .catch(error => {
                             console.error('Error:', error);
                             let errorMsg = 'Terjadi kesalahan saat menghapus periode.';
-                            
+
                             if (error.response && error.response.data && error.response.data.message) {
                                 errorMsg = error.response.data.message;
                             }
-                            
+
                             Swal.fire('Gagal', errorMsg, 'error');
                         });
                 }
