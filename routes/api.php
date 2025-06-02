@@ -15,7 +15,6 @@ use App\Http\Controllers\API\PeriodeController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
 use App\Http\Controllers\API\EvaluasiController;
-use App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController;
 use App\Http\Controllers\API\PlottingController;
 
 
@@ -49,7 +48,7 @@ Route::get('/wilayah', [WilayahController::class, 'index']);
 
 // Dashboard routes
 Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
-    Route::get('/dashboard/active-period', [DashboardController::class, 'getActivePeriod']);
+     Route::get('/dashboard/active-period', [DashboardController::class, 'getActivePeriod']);
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
@@ -81,7 +80,6 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::delete('/dosen/{id}', [DosenController::class, 'destroy']);
     Route::post('/dosen/import', [DosenController::class, 'import']);
     Route::get('/dosen/export/pdf', [DosenController::class, 'exportPDF']);
-    Route::get('/magang/{id}/check-dosen', [MagangController::class, 'checkDosen']);
     Route::get('/skill', [LowonganController::class, 'getSkill']);
     Route::get('/jenis', [LowonganController::class, 'getJenis']);
     Route::get('/prodi', [KelasController::class, 'getProdi']);
@@ -95,7 +93,7 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/periode/{id}', [PeriodeController::class, 'show']);
     Route::put('/periode/{id}', [PeriodeController::class, 'update']);
     Route::delete('/periode/{id}', [PeriodeController::class, 'destroy']);
-    Route::post('/periode/set-active/{id}', [PeriodeController::class, 'setActive']);
+     Route::post('/periode/set-active/{id}', [PeriodeController::class, 'setActive']);
     Route::get('/admin', [AdminController::class, 'index']);
     Route::post('/admin', [AdminController::class, 'store']);
     Route::get('/admin/{id}', [AdminController::class, 'show']);
@@ -115,10 +113,4 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::post('/skill', [App\Http\Controllers\SkillController::class, 'store']);
     Route::put('/skill/{id}', [App\Http\Controllers\SkillController::class, 'update']);
     Route::delete('/skill/{id}', [App\Http\Controllers\SkillController::class, 'destroy']);
-});
-
-// Add these routes inside the middleware group
-Route::middleware(['api', 'auth:sanctum'])->prefix('mahasiswa')->group(function () {
-    Route::get('/lowongan', [MahasiswaLowonganController::class, 'index']);
-    Route::get('/lowongan/{id}', [MahasiswaLowonganController::class, 'show']);
 });

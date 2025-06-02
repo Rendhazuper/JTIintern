@@ -4,7 +4,28 @@
     @include('layouts.navbars.mahasiswa.topnav')
     
     <div class="container-fluid px-10">
-        <h3 class="mb-4">Selamat Datang Rendha Putra 👋</h3>     
+        <div class="container-fluid p-0">
+            <div class="d-flex align-items-center mb-4">
+            <h3 class="me-auto mb-0">Selamat Datang Rendha Putra 👋</h3>
+            <div class="d-flex align-items-center">
+                <h3 class="me-2" style ="margin-bottom: 0px">Tahun ajaran saat ini:</h3>
+                @if(isset($activePeriod) && $activePeriod)
+                    <div class="period-badge">
+                        @if(is_object($activePeriod))
+                            {{ $activePeriod->waktu }}
+                        @else
+                            {{ $activePeriod }}
+                        @endif
+                    </div>
+                @else
+                    <span class="text-danger">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Tidak ada periode aktif
+                    </span>
+                @endif
+            </div>
+            </div>
+        </div>
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-0">
@@ -162,5 +183,23 @@
     .card.clickable-card:hover {
         background-color: #fff !important;
     }
+
+    .period-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 20px;
+        border-radius: 50px;
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(135deg, #96B3FF, #E9B9FF, #F9B591) border-box;
+        border: 1px solid transparent;
+        color: #2D2D2D;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+
 </style>
 @endpush

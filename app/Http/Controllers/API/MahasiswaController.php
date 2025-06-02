@@ -426,9 +426,5 @@ class MahasiswaController extends Controller
     }
     
 
-    public function dashboard()
-    {
-        return view('pages.mahasiswa.dashboard');
-    }
 
 }

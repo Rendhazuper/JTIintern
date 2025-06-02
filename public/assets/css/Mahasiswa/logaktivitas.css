@@ -1,0 +1,95 @@
+.container-fluid {
+    padding-top: 2rem;
+}
+.card {
+    height: 100%;
+}
+
+.timeline {
+    position: relative;
+    margin: 20px 0;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.timeline::before {
+    background: transparent !important;
+}
+
+.timeline::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timeline::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.timeline::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.timeline::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 20px;
+    padding-left: 45px; /* Add space for the dot */
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -23px; /* Position the dot on the line */
+    top: 25px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #5e72e4; /* Primary color for the dot */
+    z-index: 2;
+    box-shadow: 0 0 0 4px #fff; /* White border around dot */
+}
+
+.timeline-date {
+    font-weight: 600;
+    color: #344767;
+    margin-bottom: 10px;
+    font-size: 0.875rem;
+}
+
+.timeline-content {
+    color: #67748e;
+}
+
+.timeline-content p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+#logbookForm {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#imagePreview img {
+    border-radius: 8px;
+    object-fit: cover;
+    width: auto;
+    height: 200px;
+}
+
+.timeline-item img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}

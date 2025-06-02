@@ -1,0 +1,84 @@
+.container-fluid {
+    padding-top: 2rem;
+}
+
+.company-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.status-badge.pending {
+    background-color: #fff3e5;
+    color: #ff9533;
+}
+
+.status-badge.accepted {
+    background-color: #e5f5e6;
+    color: #22c55e;
+}
+
+.status-badge.rejected {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.document-list {
+    display: flex;
+    gap: 16px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #344767;
+}
+
+.location-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #67748e;
+    margin-bottom: 8px;
+}
+
+.history-item {
+    padding: 16px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+#statusFilter {
+    width: auto;
+    min-width: 150px;
+    font-size: 0.875rem;
+}
+
+.application-note {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.application-note p {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}

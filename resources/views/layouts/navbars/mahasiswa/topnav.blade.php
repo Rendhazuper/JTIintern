@@ -30,7 +30,7 @@
                     </a>
                 </li>
                 <li class="nav-item px-2">
-                    <a href="#" class="nav-link fw-medium">
+                    <a href="{{ route('mahasiswa.logaktivitas') }}" class="nav-link {{ request()->routeIs('mahasiswa.logaktivitas') ? 'active' : '' }} fw-medium">
                         Log Aktivitas
                     </a>
                 </li>

@@ -1,0 +1,40 @@
+.container-fluid {
+    padding-top: 2rem;
+}
+
+.card-evaluation {
+    transition: transform 0.2s;
+}
+
+.card-evaluation:hover {
+    transform: translateY(-5px);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.score-badge {
+    background: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

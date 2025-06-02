@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController;
+use App\Http\Controllers\API\Mahasiswa\ViewController;
 use App\Http\Controllers\API\MahasiswaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -12,7 +12,6 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\dataMhsController;
 use App\Http\Controllers\PerusahaanController;
-use App\Http\Controllers\SkillController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,11 +41,11 @@ Route::middleware('guest')->group(function () {
     // Registration routes
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.perform');
-
+    
     // Login routes
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.perform');
-
+    
     // Password recovery routes
     Route::get('/reset-password', [ResetPassword::class, 'show'])->name('reset-password');
     Route::post('/reset-password', [ResetPassword::class, 'send'])->name('reset.perform');
@@ -66,15 +65,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/data-perusahaan', [PerusahaanController::class, 'index'])->name('data-perusahaan');
     Route::get('/detail-perusahaan/{id}', [PerusahaanController::class, 'showDetail']);
     Route::get('/plotting', [PageController::class, 'plotting'])->name('plotting');
-    Route::get('/skill', [App\Http\Controllers\SkillController::class, 'index'])->name('skill');
     Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
 
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {
-    Route::get('/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
-    Route::get('/lowongan', [MahasiswaLowonganController::class, 'view'])->name('mahasiswa.lowongan');
-    Route::get('/lamaran', [MahasiswaController::class, 'lamaran'])->name('mahasiswa.lamaran');
-    Route::get('/evaluasi', [MahasiswaController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
+    Route::get('/dashboard', [ViewController::class, 'dashboard'])->name('mahasiswa.dashboard');
+    Route::get('/lowongan', [ViewController::class, 'lowongan'])->name('mahasiswa.lowongan');
+    Route::get('/lamaran', [ViewController::class, 'lamaran'])->name('mahasiswa.lamaran');
+    Route::get('/logaktivitas', [ViewController::class, 'log'])->name('mahasiswa.logaktivitas');
+    Route::get('/evaluasi', [ViewController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
     Route::get('/profile', [MahasiswaController::class, 'profile'])->name('mahasiswa.profile');
 });

@@ -23,11 +23,6 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select id="jenisFilter" class="form-select">
-                                    <option value="">Semua Jenis</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100" id="applyFilter">
                                     <i class="bi bi-filter me-2"></i>Terapkan Filter
                                 </button>
@@ -63,7 +58,6 @@
     });
 
     function loadFilterOptions() {
-        // Load Perusahaan Filter
         api.get('/perusahaan').then(response => {
             if (response.data.success) {
                 const select = document.getElementById('perusahaanFilter');
@@ -83,15 +77,6 @@
             }
         });
 
-        // Load Jenis Filter
-        api.get('/jenis').then(response => {
-            if (response.data.success) {
-                const select = document.getElementById('jenisFilter');
-                response.data.data.forEach(jenis => {
-                    select.innerHTML += `<option value="${jenis.jenis_id}">${jenis.nama_jenis}</option>`;
-                });
-            }
-        });
     }
 
     function loadLowongan(filters = {}) {
@@ -127,9 +112,7 @@
                                         <span class="badge badge-location">
                                             <i class="bi bi-geo-alt me-1"></i>${lowongan.perusahaan.nama_kota}
                                         </span>
-                                        <span class="badge bg-primary">
-                                            ${lowongan.jenis.nama_jenis}
-                                        </span>
+
                                     </div>
                                 </div>
                             </div>

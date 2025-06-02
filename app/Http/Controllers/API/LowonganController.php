@@ -14,7 +14,10 @@ class LowonganController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Lowongan::with(['perusahaan.wilayah', 'skill', 'jenis'])->orderBy('created_at', 'desc');
+            $query = Lowongan::with([
+                'perusahaan.wilayah',
+                'skillLowongan.skill' // Ubah ini
+            ])->orderBy('created_at', 'desc');
 
             if ($request->has('perusahaan_id') && $request->perusahaan_id) {
                 $query->where('perusahaan_id', $request->perusahaan_id);
@@ -28,17 +31,16 @@ class LowonganController extends Controller
                     'judul_lowongan' => $item->judul_lowongan,
                     'deskripsi' => $item->deskripsi,
                     'kapasitas' => $item->kapasitas,
-
                     'perusahaan' => [
                         'nama_perusahaan' => $item->perusahaan->nama_perusahaan ?? 'Tidak Diketahui',
                         'nama_kota' => $item->perusahaan->wilayah->nama_kota ?? 'Tidak Diketahui',
                     ],
-                    'skill' => [
-                        'nama_skill' => $item->skill->nama ?? 'Tidak Diketahui',
-                    ],
-                    'jenis' => [
-                        'nama_jenis' => $item->jenis->nama_jenis ?? 'Tidak Diketahui',
-                    ],
+                    'skills' => $item->skillLowongan->map(function($skillLowongan) {
+                        return [
+                            'skill_id' => $skillLowongan->skill->skill_id,
+                            'nama_skill' => $skillLowongan->skill->nama
+                        ];
+                    }),
                     'created_at' => $item->created_at,
                 ];
             });
@@ -47,11 +49,13 @@ class LowonganController extends Controller
                 'success' => true,
                 'data' => $formattedLowongan
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error fetching lowongan: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memuat data lowongan'
+                'message' => 'Gagal memuat data lowongan: ' . $e->getMessage()
             ], 500);
         }
     }
