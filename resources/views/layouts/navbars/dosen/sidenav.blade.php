@@ -16,7 +16,7 @@
         <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}"
+                    <a class="nav-link {{ Route::currentRouteName() == 'dosen.dashboard' ? 'active' : '' }}"
                         href="{{ route('home') }}">
                         <div class="icon icon-shape icon-sm border-radius-md me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-grid-fill text-sm opacity-10"></i>
