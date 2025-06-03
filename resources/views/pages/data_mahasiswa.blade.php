@@ -14,7 +14,7 @@
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-white border-end-0">
                             <i class="fas fa-search text-muted"></i>
-                        </span>
+                    f    </span>
                         <input type="text" id="searchInput" class="form-control ps-0 border-start-0"
                             placeholder="Cari Mahasiswa...">
                         <button type="button" id="clearSearch" class="btn btn-outline-secondary border-start-0"
