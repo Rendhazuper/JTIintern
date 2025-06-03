@@ -22,6 +22,7 @@ class CheckRole
             return redirect('login');
         }
 
+
         if (in_array(Auth::user()->role, $roles)) {
             return $next($request);
         }

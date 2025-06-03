@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\API\Dosen\dashboardController;
+use App\Http\Controllers\API\Dosen\DosenEvaluasiController;
+use App\Http\Controllers\API\Dosen\DosenMahasiswaController;
+use App\Http\Controllers\API\Dosen\DosenProfileController;
 use App\Http\Controllers\API\Mahasiswa\ViewController;
 use App\Http\Controllers\API\MahasiswaController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +79,15 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
 
+//dosen routes
+Route::prefix('dosen')->middleware(['auth', 'role:dosen'])->group(function () {
+    Route::get('/dashboard', [dashboardController::class, 'index'])->name('home');
+    Route::get('/dashboard', [dashboardController::class, 'index'])->name('dosen.dashboard');
+    Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('dosen.mahasiswa');
+    Route::get('/evaluasi', [DosenEvaluasiController::class, 'index'])->name('dosen.evaluasi');
+    Route::get('/profile', [DosenProfileController::class, 'index'])->name('dosen.profile');
+    Route::post('/profile/update', [DosenProfileController::class, 'update'])->name('dosen.profile.update');
+});
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/dashboard', [ViewController::class, 'dashboard'])->name('mahasiswa.dashboard');
