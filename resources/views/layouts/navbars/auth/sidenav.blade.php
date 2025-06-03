@@ -20,16 +20,19 @@
     <div class="sidenav-content">
         <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
             <ul class="navbar-nav">
+                {{-- Dashboard --}}
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}"
                         href="{{ route('home') }}">
                         <div
-                            class="icon icon-shape icon-sm border-radius-md  me-2 d-flex align-items-center justify-content-center">
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-grid-fill text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Dashboard</span>
                     </a>
                 </li>
+
+                {{-- Mahasiswa Section --}}
                 <li class="nav-item">
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Mahasiswa</h6>
                     <a class="nav-link {{ Route::currentRouteName() == 'Data_Mahasiswa' ? 'active' : '' }}"
@@ -50,6 +53,8 @@
                         <span class="nav-link-text ms-1">Permintaan Magang</span>
                     </a>
                 </li>
+
+                {{-- Perusahaan Section --}}
                 <li class="nav-item mt-3">
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Perusahaan</h6>
                 </li>
@@ -73,8 +78,10 @@
                         <span class="nav-link-text ms-1">Manajemen Lowongan</span>
                     </a>
                 </li>
+
+                {{-- Account Section --}}
                 <li class="nav-item mt-3">
-                    <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
+                    <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Dosen</h6>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ str_contains(request()->url(), 'dosen') == true ? 'active' : ''  }}"
@@ -96,6 +103,8 @@
                         <span class="nav-link-text ms-1">Evaluasi Magang</span>
                     </a>
                 </li>
+
+                {{-- Umum Section --}}
                 <li class="nav-item mt-3">
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Umum</h6>
                 </li>
@@ -130,15 +139,31 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ str_contains(request()->url(), 'admin') == true ? 'active' : '' }}"
-                        href="{{ route('page', ['page' => 'admin']) }}">
+                    <a class="nav-link {{ str_contains(request()->url(), 'minat') == true ? 'active' : '' }}"
+                        href="{{ route('page', ['page' => 'minat']) }}">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-person-gear text-sm opacity-10" style="color: #5988FF;"></i>
+                            <i class="bi bi-bookmark-heart text-sm opacity-10" style="color: #5988FF;"></i>
                         </div>
-                        <span class="nav-link-text ms-1">Manajemen Admin</span>
+                        <span class="nav-link-text ms-1">Manajemen Minat</span>
                     </a>
                 </li>
+
+                {{-- Superadmin Only Section --}}
+                @if(Auth::check() && Auth::user()->role === 'superadmin')
+                    <li class="nav-item mt-3">
+                        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Superadmin</h6>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin') ? 'active' : '' }}" href="{{ route('admin') }}">
+                            <div
+                                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="bi bi-gear-fill text-sm opacity-10" style="color: #FF5959;"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Manajemen Admin</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
 
@@ -153,3 +178,4 @@
         </div>
     </div>
 </aside>
+</div>

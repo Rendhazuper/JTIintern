@@ -16,6 +16,7 @@ use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
 use App\Http\Controllers\API\EvaluasiController;
 use App\Http\Controllers\API\PlottingController;
+use App\Services\KapasitasLowonganService;
 
 
 /*
@@ -48,7 +49,7 @@ Route::get('/wilayah', [WilayahController::class, 'index']);
 
 // Dashboard routes
 Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
-     Route::get('/dashboard/active-period', [DashboardController::class, 'getActivePeriod']);
+    Route::get('/dashboard/active-period', [DashboardController::class, 'getActivePeriod']);
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary']);
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
@@ -93,7 +94,7 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/periode/{id}', [PeriodeController::class, 'show']);
     Route::put('/periode/{id}', [PeriodeController::class, 'update']);
     Route::delete('/periode/{id}', [PeriodeController::class, 'destroy']);
-     Route::post('/periode/set-active/{id}', [PeriodeController::class, 'setActive']);
+    Route::post('/periode/set-active/{id}', [PeriodeController::class, 'setActive']);
     Route::get('/admin', [AdminController::class, 'index']);
     Route::post('/admin', [AdminController::class, 'store']);
     Route::get('/admin/{id}', [AdminController::class, 'show']);
@@ -105,12 +106,37 @@ Route::middleware(['api', 'web', 'auth:sanctum'])->group(function () {
     Route::get('/kelas-options', [MahasiswaController::class, 'getKelasOptions']);
     Route::post('/plotting/auto', [PlottingController::class, 'autoPlot']);
     Route::get('/plotting/matrix', [PlottingController::class, 'getPlottingMatrixDetails']);
+    Route::get('/plotting/matrix-decision', [PlottingController::class, 'getMatrix']);
     Route::get('/magang/available', [MagangController::class, 'getAvailable']);
     Route::get('/magang/{id}', [MagangController::class, 'show']);
     Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
     Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
+    Route::post('/magang/{id}/assign-dosen', [MagangController::class, 'assignDosen']);
+    Route::get('/magang/{id}/check-dosen', [MagangController::class, 'checkDosen']);
     Route::get('/skills', [App\Http\Controllers\SkillController::class, 'getSkills']);
     Route::post('/skill', [App\Http\Controllers\SkillController::class, 'store']);
     Route::put('/skill/{id}', [App\Http\Controllers\SkillController::class, 'update']);
     Route::delete('/skill/{id}', [App\Http\Controllers\SkillController::class, 'destroy']);
+    // Route to check magang dosen assignment
+    Route::get('/magang/{id}/check-dosen', [MagangController::class, 'checkDosen']);
+
+    // Routes for capacity management
+    Route::get('/lowongan/{id}/capacity', [LowonganController::class, 'getAvailableCapacity']);
+
+    // Route to manually sync capacity (for admin use)
+    Route::post('/lowongan/{id}/sync-capacity', [LowonganController::class, 'syncCapacity']);
+    Route::get('/minat', [App\Http\Controllers\MinatController::class, 'getMinat']);
+    Route::post('/minat', [App\Http\Controllers\MinatController::class, 'store']);
+    Route::get('/minat/{id}', [App\Http\Controllers\MinatController::class, 'show']);
+    Route::put('/minat/{id}', [App\Http\Controllers\MinatController::class, 'update']);
+    Route::delete('/minat/{id}', [App\Http\Controllers\MinatController::class, 'destroy']);
+});
+
+// Superadmin routes
+Route::middleware(['api', 'web', 'auth:sanctum', 'superadmin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index']);
+    Route::post('/admin', [AdminController::class, 'store']);
+    Route::get('/admin/{id}', [AdminController::class, 'show']);
+    Route::put('/admin/{id}', [AdminController::class, 'update']);
+    Route::delete('/admin/{id}', [AdminController::class, 'destroy']);
 });

@@ -23,34 +23,73 @@ class MahasiswaController extends Controller
             'nim' => 'required|string|unique:m_mahasiswa,nim',
             'id_kelas' => 'required|exists:m_kelas,id_kelas',
             'alamat' => 'required|string',
-            'ipk' => 'nullable|numeric|min:0|max:4'
+            'ipk' => 'nullable|numeric|min:0|max:4',
+            'minat' => 'nullable|array',
+            'minat.*' => 'exists:m_minat,minat_id'
         ]);
 
-        // 1. Insert ke m_user
-        $user = \App\Models\User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password, // Akan otomatis di-bcrypt oleh mutator
-            'role' => 'mahasiswa'
-        ]);
+        DB::beginTransaction();
+        try {
+            // 1. Insert ke m_user
+            $user = \App\Models\User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password, // Akan otomatis di-bcrypt oleh mutator
+                'role' => 'mahasiswa'
+            ]);
 
-        // 2. Insert ke m_mahasiswa
-        $mahasiswa = \App\Models\Mahasiswa::create([
-            'nim' => $request->nim,
-            'id_user' => $user->id_user,
-            'id_kelas' => $request->id_kelas,
-            'alamat' => $request->alamat,
-            'ipk' => $request->ipk,
-        ]);
+            // 2. Insert ke m_mahasiswa
+            $mahasiswa = \App\Models\Mahasiswa::create([
+                'nim' => $request->nim,
+                'id_user' => $user->id_user,
+                'id_kelas' => $request->id_kelas,
+                'alamat' => $request->alamat,
+                'ipk' => $request->ipk,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Mahasiswa berhasil ditambahkan',
-            'data' => [
-                'user' => $user,
-                'mahasiswa' => $mahasiswa
-            ]
-        ]);
+            // 3. Insert minat ke t_minat_mahasiswa jika ada
+            if ($request->has('minat') && is_array($request->minat)) {
+                foreach ($request->minat as $minatId) {
+                    DB::table('t_minat_mahasiswa')->insert([
+                        'mahasiswa_id' => $mahasiswa->id_mahasiswa,
+                        'minat_id' => $minatId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            if ($request->has('skills') && is_array($request->skills)) {
+                foreach ($request->skills as $skillId) {
+                    DB::table('t_skill_mahasiswa')->insert([
+                        'user_id' => $mahasiswa->id_user,
+                        'skill_id' => $skillId,
+                        'lama_skill' => $request->lama_skill ?? 0,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mahasiswa berhasil ditambahkan',
+                'data' => [
+                    'user' => $user,
+                    'mahasiswa' => $mahasiswa
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating mahasiswa: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menambahkan data mahasiswa: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)
@@ -74,6 +113,13 @@ class MahasiswaController extends Controller
                 ->select('s.nama', 'sm.lama_skill')
                 ->get();
 
+            // Load minat from t_minat_mahasiswa table
+            $minat = DB::table('t_minat_mahasiswa as tm')
+                ->join('m_minat as m', 'tm.minat_id', '=', 'm.minat_id')
+                ->where('tm.mahasiswa_id', $mahasiswa->id_mahasiswa)
+                ->select('m.minat_id', 'm.nama_minat', 'm.deskripsi')
+                ->get();
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -81,11 +127,13 @@ class MahasiswaController extends Controller
                     'name' => $mahasiswa->user->name ?? '-',
                     'email' => $mahasiswa->user->email ?? '-',
                     'nim' => $mahasiswa->nim,
+                    'id_kelas' => $mahasiswa->id_kelas,
                     'nama_kelas' => $mahasiswa->kelas->nama_kelas ?? '-',
                     'status_magang' => $mahasiswa->magang->status ?? 'Belum Magang',
                     'alamat' => $mahasiswa->alamat ?? '-',
                     'ipk' => $mahasiswa->ipk ?? '-',
                     'skills' => $skills,
+                    'minat' => $minat, // Added minat data to the response
                     'dokumen' => $mahasiswa->dokumen->map(function ($dokumen) {
                         return [
                             'file_name' => $dokumen->file_name,
@@ -100,7 +148,7 @@ class MahasiswaController extends Controller
             Log::error('Error memuat detail mahasiswa: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat memuat detail mahasiswa'
+                'message' => 'Terjadi kesalahan saat memuat detail mahasiswa: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -116,52 +164,113 @@ class MahasiswaController extends Controller
                 'alamat' => 'required|string|max:255',
                 'nim' => 'required|string|max:15',
                 'ipk' => 'required|numeric|min:0|max:4',
+                'minat' => 'nullable|array',
+                'minat.*' => 'exists:m_minat,minat_id'
             ]);
 
-            // Update data mahasiswa
-            $mahasiswa->update([
-                'id_kelas' => $validatedData['id_kelas'],
-                'alamat' => $validatedData['alamat'],
-                'nim' => $validatedData['nim'],
-                'ipk' => $validatedData['ipk']
-            ]);
+            DB::beginTransaction();
 
-            // Update nama di tabel user
-            if ($mahasiswa->user) {
-                $mahasiswa->user->update([
-                    'name' => $validatedData['name']
+            try {
+                // Update data mahasiswa
+                $mahasiswa->update([
+                    'id_kelas' => $validatedData['id_kelas'],
+                    'alamat' => $validatedData['alamat'],
+                    'nim' => $validatedData['nim'],
+                    'ipk' => $validatedData['ipk']
                 ]);
-            }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Data mahasiswa berhasil diperbarui'
-            ]);
+                // Update nama di tabel user
+                if ($mahasiswa->user) {
+                    $mahasiswa->user->update([
+                        'name' => $validatedData['name']
+                    ]);
+                }
+
+                // Update minat mahasiswa
+                if ($request->has('minat')) {
+                    // Delete semua minat yang ada untuk mahasiswa ini
+                    DB::table('t_minat_mahasiswa')
+                        ->where('mahasiswa_id', $mahasiswa->id_mahasiswa)
+                        ->delete();
+
+                    // Insert minat yang baru dipilih
+                    foreach ($request->minat as $minatId) {
+                        DB::table('t_minat_mahasiswa')->insert([
+                            'mahasiswa_id' => $mahasiswa->id_mahasiswa,
+                            'minat_id' => $minatId,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
+                }
+
+                if ($request->has('skills')) {
+                    // Delete existing skill relationships
+                    DB::table('t_skill_mahasiswa')
+                        ->where('user_id', $mahasiswa->id_user)
+                        ->delete();
+
+                    // Insert new skill relationships
+                    foreach ($request->skills as $skillId) {
+                        DB::table('t_skill_mahasiswa')->insert([
+                            'user_id' => $mahasiswa->id_user,
+                            'skill_id' => $skillId,
+                            'lama_skill' => $request->lama_skill ?? 0,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data mahasiswa berhasil diperbarui'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
         } catch (\Exception $e) {
             Log::error('Error updating mahasiswa: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat memperbarui data mahasiswa'
+                'message' => 'Terjadi kesalahan saat memperbarui data mahasiswa: ' . $e->getMessage()
             ], 500);
         }
     }
     public function destroy($id)
     {
         try {
+            DB::beginTransaction();
+
             $mahasiswa = Mahasiswa::findOrFail($id);
 
+            // Delete related records in t_minat_mahasiswa
+            DB::table('t_minat_mahasiswa')
+                ->where('mahasiswa_id', $mahasiswa->id_mahasiswa)
+                ->delete();
+
+            // Delete related records in t_skill_mahasiswa
+            DB::table('t_skill_mahasiswa')
+                ->where('user_id', $mahasiswa->id_user)
+                ->delete();
             // Hapus data mahasiswa
             $mahasiswa->delete();
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data mahasiswa berhasil dihapus'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error deleting mahasiswa: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data mahasiswa'
+                'message' => 'Terjadi kesalahan saat menghapus data mahasiswa: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -287,7 +396,7 @@ class MahasiswaController extends Controller
                 }
 
                 $namaKelas = trim($row[4]); // Mengambil nama_kelas dari CSV
-                
+
                 // Cari id_kelas berdasarkan nama_kelas
                 $idKelas = array_key_exists($namaKelas, $allKelas) ? $allKelas[$namaKelas] : null;
 
@@ -415,7 +524,6 @@ class MahasiswaController extends Controller
 
             // Return the PDF for download
             return $pdf->download("data_mahasiswa_{$timestamp}.pdf");
-
         } catch (\Exception $e) {
             Log::error('Error exporting PDF: ' . $e->getMessage());
             return response()->json([
@@ -424,7 +532,4 @@ class MahasiswaController extends Controller
             ], 500);
         }
     }
-    
-
-
 }

@@ -173,6 +173,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Add this anywhere in your layout for superadmin pages -->
+    @if(Auth::check() && Auth::user()->role === 'superadmin')
+        <div data-class="bg-transparent" style="display:none;"></div>
+    @endif
 @endsection
 
 @push('css')

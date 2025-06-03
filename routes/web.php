@@ -31,7 +31,9 @@ use App\Http\Controllers\PerusahaanController;
 // Redirect root to appropriate dashboard based on role
 Route::get('/', function () {
     if (auth()->check()) {
-        if (auth()->user()->role === 'admin') {
+        if (auth()->user()->role === 'superadmin') {
+            return redirect('/dashboard');
+        } else if (auth()->user()->role === 'admin') {
             return redirect('/dashboard');
         } else if (auth()->user()->role === 'mahasiswa') {
             return redirect('/mahasiswa/dashboard');
@@ -62,8 +64,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
+// Superadmin routes
+Route::middleware(['auth', 'superadmin'])->group(function () {
+    Route::get('/admin', [PageController::class, 'admin'])->name('admin');
+});
+
 // Admin routes
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
     Route::get('/dataMhs', [dataMhsController::class, 'index'])->name('Data_Mahasiswa');
     Route::get('/data-perusahaan', [PerusahaanController::class, 'index'])->name('data-perusahaan');

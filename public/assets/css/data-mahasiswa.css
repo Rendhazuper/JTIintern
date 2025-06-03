@@ -97,3 +97,50 @@
 .table tbody tr:hover {
     background-color: rgba(0, 0, 0, 0.02);
 }
+
+/* Kelas badge styling */
+.badge.bg-light {
+    background-color: #f0f2f5 !important;
+    color: #344767 !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Improve table readability */
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        display: none;
+    }
+}
+
+/* For better multiselect styling */
+select[multiple] {
+    overflow: auto;
+    border-radius: 0.25rem;
+}
+
+select[multiple] option {
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+select[multiple] option:checked {
+    background-color: rgba(59, 125, 221, 0.1);
+    color: #3b7ddd;
+    font-weight: 500;
+}
