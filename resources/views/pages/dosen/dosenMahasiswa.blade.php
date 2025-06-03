@@ -1,8 +1,9 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Data Mahasiswa'])
-    <div class="container-fluid py-4">
+    @include('layouts.navbars.auth.topnav', ['title' => 'Dashboard'])
+
+        <div class="container-fluid py-4">
         <div class="card pt-0">
             <!-- Card Header with Title & Controls -->
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
@@ -211,9 +212,6 @@
     </div>
 @endsection
 
-@push('css')
-    <link href="{{ asset('assets/css/data-mahasiswa.css') }}" rel="stylesheet" />
-@endpush
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -462,12 +460,7 @@
                                                                                 <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
                                                                                     <i class="fas fa-eye me-1"></i>Detail
                                                                                 </button>
-                                                                                <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
-                                                                                    <i class="fas fa-edit me-1"></i>Edit
-                                                                                </button>
-                                                                                <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
-                                                                                    <i class="fas fa-trash-alt me-1"></i>Hapus
-                                                                                </button>
+                                                                                
                                                                             </div>
                                                                                     </td>
                                                                                 `;

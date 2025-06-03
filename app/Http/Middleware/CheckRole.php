@@ -28,7 +28,10 @@ class CheckRole
                 return redirect('/dashboard');
             } else if (Auth::user()->role === 'mahasiswa') {
                 return redirect('/mahasiswa/dashboard');
+            }else if (Auth::user()->role === 'dosen') {
+                return redirect('/dosen/dashboard');
             }
+            
             
             return redirect('/');
         }
