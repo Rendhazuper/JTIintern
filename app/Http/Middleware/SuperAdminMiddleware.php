@@ -6,26 +6,25 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class CheckRole
+class SuperAdminMiddleware
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string  $role
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next)
     {
         if (!Auth::check()) {
             return redirect('login');
         }
 
-        if (in_array(Auth::user()->role, $roles)) {
-            return $next($request);
+        if (Auth::user()->role !== 'superadmin') {
+            return redirect('/dashboard')->with('error', 'Akses hanya untuk Superadmin.');
         }
 
-        return redirect()->back()->with('error', 'Unauthorized access.');
+        return $next($request);
     }
 }
