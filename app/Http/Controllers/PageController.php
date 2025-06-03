@@ -50,4 +50,8 @@ class PageController extends Controller
     {
         return view('pages.plotting');
     }
+    public function admin()
+    {
+        return view('pages.admin');
+    }
 }

@@ -64,4 +64,9 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(Dokumen::class, 'id_user', 'id_user');
     }
+
+    public function minat()
+    {
+        return $this->belongsToMany(Minat::class, 't_minat_mahasiswa', 'mahasiswa_id', 'minat_id');
+    }
 }

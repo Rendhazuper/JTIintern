@@ -1,4 +1,4 @@
-@extends('layouts.app',  ['class' => 'g-sidenav-show bg-gray-100'])
+@extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Data Dosen'])
@@ -47,8 +47,6 @@
                         <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Wilayah
-                                </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">NIP
                                 </th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">
@@ -97,11 +95,21 @@
                             <input type="text" class="form-control" id="nama_dosen" name="nama_dosen" required>
                         </div>
                         <div class="mb-3">
-                            <label for="wilayah_id" class="form-label">Wilayah</label>
-                            <select class="form-select" id="wilayah_id" name="wilayah_id" required>
-                                <option value="">Pilih Wilayah</option>
-                                <!-- Data wilayah akan dimuat via JS -->
+                            <label for="skills" class="form-label">Skills</label>
+                            <select class="form-select" id="skills" name="skills[]" multiple size="4">
+                                <!-- Options will be loaded via JS -->
                             </select>
+                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
+                                dari satu</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="minat" class="form-label">Minat</label>
+                            <select class="form-select" id="minat" name="minat[]" multiple size="4">
+                                <!-- Options will be loaded via JS -->
+                            </select>
+                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
+                                dari satu</small>
                         </div>
                         <div class="mb-3">
                             <label for="nip" class="form-label">NIP</label>
@@ -132,10 +140,21 @@
                             <input type="text" class="form-control" id="edit_nama_dosen" name="nama_dosen" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_wilayah_id" class="form-label">Wilayah</label>
-                            <select class="form-select" id="edit_wilayah_id" name="wilayah_id" required>
-                                <option value="">Pilih Wilayah</option>
+                            <label for="edit_skills" class="form-label">Skills</label>
+                            <select class="form-select" id="edit_skills" name="skills[]" multiple size="4">
+                                <!-- Options will be loaded via JS -->
                             </select>
+                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
+                                dari satu</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_minat" class="form-label">Minat</label>
+                            <select class="form-select" id="edit_minat" name="minat[]" multiple size="4">
+                                <!-- Options will be loaded via JS -->
+                            </select>
+                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
+                                dari satu</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_nip" class="form-label">NIP</label>
@@ -160,22 +179,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-        function loadWilayahOptions() {
-            axios.get('/api/wilayah')
-                .then(function (response) {
-                    if (response.data.success) {
-                        const wilayahSelect = document.getElementById('wilayah_id');
-                        wilayahSelect.innerHTML = '<option value="">Pilih Wilayah</option>';
-                        response.data.data.forEach(function (wilayah) {
-                            wilayahSelect.innerHTML += `<option value="${wilayah.wilayah_id}">${wilayah.nama_kota}</option>`;
-                        });
-                    }
-                })
-                .catch(function (error) {
-                    console.error('Error loading wilayah:', error);
-                });
-        }
-
         // Panggil fungsi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function () {
             loadDosenData();
@@ -185,18 +188,18 @@
             // Tampilkan loading state
             const tableBody = document.getElementById('dosen-table-body');
             tableBody.innerHTML = `
-                                                <tr>
-                                <td colspan="4" class="text-center">
-                                    <div class="py-5">
-                                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-                                        <div class="mt-3">
-                                            <h6 class="text-primary mb-1">Memuat data dosen</h6>
-                                            <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
+                                                                                            <tr>
+                                                                            <td colspan="4" class="text-center">
+                                                                                <div class="py-5">
+                                                                                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                                                                    <div class="mt-3">
+                                                                                        <h6 class="text-primary mb-1">Memuat data dosen</h6>
+                                                                                        <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    `;
 
             // Fetch data dari API
             axios.get('/api/dosen')
@@ -216,34 +219,34 @@
                                 row.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
 
                                 row.innerHTML = `
-                                                                       <td>
-                                    <div class="d-flex">
-                                        <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
-                                            ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
-                                        </div>
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
-                                            <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="text-sm font-weight-normal">${dosen.wilayah || '-'}</span>
-                                </td>
-                                <td>
-                                    <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="action-buttons">
-                                        <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
-                                            <i class="fas fa-edit me-1"></i>Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
-                                            <i class="fas fa-trash me-1"></i>Hapus
-                                        </button>
-                                    </div>
-                                </td>
-                            `;
+                                                                                                                   <td>
+                                                                                <div class="d-flex">
+                                                                                    <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
+                                                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
+                                                                                    </div>
+                                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                                        <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
+                                                                                        <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
+                                                                            </td>
+                                                                        <td class="text-end">
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-info me-1" onclick="viewDosen('${dosen.id_dosen}')" title="Detail Dosen">
+                            <i class="fas fa-eye me-1"></i>Detail
+                        </button>
+                        <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
+                            <i class="fas fa-trash me-1"></i>Hapus
+                        </button>
+                    </div>
+                </td>
+                                                                        `;
                                 tableBody.appendChild(row);
                             });
 
@@ -252,11 +255,11 @@
                                 const style = document.createElement('style');
                                 style.id = 'fade-in-animation';
                                 style.textContent = `
-                                                                    @keyframes fadeIn {
-                                                                        from { opacity: 0; transform: translateY(10px); }
-                                                                        to { opacity: 1; transform: translateY(0); }
-                                                                    }
-                                                                `;
+                                                                                                                @keyframes fadeIn {
+                                                                                                                    from { opacity: 0; transform: translateY(10px); }
+                                                                                                                    to { opacity: 1; transform: translateY(0); }
+                                                                                                                }
+                                                                                                            `;
                                 document.head.appendChild(style);
                             }
 
@@ -275,66 +278,139 @@
                 });
         }
 
+        // Load skills options
+        function loadSkillsOptions() {
+            axios.get('/api/skills')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const skillsSelect = document.getElementById('skills');
+                        skillsSelect.innerHTML = '';
+                        response.data.data.forEach(function (skill) {
+                            skillsSelect.innerHTML += `<option value="${skill.skill_id}">${skill.nama}</option>`;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error loading skills:', error);
+                });
+        }
+
+        // Load edit skills options and select current skills
+        function loadEditSkillsOptions(selectedSkills = []) {
+            axios.get('/api/skills')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const skillsSelect = document.getElementById('edit_skills');
+                        skillsSelect.innerHTML = '';
+                        response.data.data.forEach(function (skill) {
+                            const isSelected = selectedSkills.includes(skill.skill_id) ? 'selected' : '';
+                            skillsSelect.innerHTML += `<option value="${skill.skill_id}" ${isSelected}>${skill.nama}</option>`;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error loading skills:', error);
+                });
+        }
+
+        // Load minat options
+        function loadMinatOptions() {
+            axios.get('/api/minat')
+                .then(function (response) {
+                    const minatSelect = document.getElementById('minat');
+                    minatSelect.innerHTML = '';
+                    response.data.forEach(function (minat) {
+                        minatSelect.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Error loading minat:', error);
+                });
+        }
+
+        // Load edit minat options and select current minat
+        function loadEditMinatOptions(selectedMinat = []) {
+            axios.get('/api/minat')
+                .then(function (response) {
+                    const minatSelect = document.getElementById('edit_minat');
+                    minatSelect.innerHTML = '';
+                    response.data.forEach(function (minat) {
+                        const isSelected = selectedMinat.includes(minat.minat_id) ? 'selected' : '';
+                        minatSelect.innerHTML += `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Error loading minat:', error);
+                });
+        }
+
         // Helper function untuk menampilkan empty state
         function showEmptyState(tableBody) {
             tableBody.innerHTML = `
-                            <tr>
-                                <td colspan="4">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">
-                                            <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
-                                        </div>
-                                        <h6 class="text-muted">Tidak ada data dosen</h6>
-                                        <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
-                                        <button class="btn btn-sm btn-success" onclick="tambahDosen()">
-                                            <i class="fas fa-plus me-1"></i>Tambah Dosen
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
+                                                                        <tr>
+                                                                            <td colspan="4">
+                                                                                <div class="empty-state">
+                                                                                    <div class="empty-state-icon">
+                                                                                        <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
+                                                                                    </div>
+                                                                                    <h6 class="text-muted">Tidak ada data dosen</h6>
+                                                                                    <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
+                                                                                    <button class="btn btn-sm btn-success" onclick="tambahDosen()">
+                                                                                        <i class="fas fa-plus me-1"></i>Tambah Dosen
+                                                                                    </button>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    `;
         }
 
         // Helper function untuk menampilkan error state
         function showErrorState(tableBody) {
             tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4">
-                                <div class="error-state">
-                                    <div class="error-state-icon">
-                                        <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
-                                    </div>
-                                    <h6 class="text-danger">Gagal memuat data</h6>
-                                    <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
-                                    <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
-                                        <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                                                                    <tr>
+                                                                        <td colspan="4">
+                                                                            <div class="error-state">
+                                                                                <div class="error-state-icon">
+                                                                                    <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
+                                                                                </div>
+                                                                                <h6 class="text-danger">Gagal memuat data</h6>
+                                                                                <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
+                                                                                <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
+                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                `;
         }
 
         function tambahDosen() {
-            loadWilayahOptions();
+            loadSkillsOptions();
+            loadMinatOptions();
             document.getElementById('tambahDosenForm').reset();
             const modal = new bootstrap.Modal(document.getElementById('tambahDosenModal'));
             modal.show();
         }
 
+        // For adding a new dosen
         document.getElementById('tambahDosenForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
+            // Get selected skills
+            const skillsSelect = document.getElementById('skills');
+            const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
+
+            // Get selected minat
+            const minatSelect = document.getElementById('minat');
+            const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
+
             const formData = {
                 nama_dosen: document.getElementById('nama_dosen').value,
-                wilayah_id: parseInt(document.getElementById('wilayah_id').value, 10), // pastikan integer
-                nip: document.getElementById('nip').value
+                nip: document.getElementById('nip').value,
+                skills: selectedSkills,
+                minat: selectedMinat
             };
 
-            if (isNaN(formData.wilayah_id) || !formData.wilayah_id) {
-                Swal.fire('Peringatan', 'Silakan pilih wilayah!', 'warning');
-                return;
-            }
 
             axios.post('/api/dosen', formData)
                 .then(function (response) {
@@ -351,20 +427,6 @@
                 });
         });
 
-        function loadEditWilayahOptions(selectedId = null) {
-            axios.get('/api/wilayah')
-                .then(function (response) {
-                    if (response.data.success) {
-                        const wilayahSelect = document.getElementById('edit_wilayah_id');
-                        wilayahSelect.innerHTML = '<option value="">Pilih Wilayah</option>';
-                        response.data.data.forEach(function (wilayah) {
-                            const selected = selectedId == wilayah.wilayah_id ? 'selected' : '';
-                            wilayahSelect.innerHTML += `<option value="${wilayah.wilayah_id}" ${selected}>${wilayah.nama_kota}</option>`;
-                        });
-                    }
-                });
-        }
-
         function editDosen(id) {
             axios.get(`/api/dosen/${id}`)
                 .then(function (response) {
@@ -373,7 +435,19 @@
                         document.getElementById('editDosenId').value = dosen.id_dosen;
                         document.getElementById('edit_nama_dosen').value = dosen.nama_dosen;
                         document.getElementById('edit_nip').value = dosen.nip;
-                        loadEditWilayahOptions(dosen.wilayah_id);
+
+
+                        // For skills
+                        const selectedSkills = Array.isArray(dosen.skills)
+                            ? dosen.skills.map(skill => skill.skill_id)
+                            : [];
+                        loadEditSkillsOptions(selectedSkills);
+
+                        // For minat
+                        const selectedMinat = Array.isArray(dosen.minat)
+                            ? dosen.minat.map(minat => minat.minat_id)
+                            : [];
+                        loadEditMinatOptions(selectedMinat);
 
                         const modal = new bootstrap.Modal(document.getElementById('editDosenModal'));
                         modal.show();
@@ -386,20 +460,26 @@
                 });
         }
 
+        // For editing an existing dosen
         document.getElementById('editDosenForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const id = document.getElementById('editDosenId').value;
+
+            // Get selected skills
+            const skillsSelect = document.getElementById('edit_skills');
+            const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
+
+            // Get selected minat
+            const minatSelect = document.getElementById('edit_minat');
+            const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
+
             const formData = {
                 nama_dosen: document.getElementById('edit_nama_dosen').value,
-                wilayah_id: parseInt(document.getElementById('edit_wilayah_id').value, 10),
-                nip: document.getElementById('edit_nip').value
+                nip: document.getElementById('edit_nip').value,
+                skills: selectedSkills,
+                minat: selectedMinat
             };
-
-            if (isNaN(formData.wilayah_id) || !formData.wilayah_id) {
-                Swal.fire('Peringatan', 'Silakan pilih wilayah!', 'warning');
-                return;
-            }
 
             axios.put(`/api/dosen/${id}`, formData)
                 .then(function (response) {
@@ -450,7 +530,7 @@
         }
 
         function viewDosen(id) {
-            // Tampilkan loading
+            // Show loading state
             Swal.fire({
                 title: 'Loading...',
                 text: 'Mengambil data dosen',
@@ -467,29 +547,61 @@
                     if (response.data.success) {
                         const dosen = response.data.data;
 
-                        // Tampilkan detail dosen dalam modal atau sweetalert
+                        // Format skills as badges if available
+                        let skillsHtml = '<span class="text-muted">Tidak ada skill</span>';
+                        if (Array.isArray(dosen.skills) && dosen.skills.length > 0) {
+                            skillsHtml = dosen.skills.map(skill =>
+                                `<span class="badge bg-primary me-1 mb-1">${skill.nama}</span>`
+                            ).join('');
+                        }
+
+                        // Format minat as badges if available
+                        let minatHtml = '<span class="text-muted">Tidak ada minat</span>';
+                        if (Array.isArray(dosen.minat) && dosen.minat.length > 0) {
+                            minatHtml = dosen.minat.map(minat =>
+                                `<span class="badge bg-info me-1 mb-1">${minat.nama_minat}</span>`
+                            ).join('');
+                        }
+
+                        // Display detailed information in a modal
                         Swal.fire({
-                            title: 'Detail Dosen',
+                            title: `Detail Dosen: ${dosen.nama_dosen || 'Tidak Diketahui'}`,
                             html: `
-                                                            <div class="text-start">
-                                                                <div class="mb-3">
-                                                                    <label class="fw-bold d-block">Nama:</label>
-                                                                    <span>${dosen.nama_dosen || '-'}</span>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label class="fw-bold d-block">NIP:</label>
-                                                                    <span>${dosen.nip || '-'}</span>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label class="fw-bold d-block">Email:</label>
-                                                                    <span>${dosen.email || '-'}</span>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label class="fw-bold d-block">Wilayah:</label>
-                                                                    <span>${dosen.wilayah || '-'}</span>
-                                                                </div>
-                                                            </div>
-                                                        `,
+                                    <div class="text-start">
+                                        <div class="row mb-3">
+                                            <div class="col-12 mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-lg bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
+                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-0">${dosen.nama_dosen || '-'}</h5>
+                                                        <p class="text-muted mb-0">${dosen.email || '-'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="fw-bold d-block">NIP:</label>
+                                                    <span>${dosen.nip || '-'}</span>
+                                                </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="fw-bold d-block">Skills:</label>
+                                                    <div class="mt-1">${skillsHtml}</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="fw-bold d-block">Minat:</label>
+                                                    <div class="mt-1">${minatHtml}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `,
+                            width: '600px',
                             confirmButtonText: 'Tutup',
                             confirmButtonColor: '#5e72e4',
                         });
@@ -499,6 +611,7 @@
                 })
                 .catch(function (error) {
                     Swal.close();
+                    console.error('Error viewing dosen details:', error);
                     Swal.fire('Gagal', 'Terjadi kesalahan saat mengambil data dosen.', 'error');
                 });
         }
@@ -509,36 +622,34 @@
             Swal.fire({
                 title: 'Import Data Dosen',
                 html: `
-                    <div class="alert alert-info mb-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Format CSV:</strong> File CSV harus memiliki kolom berikut:
-                        <ul class="mb-0 mt-1 text-start">
-                            <li><strong>nama_dosen</strong> (wajib)</li>
-                            <li><strong>nip</strong> (wajib)</li>
-                            <li><strong>wilayah</strong> atau <strong>wilayah_id</strong> (wajib)</li>
-                            <li><strong>email</strong> (opsional - akan digenerate otomatis jika kosong)</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
-                            <i class="fas fa-download me-1"></i>Download Template
-                        </button>
-                        <div class="custom-file">
-                            <input type="file" class="form-control" id="csvFile" accept=".csv">
-                        </div>
-                        <div class="form-text text-muted">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Tips: Pastikan file CSV menggunakan koma (,) sebagai pemisah.
-                        </div>
-                    </div>
-                    <div class="alert alert-warning small mb-0">
-                        <strong>Catatan Penting:</strong>
-                        <ul class="mb-0 mt-1 text-start">
-                            <li>Setiap dosen akan otomatis dibuatkan akun dengan password acak</li>
-                            <li>Gunakan nama wilayah yang sudah ada di sistem</li>
-                        </ul>
-                    </div>
-                `,
+                                                                <div class="alert alert-info mb-3">
+                                                                    <i class="fas fa-info-circle me-2"></i>
+                                                                    <strong>Format CSV:</strong> File CSV harus memiliki kolom berikut:
+                                                                    <ul class="mb-0 mt-1 text-start">
+                                                                        <li><strong>nama_dosen</strong> (wajib)</li>
+                                                                        <li><strong>nip</strong> (wajib)</li>
+                                                                        <li><strong>email</strong> (opsional - akan digenerate otomatis jika kosong)</li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
+                                                                        <i class="fas fa-download me-1"></i>Download Template
+                                                                    </button>
+                                                                    <div class="custom-file">
+                                                                        <input type="file" class="form-control" id="csvFile" accept=".csv">
+                                                                    </div>
+                                                                    <div class="form-text text-muted">
+                                                                        <i class="bi bi-info-circle me-1"></i>
+                                                                        Tips: Pastikan file CSV menggunakan koma (,) sebagai pemisah.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="alert alert-warning small mb-0">
+                                                                    <strong>Catatan Penting:</strong>
+                                                                    <ul class="mb-0 mt-1 text-start">
+                                                                        <li>Setiap dosen akan otomatis dibuatkan akun dengan password acak</li>
+                                                                    </ul>
+                                                                </div>
+                                                            `,
                 showCancelButton: true,
                 confirmButtonText: 'Import',
                 cancelButtonText: 'Batal',
@@ -582,14 +693,14 @@
                         Swal.fire({
                             title: 'Import Sebagian Berhasil',
                             html: `
-                                <p>${result.value.message}</p>
-                                <div class="alert alert-warning">
-                                    <strong>Beberapa data tidak dapat diimpor:</strong>
-                                    <ul class="mb-0 mt-1">
-                                        ${errorList}
-                                    </ul>
-                                </div>
-                            `,
+                                                                            <p>${result.value.message}</p>
+                                                                            <div class="alert alert-warning">
+                                                                                <strong>Beberapa data tidak dapat diimpor:</strong>
+                                                                                <ul class="mb-0 mt-1">
+                                                                                    ${errorList}
+                                                                                </ul>
+                                                                            </div>
+                                                                        `,
                             icon: 'warning'
                         });
                     } else {
@@ -623,7 +734,7 @@
                             'nama_dosen',  // This will go into m_user.name
                             'nip',         // This will go into m_dosen.nip
                             'email',       // This will go into m_user.email
-                            'wilayah',     // This will be converted to wilayah_id for m_dosen.wilayah_id
+                    // This will be converted to wilayah_id for m_dosen.wilayah_id
                             'password'     // Optional - will be auto-generated if not provided
                         ];
 
@@ -685,35 +796,35 @@
                             icon: 'success',
                             title: 'Template CSV Berhasil Diunduh',
                             html: `
-                            <p>Template berhasil diunduh. Silakan isi dengan data dosen Anda.</p>
+                                                                        <p>Template berhasil diunduh. Silakan isi dengan data dosen Anda.</p>
 
-                            <div class="alert alert-info mt-3">
-                                <strong>Penjelasan Kolom:</strong>
-                                <ul class="text-start mb-0 mt-2">
-                                    <li><strong>nama_dosen</strong>: Nama lengkap dosen (wajib)</li>
-                                    <li><strong>nip</strong>: Nomor Induk Pegawai (wajib)</li>
-                                    <li><strong>email</strong>: Alamat email untuk login (opsional, akan digenerate otomatis jika kosong)</li>
-                                    <li><strong>wilayah</strong>: Nama wilayah atau ID wilayah (wajib)</li>
-                                    <li><strong>password</strong>: Password untuk login (opsional, akan digenerate otomatis jika kosong)</li>
-                                </ul>
-                            </div>
+                                                                        <div class="alert alert-info mt-3">
+                                                                            <strong>Penjelasan Kolom:</strong>
+                                                                            <ul class="text-start mb-0 mt-2">
+                                                                                <li><strong>nama_dosen</strong>: Nama lengkap dosen (wajib)</li>
+                                                                                <li><strong>nip</strong>: Nomor Induk Pegawai (wajib)</li>
+                                                                                <li><strong>email</strong>: Alamat email untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                                                                <li><strong>wilayah</strong>: Nama wilayah atau ID wilayah (wajib)</li>
+                                                                                <li><strong>password</strong>: Password untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                                                            </ul>
+                                                                        </div>
 
-                            <p class="mb-2 mt-3"><strong>Referensi Wilayah:</strong></p>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Nama Wilayah</th>
-                                            <th>ID Wilayah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${wilayahRows}
-                                        ${wilayah.length > 5 ? '<tr><td colspan="2" class="text-center">Dan lainnya...</td></tr>' : ''}
-                                    </tbody>
-                                </table>
-                            </div>
-                        `,
+                                                                        <p class="mb-2 mt-3"><strong>Referensi Wilayah:</strong></p>
+                                                                        <div class="table-responsive">
+                                                                            <table class="table table-sm table-bordered">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th>Nama Wilayah</th>
+                                                                                        <th>ID Wilayah</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    ${wilayahRows}
+                                                                                    ${wilayah.length > 5 ? '<tr><td colspan="2" class="text-center">Dan lainnya...</td></tr>' : ''}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    `,
                             confirmButtonText: 'Mengerti',
                             width: '600px'
                         });

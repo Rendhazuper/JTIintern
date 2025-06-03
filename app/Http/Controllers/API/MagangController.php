@@ -4,12 +4,20 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Magang;
+use App\Services\KapasitasLowonganService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class MagangController extends Controller
 {
+    protected $kapasitasService;
+
+    public function __construct(KapasitasLowonganService $kapasitasService)
+    {
+        $this->kapasitasService = $kapasitasService;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -133,29 +141,54 @@ class MagangController extends Controller
     public function accept($id)
     {
         try {
-            // Cari data magang berdasarkan ID
+            DB::beginTransaction();
+            
+            // Find internship application
             $magang = Magang::findOrFail($id);
-
-            // Perbarui status di tabel m_magang
+            $id_lowongan = $magang->id_lowongan;
+            
+            // Check capacity first
+            if (!$this->kapasitasService->hasAvailableCapacity($id_lowongan)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat menerima permintaan magang karena kapasitas sudah penuh.'
+                ], 400);
+            }
+            
+            // Update status in m_magang
             $magang->status = 'aktif';
             $magang->save();
-
-            // Perbarui kolom auth di tabel lamaran
-            $lamaran = $magang->lamaran->first(); // Ambil lamaran pertama terkait
+            
+            // Update auth column in lamaran table
+            $lamaran = $magang->lamaran->first();
             if ($lamaran) {
                 $lamaran->auth = 'diterima';
                 $lamaran->save();
             }
-
+            
+            // Decrement available capacity
+            $capacityUpdated = $this->kapasitasService->decrementKapasitas($id_lowongan);
+            
+            if (!$capacityUpdated) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui kapasitas tersedia.'
+                ], 500);
+            }
+            
+            DB::commit();
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Permintaan magang berhasil diterima.'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error accepting magang: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menerima permintaan magang.'
+                'message' => 'Gagal menerima permintaan magang: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -163,27 +196,41 @@ class MagangController extends Controller
     public function reject($id)
     {
         try {
-            // Cari data magang berdasarkan ID
+            DB::beginTransaction();
+            
+            // Find internship application
             $magang = Magang::findOrFail($id);
-
-            // Hapus entri di tabel lamaran terkait
-            $lamaran = $magang->lamaran->first(); // Ambil lamaran pertama terkait
+            $id_lowongan = $magang->id_lowongan;
+            
+            // Only increment capacity if status was previously 'aktif'
+            $wasActive = $magang->status === 'aktif';
+            
+            // Delete entry in related lamaran table
+            $lamaran = $magang->lamaran->first();
             if ($lamaran) {
                 $lamaran->delete();
             }
-
-            // Hapus entri di tabel m_magang
+            
+            // Delete entry in m_magang table
             $magang->delete();
-
+            
+            // If was active, increment available capacity
+            if ($wasActive) {
+                $this->kapasitasService->incrementKapasitas($id_lowongan);
+            }
+            
+            DB::commit();
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Permintaan magang dan lamaran terkait berhasil dihapus.'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error rejecting magang: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menolak permintaan magang.'
+                'message' => 'Gagal menolak permintaan magang: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -252,6 +299,25 @@ class MagangController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memeriksa data dosen pembimbing'
+            ], 500);
+        }
+    }
+
+    public function assignDosen(Request $request, $id)
+    {
+        try {
+            $magang = Magang::findOrFail($id);
+            $magang->id_dosen = $request->dosen_id;
+            $magang->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dosen berhasil ditugaskan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menugaskan dosen: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -128,39 +128,38 @@ class PlottingController extends Controller
     private function calculateSkillMatchScore($mahasiswaId, $dosenId)
     {
         try {
-            // Step 1: Get dosen's user_id for skill matching
-            $dosenUserId = DB::table('m_dosen')
-                ->where('id_dosen', $dosenId)
-                ->value('user_id');
+            // Get student user_id
+            $mahasiswaUserId = DB::table('m_mahasiswa')
+                ->where('id_mahasiswa', $mahasiswaId)
+                ->value('id_user');
 
-            if (!$dosenUserId) {
-                Log::warning("Could not find user_id for dosen ID: {$dosenId}");
+            if (!$mahasiswaUserId) {
+                Log::warning("Could not find user_id for mahasiswa ID: {$mahasiswaId}");
                 return 0;
             }
 
-            // Step 2: Get student skills
+            // Get student skills from t_skill_mahasiswa
             $mahasiswaSkills = DB::table('t_skill_mahasiswa as sm')
-                ->join('m_skill as s', 'sm.skill_id', '=', 's.skill_id')
-                ->where('sm.user_id', $mahasiswaId)
+                ->join('m_skill as s', 's.skill_id', '=', 'sm.skill_id')
+                ->where('sm.user_id', $mahasiswaUserId)
                 ->pluck('s.skill_id')
                 ->toArray();
 
-            // Step 3: Get lecturer skills - use user_id from dosen
+            // Get lecturer skills from t_skill_dosen
             $dosenSkills = DB::table('t_skill_dosen as sd')
-                ->join('m_skill as s', 'sd.skill_id', '=', 's.skill_id')
-                ->where('sd.user_id', $dosenUserId)  // Use user_id not id_dosen
+                ->join('m_skill as s', 's.skill_id', '=', 'sd.skill_id')
+                ->where('sd.id_dosen', $dosenId) // Using id_dosen column
                 ->pluck('s.skill_id')
                 ->toArray();
 
-            // Log skill information for debugging
-            Log::info("Mahasiswa ID {$mahasiswaId} has " . count($mahasiswaSkills) . " skills");
-            Log::info("Dosen ID {$dosenId} (User ID: {$dosenUserId}) has " . count($dosenSkills) . " skills");
+            Log::info("Mahasiswa ID {$mahasiswaId} (User ID: {$mahasiswaUserId}) has " . count($mahasiswaSkills) . " skills");
+            Log::info("Dosen ID {$dosenId} has " . count($dosenSkills) . " skills");
 
             if (empty($mahasiswaSkills) || empty($dosenSkills)) {
                 return 0;
             }
 
-            // Step 4: Calculate skill match percentage
+            // Calculate skill match percentage
             $matchingSkills = array_intersect($mahasiswaSkills, $dosenSkills);
             $matchCount = count($matchingSkills);
 
@@ -353,21 +352,18 @@ class PlottingController extends Controller
     public function getPlottingMatrixDetails()
     {
         try {
-            // Ambil bobot kriteria dari database
-            $weights = SAWKriteria::getAllWeights();
-            if (empty($weights)) {
-                // Default weights jika tidak ada di database
-                $weights = [
-                    'wilayah' => 0.6,
-                    'skill' => 0.4
-                ];
-            }
+            // Ambil bobot kriteria
+            $weights = $this->getWeights();
 
-            // Dapatkan semua dosen aktif dengan skills dan wilayah
-            $dosen = Dosen::with(['user', 'skills.skill', 'wilayah'])
-                ->get();
+            // Dapatkan semua dosen aktif dengan relasi yang dibutuhkan
+            $dosen = Dosen::with([
+                'user',
+                'skills.skill',
+                'wilayah',
+                'magang_bimbingan'
+            ])->get();
 
-            // Dapatkan semua magang aktif dengan perusahaan dan mahasiswa
+            // Dapatkan semua magang aktif dengan semua relasi yang dibutuhkan
             $aktivMagang = Magang::with([
                 'mahasiswa.user',
                 'mahasiswa.skills.skill',
@@ -376,63 +372,27 @@ class PlottingController extends Controller
                 ->where('status', 'aktif')
                 ->get();
 
-            // Buat matrix keputusan untuk visualisasi
-            $detailedMatrix = [];
+            if ($aktivMagang->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [],
+                    'weights' => $weights,
+                    'message' => 'Tidak ada magang aktif untuk ditampilkan'
+                ]);
+            }
 
-            foreach ($aktivMagang as $magang) {
-                $mahasiswaData = [
-                    'id_magang' => $magang->id_magang,
-                    'mahasiswa_name' => $magang->mahasiswa->user->name ?? 'Tidak diketahui',
-                    'perusahaan_name' => $magang->lowongan->perusahaan->nama_perusahaan ?? 'Tidak diketahui',
-                    'wilayah_id' => $magang->lowongan->perusahaan->wilayah_id ?? null,
-                    'wilayah_name' => $magang->lowongan->perusahaan->wilayah->nama_wilayah ?? 'Tidak diketahui',
-                    'current_dosen_id' => $magang->id_dosen,
-                    'mahasiswa_skills' => $magang->mahasiswa->skills->map(function ($skill) {
-                        return [
-                            'id' => $skill->skill->id_skill ?? null,
-                            'name' => $skill->skill->nama_skill ?? 'Tidak diketahui'
-                        ];
-                    })->toArray(),
-                    'dosen_scores' => []
-                ];
+            // Gunakan calculateDecisionMatrix yang sudah mencakup kriteria minat, skill, dan beban_kerja
+            $detailedMatrix = $this->calculateDecisionMatrix($aktivMagang, $dosen);
 
-                // Hitung skor untuk setiap dosen
-                foreach ($dosen as $d) {
-                    $wilayahScore = ($d->wilayah_id == $mahasiswaData['wilayah_id']) ? 1 : 0;
+            // Tambahkan informasi status magang yang sedang berlangsung
+            foreach ($detailedMatrix as &$item) {
+                $currentMagang = $aktivMagang->firstWhere('id_magang', $item['id_magang']);
+                $item['current_dosen_id'] = $currentMagang->id_dosen;
 
-                    $dosenSkills = $d->skills->pluck('id_skill')->toArray();
-                    $mahasiswaSkills = $magang->mahasiswa->skills->pluck('id_skill')->toArray();
-                    $matchedSkills = array_intersect($dosenSkills, $mahasiswaSkills);
-
-                    $skillScore = empty($mahasiswaSkills) ?
-                        0.5 : count($matchedSkills) / max(1, count($mahasiswaSkills));
-
-                    $totalScore = ($wilayahScore * $weights['wilayah']) +
-                        ($skillScore * $weights['skill']);
-
-                    $mahasiswaData['dosen_scores'][] = [
-                        'id_dosen' => $d->id_dosen,
-                        'dosen_name' => $d->user->name ?? 'Tidak diketahui',
-                        'nip' => $d->nip ?? '-',
-                        'wilayah_score' => $wilayahScore,
-                        'skill_score' => $skillScore,
-                        'total_score' => $totalScore,
-                        'is_current' => $d->id_dosen == $magang->id_dosen,
-                        'matched_skills' => array_values(array_filter($d->skills->map(function ($skill) use ($mahasiswaSkills) {
-                            if (in_array($skill->id_skill, $mahasiswaSkills)) {
-                                return $skill->skill->nama_skill ?? 'Tidak diketahui';
-                            }
-                            return null;
-                        })->toArray()))
-                    ];
+                // Tandai dosen yang saat ini ditugaskan
+                foreach ($item['dosen_scores'] as &$dosenScore) {
+                    $dosenScore['is_current'] = ($dosenScore['dosen_id'] == $currentMagang->id_dosen);
                 }
-
-                // Urutkan dosen berdasarkan score
-                usort($mahasiswaData['dosen_scores'], function ($a, $b) {
-                    return $b['total_score'] <=> $a['total_score'];
-                });
-
-                $detailedMatrix[] = $mahasiswaData;
             }
 
             return response()->json([
@@ -450,33 +410,23 @@ class PlottingController extends Controller
         }
     }
 
+
     public function getMatrix(Request $request)
     {
         try {
-            // Define weights for SAW
-            $weights = [
-                'wilayah' => 0.30,
-                'skill' => 0.70,
-            ];
+            // Dapatkan bobot dari metode getWeights()
+            $weights = $this->getWeights();
 
-            // Get type from request (active or pending)
-            $type = $request->input('type', 'active');
-
-            // Query for magang entries based on type
+            // Hanya ambil magang yang tidak aktif dan belum ada dosen
             $query = Magang::with([
                 'mahasiswa.user',
+                'mahasiswa.skills.skill',
                 'lowongan.perusahaan.wilayah'
             ]);
 
-            if ($type === 'active') {
-                // Only get magang entries without dosen (unassigned active internships)
-                $query->whereNull('id_dosen')
-                    ->where('status', 'aktif');
-            } else {
-                // Get pending magang entries (not yet active, but registered)
-                $query->where('status', 'diterima')
-                    ->orWhere('status', 'pending');
-            }
+            // Filter untuk hanya menampilkan magang tidak aktif tanpa pembimbing
+            $query->whereNull('id_dosen')
+                ->where('status', 'tidak aktif');
 
             $magangs = $query->get();
 
@@ -485,23 +435,20 @@ class PlottingController extends Controller
                     'success' => true,
                     'data' => [],
                     'weights' => $weights,
-                    'message' => 'Tidak ada magang yang perlu ditugaskan'
+                    'message' => 'Tidak ada magang tidak aktif tanpa pembimbing'
                 ]);
             }
 
-            // Rest of your existing code for generating matrix data...
-            $allDosen = Dosen::with(['user', 'wilayah'])->get();
-            $matrixData = [];
+            // Dapatkan semua dosen untuk pencocokan
+            $allDosen = Dosen::with(['user', 'skills.skill', 'wilayah', 'magang_bimbingan'])->get();
 
-            foreach ($magangs as $magang) {
-                // Your existing code for building matrix data...
-            }
+            // Gunakan calculateDecisionMatrix yang sudah menyesuaikan dengan kriteria baru
+            $matrixData = $this->calculateDecisionMatrix($magangs, $allDosen);
 
             return response()->json([
                 'success' => true,
                 'data' => $matrixData,
-                'weights' => $weights,
-                'type' => $type
+                'weights' => $weights
             ]);
         } catch (\Exception $e) {
             Log::error('Error in getMatrix: ' . $e->getMessage());
@@ -510,5 +457,174 @@ class PlottingController extends Controller
                 'message' => 'Gagal membuat matrix keputusan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get weights for SAW criteria
+     */
+    protected function getWeights()
+    {
+        return [
+            'minat' => 0.40,
+            'skill' => 0.40,
+            'beban_kerja' => 0.20
+        ];
+    }
+
+    /**
+     * Calculate decision matrix using SAW method
+     */
+    private function calculateMinatMatchScore($mahasiswaId, $dosenId)
+    {
+        try {
+            // Get student interests from t_minat_mahasiswa
+            $mahasiswaMinat = DB::table('t_minat_mahasiswa as mm')
+                ->join('m_minat as m', 'm.minat_id', '=', 'mm.minat_id')
+                ->where('mm.mahasiswa_id', $mahasiswaId)
+                ->pluck('m.minat_id')
+                ->toArray();
+
+            // Get lecturer interests from t_minat_dosen
+            $dosenMinat = DB::table('t_minat_dosen as md')
+                ->join('m_minat as m', 'm.minat_id', '=', 'md.minat_id')
+                ->where('md.dosen_id', $dosenId)
+                ->pluck('m.minat_id')
+                ->toArray();
+
+            Log::info("Mahasiswa ID {$mahasiswaId} has " . count($mahasiswaMinat) . " interests");
+            Log::info("Dosen ID {$dosenId} has " . count($dosenMinat) . " interests");
+
+            if (empty($mahasiswaMinat) || empty($dosenMinat)) {
+                return 0;
+            }
+
+            // Calculate interest match percentage
+            $matchingMinat = array_intersect($mahasiswaMinat, $dosenMinat);
+            $matchCount = count($matchingMinat);
+
+            Log::info("Found {$matchCount} matching interests between mahasiswa and dosen");
+
+            // Return normalized score (0-1)
+            return min(1, $matchCount / max(1, count($mahasiswaMinat)));
+        } catch (\Exception $e) {
+            Log::error("Error in calculateMinatMatchScore: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    protected function calculateDecisionMatrix($magangs, $allDosen)
+    {
+        $weights = $this->getWeights();
+        $matrixData = [];
+
+        foreach ($magangs as $magang) {
+            $mahasiswa = $magang->mahasiswa;
+            $perusahaan = $magang->lowongan->perusahaan;
+
+            $mahasiswaData = [
+                'id_magang' => $magang->id_magang,
+                'mahasiswa_name' => $mahasiswa->user->name ?? 'Tidak diketahui',
+                'mahasiswa_id' => $mahasiswa->id_mahasiswa,
+                'perusahaan_name' => $perusahaan->nama_perusahaan ?? 'Tidak diketahui',
+                'wilayah_name' => $perusahaan->wilayah->nama_kota ?? 'Tidak diketahui',
+                'wilayah_id' => $perusahaan->wilayah_id,
+                'dosen_scores' => []
+            ];
+
+            // Calculate dosen scores
+            foreach ($allDosen as $dosen) {
+                // 1. Calculate minat (interest) match score
+                $minatScore = $this->calculateMinatMatchScore($mahasiswa->id_mahasiswa, $dosen->id_dosen);
+
+                // 2. Calculate skill match score
+                $skillScore = $this->calculateSkillMatchScore($mahasiswa->id_mahasiswa, $dosen->id_dosen);
+
+                // 3. Calculate beban kerja score (inverse - fewer students = better)
+                $currentBeban = $dosen->magang_bimbingan->count();
+                $maxBeban = 10; // Maximum expected workload
+                $bebanKerjaScore = 1 - min(1, $currentBeban / $maxBeban);
+
+                // Get matched minat names for display
+                $matchedMinat = [];
+                if ($minatScore > 0) {
+                    // Database query inside loop
+                    $mahasiswaMinatIds = DB::table('t_minat_mahasiswa')
+                        ->where('mahasiswa_id', $mahasiswa->id_mahasiswa)
+                        ->pluck('minat_id')
+                        ->toArray();
+
+                    $dosenMinatIds = DB::table('t_minat_dosen')
+                        ->where('dosen_id', $dosen->id_dosen)
+                        ->pluck('minat_id')
+                        ->toArray();
+
+                    $matchingMinatIds = array_intersect($mahasiswaMinatIds, $dosenMinatIds);
+
+                    if (!empty($matchingMinatIds)) {
+                        $matchedMinat = DB::table('m_minat')
+                            ->whereIn('minat_id', $matchingMinatIds)
+                            ->pluck('nama_minat')
+                            ->toArray();
+                    }
+                }
+
+                // Get matched skill names for display
+                $matchedSkills = [];
+                if ($skillScore > 0) {
+                    // Database query inside loop
+                    $mahasiswaUserId = DB::table('m_mahasiswa')
+                        ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                        ->value('id_user');
+
+                    $mahasiswaSkillIds = DB::table('t_skill_mahasiswa')
+                        ->where('user_id', $mahasiswaUserId)
+                        ->pluck('skill_id')
+                        ->toArray();
+
+                    $dosenSkillIds = DB::table('t_skill_dosen')
+                        ->where('id_dosen', $dosen->id_dosen)
+                        ->pluck('skill_id')
+                        ->toArray();
+
+                    $matchingSkillIds = array_intersect($mahasiswaSkillIds, $dosenSkillIds);
+
+                    if (!empty($matchingSkillIds)) {
+                        $matchedSkills = DB::table('m_skill')
+                            ->whereIn('skill_id', $matchingSkillIds)
+                            ->pluck('nama')
+                            ->toArray();
+                    }
+                }
+
+                // Calculate total weighted score
+                $totalScore =
+                    $weights['minat'] * $minatScore +
+                    $weights['skill'] * $skillScore +
+                    $weights['beban_kerja'] * $bebanKerjaScore;
+
+                // Add to dosen_scores array
+                $mahasiswaData['dosen_scores'][] = [
+                    'dosen_id' => $dosen->id_dosen,
+                    'dosen_name' => $dosen->user->name ?? 'Tidak diketahui',
+                    'nip' => $dosen->nip ?? '-',
+                    'minat_score' => $minatScore,
+                    'skill_score' => $skillScore,
+                    'beban_kerja_score' => $bebanKerjaScore,
+                    'total_score' => $totalScore,
+                    'current_beban' => $currentBeban,
+                    'matched_minat' => $matchedMinat,
+                    'matched_skills' => $matchedSkills
+                ];
+            }
+
+            // Sort by total score (highest first)
+            usort($mahasiswaData['dosen_scores'], function ($a, $b) {
+                return $b['total_score'] <=> $a['total_score'];
+            });
+
+            $matrixData[] = $mahasiswaData;
+        }
+
+        return $matrixData;
     }
 }

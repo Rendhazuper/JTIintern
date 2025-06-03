@@ -53,8 +53,13 @@ class Dosen extends Model
     }
 
     // Relasi ke Magang yang dibimbing
-    public function magangBimbingan()
+    public function magang_bimbingan()
     {
         return $this->hasMany(Magang::class, 'id_dosen', 'id_dosen');
+    }
+
+    public function minat()
+    {
+        return $this->belongsToMany(Minat::class, 't_minat_dosen', 'dosen_id', 'minat_id');
     }
 }

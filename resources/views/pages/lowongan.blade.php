@@ -71,11 +71,14 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="skill_id" class="form-label">Skill</label>
-                            <select class="form-select" id="skill_id" name="skill_id" required>
-                                <option value="">Pilih Skill</option>
+                            <label for="skill_id" class="form-label">Skill (pilih beberapa)</label>
+                            <select class="form-select" id="skill_id" name="skill_id[]" multiple required>
+                                <option value="" disabled>Pilih Skill</option>
                                 <!-- Skill akan dimuat di sini -->
                             </select>
+                            <div class="form-text">
+                                <small>Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa skill</small>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="jenis_id" class="form-label">Jenis</label>
@@ -130,7 +133,86 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Kapasitas</label>
-                                <p id="detailKapasitas" class="form-control-plaintext text-secondary"></p>
+                                <div class="d-flex flex-column">
+                                    ${lowongan.kapasitas_tersedia !== undefined ? `
+                                        <div class="card border-0 shadow-sm mb-2">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <h6 class="mb-0 fw-bold">Status Kapasitas</h6>
+                                                    <span class="badge ${lowongan.kapasitas_tersedia === 0 ? 'bg-danger' : 'bg-success'} rounded-pill px-3">
+                                                        ${lowongan.kapasitas_tersedia === 0 ? 'Penuh' : 'Tersedia'}
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div>
+                                                        <span class="h4 mb-0 text-primary fw-bold">${lowongan.kapasitas_tersedia}</span>
+                                                        <span class="text-secondary h5"> / ${lowongan.kapasitas_total || lowongan.kapasitas}</span>
+                                                    </div>
+                                                    <span class="text-dark fw-medium">slot tersedia</span>
+                                                </div>
+                                                
+                                                <div class="progress" style="height: 10px; border-radius: 10px; background-color: #e9ecef;">
+                                                    <div class="progress-bar ${lowongan.kapasitas_tersedia === 0 ? 'bg-danger' : 'bg-success'}" 
+                                                         role="progressbar" 
+                                                         style="width: ${Math.round(((lowongan.kapasitas_total - lowongan.kapasitas_tersedia) / lowongan.kapasitas_total) * 100)}%; border-radius: 10px;" 
+                                                         aria-valuenow="${Math.round(((lowongan.kapasitas_total - lowongan.kapasitas_tersedia) / lowongan.kapasitas_total) * 100)}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between mt-2">
+                                                    <small class="text-muted">0</small>
+                                                    <small class="text-muted">${lowongan.kapasitas_total || lowongan.kapasitas}</small>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-light py-2 px-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="small">
+                                                        <i class="fas fa-info-circle text-primary me-1"></i>
+                                                        <span class="fw-medium text-dark">${lowongan.kapasitas_total - lowongan.kapasitas_tersedia}</span> slot terisi dari total
+                                                        <span class="fw-medium text-dark">${lowongan.kapasitas_total}</span> slot
+                                                    </div>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="syncCapacity(${lowongan.id_lowongan})">
+                                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Total ${lowongan.kapasitas_total || lowongan.kapasitas} orang, 
+                                            <span class="text-${lowongan.kapasitas_tersedia === 0 ? 'danger' : 'success'}">
+                                                ${lowongan.kapasitas_tersedia} slot tersedia
+                                            </span>, 
+                                            ${lowongan.kapasitas_total - lowongan.kapasitas_tersedia} slot terisi.
+                                        </div>
+                                    ` : `
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="icon-circle bg-warning bg-opacity-25 text-warning me-3" 
+                                                         style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-0">Data Kapasitas Tidak Tersedia</h6>
+                                                        <p class="text-muted small mb-0">Total kapasitas: ${lowongan.kapasitas} orang</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <p class="text-muted mb-3">
+                                                    Informasi kapasitas tersedia belum diketahui. Silahkan sinkronkan data kapasitas untuk melihat slot yang masih tersedia.
+                                                </p>
+                                                
+                                                <button class="btn btn-warning w-100" onclick="syncCapacity(${lowongan.id_lowongan})">
+                                                    <i class="fas fa-sync-alt me-2"></i>Sinkronkan Data Kapasitas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Deskripsi</label>
@@ -189,11 +271,14 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="editSkillId" class="form-label">Skill</label>
-                            <select class="form-select" id="editSkillId" name="skill_id" required>
-                                <option value="">Pilih Skill</option>
-                                <!-- Skill akan dimuat di sini -->
+                            <label for="editSkillId" class="form-label">Skill (pilih beberapa)</label>
+                            <select class="form-select" id="editSkillId" name="skill_id[]" multiple required>
+                                <option value="" disabled>Pilih Skill</option>
+                                <!-- Skills akan dimuat di sini -->
                             </select>
+                            <div class="form-text">
+                                <small>Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa skill</small>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="editJenisId" class="form-label">Jenis</label>
@@ -304,7 +389,7 @@
                 .then(function (response) {
                     if (response.data.success) {
                         const skillSelect = document.getElementById('skill_id');
-                        skillSelect.innerHTML = '<option value="">Pilih Skill</option>';
+                        skillSelect.innerHTML = '<option value="" disabled>Pilih Skill</option>';
                         response.data.data.forEach(function (skill) {
                             const option = `<option value="${skill.skill_id}">${skill.nama}</option>`;
                             skillSelect.innerHTML += option;
@@ -333,14 +418,15 @@
                 });
         }
 
-        function loadEditSkillOptions(selectedId = null) {
+        function loadEditSkillOptions(selectedIds = []) {
             api.get('/skill')
                 .then(function (response) {
                     if (response.data.success) {
                         const skillSelect = document.getElementById('editSkillId');
-                        skillSelect.innerHTML = '<option value="">Pilih Skill</option>';
+                        skillSelect.innerHTML = '<option value="" disabled>Pilih Skill</option>';
                         response.data.data.forEach(function (skill) {
-                            const selected = selectedId == skill.skill_id ? 'selected' : '';
+                            // Check if this skill is in the selectedIds array
+                            const selected = selectedIds.includes(skill.skill_id) ? 'selected' : '';
                             skillSelect.innerHTML += `<option value="${skill.skill_id}" ${selected}>${skill.nama}</option>`;
                         });
                     }
@@ -382,13 +468,13 @@
             // Show loading state
             const tableBody = document.getElementById('lowongan-table-body');
             tableBody.innerHTML = `
-                                        <tr>
-                                            <td colspan="5" class="text-center py-5">
-                                                <div class="spinner-border text-primary" role="status"></div>
-                                                <p class="mt-2 text-sm text-secondary">Memuat data lowongan...</p>
-                                            </td>
-                                        </tr>
-                                    `;
+                                                    <tr>
+                                                        <td colspan="5" class="text-center py-5">
+                                                            <div class="spinner-border text-primary" role="status"></div>
+                                                            <p class="mt-2 text-sm text-secondary">Memuat data lowongan...</p>
+                                                        </td>
+                                                    </tr>
+                                                `;
 
             api.get('/lowongan', { params: filters })
                 .then(function (response) {
@@ -403,80 +489,87 @@
                                 year: 'numeric'
                             });
 
+                            // Format capacity display to show available/total
+                            const capacityDisplay = lowongan.kapasitas_tersedia !== undefined ?
+                                `${lowongan.kapasitas_tersedia}/${lowongan.kapasitas_total}` :
+                                `${lowongan.kapasitas}`;
+
                             const row = document.createElement('tr');
                             row.style.animation = `fadeIn 0.3s ease forwards ${index * 0.05}s`;
                             row.innerHTML = `
-                                                        <td>
-                                                            <p class="text-sm font-weight-bold mb-0">${lowongan.judul_lowongan}</p>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex px-2 py-1">
-                                                                <div class="d-flex flex-column justify-content-center">
-                                                                    <h6 class="mb-0 text-sm">${lowongan.perusahaan.nama_perusahaan}</h6>
-                                                                    <p class="text-xs text-secondary mb-0">${lowongan.perusahaan.nama_kota}</p>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">${lowongan.kapasitas} Orang</span>
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <span class="text-secondary text-xs font-weight-bold">${formattedDate}</span>
-                                                        </td>
-                                                    <td class="align-middle">
-        <div class="action-buttons">  <!-- Ganti class dari "d-flex gap-1" menjadi "action-buttons" -->
-            <button class="btn btn-sm btn-info me-1" onclick="detailLowongan(${lowongan.id_lowongan})" title="Lihat Detail">
-                <i class="fas fa-eye me-1"></i>Detail
-            </button>
-            <button class="btn btn-sm btn-primary me-1" onclick="editLowongan(${lowongan.id_lowongan})" title="Edit Lowongan">
-                <i class="fas fa-edit me-1"></i>Edit
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="deleteLowongan(${lowongan.id_lowongan})" title="Hapus Lowongan">
-                <i class="fas fa-trash-alt me-1"></i>Hapus
-            </button>
-        </div>
-    </td>
-                                                    `;
+                                                                    <td>
+                                                                        <p class="text-sm font-weight-bold mb-0">${lowongan.judul_lowongan}</p>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="d-flex px-2 py-1">
+                                                                            <div class="d-flex flex-column justify-content-center">
+                                                                                <h6 class="mb-0 text-sm">${lowongan.perusahaan.nama_perusahaan}</h6>
+                                                                                <p class="text-xs text-secondary mb-0">${lowongan.perusahaan.nama_kota}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="align-middle text-center">
+                                                                        <span class="badge ${lowongan.kapasitas_tersedia === 0 ? 'bg-danger' : 'bg-success'} text-white">
+                                                                            ${capacityDisplay}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td class="align-middle text-center">
+                                                                        <span class="text-secondary text-xs font-weight-bold">${formattedDate}</span>
+                                                                    </td>
+                                                                <td class="align-middle">
+                    <div class="action-buttons">  <!-- Ganti class dari "d-flex gap-1" menjadi "action-buttons" -->
+                        <button class="btn btn-sm btn-info me-1" onclick="detailLowongan(${lowongan.id_lowongan})" title="Lihat Detail">
+                            <i class="fas fa-eye me-1"></i>Detail
+                        </button>
+                        <button class="btn btn-sm btn-primary me-1" onclick="editLowongan(${lowongan.id_lowongan})" title="Edit Lowongan">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteLowongan(${lowongan.id_lowongan})" title="Hapus Lowongan">
+                            <i class="fas fa-trash-alt me-1"></i>Hapus
+                        </button>
+                    </div>
+                </td>
+                                                                `;
                             tableBody.appendChild(row);
                         });
                     } else {
                         tableBody.innerHTML = `
-                                                    <tr>
-                                                        <td colspan="5">
-                                                            <div class="text-center py-5">
-                                                                <div class="empty-state-icon mb-3">
-                                                                    <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #8898aa;"></i>
-                                                                </div>
-                                                                <h6 class="text-muted">Tidak ada lowongan tersedia</h6>
-                                                                <p class="text-xs text-secondary mb-0">
-                                                                    ${filters.perusahaan_id ? 'Belum ada lowongan untuk perusahaan ini' : 'Belum ada lowongan yang ditambahkan'}
-                                                                </p>
-                                                                <button class="btn btn-sm btn-outline-primary mt-3" onclick="tambahLowongan()">
-                                                                    <i class="bi bi-plus-lg me-1"></i>Tambah Lowongan Baru
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                `;
+                                                                <tr>
+                                                                    <td colspan="5">
+                                                                        <div class="text-center py-5">
+                                                                            <div class="empty-state-icon mb-3">
+                                                                                <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #8898aa;"></i>
+                                                                            </div>
+                                                                            <h6 class="text-muted">Tidak ada lowongan tersedia</h6>
+                                                                            <p class="text-xs text-secondary mb-0">
+                                                                                ${filters.perusahaan_id ? 'Belum ada lowongan untuk perusahaan ini' : 'Belum ada lowongan yang ditambahkan'}
+                                                                            </p>
+                                                                            <button class="btn btn-sm btn-outline-primary mt-3" onclick="tambahLowongan()">
+                                                                                <i class="bi bi-plus-lg me-1"></i>Tambah Lowongan Baru
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            `;
                     }
                 })
                 .catch(function (error) {
                     console.error('Error:', error);
                     tableBody.innerHTML = `
-                                                <tr>
-                                                    <td colspan="5">
-                                                        <div class="alert alert-danger mx-3 my-4">
-                                                            <div class="d-flex">
-                                                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                                                <div>
-                                                                    <h6 class="alert-heading mb-1">Gagal memuat data</h6>
-                                                                    <p class="mb-0">Terjadi kesalahan saat memuat data lowongan. Silakan coba lagi.</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                            <tr>
+                                                                <td colspan="5">
+                                                                    <div class="alert alert-danger mx-3 my-4">
+                                                                        <div class="d-flex">
+                                                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                            <div>
+                                                                                <h6 class="alert-heading mb-1">Gagal memuat data</h6>
+                                                                                <p class="mb-0">Terjadi kesalahan saat memuat data lowongan. Silakan coba lagi.</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        `;
                 });
         }
 
@@ -488,11 +581,11 @@
             const modalBody = detailModal.querySelector('.modal-body');
 
             modalBody.innerHTML = `
-                                    <div class="text-center py-5">
-                                        <div class="spinner-border text-primary mb-3" role="status"></div>
-                                        <p class="text-muted">Memuat detail lowongan...</p>
-                                    </div>
-                                `;
+                                                <div class="text-center py-5">
+                                                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                                                    <p class="text-muted">Memuat detail lowongan...</p>
+                                                </div>
+                                            `;
 
             // Show the modal while loading
             const modal = new bootstrap.Modal(detailModal);
@@ -504,52 +597,188 @@
                         const lowongan = response.data.data;
                         console.log('Lowongan Detail Data:', lowongan);
 
+                        // Format skills for display
+                        let skillsDisplay = '';
+                        if (Array.isArray(lowongan.skills)) {
+                            skillsDisplay = lowongan.skills.map(skill => skill.nama).join(', ');
+                        } else if (lowongan.skill && lowongan.skill.nama) {
+                            skillsDisplay = lowongan.skill.nama;
+                        }
+
                         // Add animation to the content when it loads
                         modalBody.style.opacity = "0";
                         modalBody.innerHTML = `
-                                                <div class="row">
-                                                    <!-- Kolom Kiri -->
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Judul Lowongan</label>
-                                                            <p id="detailJudulLowongan" class="form-control-plaintext text-secondary">${lowongan.judul_lowongan}</p>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Perusahaan</label>
-                                                            <p id="detailPerusahaan" class="form-control-plaintext text-secondary">${lowongan.perusahaan.nama_perusahaan}</p>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Periode</label>
-                                                            <p id="detailPeriode" class="form-control-plaintext text-secondary">${lowongan.periode.waktu}</p>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Kolom Kanan -->
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Kapasitas</label>
-                                                            <p id="detailKapasitas" class="form-control-plaintext text-secondary">${lowongan.kapasitas} Orang</p>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Skill</label>
-                                                            <p id="detailSkill" class="form-control-plaintext text-secondary">${lowongan.skill.nama_skill}</p>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Jenis</label>
-                                                            <p id="detailJenis" class="form-control-plaintext text-secondary">${lowongan.jenis.nama_jenis}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Deskripsi</label>
-                                                            <div class="p-3 bg-light rounded-3">
-                                                                ${lowongan.deskripsi}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `;
+    <div class="row g-4">
+        <!-- Kolom Kiri -->
+        <div class="col-md-6">
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-briefcase text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Judul Lowongan</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <h5 class="mb-0">${lowongan.judul_lowongan}</h5>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-building text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Perusahaan</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <h6 class="mb-0">${lowongan.perusahaan.nama_perusahaan}</h6>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Periode</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <h6 class="mb-0">${lowongan.periode.waktu}</h6>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-tag text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Jenis</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <h6 class="mb-0">${lowongan.jenis.nama_jenis}</h6>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kolom Kanan -->
+        <div class="col-md-6">
+            <!-- Kapasitas Section - Insert the improved capacity HTML here -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-users text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Kapasitas</label>
+                </div>
+                <div class="d-flex flex-column">
+                    ${lowongan.kapasitas_tersedia !== undefined ? `
+                        <div class="card border-0 shadow-sm mb-2">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-bold">Status Kapasitas</h6>
+                                    <span class="badge ${lowongan.kapasitas_tersedia === 0 ? 'bg-danger' : 'bg-success'} rounded-pill px-3">
+                                        ${lowongan.kapasitas_tersedia === 0 ? 'Penuh' : 'Tersedia'}
+                                    </span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <span class="h4 mb-0 text-primary fw-bold">${lowongan.kapasitas_tersedia}</span>
+                                        <span class="text-secondary h5"> / ${lowongan.kapasitas_total || lowongan.kapasitas}</span>
+                                    </div>
+                                    <span class="text-dark fw-medium">slot tersedia</span>
+                                </div>
+                                
+                                <div class="progress" style="height: 10px; border-radius: 10px; background-color: #e9ecef;">
+                                    <div class="progress-bar ${lowongan.kapasitas_tersedia === 0 ? 'bg-danger' : 'bg-success'}" 
+                                         role="progressbar" 
+                                         style="width: ${Math.round(((lowongan.kapasitas_total - lowongan.kapasitas_tersedia) / lowongan.kapasitas_total) * 100)}%; border-radius: 10px;" 
+                                         aria-valuenow="${Math.round(((lowongan.kapasitas_total - lowongan.kapasitas_tersedia) / lowongan.kapasitas_total) * 100)}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-2">
+                                    <small class="text-muted">0</small>
+                                    <small class="text-muted">${lowongan.kapasitas_total || lowongan.kapasitas}</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-light py-2 px-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="small">
+                                        <i class="fas fa-info-circle text-primary me-1"></i>
+                                        <span class="fw-medium text-dark">${lowongan.kapasitas_total - lowongan.kapasitas_tersedia}</span> slot terisi dari total
+                                        <span class="fw-medium text-dark">${lowongan.kapasitas_total}</span> slot
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="syncCapacity(${lowongan.id_lowongan})">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Total ${lowongan.kapasitas_total || lowongan.kapasitas} orang, 
+                            <span class="text-${lowongan.kapasitas_tersedia === 0 ? 'danger' : 'success'}">
+                                ${lowongan.kapasitas_tersedia} slot tersedia
+                            </span>, 
+                            ${lowongan.kapasitas_total - lowongan.kapasitas_tersedia} slot terisi.
+                        </div>
+                    ` : `
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle bg-warning bg-opacity-25 text-warning me-3" 
+                                         style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-exclamation-triangle fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Data Kapasitas Tidak Tersedia</h6>
+                                        <p class="text-muted small mb-0">Total kapasitas: ${lowongan.kapasitas} orang</p>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-muted mb-3">
+                                    Informasi kapasitas tersedia belum diketahui. Silahkan sinkronkan data kapasitas untuk melihat slot yang masih tersedia.
+                                </p>
+                                
+                                <button class="btn btn-warning w-100" onclick="syncCapacity(${lowongan.id_lowongan})">
+                                    <i class="fas fa-sync-alt me-2"></i>Sinkronkan Data Kapasitas
+                                </button>
+                            </div>
+                        </div>
+                    `}
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-code text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Skill yang Dibutuhkan</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex flex-wrap gap-1">
+                        ${skillsDisplay ? 
+                            skillsDisplay.split(', ').map(skill => 
+                                `<span class="badge bg-info bg-opacity-10 text-primary-emphasis fw-medium py-2 px-3">${skill}</span>`
+                            ).join('') :
+                            '<span class="text-muted">Tidak ada skill yang ditentukan</span>'
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="mb-2">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-align-left text-primary me-2"></i>
+                    <label class="form-label fw-bold mb-0">Deskripsi</label>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body bg-light p-3">
+                        <div class="description-content" style="white-space: pre-line">
+                            ${lowongan.deskripsi}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
 
                         // Fade in animation
                         setTimeout(() => {
@@ -559,21 +788,21 @@
 
                     } else {
                         modalBody.innerHTML = `
-                                                <div class="alert alert-danger">
-                                                    <i class="bi bi-exclamation-triangle me-2"></i>
-                                                    Gagal memuat detail lowongan.
-                                                </div>
-                                            `;
+                                                            <div class="alert alert-danger">
+                                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                Gagal memuat detail lowongan.
+                                                            </div>
+                                                        `;
                     }
                 })
                 .catch(function (error) {
                     console.error('Error fetching detail lowongan:', error);
                     modalBody.innerHTML = `
-                                            <div class="alert alert-danger">
-                                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                                Terjadi kesalahan saat memuat detail lowongan.
-                                            </div>
-                                        `;
+                                                        <div class="alert alert-danger">
+                                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                                            Terjadi kesalahan saat memuat detail lowongan.
+                                                        </div>
+                                                    `;
                 });
         }
 
@@ -649,10 +878,21 @@
                         document.getElementById('editLowonganId').value = lowongan.id_lowongan;
                         document.getElementById('editJudulLowongan').value = lowongan.judul_lowongan;
                         document.getElementById('editPerusahaanId').value = lowongan.perusahaan.perusahaan_id;
-                        loadEditPeriodeOptions(lowongan.periode.periode_id); // <-- ini yang benar
+                        loadEditPeriodeOptions(lowongan.periode.periode_id);
                         document.getElementById('editKapasitas').value = lowongan.kapasitas;
                         document.getElementById('editDeskripsi').value = lowongan.deskripsi;
-                        loadEditSkillOptions(lowongan.skill.skill_id);
+
+                        // Extract skill IDs - handle both single skill object or array of skills
+                        let skillIds = [];
+                        if (Array.isArray(lowongan.skills)) {
+                            // If the backend returns an array of skills
+                            skillIds = lowongan.skills.map(skill => skill.skill_id);
+                        } else if (lowongan.skill && lowongan.skill.skill_id) {
+                            // If the backend returns a single skill object
+                            skillIds = [lowongan.skill.skill_id];
+                        }
+                        loadEditSkillOptions(skillIds);
+
                         loadEditJenisOptions(lowongan.jenis.jenis_id);
 
                         const modal = new bootstrap.Modal(document.getElementById('editLowonganModal'));
@@ -678,7 +918,30 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...`;
 
-            api.put(`/lowongan/${id}`, formData)
+            // Convert FormData to JSON to ensure proper handling of arrays
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                // If the key already exists, it's part of an array
+                if (jsonData[key]) {
+                    // If it's already an array, push the new value
+                    if (Array.isArray(jsonData[key])) {
+                        jsonData[key].push(value);
+                    } else {
+                        // Convert to array with both values
+                        jsonData[key] = [jsonData[key], value];
+                    }
+                } else {
+                    jsonData[key] = value;
+                }
+            });
+
+            // Special handling for multi-select skill_id
+            const selectedSkills = [...document.getElementById('editSkillId').selectedOptions].map(o => o.value);
+            jsonData.skill_id = selectedSkills;
+
+            console.log("Submitting data:", jsonData); // For debugging
+
+            api.put(`/lowongan/${id}`, jsonData)
                 .then(function (response) {
                     // Reset button state
                     submitBtn.disabled = false;
@@ -758,6 +1021,49 @@
                     });
                 }
             });
+        }
+
+        // Add this function to your JavaScript
+        function syncCapacity(id) {
+            // Show loading state
+            const syncBtn = event.currentTarget;
+            const originalContent = syncBtn.innerHTML;
+            syncBtn.disabled = true;
+            syncBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Sinkronisasi...`;
+            
+            api.post(`/lowongan/${id}/sync-capacity`)
+                .then(response => {
+                    if (response.data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data kapasitas berhasil disinkronkan',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Refresh the detail view
+                            detailLowongan(id);
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.data.message || 'Gagal menyinkronkan data kapasitas'
+                        });
+                        syncBtn.disabled = false;
+                        syncBtn.innerHTML = originalContent;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error syncing capacity:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat menyinkronkan data kapasitas'
+                    });
+                    syncBtn.disabled = false;
+                    syncBtn.innerHTML = originalContent;
+                });
         }
 
         // Load data saat halaman dimuat

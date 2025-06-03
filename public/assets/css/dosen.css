@@ -274,3 +274,20 @@
     background-size: cover;
     background-position: center;
 }
+
+/* For better multiselect styling */
+select[multiple] {
+    overflow: auto;
+    border-radius: 0.25rem;
+}
+
+select[multiple] option {
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+select[multiple] option:checked {
+    background-color: rgba(59, 125, 221, 0.1);
+    color: #3b7ddd;
+    font-weight: 500;
+}

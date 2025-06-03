@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Skill;
+use App\Models\Perusahaan;
+use App\Models\Periode;
+use App\Models\Jenis;
 
 class Lowongan extends Model
 {
@@ -17,10 +21,10 @@ class Lowongan extends Model
         'judul_lowongan',
         'perusahaan_id',
         'periode_id',
+        'jenis_id',
         'kapasitas',
         'deskripsi',
-        'skill_id',
-        'jenis_id',
+
     ];
 
     // Relasi ke model Perusahaan
@@ -35,23 +39,21 @@ class Lowongan extends Model
         return $this->belongsTo(Periode::class, 'periode_id', 'periode_id');
     }
 
-    public function skill()
-    {
-        return $this->belongsTo(Skill::class, 'skill_id', 'skill_id');
-    }
-
+    // Relasi ke model Jenis
     public function jenis()
     {
         return $this->belongsTo(Jenis::class, 'jenis_id', 'jenis_id');
     }
 
-    public function lamaran()
+    // Add this missing skills relationship
+    public function skills()
     {
-        return $this->hasMany(Lamaran::class, 'id_lowongan', 'id_lowongan');
+        return $this->belongsToMany(Skill::class, 't_skill_lowongan', 'id_lowongan', 'id_skill')
+            ->withoutTimestamps(); // Since t_skill_lowongan doesn't have timestamps
     }
 
-    public function skillLowongan()
+    public function kapasitas()
     {
-        return $this->hasMany(SkillLowongan::class, 'id_lowongan', 'id_lowongan');
+        return $this->hasOne(KapasitasLowongan::class, 'id_lowongan', 'id_lowongan');
     }
 }

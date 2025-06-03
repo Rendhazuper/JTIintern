@@ -35,37 +35,91 @@ class DosenController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'nama_dosen' => 'required|string|max:255',
             'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
             'nip' => 'required|unique:m_dosen,nip',
+            'skills' => 'nullable|array',
+            'skills.*' => 'exists:m_skill,skill_id',
+            'minat' => 'nullable|array',
+            'minat.*' => 'exists:m_minat,minat_id',
         ]);
 
-        // Email dan password sama dengan NIP
-        $nip = $request->nip;
-        $email = $nip . '@gmail.com';
+        DB::beginTransaction();
+        try {
+            // Email dan password sama dengan NIP
+            $nip = $request->nip;
+            $email = $nip . '@gmail.com';
 
-        // Buat user baru
-        $user = User::create([
-            'name' => $request->nama_dosen,
-            'email' => $email,
-            'password' => bcrypt($nip),
-            'role' => 'dosen'
-        ]);
+            // Buat user baru
+            $user = User::create([
+                'name' => $request->nama_dosen,
+                'email' => $email,
+                'password' => bcrypt($nip),
+                'role' => 'dosen'
+            ]);
 
-        // Buat dosen baru
-        Dosen::create([
-            'user_id' => $user->id_user,
-            'wilayah_id' => $request->wilayah_id,
-            'nip' => $nip
-        ]);
+            // Buat dosen baru
+            $dosen = Dosen::create([
+                'user_id' => $user->id_user,
+                'wilayah_id' => $request->wilayah_id,
+                'nip' => $nip
+            ]);
 
-        return response()->json(['success' => true]);
+            // Simpan skills jika ada
+            if ($request->has('skills') && is_array($request->skills)) {
+                foreach ($request->skills as $skillId) {
+                    DB::table('t_skill_dosen')->insert([
+                        'id_dosen' => $dosen->id_dosen, // CHANGE HERE: dosen_id → id_dosen
+                        'skill_id' => $skillId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Similarly for minat
+            if ($request->has('minat') && is_array($request->minat)) {
+                foreach ($request->minat as $minatId) {
+                    DB::table('t_minat_dosen')->insert([
+                        'dosen_id' => $dosen->id_dosen, // FIXED: Use dosen_id instead of id_dosen
+                        'minat_id' => $minatId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating dosen: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
     public function show($id)
     {
         $dosen = Dosen::with(['user', 'wilayah'])->findOrFail($id);
+
+        // Get skills for this dosen - Change dosen_id to id_dosen
+        $skills = DB::table('t_skill_dosen as sd')
+            ->join('m_skill as s', 's.skill_id', '=', 'sd.skill_id')
+            ->where('sd.id_dosen', $dosen->id_dosen) // CHANGE HERE: dosen_id → id_dosen
+            ->select('s.skill_id', 's.nama')
+            ->get();
+
+        // Get minat for this dosen - Change dosen_id to id_dosen
+        $minat = DB::table('t_minat_dosen as md')
+            ->join('m_minat as m', 'm.minat_id', '=', 'md.minat_id')
+            ->where('md.dosen_id', $dosen->id_dosen) // FIXED: Use dosen_id instead of id_dosen
+            ->select('m.minat_id', 'm.nama_minat')
+            ->get();
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -75,6 +129,8 @@ class DosenController extends Controller
                 'wilayah_id' => $dosen->wilayah_id,
                 'wilayah' => $dosen->wilayah->nama_kota ?? '-',
                 'nip' => $dosen->nip ?? '-',
+                'skills' => $skills,
+                'minat' => $minat
             ]
         ]);
     }
@@ -85,30 +141,94 @@ class DosenController extends Controller
             'nama_dosen' => 'required|string|max:255',
             'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
             'nip' => 'required|unique:m_dosen,nip,' . $id . ',id_dosen',
+            'skills' => 'nullable|array',
+            'skills.*' => 'exists:m_skill,skill_id',
+            'minat' => 'nullable|array',
+            'minat.*' => 'exists:m_minat,minat_id',
         ]);
 
-        $dosen = Dosen::findOrFail($id);
-        $user = $dosen->user;
+        DB::beginTransaction();
+        try {
+            $dosen = Dosen::findOrFail($id);
+            $user = $dosen->user;
 
-        // Update user (nama)
-        $user->name = $request->nama_dosen;
-        $user->save();
+            // Update user (nama)
+            $user->name = $request->nama_dosen;
+            $user->save();
 
-        // Update dosen
-        $dosen->wilayah_id = $request->wilayah_id;
-        $dosen->nip = $request->nip;
-        $dosen->save();
+            // Update dosen
+            $dosen->wilayah_id = $request->wilayah_id;
+            $dosen->nip = $request->nip;
+            $dosen->save();
 
-        return response()->json(['success' => true]);
+            // Update skills
+            if ($request->has('skills')) {
+                // Delete existing skills
+                DB::table('t_skill_dosen')->where('id_dosen', $id)->delete(); // FIXED: Delete from correct table
+                // Insert new skills
+                foreach ($request->skills as $skillId) {
+                    DB::table('t_skill_dosen')->insert([
+                        'id_dosen' => $dosen->id_dosen, // CHANGE HERE: dosen_id → id_dosen
+                        'skill_id' => $skillId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Update minat
+            if ($request->has('minat')) {
+                DB::table('t_minat_dosen')->where('dosen_id', $id)->delete(); // FIXED: Use dosen_id instead of id_dosen
+                // Insert new minat
+                foreach ($request->minat as $minatId) {
+                    DB::table('t_minat_dosen')->insert([
+                        'dosen_id' => $dosen->id_dosen, // FIXED: Use dosen_id instead of id_dosen
+                        'minat_id' => $minatId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating dosen: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $dosen = Dosen::findOrFail($id);
-        $user = $dosen->user;
-        $dosen->delete();
-        if ($user) $user->delete();
-        return response()->json(['success' => true]);
+        DB::beginTransaction();
+        try {
+            $dosen = Dosen::findOrFail($id);
+            $user = $dosen->user;
+
+            // Delete related skill records
+            DB::table('t_skill_dosen')->where('id_dosen', $id)->delete(); // CHANGE HERE: dosen_id → id_dosen
+
+            // Delete related minat records
+            DB::table('t_minat_dosen')->where('dosen_id', $id)->delete(); // FIXED: Use dosen_id instead of id_dosen
+
+            // Delete dosen and user
+            $dosen->delete();
+            if ($user) $user->delete();
+
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting dosen: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function withPerusahaan()
