@@ -39,28 +39,34 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Check user role and redirect accordingly
-            if (Auth::user()->role === 'admin') {
-                return redirect()->intended('/dashboard');
-            } else if (Auth::user()->role === 'mahasiswa') {
-                return redirect()->intended('/mahasiswa/dashboard');
+            // Tambahkan debug info lengkap
+            $user = Auth::user();
+            Log::info('User detail after login', [
+                'id' => $user->id ?? 'null',
+                'id_user' => $user->id_user ?? 'not set',
+                'email' => $user->email,
+                'role' => $user->role,
+                'class' => get_class($user),
+                'attributes' => is_object($user) ? (array)$user : 'not an object' // Ganti getAttributes()
+            ]);
+
+            // Reroute berdasarkan role
+            if ($user->role === 'superadmin' || $user->role === 'admin') {
+                return redirect('/dashboard');
             }
 
-            // Default fallback
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return back()->withErrors(['email' => 'Kredensial tidak valid']);
     }
 
     /**
