@@ -47,11 +47,11 @@ Route::middleware('guest')->group(function () {
     // Registration routes
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.perform');
-    
+
     // Login routes
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.perform');
-    
+
     // Password recovery routes
     Route::get('/reset-password', [ResetPassword::class, 'show'])->name('reset-password');
     Route::post('/reset-password', [ResetPassword::class, 'send'])->name('reset.perform');
@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Superadmin routes
-Route::middleware(['auth', 'superadmin'])->group(function () {
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('/admin', [PageController::class, 'admin'])->name('admin');
 });
 
@@ -91,6 +91,7 @@ Route::prefix('dosen')->middleware(['auth', 'role:dosen'])->group(function () {
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::get('/dashboard', [ViewController::class, 'dashboard'])->name('mahasiswa.dashboard');
+    Route::get('/magang', [ViewController::class, 'magang'])->name('mahasiswa.magang');
     Route::get('/lowongan', [ViewController::class, 'lowongan'])->name('mahasiswa.lowongan');
     Route::get('/lamaran', [ViewController::class, 'lamaran'])->name('mahasiswa.lamaran');
     Route::get('/logaktivitas', [ViewController::class, 'log'])->name('mahasiswa.logaktivitas');
