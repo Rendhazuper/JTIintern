@@ -47,26 +47,33 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Tambahkan debug info lengkap
-            $user = Auth::user();
-            Log::info('User detail after login', [
-                'id' => $user->id ?? 'null',
-                'id_user' => $user->id_user ?? 'not set',
-                'email' => $user->email,
-                'role' => $user->role,
-                'class' => get_class($user),
-                'attributes' => is_object($user) ? (array)$user : 'not an object' // Ganti getAttributes()
-            ]);
-
-            // Reroute berdasarkan role
-            if ($user->role === 'superadmin' || $user->role === 'admin') {
-                return redirect('/dashboard');
+<<<<<<< Updated upstream
+            // Redirect based on role
+            switch(Auth::user()->role) {
+                case 'admin':
+                case 'superadmin':
+                    return redirect()->intended('/dashboard');
+                case 'dosen':
+                    return redirect()->intended('/dosen/dashboard');
+                case 'mahasiswa':
+                    return redirect()->intended('/mahasiswa/dashboard');
+                default:
+                    return redirect()->intended('/dashboard');
+=======
+            // Check user role and redirect accordingly
+            if (Auth::user()->role === 'admin' || Auth::user()->role === 'superadmin') {
+                return redirect()->intended('/dashboard');
+            } else if (Auth::user()->role === 'mahasiswa') {
+                return redirect()->intended('/mahasiswa/dashboard');
+            } else if (Auth::user()->role === 'dosen') {
+                return redirect()->intended('/dosen/dashboard');
+>>>>>>> Stashed changes
             }
-
-            return redirect()->intended('/');
         }
 
-        return back()->withErrors(['email' => 'Kredensial tidak valid']);
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
 
     /**

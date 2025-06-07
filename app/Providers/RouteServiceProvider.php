@@ -17,8 +17,29 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
+<<<<<<< Updated upstream
+    // public const HOME = '/home';
+ public static function redirectTo()
+    {
+        if (auth()->check()) {
+            switch (auth()->user()->role) {
+                case 'admin':
+                case 'superadmin':
+                    return '/dashboard';
+                case 'dosen':
+                    return '/dosen/dashboard';
+                case 'mahasiswa':
+                    return '/mahasiswa/dashboard';
+                default:
+                    return '/dashboard';
+            }
+        }
+        return '/login';
+    }
+=======
 
+
+>>>>>>> Stashed changes
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */

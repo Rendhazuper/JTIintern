@@ -66,8 +66,8 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:mahasiswa'])->prefix('mah
     Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
     Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
     Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
-    Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-    Route::delete('/lamaran/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+    // Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+    // Route::delete('/lamaran/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
 
     // Profile dan logbook
     Route::get('/profile', [App\Http\Controllers\API\MahasiswaController::class, 'getProfile']);
