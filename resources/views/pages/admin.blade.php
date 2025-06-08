@@ -274,7 +274,7 @@
             document.getElementById('empty-state').classList.add('d-none');
             document.getElementById('error-state').classList.add('d-none');
 
-            api.get('/admin')
+            api.get('/superadmin/admin')
                 .then(response => {
                     if (response.data.success) {
                         tableBody.innerHTML = '';
@@ -342,7 +342,7 @@
         }
 
         function detailAdmin(id) {
-            api.get(`/admin/${id}`)
+            api.get(`/superadmin/admin/${id}`)
                 .then(response => {
                     if (response.data.success) {
                         const admin = response.data.data;
@@ -371,8 +371,8 @@
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = loadingBtn;
-            
-            api.get(`/admin/${id}`)
+
+            api.get(`/superadmin/admin/${id}`)
                 .then(function (response) {
                     if (response.data.success) {
                         const admin = response.data.data;
@@ -416,7 +416,7 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Menyimpan...';
 
-            api.put(`/admin/${id}`, data)
+            api.put(`/superadmin/admin/${id}`, data)
                 .then(res => {
                     if (res.data.success) {
                         Swal.fire({
@@ -480,7 +480,7 @@
                     });
                     
                     // Send DELETE request
-                    api.delete(`/admin/${id}`)
+                    api.delete(`/superadmin/admin/${id}`)
                         .then(res => {
                             if (res.data.success) {
                                 Swal.fire({
@@ -524,7 +524,7 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Menambahkan...';
 
-            api.post('/admin', data)
+            api.post('/superadmin/admin', data)
                 .then(res => {
                     if (res.data.success) {
                         Swal.fire({

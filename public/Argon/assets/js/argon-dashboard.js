@@ -20,8 +20,8 @@
     };
 
     if (document.getElementsByClassName('fixed-plugin')[0]) {
-      var fixedplugin = document.querySelector('.fixed-plugin');
-      var ps3 = new PerfectScrollbar(fixedplugin);
+      var fixedpluginPanel = document.querySelector('.fixed-plugin');
+      var ps3 = new PerfectScrollbar(fixedpluginPanel);
     };
   };
 })();
@@ -71,7 +71,6 @@ if (document.querySelectorAll('.input-group').length != 0) {
 // Fixed Plugin
 
 if (document.querySelector('.fixed-plugin')) {
-  var fixedPlugin = document.querySelector('.fixed-plugin');
   var fixedPlugin = document.querySelector('.fixed-plugin');
   var fixedPluginButton = document.querySelector('.fixed-plugin-button');
   var fixedPluginButtonNav = document.querySelector('.fixed-plugin-button-nav');

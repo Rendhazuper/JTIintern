@@ -32,6 +32,7 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Remove or comment out wilayah filter section
                             <div class="col-md-6">
                                 <label class="form-label d-flex align-items-center">
                                     <i class="fas fa-map-marker-alt text-primary me-2"></i>
@@ -39,9 +40,10 @@
                                 </label>
                                 <select class="form-select" id="wilayahFilter">
                                     <option value="">Semua Wilayah</option>
-                                    <!-- Will be populated dynamically -->
+                                    <!-- Will be populated dynamically 
                                 </select>
                             </div>
+                            -->
                         </div>
 
                         <!-- Update table class and structure -->
@@ -57,7 +59,6 @@
                                         <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Dosen</th>
                                         <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Mahasiswa
                                         </th>
-                                        <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Wilayah</th>
                                         <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Skills</th>
                                         <th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-end">Aksi
                                         </th>
@@ -219,20 +220,20 @@
             // Show loading state
             // Show loading state with improved animation
             document.getElementById('plotting-table-body').innerHTML = `
-                                                                                                        <tr>
-                                                                                                            <td colspan="6" class="text-center py-5">
-                                                                                                                <div class="spinner-grow text-primary mb-2" role="status" style="width: 3rem; height: 3rem;">
-                                                                                                                    <span class="visually-hidden">Loading...</span>
-                                                                                                                </div>
-                                                                                                                <div class="d-flex justify-content-center">
-                                                                                                                    <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem;"></div>
-                                                                                                                    <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem; animation-delay: 0.2s"></div>
-                                                                                                                    <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem; animation-delay: 0.4s"></div>
-                                                                                                                </div>
-                                                                                                                <p class="mt-3 text-secondary">Memuat data plotting...</p>
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    `;
+                                                                                                            <tr>
+                                                                                                                <td colspan="6" class="text-center py-5">
+                                                                                                                    <div class="spinner-grow text-primary mb-2" role="status" style="width: 3rem; height: 3rem;">
+                                                                                                                        <span class="visually-hidden">Loading...</span>
+                                                                                                                    </div>
+                                                                                                                    <div class="d-flex justify-content-center">
+                                                                                                                        <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem;"></div>
+                                                                                                                        <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem; animation-delay: 0.2s"></div>
+                                                                                                                        <div class="spinner-grow text-secondary mx-1" style="width: 1rem; height: 1rem; animation-delay: 0.4s"></div>
+                                                                                                                    </div>
+                                                                                                                    <p class="mt-3 text-secondary">Memuat data plotting...</p>
+                                                                                                                </td>
+                                                                                                            </tr>
+                                                                                                        `;
 
             // Use existing endpoint instead of new one
             fetch('/api/dosen/with-perusahaan?t=' + new Date().getTime(), {
@@ -254,7 +255,8 @@
                         filteredDosen = [...allDosen];
                         renderDosenTable();
                         setupPagination();
-                        loadWilayahData();
+                        // Remove this line since we don't need wilayah data anymore
+                        // loadWilayahData(); 
                     } else {
                         throw new Error(data.message || 'Unknown error');
                     }
@@ -262,31 +264,100 @@
                 .catch(error => {
                     console.error('Error loading plotting data:', error);
                     document.getElementById('plotting-table-body').innerHTML = `
-                                                                                                                        <tr>
-                                                                                                                            <td colspan="5" class="text-center text-danger">
-                                                                                                                                Gagal memuat data: ${error.message}
-                                                                                                                            </td>
-                                                                                                                        </tr>
-                                                                                                                    `;
+                                                                                                                            <tr>
+                                                                                                                                <td colspan="5" class="text-center text-danger">
+                                                                                                                                    Gagal memuat data: ${error.message}
+                                                                                                                                </td>
+                                                                                                                            </tr>
+                                                                                                                        `;
                 });
         }
 
+        // 1. Add a helper function to check if elements exist before accessing them
+        function elementExists(id) {
+            return document.getElementById(id) !== null;
+        }
+
+        // 2. Update the loadWilayahData function
+        function loadWilayahData() {
+            console.log('Fetching wilayah data...');
+            
+            // Skip this function entirely since wilayahFilter no longer exists
+            if (!elementExists('wilayahFilter')) {
+                console.log('wilayahFilter element does not exist, skipping wilayah data load');
+                return;
+            }
+
+            // Rest of the function (will never execute if the element doesn't exist)
+            fetch('/api/wilayah')
+                .then(response => {
+                    console.log('Wilayah API response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('API response status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Wilayah data received:', data);
+                    if (data.success) {
+                        allWilayah = data.data;
+
+                        // Populate wilayah filter
+                        const wilayahFilter = document.getElementById('wilayahFilter');
+                        wilayahFilter.innerHTML = '<option value="">Semua Wilayah</option>';
+
+                        if (allWilayah && allWilayah.length > 0) {
+                            allWilayah.forEach(wilayah => {
+                                const option = document.createElement('option');
+                                option.value = wilayah.id_wilayah || wilayah.wilayah_id;
+                                option.textContent = wilayah.nama_wilayah || wilayah.nama_kota || wilayah.name;
+                                wilayahFilter.appendChild(option);
+                            });
+                            console.log(`Added ${allWilayah.length} wilayah options to dropdown`);
+                        } else {
+                            console.warn('No wilayah data found in API response');
+                        }
+                    } else {
+                        console.error('API returned success: false', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading wilayah data:', error);
+                    // Add fallback data if API fails
+                    addFallbackWilayahData();
+                });
+        }
+
+        // 3. Fix the addFallbackWilayahData function
+        function addFallbackWilayahData() {
+            // Check if element exists first
+            if (!elementExists('wilayahFilter')) {
+                console.log('wilayahFilter element does not exist, skipping fallback data');
+                return;
+            }
+            
+            // Rest of the function (will never execute if the element doesn't exist)
+            const wilayahFilter = document.getElementById('wilayahFilter');
+            if (wilayahFilter.options.length <= 1) {
+                // Only add fallback if dropdown is empty
+                wilayahFilter.innerHTML = '<option value="">Semua Wilayah</option>';
+                wilayahFilter.innerHTML += '<option value="1">Jakarta</option>';
+                wilayahFilter.innerHTML += '<option value="2">Bandung</option>';
+                wilayahFilter.innerHTML += '<option value="3">Surabaya</option>';
+                console.log('Added fallback wilayah options');
+            }
+        }
+
+        // 4. Fix the applyFilters function to not use wilayahFilter
         function applyFilters() {
-            // Apply both filters simultaneously
+            // Apply only search filter (without wilayah filter)
             filteredDosen = allDosen.filter(dosen => {
-                // Apply search filter with robust type checking
-                const userName = typeof dosen.user?.name === 'string' ? dosen.user.name : '';
+                const userName = typeof dosen.name === 'string' ? dosen.name : '';
                 const nipValue = typeof dosen.nip === 'string' ? dosen.nip : '';
 
-                const nameMatches = !searchTerm ||
-                    userName.toLowerCase().includes(searchTerm) ||
-                    nipValue.toLowerCase().includes(searchTerm);
-
-                // Apply wilayah filter
-                const wilayahMatches = !selectedWilayahId || dosen.wilayah_id == selectedWilayahId;
-
-                // Item must match BOTH filters
-                return nameMatches && wilayahMatches;
+                return !searchTerm || 
+                    userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    nipValue.toLowerCase().includes(searchTerm.toLowerCase());
             });
 
             // Reset to first page and update UI
@@ -302,27 +373,21 @@
             const statusContainer = document.getElementById('filterStatus') ||
                 createFilterStatusElement();
 
-            if (searchTerm || selectedWilayahId) {
+            if (searchTerm) {
                 let statusText = `Menampilkan ${filteredDosen.length} dari ${allDosen.length} dosen`;
 
-                if (searchTerm && selectedWilayahId) {
-                    const wilayahName = document.querySelector(`#wilayahFilter option[value="${selectedWilayahId}"]`).textContent;
-                    statusText += ` (Filter: "${searchTerm}" di wilayah ${wilayahName})`;
-                } else if (searchTerm) {
+                if (searchTerm) {
                     statusText += ` (Filter: "${searchTerm}")`;
-                } else if (selectedWilayahId) {
-                    const wilayahName = document.querySelector(`#wilayahFilter option[value="${selectedWilayahId}"]`).textContent;
-                    statusText += ` (Filter: wilayah ${wilayahName})`;
                 }
 
                 statusContainer.innerHTML = `
-                                                                                                                                                                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                                                                                                                                                                <span>${statusText}</span>
-                                                                                                                                                                                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                                                                                                                                                                                                    <i class="fas fa-times me-1"></i>Reset Filter
-                                                                                                                                                                                                                </button>
-                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                        `;
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>${statusText}</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                            <i class="fas fa-times me-1"></i>Reset Filter
+                        </button>
+                    </div>
+                `;
                 statusContainer.style.display = 'block';
             } else {
                 statusContainer.style.display = 'none';
@@ -340,10 +405,11 @@
             return statusDiv;
         }
 
-        // Add a function to reset all filters
+        // 6. Fix the resetFilters function
         function resetFilters() {
             document.getElementById('searchDosen').value = '';
-            document.getElementById('wilayahFilter').value = '';
+            // Remove reference to wilayahFilter
+            // document.getElementById('wilayahFilter').value = '';
             searchTerm = '';
             selectedWilayahId = '';
             filteredDosen = [...allDosen];
@@ -396,47 +462,33 @@
                 });
         }
 
-        // Add fallback function to ensure the dropdown works even if API fails
-        function addFallbackWilayahData() {
-            const wilayahFilter = document.getElementById('wilayahFilter');
-            if (wilayahFilter.options.length <= 1) {
-                // Only add fallback if dropdown is empty
-                wilayahFilter.innerHTML = '<option value="">Semua Wilayah</option>';
-                wilayahFilter.innerHTML += '<option value="1">Jakarta</option>';
-                wilayahFilter.innerHTML += '<option value="2">Bandung</option>';
-                wilayahFilter.innerHTML += '<option value="3">Surabaya</option>';
-                console.log('Added fallback wilayah options');
-            }
-        }
-
         // Update the renderDosenTable function
         function renderDosenTable() {
             const tableBody = document.getElementById('plotting-table-body');
             tableBody.innerHTML = '';
 
-            // Hitung indeks awal dan akhir untuk halaman saat ini
+            // Calculate start and end indices for current page (unchanged)
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = Math.min(startIndex + itemsPerPage, filteredDosen.length);
 
-            // Update text showing count
-            document.getElementById('showingCount').textContent =
+            document.getElementById('showingCount').textContent = 
                 filteredDosen.length > 0 ? `${startIndex + 1}-${endIndex}` : '0-0';
             document.getElementById('totalCount').textContent = filteredDosen.length;
 
-            // Jika tidak ada data
+            // If no data
             if (filteredDosen.length === 0) {
                 tableBody.innerHTML = `
-                                                                                                                <tr>
-                                                                                                                    <td colspan="6" class="text-center text-muted py-5">
-                                                                                                                        <img src="/assets/img/empty-data.svg" alt="No Data" class="mb-3" style="height: 120px">
-                                                                                                                        <p class="mb-0">Tidak ada data dosen yang sesuai dengan pencarian</p>
-                                                                                                                    </td>
-                                                                                                                </tr>
-                                                                                                            `;
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <img src="/assets/img/empty-data.svg" alt="No Data" class="mb-3" style="height: 120px">
+                            <p class="mb-0">Tidak ada data dosen yang sesuai dengan pencarian</p>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            // Render data untuk halaman saat ini
+            // Render data for current page
             for (let i = startIndex; i < endIndex; i++) {
                 const dosen = filteredDosen[i];
 
@@ -458,47 +510,44 @@
                     ? dosen.skills.map(s => `<span class="badge-skill">${s.skill.nama_skill}</span>`).join('')
                     : '<span class="text-muted fst-italic">Belum ada</span>';
 
-                // Create row with improved styling
+                // Create row with improved styling - FIXED NAME ACCESS and REMOVED WILAYAH COLUMN
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                                                                                                                <td>
-                                                                                                                    <div class="form-check">
-                                                                                                                        <input class="form-check-input dosen-checkbox" type="checkbox" value="${dosen.id_dosen}">
-                                                                                                                    </div>
-                                                                                                                </td>
-                                                                                                                <td>
-                                                                                                                    <div class="d-flex align-items-center">
-                                                                                                                        <div class="avatar avatar-sm rounded-circle bg-gradient-primary me-3">
-                                                                                                                            <span class="text-white">${dosen.user?.name.charAt(0) || '?'}</span>
-                                                                                                                        </div>
-                                                                                                                        <div>
-                                                                                                                            <h6 class="dosen-name mb-0">${dosen.user?.name || 'Tidak diketahui'}</h6>
-                                                                                                                            <p class="dosen-nip mb-0">${dosen.nip || '-'}</p>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </td>
-                                                                                                                <td>${bimbinganBadge}</td>
-                                                                                                                <td>
-                                                                                                                    <span class="badge badge-wilayah">${dosen.wilayah?.nama_kota || 'Tidak diketahui'}</span>
-                                                                                                                </td>
-                                                                                                                <td>
-                                                                                                                    <div class="badge-container">
-                                                                                                                        ${skillsList}
-                                                                                                                    </div>
-                                                                                                                </td>
-                                                                                                                <td>
-                                                                                                                    <div class="action-buttons">
-                                                                                                                        <button class="btn btn-sm btn-primary" onclick="assignMahasiswa('${dosen.id_dosen}')" 
-                                                                                                                            data-tooltip="Assign mahasiswa">
-                                                                                                                            <i class="fas fa-link me-1"></i>Assign
-                                                                                                                        </button>
-                                                                                                                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignments('${dosen.id_dosen}')"
-                                                                                                                            data-tooltip="Reset semua penugasan">
-                                                                                                                            <i class="fas fa-trash me-1"></i>Reset
-                                                                                                                        </button>
-                                                                                                                    </div>
-                                                                                                                </td>
-                                                                                                            `;
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input dosen-checkbox" type="checkbox" value="${dosen.id_dosen}">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-sm rounded-circle bg-gradient-primary me-3">
+                                <span class="text-white">${(dosen.name ? dosen.name.charAt(0) : '?')}</span>
+                            </div>
+                            <div>
+                                <h6 class="dosen-name mb-0">${dosen.name || 'Tidak diketahui'}</h6>
+                                <p class="dosen-nip mb-0">${dosen.nip || '-'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${bimbinganBadge}</td>
+                    <td>
+                        <div class="badge-container">
+                            ${skillsList}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="assignMahasiswa('${dosen.id_dosen}')" 
+                                data-tooltip="Assign mahasiswa">
+                                <i class="fas fa-link me-1"></i>Assign
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeAssignments('${dosen.id_dosen}')"
+                                data-tooltip="Reset semua penugasan">
+                                <i class="fas fa-trash me-1"></i>Reset
+                            </button>
+                        </div>
+                    </td>
+                `;
                 tableBody.appendChild(row);
             }
 
@@ -517,8 +566,8 @@
             const prevLi = document.createElement('li');
             prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
             prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous">
-                                                                                                                                                                                                                                                                <span aria-hidden="true">&laquo;</span>
-                                                                                                                                                                                                                                                            </a>`;
+                                                                                                                                                                                                                                                                    <span aria-hidden="true">&laquo;</span>
+                                                                                                                                                                                                                                                                </a>`;
             prevLi.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (currentPage > 1) {
@@ -555,8 +604,8 @@
             const nextLi = document.createElement('li');
             nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
             nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next">
-                                                                                                                                                                                                                                                                <span aria-hidden="true">&raquo;</span>
-                                                                                                                                                                                                                                                            </a>`;
+                                                                                                                                                                                                                                                                    <span aria-hidden="true">&raquo;</span>
+                                                                                                                                                                                                                                                                </a>`;
             nextLi.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (currentPage < totalPages) {
@@ -602,11 +651,14 @@
             applyFilters(); // Let applyFilters handle the actual filtering
         });
 
-        // Filter by wilayah
+        // 5. Fix the event listener for wilayahFilter
+        // Comment out or remove this code:
+        /*
         document.getElementById('wilayahFilter').addEventListener('change', function () {
-            selectedWilayahId = this.value; // Only update the selectedWilayahId variable
-            applyFilters(); // Let applyFilters handle the actual filtering
+            selectedWilayahId = this.value; 
+            applyFilters();
         });
+        */
 
         function assignMahasiswa(dosenId) {
             // Set selected dosen ID
@@ -622,72 +674,80 @@
                 }
             });
 
-            // Fetch available mahasiswa with AJAX
-            fetch('/api/magang/available')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Close loading dialog
-                    Swal.close();
+            // Fetch available mahasiswa with AJAX - ADD CSRF AND HEADERS
+            fetch('/api/magang/available', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'Cache-Control': 'no-store, no-cache'
+                },
+                credentials: 'same-origin' // Penting untuk mengirim cookies otentikasi
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Close loading dialog
+                Swal.close();
 
-                    if (data.success) {
-                        // Show modal with data
-                        const mahasiswaSelect = document.getElementById('mahasiswaSelect');
-                        mahasiswaSelect.innerHTML = '';
+                if (data.success) {
+                    // Show modal with data
+                    const mahasiswaSelect = document.getElementById('mahasiswaSelect');
+                    mahasiswaSelect.innerHTML = '';
 
-                        if (data.data.length === 0) {
-                            mahasiswaSelect.innerHTML = '<option disabled>Tidak ada mahasiswa yang tersedia</option>';
-                            document.getElementById('saveAssignBtn').disabled = true;
+                    if (data.data.length === 0) {
+                        mahasiswaSelect.innerHTML = '<option disabled>Tidak ada mahasiswa yang tersedia</option>';
+                        document.getElementById('saveAssignBtn').disabled = true;
 
-                            // Show modal with warning
-                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                            modal.show();
+                        // Show modal with warning
+                        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+                        modal.show();
 
-                            // Show notification about no available students
-                            Swal.fire({
-                                title: 'Perhatian',
-                                text: 'Tidak ada mahasiswa yang tersedia untuk ditugaskan',
-                                icon: 'info'
-                            });
-                        } else {
-                            document.getElementById('saveAssignBtn').disabled = false;
-
-                            data.data.forEach(magang => {
-                                const option = document.createElement('option');
-                                option.value = magang.id_magang;
-
-                                // Handle potential null values with fallbacks
-                                const mahasiswaName = magang.mahasiswa?.user?.name || 'Tidak diketahui';
-                                const perusahaanName = magang.lowongan?.perusahaan?.nama_perusahaan || 'Tidak diketahui';
-
-                                option.textContent = `${mahasiswaName} - ${perusahaanName}`;
-                                mahasiswaSelect.appendChild(option);
-                            });
-
-                            // Show the modal after populating data
-                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                            modal.show();
-                        }
-                    } else {
+                        // Show notification about no available students
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: `Gagal memuat data mahasiswa: ${data.message || 'Unknown error'}`,
-                            icon: 'error'
+                            title: 'Perhatian',
+                            text: 'Tidak ada mahasiswa yang tersedia untuk ditugaskan',
+                            icon: 'info'
                         });
+                    } else {
+                        document.getElementById('saveAssignBtn').disabled = false;
+
+                        data.data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id_magang; // This is actually id_lamaran with alias
+
+                            // Handle potential null values with fallbacks
+                            const mahasiswaName = item.name || 'Tidak diketahui';
+                            const perusahaanName = item.nama_perusahaan || 'Tidak diketahui';
+
+                            option.textContent = `${mahasiswaName} - ${perusahaanName}`;
+                            mahasiswaSelect.appendChild(option);
+                        });
+
+                        // Show the modal after populating data
+                        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+                        modal.show();
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching available magang:', error);
+                } else {
                     Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat memuat data mahasiswa: ' + error.message,
+                        title: 'Gagal!',
+                        text: `Gagal memuat data mahasiswa: ${data.message || 'Unknown error'}`,
                         icon: 'error'
                     });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching available magang:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat memuat data mahasiswa: ' + error.message,
+                    icon: 'error'
                 });
+            });
         }
 
         document.getElementById('saveAssignBtn').addEventListener('click', function () {
@@ -708,7 +768,7 @@
             this.disabled = true;
             this.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Menyimpan...`;
 
-            // AJAX request
+            // AJAX request - notice this endpoint should handle t_lamaran IDs (aliased as magang_ids)
             fetch(`/api/dosen/${dosenId}/assign-mahasiswa`, {
                 method: 'POST',
                 headers: {
@@ -716,46 +776,46 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
-                    magang_ids: selectedMahasiswaIds
+                    magang_ids: selectedMahasiswaIds // These are actually t_lamaran.id_lamaran values
                 })
-            }) // Add this closing parenthesis here
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Close modal first
-                        bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal first
+                    bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
 
-                        // Show success message
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: 'Penugasan berhasil disimpan',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-
-                        // Reload data with AJAX instead of page refresh
-                        loadPlottingData();
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: data.message || 'Terjadi kesalahan tidak diketahui',
-                            icon: 'error'
-                        });
-                        this.disabled = false;
-                        this.textContent = 'Simpan';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error saving assignments:', error);
+                    // Show success message
                     Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menyimpan penugasan: ' + error.message,
+                        title: 'Berhasil!',
+                        text: 'Penugasan berhasil disimpan',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // Reload data with AJAX instead of page refresh
+                    loadPlottingData();
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: data.message || 'Terjadi kesalahan tidak diketahui',
                         icon: 'error'
                     });
                     this.disabled = false;
                     this.textContent = 'Simpan';
+                }
+            })
+            .catch(error => {
+                console.error('Error saving assignments:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat menyimpan penugasan: ' + error.message,
+                    icon: 'error'
                 });
+                this.disabled = false;
+                this.textContent = 'Simpan';
+            });
         });
 
         // Remove assignments for dosen
@@ -877,18 +937,21 @@
                                 Swal.fire({
                                     title: 'Berhasil!',
                                     html: `<p>Plotting otomatis berhasil dilakukan!</p>
-                                                                                                                                                                       <div class="mt-3">
-                                                                                                                                                                         <table class="table table-sm">
-                                                                                                                                                                           <tr><td>Total Dosen</td><td>${data.stats.total_dosen}</td></tr>
-                                                                                                                                                                           <tr><td>Total Magang</td><td>${data.stats.total_magang}</td></tr>
-                                                                                                                                                                           <tr><td>Total Assignments</td><td>${data.stats.total_assignments}</td></tr>
-                                                                                                                                                                         </table>
-                                                                                                                                                                       </div>`,
+                                                                                                                                                                           <div class="mt-3">
+                                                                                                                                                                             <table class="table table-sm">
+                                                                                                                                                                               <tr><td>Total Dosen</td><td>${data.stats.total_dosen}</td></tr>
+                                                                                                                                                                    
+                                                                                                                                                                               <tr><td>Total Assignments</td><td>${data.stats.total_assignments}</td></tr>
+                                                                                                                                                                             </table>
+                                                                                                                                                                           </div>`,
                                     icon: 'success'
                                 });
 
-                                // Reload data with AJAX
+                                // Reload data with AJAX - ADD THIS FUNCTION CALL
                                 loadPlottingData();
+
+                                // Also reload matrix data in case the matrix modal is open
+                                loadMatrixData();
                             } else {
                                 Swal.fire({
                                     title: 'Gagal!',
@@ -929,15 +992,15 @@
         function loadMatrixData() {
             // Show loading state
             document.getElementById('matrixContainer').innerHTML = `
-                                                                <div class="text-center py-4">
-                                                                    <div class="d-flex justify-content-center">
-                                                                        <div class="spinner-grow text-primary mx-1" role="status" style="width: 1rem; height: 1rem;"></div>
-                                                                        <div class="spinner-grow text-secondary mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.2s"></div>
-                                                                        <div class="spinner-grow text-info mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.4s"></div>
+                                                                    <div class="text-center py-4">
+                                                                        <div class="d-flex justify-content-center">
+                                                                            <div class="spinner-grow text-primary mx-1" role="status" style="width: 1rem; height: 1rem;"></div>
+                                                                            <div class="spinner-grow text-secondary mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.2s"></div>
+                                                                            <div class="spinner-grow text-info mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.4s"></div>
+                                                                        </div>
+                                                                        <p class="mt-3 text-muted">Memuat data matrix keputusan...</p>
                                                                     </div>
-                                                                    <p class="mt-3 text-muted">Memuat data matrix keputusan...</p>
-                                                                </div>
-                                                            `;
+                                                                `;
 
             // Check if we already have wilayah data, if not load it
             if (!window.allWilayah || window.allWilayah.length === 0) {
@@ -985,27 +1048,27 @@
                         renderDecisionMatrix(data.data, data.weights);
                     } else {
                         document.getElementById('matrixContainer').innerHTML = `
-                                                                            <div class="alert alert-danger">
-                                                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                                Gagal memuat data matrix: ${data.message}
-                                                                                <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
-                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                </button>
-                                                                            </div>
-                                                                        `;
+                                                                                <div class="alert alert-danger">
+                                                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                                    Gagal memuat data matrix: ${data.message}
+                                                                                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
+                                                                                        <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                    </button>
+                                                                                </div>
+                                                                            `;
                     }
                 })
                 .catch(error => {
                     console.error('Error loading matrix data:', error);
                     document.getElementById('matrixContainer').innerHTML = `
-                                                                        <div class="alert alert-danger">
-                                                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                            Terjadi kesalahan: ${error.message}
-                                                                            <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
-                                                                                <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                            </button>
-                                                                        </div>
-                                                                    `;
+                                                                            <div class="alert alert-danger">
+                                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                                Terjadi kesalahan: ${error.message}
+                                                                                <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
+                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                </button>
+                                                                            </div>
+                                                                        `;
                 });
         }
 
@@ -1019,23 +1082,23 @@
 
             // Header card with summary data
             const summaryHeader = `
-                                                 <div class="card mb-4 border-0 shadow-sm">
-                                        <div class="card-body p-0">
-                                            <div class="row g-0">
-                                                <div class="col-md-8 bg-gradient-secondary p-4 text-white" style="background-color: #64748b;">
-                                                    <h5 class="mb-1 fw-bold"><i class="fas fa-chart-bar me-2"></i>Matrix Keputusan Pembimbing</h5>
-                                                    <p class="mb-0 opacity-8">Pemberian rekomendasi dosen pembimbing menggunakan metode SAW</p>
-                                                </div>
-                                                <div class="col-md-4 p-4 d-flex flex-column justify-content-center align-items-center bg-light">
-                                                    <div class="text-center">
-                                                        <h2 class="display-4 fw-bold mb-0" style="color: #64748b;">${studentCount}</h2>
-                                                        <span class="text-secondary">Mahasiswa belum memiliki pembimbing</span>
+                                                     <div class="card mb-4 border-0 shadow-sm">
+                                            <div class="card-body p-0">
+                                                <div class="row g-0">
+                                                    <div class="col-md-8 bg-gradient-secondary p-4 text-white" style="background-color: #64748b;">
+                                                        <h5 class="mb-1 fw-bold"><i class="fas fa-chart-bar me-2"></i>Matrix Keputusan Pembimbing</h5>
+                                                        <p class="mb-0 opacity-8">Pemberian rekomendasi dosen pembimbing menggunakan metode SAW</p>
+                                                    </div>
+                                                    <div class="col-md-4 p-4 d-flex flex-column justify-content-center align-items-center bg-light">
+                                                        <div class="text-center">
+                                                            <h2 class="display-4 fw-bold mb-0" style="color: #64748b;">${studentCount}</h2>
+                                                            <span class="text-secondary">Mahasiswa belum memiliki pembimbing</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                `;
+                                    `;
             container.insertAdjacentHTML('beforeend', summaryHeader);
 
             // Add weights visualization for SAW criteria
@@ -1045,138 +1108,138 @@
                 const bebanKerjaWeight = Math.round((weights.beban_kerja || 0) * 100);
 
                 const weightsCard = `
-                                                    <div class="card mb-4 shadow-sm border-0">
-                                    <div class="card-header bg-white py-3">
-                                        <h6 class="mb-0 fw-bold d-flex align-items-center">
-                                            <div class="icon-circle me-2" 
-                                                 style="width: 28px; height: 28px; border-radius: 50%; display: flex; 
-                                                        align-items: center; justify-content: center; background-color: #f1f5f9; color: #64748b;">
-                                                <i class="fas fa-balance-scale"></i>
-                                            </div>
-                                            Kriteria dan Bobot SAW (Simple Additive Weighting)
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-4">
-                                            <!-- Minat Criterion -->
-                                            <div class="col-md-4">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body p-3">
-                                                        <div class="d-flex align-items-center mb-3">
-                                                            <div class="icon-circle me-3" 
-                                                                 style="background-color: var(--color-minat-light); color: var(--color-minat);
-                                                                        width: 42px; height: 42px;">
-                                                                <i class="fas fa-star"></i>
+                                                        <div class="card mb-4 shadow-sm border-0">
+                                        <div class="card-header bg-white py-3">
+                                            <h6 class="mb-0 fw-bold d-flex align-items-center">
+                                                <div class="icon-circle me-2" 
+                                                     style="width: 28px; height: 28px; border-radius: 50%; display: flex; 
+                                                            align-items: center; justify-content: center; background-color: #f1f5f9; color: #64748b;">
+                                                    <i class="fas fa-balance-scale"></i>
+                                                </div>
+                                                Kriteria dan Bobot SAW (Simple Additive Weighting)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-4">
+                                                <!-- Minat Criterion -->
+                                                <div class="col-md-4">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body p-3">
+                                                            <div class="d-flex align-items-center mb-3">
+                                                                <div class="icon-circle me-3" 
+                                                                     style="background-color: var(--color-minat-light); color: var(--color-minat);
+                                                                            width: 42px; height: 42px;">
+                                                                    <i class="fas fa-star"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-minat);">Minat</h6>
+                                                                    <p class="text-muted small mb-0">Kesamaan minat dosen dan mahasiswa</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <h6 class="mb-0 fw-bold" style="color: var(--color-minat);">Minat</h6>
-                                                                <p class="text-muted small mb-0">Kesamaan minat dosen dan mahasiswa</p>
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-dark">Bobot</span>
+                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-minat-light); color: var(--color-minat);">${minatWeight}%</span>
                                                             </div>
-                                                        </div>
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <span class="text-dark">Bobot</span>
-                                                            <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-minat-light); color: var(--color-minat);">${minatWeight}%</span>
-                                                        </div>
-                                                        <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                            <div class="progress-bar" role="progressbar" 
-                                                                 style="width: ${minatWeight}%; border-radius: 10px; background-color: var(--color-minat);" 
-                                                                 aria-valuenow="${minatWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
+                                                                <div class="progress-bar" role="progressbar" 
+                                                                     style="width: ${minatWeight}%; border-radius: 10px; background-color: var(--color-minat);" 
+                                                                     aria-valuenow="${minatWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <!-- Skill Criterion -->
-                                            <div class="col-md-4">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body p-3">
-                                                        <div class="d-flex align-items-center mb-3">
-                                                            <div class="icon-circle me-3" 
-                                                                 style="background-color: var(--color-skill-light); color: var(--color-skill);
-                                                                        width: 42px; height: 42px;">
-                                                                <i class="fas fa-code"></i>
+                                                <!-- Skill Criterion -->
+                                                <div class="col-md-4">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body p-3">
+                                                            <div class="d-flex align-items-center mb-3">
+                                                                <div class="icon-circle me-3" 
+                                                                     style="background-color: var(--color-skill-light); color: var(--color-skill);
+                                                                            width: 42px; height: 42px;">
+                                                                    <i class="fas fa-code"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-skill);">Skill</h6>
+                                                                    <p class="text-muted small mb-0">Kecocokan skill dosen dan mahasiswa</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <h6 class="mb-0 fw-bold" style="color: var(--color-skill);">Skill</h6>
-                                                                <p class="text-muted small mb-0">Kecocokan skill dosen dan mahasiswa</p>
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-dark">Bobot</span>
+                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-skill-light); color: var(--color-skill);">${skillWeight}%</span>
                                                             </div>
-                                                        </div>
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <span class="text-dark">Bobot</span>
-                                                            <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-skill-light); color: var(--color-skill);">${skillWeight}%</span>
-                                                        </div>
-                                                        <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                            <div class="progress-bar" role="progressbar"
-                                                                 style="width: ${skillWeight}%; border-radius: 10px; background-color: var(--color-skill);" 
-                                                                 aria-valuenow="${skillWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
+                                                                <div class="progress-bar" role="progressbar"
+                                                                     style="width: ${skillWeight}%; border-radius: 10px; background-color: var(--color-skill);" 
+                                                                     aria-valuenow="${skillWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <!-- Beban Kerja Criterion -->
-                                            <div class="col-md-4">
-                                                <div class="card border-0 shadow-sm h-100">
-                                                    <div class="card-body p-3">
-                                                        <div class="d-flex align-items-center mb-3">
-                                                            <div class="icon-circle me-3" 
-                                                                 style="background-color: var(--color-beban-light); color: var(--color-beban);
-                                                                        width: 42px; height: 42px;">
-                                                                <i class="fas fa-users"></i>
+                                                <!-- Beban Kerja Criterion -->
+                                                <div class="col-md-4">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body p-3">
+                                                            <div class="d-flex align-items-center mb-3">
+                                                                <div class="icon-circle me-3" 
+                                                                     style="background-color: var(--color-beban-light); color: var(--color-beban);
+                                                                            width: 42px; height: 42px;">
+                                                                    <i class="fas fa-users"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-beban);">Beban Kerja</h6>
+                                                                    <p class="text-muted small mb-0">Jumlah mahasiswa bimbingan</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <h6 class="mb-0 fw-bold" style="color: var(--color-beban);">Beban Kerja</h6>
-                                                                <p class="text-muted small mb-0">Jumlah mahasiswa bimbingan</p>
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <span class="text-dark">Bobot</span>
+                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-beban-light); color: var(--color-beban);">${bebanKerjaWeight}%</span>
                                                             </div>
-                                                        </div>
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <span class="text-dark">Bobot</span>
-                                                            <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-beban-light); color: var(--color-beban);">${bebanKerjaWeight}%</span>
-                                                        </div>
-                                                        <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                            <div class="progress-bar" role="progressbar"
-                                                                 style="width: ${bebanKerjaWeight}%; border-radius: 10px; background-color: var(--color-beban);" 
-                                                                 aria-valuenow="${bebanKerjaWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
+                                                                <div class="progress-bar" role="progressbar"
+                                                                     style="width: ${bebanKerjaWeight}%; border-radius: 10px; background-color: var(--color-beban);" 
+                                                                     aria-valuenow="${bebanKerjaWeight}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            `;
-                container.insertAdjacentHTML('beforeend', weightsCard);
+                                `;
+            container.insertAdjacentHTML('beforeend', weightsCard);
             }
 
             // Check if matrixData is valid
             if (!Array.isArray(matrixData) || matrixData.length === 0) {
                 container.insertAdjacentHTML('beforeend', `
-                                                    <div class="card shadow-sm border-0">
-                                                        <div class="card-body text-center py-5">
-                                                            <img src="/assets/img/empty-data.svg" alt="No Data" style="height: 180px; opacity: 0.8;" 
-                                                                 onerror="this.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/icons/exclamation-circle.svg'; this.style.height='80px';">
-                                                            <h5 class="mt-4 text-muted">Tidak Ada Data</h5>
-                                                            <p class="text-muted">Tidak ada mahasiswa nonaktif yang membutuhkan penugasan dosen pembimbing.</p>
-                                                            <button class="btn btn-outline-primary mt-2" onclick="loadMatrixData()">
-                                                                <i class="fas fa-sync-alt me-2"></i>Refresh Data
-                                                            </button>
+                                                        <div class="card shadow-sm border-0">
+                                                            <div class="card-body text-center py-5">
+                                                                <img src="/assets/img/empty-data.svg" alt="No Data" style="height: 180px; opacity: 0.8;" 
+                                                                     onerror="this.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/icons/exclamation-circle.svg'; this.style.height='80px';">
+                                                                <h5 class="mt-4 text-muted">Tidak Ada Data</h5>
+                                                                <p class="text-muted">Tidak ada mahasiswa nonaktif yang membutuhkan penugasan dosen pembimbing.</p>
+                                                                <button class="btn btn-outline-primary mt-2" onclick="loadMatrixData()">
+                                                                    <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                `);
+                                                    `);
                 return;
             }
 
             // Section title for recommendations
             container.insertAdjacentHTML('beforeend', `
-                                                <div class="d-flex align-items-center mb-3 mt-4">
-                                                    <div class="icon-circle bg-primary bg-opacity-10 text-primary me-2" 
-                                                         style="width: 32px; height: 32px; border-radius: 50%; display: flex; 
-                                                                align-items: center; justify-content: center;">
-                                                    <i class="fas fa-user-check"></i>
+                                                    <div class="d-flex align-items-center mb-3 mt-4">
+                                                        <div class="icon-circle bg-primary bg-opacity-10 text-primary me-2" 
+                                                             style="width: 32px; height: 32px; border-radius: 50%; display: flex; 
+                                                                    align-items: center; justify-content: center;">
+                                                        <i class="fas fa-user-check"></i>
+                                                        </div>
+                                                        <h5 class="mb-0 fw-bold">Rekomendasi Dosen Pembimbing</h5>
                                                     </div>
-                                                    <h5 class="mb-0 fw-bold">Rekomendasi Dosen Pembimbing</h5>
-                                                </div>
-                                            `);
+                                                `);
 
             // Create row for student cards
             const studentCardsRow = document.createElement('div');
@@ -1215,121 +1278,121 @@
                     let matchedMinatHtml = '';
                     if (match.matched_minat && match.matched_minat.length > 0) {
                         matchedMinatHtml = `
-                    <div class="mt-2">
-                        <small class="text-muted d-block mb-1">Minat yang cocok:</small>
-                        <div class="d-flex flex-wrap gap-1">
-                            ${match.matched_minat.map(minat =>
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Minat yang cocok:</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${match.matched_minat.map(minat =>
                             `<span class="badge-minat">${minat}</span>`
                         ).join('')}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
                     }
 
                     // Format matched skills display with new style
                     let matchedSkillsHtml = '';
                     if (match.matched_skills && match.matched_skills.length > 0) {
                         matchedSkillsHtml = `
-                    <div class="mt-2">
-                        <small class="text-muted d-block mb-1">Skill yang cocok:</small>
-                        <div class="d-flex flex-wrap gap-1">
-                            ${match.matched_skills.map(skill =>
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Skill yang cocok:</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${match.matched_skills.map(skill =>
                             `<span class="badge-skill">${skill}</span>`
                         ).join('')}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
                     }
 
                     // Add this lecturer match to the HTML with new styling
                     dosenMatchesHtml += `
-                <div class="list-group-item p-3 ${isTopMatch ? 'top-match' : ''} position-relative">
-                    <div class="d-flex mb-2">
-                        <div class="me-3 position-relative">
-                            <div class="circle-match circle-match-${badgeColor}" style="--percent: ${matchPercent}%">
-                                <span>${matchPercent}%</span>
-                            </div>
-                            ${isTopMatch ? '<span class="position-absolute top-0 start-100 translate-middle badge top-badge rounded-pill">Top</span>' : ''}
-                        </div>
-                        <div>
-                            <h6 class="mb-0 fw-bold">${match.dosen_name}</h6>
-                            <small class="text-muted">${match.nip || '-'}</small>
-                        </div>
-                    </div>
-
-                    <div class="mt-3 px-2">
-                        <div class="row g-2">
-                            <!-- Minat score -->
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="fw-medium">Minat <span class="text-muted">(${Math.round(weights.minat * 100)}%)</span></small>
-                                    <small>${Math.round(match.minat_score * 100)}%</small>
+                    <div class="list-group-item p-3 ${isTopMatch ? 'top-match' : ''} position-relative">
+                        <div class="d-flex mb-2">
+                            <div class="me-3 position-relative">
+                                <div class="circle-match circle-match-${badgeColor}" style="--percent: ${matchPercent}%">
+                                    <span>${matchPercent}%</span>
                                 </div>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-minat" role="progressbar" 
-                                        style="width: ${match.minat_score * 100}%" 
-                                        aria-valuenow="${match.minat_score * 100}" aria-valuemin="0" aria-valuemax="100">
+                                ${isTopMatch ? '<span class="position-absolute top-0 start-100 translate-middle badge top-badge rounded-pill">Top</span>' : ''}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">${match.dosen_name}</h6>
+                                <small class="text-muted">${match.nip || '-'}</small>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 px-2">
+                            <div class="row g-2">
+                                <!-- Minat score -->
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="fw-medium">Minat <span class="text-muted">(${Math.round(weights.minat * 100)}%)</span></small>
+                                        <small>${Math.round(match.minat_score * 100)}%</small>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-minat" role="progressbar" 
+                                            style="width: ${match.minat_score * 100}%" 
+                                            aria-valuenow="${match.minat_score * 100}" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Skill score -->
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="fw-medium">Skill <span class="text-muted">(${Math.round(weights.skill * 100)}%)</span></small>
+                                        <small>${Math.round(match.skill_score * 100)}%</small>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-skill" role="progressbar" 
+                                            style="width: ${match.skill_score * 100}%" 
+                                            aria-valuenow="${match.skill_score * 100}" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Beban Kerja score -->
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="fw-medium">Beban Kerja <span class="text-muted">(${Math.round(weights.beban_kerja * 100)}%)</span></small>
+                                        <small title="${match.current_beban} mahasiswa bimbingan">${Math.round(match.beban_kerja_score * 100)}%</small>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-beban" role="progressbar" 
+                                            style="width: ${match.beban_kerja_score * 100}%" 
+                                            aria-valuenow="${match.beban_kerja_score * 100}" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Skill score -->
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="fw-medium">Skill <span class="text-muted">(${Math.round(weights.skill * 100)}%)</span></small>
-                                    <small>${Math.round(match.skill_score * 100)}%</small>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-skill" role="progressbar" 
-                                        style="width: ${match.skill_score * 100}%" 
-                                        aria-valuenow="${match.skill_score * 100}" aria-valuemin="0" aria-valuemax="100">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Beban Kerja score -->
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="fw-medium">Beban Kerja <span class="text-muted">(${Math.round(weights.beban_kerja * 100)}%)</span></small>
-                                    <small title="${match.current_beban} mahasiswa bimbingan">${Math.round(match.beban_kerja_score * 100)}%</small>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-beban" role="progressbar" 
-                                        style="width: ${match.beban_kerja_score * 100}%" 
-                                        aria-valuenow="${match.beban_kerja_score * 100}" aria-valuemin="0" aria-valuemax="100">
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </div>
 
-                    <!-- Matched minat display -->
-                    ${matchedMinatHtml}
+                        <!-- Matched minat display -->
+                        ${matchedMinatHtml}
 
-                    <!-- Matched skills display -->
-                    ${matchedSkillsHtml}
+                        <!-- Matched skills display -->
+                        ${matchedSkillsHtml}
 
-                    <!-- Current workload info -->
-                    <div class="mt-2">
-                        <small class="text-muted d-flex align-items-center">
-                            <i class="fas fa-users me-1" style="color: var(--color-beban);"></i>
-                            Beban Kerja: 
-                            <span class="badge ${match.current_beban > 5 ? 'bg-danger' : 'bg-secondary'} bg-opacity-75 ms-1">
-                                ${match.current_beban} mahasiswa
-                            </span>
-                        </small>
-                    </div>
-
-                    <!-- Assign button for top match -->
-                    ${isTopMatch ? `
-                        <div class="text-center mt-3">
-                            <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_magang}', '${match.dosen_id}')">
-                                <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
-                            </button>
+                        <!-- Current workload info -->
+                        <div class="mt-2">
+                            <small class="text-muted d-flex align-items-center">
+                                <i class="fas fa-users me-1" style="color: var(--color-beban);"></i>
+                                Beban Kerja: 
+                                <span class="badge ${match.current_beban > 5 ? 'bg-danger' : 'bg-secondary'} bg-opacity-75 ms-1">
+                                    ${match.current_beban} mahasiswa
+                                </span>
+                            </small>
                         </div>
-                    ` : ''}
-                </div>
-            `;
+
+                        <!-- Assign button for top match -->
+      ${isTopMatch ? `
+        <div class="text-center mt-3">
+            <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
+                <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
+            </button>
+        </div>
+    ` : ''}
+                    </div>
+                `;
                 });
 
                 // Close the list group
@@ -1337,61 +1400,61 @@
 
                 // Create the student card with improved UI
                 col.innerHTML = `
-                                                    <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                                                        <div class="card-header bg-white p-0">
-                                                            <div class="d-flex">
-                                                                <div class="bg-gradient-primary text-white p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                                                    <span class="fw-bold h4 mb-0">${item.mahasiswa_name.charAt(0).toUpperCase()}</span>
-                                                                </div>
-                                                                <div class="p-3">
-                                                                    <h6 class="card-title mb-0 fw-bold">${item.mahasiswa_name}</h6>
-                                                                    <span class="badge bg-warning text-dark rounded-pill">NONAKTIF</span>
+                                                        <div class="card h-100 shadow-sm border-0 overflow-hidden">
+                                                            <div class="card-header bg-white p-0">
+                                                                <div class="d-flex">
+                                                                    <div class="bg-gradient-primary text-white p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                                        <span class="fw-bold h4 mb-0">${item.mahasiswa_name.charAt(0).toUpperCase()}</span>
+                                                                    </div>
+                                                                    <div class="p-3">
+                                                                        <h6 class="card-title mb-0 fw-bold">${item.mahasiswa_name}</h6>
+                                                                        <span class="badge bg-warning text-dark rounded-pill">NONAKTIF</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="card-body pt-0">
-                                                            <!-- Student info section -->
-                                                            <div class="info-section mb-3">
-                                                                <!-- Company info -->
-                                                                <div class="d-flex py-2 border-bottom">
-                                                                    <div class="icon-box me-3">
-                                                                        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
-                                                                            <i class="fas fa-building"></i>
+                                                            <div class="card-body pt-0">
+                                                                <!-- Student info section -->
+                                                                <div class="info-section mb-3">
+                                                                    <!-- Company info -->
+                                                                    <div class="d-flex py-2 border-bottom">
+                                                                        <div class="icon-box me-3">
+                                                                            <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+                                                                                <i class="fas fa-building"></i>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <small class="text-muted d-block">Perusahaan</small>
-                                                                        <div class="fw-semibold">${item.perusahaan_name}</div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Wilayah info -->
-                                                                <div class="d-flex py-2">
-                                                                    <div class="icon-box me-3">
-                                                                        <div class="icon-circle bg-danger bg-opacity-10 text-danger">
-                                                                            <i class="fas fa-map-marker-alt"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <small class="text-muted d-block">Wilayah</small>
                                                                         <div>
-                                                                            <span class="badge bg-dark bg-opacity-75 text-white rounded-pill">
-                                                                                ${item.wilayah_name}
-                                                                            </span>
+                                                                            <small class="text-muted d-block">Perusahaan</small>
+                                                                            <div class="fw-semibold">${item.perusahaan_name}</div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Wilayah info -->
+                                                                    <div class="d-flex py-2">
+                                                                        <div class="icon-box me-3">
+                                                                            <div class="icon-circle bg-danger bg-opacity-10 text-danger">
+                                                                                <i class="fas fa-map-marker-alt"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <small class="text-muted d-block">Wilayah</small>
+                                                                            <div>
+                                                                                <span class="badge bg-dark bg-opacity-75 text-white rounded-pill">
+                                                                                    ${item.wilayah_name}
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
+                                                                <h6 class="fw-bold mb-3 d-flex align-items-center border-top pt-3">
+                                                                    <i class="fas fa-star me-2 text-warning"></i> Rekomendasi Dosen
+                                                                </h6>
+
+                                                                <!-- Insert the dosen matches HTML we created -->
+                                                                ${dosenMatchesHtml}
                                                             </div>
-
-                                                            <h6 class="fw-bold mb-3 d-flex align-items-center border-top pt-3">
-                                                                <i class="fas fa-star me-2 text-warning"></i> Rekomendasi Dosen
-                                                            </h6>
-
-                                                            <!-- Insert the dosen matches HTML we created -->
-                                                            ${dosenMatchesHtml}
                                                         </div>
-                                                    </div>
-                                                `;
+                                                    `;
 
                 // Add the student card to the row
                 studentCardsRow.appendChild(col);
@@ -1403,157 +1466,209 @@
             // Add a little CSS to make the circle matches display properly
             const style = document.createElement('style');
             style.textContent = `
-                                       :root {
-                    /* Warna Utama - Earth tones */
-                    --color-primary: #4b6043;      /* Moss green - calming nature tone */
-                    --color-secondary: #7d8e7a;    /* Sage - lighter variant */
-                    --color-accent: #a9b7a1;       /* Light sage - subtle accent */
+                                           :root {
+                        /* Warna Utama - Earth tones */
+                        --color-primary: #4b6043;      /* Moss green - calming nature tone */
+                        --color-secondary: #7d8e7a;    /* Sage - lighter variant */
+                        --color-accent: #a9b7a1;       /* Light sage - subtle accent */
 
-                    /* Kriteria Colors */
-                    --color-minat: #546e7a;        /* Slate blue gray - soft and calm */
-                    --color-minat-light: #eceff1;  /* Very light blue gray */
-                    --color-minat-border: #cfd8dc; /* Light blue gray border */
+                        /* Kriteria Colors */
+                        --color-minat: #546e7a;        /* Slate blue gray - soft and calm */
+                        --color-minat-light: #eceff1;  /* Very light blue gray */
+                        --color-minat-border: #cfd8dc; /* Light blue gray border */
 
-                    --color-skill: #5d6e5d;        /* Muted forest green */
-                    --color-skill-light: #eef3ee;  /* Very light green */
-                    --color-skill-border: #d1dcd1; /* Light green border */
+                        --color-skill: #5d6e5d;        /* Muted forest green */
+                        --color-skill-light: #eef3ee;  /* Very light green */
+                        --color-skill-border: #d1dcd1; /* Light green border */
 
-                    --color-beban: #73605b;        /* Muted brown - earthy tone */
-                    --color-beban-light: #f3efee;  /* Very light brown */
-                    --color-beban-border: #e0d6d3; /* Light brown border */
+                        --color-beban: #73605b;        /* Muted brown - earthy tone */
+                        --color-beban-light: #f3efee;  /* Very light brown */
+                        --color-beban-border: #e0d6d3; /* Light brown border */
 
-                    /* Score Colors - natural, muted tones */
-                    --score-excellent: #667c66;    /* Muted green - natural and calming */
-                    --score-good: #607d8b;         /* Blue gray - professional and calm */
-                    --score-medium: #8d7e6b;       /* Taupe - warm neutral */
-                    --score-low: #96665c;          /* Muted terracotta - earthy but not alarming */
+                        /* Score Colors - natural, muted tones */
+                        --score-excellent: #667c66;    /* Muted green - natural and calming */
+                        --score-good: #607d8b;         /* Blue gray - professional and calm */
+                        --score-medium: #8d7e6b;       /* Taupe - warm neutral */
+                        --score-low: #96665c;          /* Muted terracotta - earthy but not alarming */
 
-                    /* Background tones */
-                    --bg-highlight: #f9f8f5;       /* Off-white cream - warm and soft */
-                    --bg-card: #ffffff;            /* Clean white */
-                    --bg-section: #f7f7f7;         /* Subtle light gray */
-                }
+                        /* Background tones */
+                        --bg-highlight: #f9f8f5;       /* Off-white cream - warm and soft */
+                        --bg-card: #ffffff;            /* Clean white */
+                        --bg-section: #f7f7f7;         /* Subtle light gray */
+                    }
 
-                /* Card styling */
-                .list-group-item {
-                    border-color: #f0f0f0;
-                    transition: all 0.2s ease;
-                }
+                    /* Card styling */
+                    .list-group-item {
+                        border-color: #f0f0f0;
+                        transition: all 0.2s ease;
+                    }
 
-                .list-group-item:hover {
-                    background-color: var(--bg-highlight);
-                }
+                    .list-group-item:hover {
+                        background-color: var(--bg-highlight);
+                    }
 
-                /* Score circle with more refined styling */
-                .circle-match {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    position: relative;
-                    font-weight: 600;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-                    background: conic-gradient(
-                        var(--color) var(--percent),
-                        #f7f7f7 var(--percent) 100%
-                    );
-                }
+                    /* Score circle with more refined styling */
+                    .circle-match {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                        font-weight: 600;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+                        background: conic-gradient(
+                            var(--color) var(--percent),
+                            #f7f7f7 var(--percent) 100%
+                        );
+                    }
 
-                .circle-match::before {
-                    content: "";
-                    position: absolute;
-                    width: 36px;
-                    height: 36px;
-                    background: white;
-                    border-radius: 50%;
-                }
+                    .circle-match::before {
+                        content: "";
+                        position: absolute;
+                        width: 36px;
+                        height: 36px;
+                        background: white;
+                        border-radius: 50%;
+                    }
 
-                .circle-match span {
-                    position: relative;
-                    z-index: 1;
-                    font-size: 12px;
-                    color: #454545;
-                }
+                    .circle-match span {
+                        position: relative;
+                        z-index: 1;
+                        font-size: 12px;
+                        color: #454545;
+                    }
 
-                /* Refined match circles */
-                .circle-match-success {
-                    --color: var(--score-excellent);
-                }
+                    /* Refined match circles */
+                    .circle-match-success {
+                        --color: var(--score-excellent);
+                    }
 
-                .circle-match-info {
-                    --color: var(--score-good);
-                }
+                    .circle-match-info {
+                        --color: var(--score-good);
+                    }
 
-                .circle-match-warning {
-                    --color: var(--score-medium);
-                }
+                    .circle-match-warning {
+                        --color: var(--score-medium);
+                    }
 
-                .circle-match-danger {
-                    --color: var(--score-low);
-                }
+                    .circle-match-danger {
+                        --color: var(--score-low);
+                    }
 
-                /* Top match styling */
-                .top-match {
-                    background-color: rgba(247, 249, 245, 0.7) !important;
-                    border-left: 3px solid var(--score-excellent) !important;
-                }
+                    /* Top match styling */
+                    .top-match {
+                        background-color: rgba(247, 249, 245, 0.7) !important;
+                        border-left: 3px solid var(--score-excellent) !important;
+                    }
 
-                /* Progress bars - more subtle and refined */
-                .progress {
-                    height: 6px !important;
-                    background-color: #f0f0f0 !important;
-                    border-radius: 10px !important;
-                    overflow: hidden;
-                }
+                    /* Progress bars - more subtle and refined */
+                    .progress {
+                        height: 6px !important;
+                        background-color: #f0f0f0 !important;
+                        border-radius: 10px !important;
+                        overflow: hidden;
+                    }
 
-                /* Progress bar colors */
-                .progress-bar-minat {
-                    background-color: var(--color-minat) !important;
-                }
+                    /* Progress bar colors */
+                    .progress-bar-minat {
+                        background-color: var(--color-minat) !important;
+                    }
 
-                .progress-bar-skill {
-                    background-color: var(--color-skill) !important;
-                }
+                    .progress-bar-skill {
+                        background-color: var(--color-skill) !important;
+                    }
 
-                .progress-bar-beban {
-                    background-color: var(--color-beban) !important;
-                }
+                    .progress-bar-beban {
+                        background-color: var(--color-beban) !important;
+                    }
 
-                /* Badge styling */
-                .badge-skill, .badge-minat {
-                    font-weight: 500;
-                    font-size: 0.75rem;
-                    border-radius: 4px;
-                    padding: 0.35em 0.65em;
-                }
+                    /* Badge styling */
+                    .badge-skill, .badge-minat {
+                        font-weight: 500;
+                        font-size: 0.75rem;
+                        border-radius: 4px;
+                        padding: 0.35em 0.65em;
+                    }
 
-                .badge-minat {
-                    color: var(--color-minat);
-                    background-color: var(--color-minat-light);
-                    border: 1px solid var(--color-minat-border);
-                }
+                    .badge-minat {
+                        color: var(--color-minat);
+                        background-color: var(--color-minat-light);
+                        border: 1px solid var(--color-minat-border);
+                    }
 
-                .badge-skill {
-                    color: var(--color-skill);
-                    background-color: var(--color-skill-light);
-                    border: 1px solid var(--color-skill-border);
-                }
+                    .badge-skill {
+                        color: var(--color-skill);
+                        background-color: var(--color-skill-light);
+                        border: 1px solid var(--color-skill-border);
+                    }
 
-                /* Clean up header styles */
-                .card-header {
-                    background-color: var(--bg-card);
-                    border-bottom: 1px solid rgba(0,0,0,0.05);
-                }
+                    /* Clean up header styles */
+                    .card-header {
+                        background-color: var(--bg-card);
+                        border-bottom: 1px solid rgba(0,0,0,0.05);
+                    }
 
-                /* Top badge */
-                .top-badge {
-                    background-color: var(--color-primary) !important;
-                    font-weight: 500;
-                }
-            `;
+                    /* Top badge */
+                    .top-badge {
+                        background-color: var(--color-primary) !important;
+                        font-weight: 500;
+                    }
+                `;
             document.head.appendChild(style);
+        }
+
+        function assignDosenToMahasiswa(lamaranId, dosenId) {
+            // Show loading
+            Swal.fire({
+                title: 'Memproses...',
+                html: 'Sedang menetapkan dosen pembimbing',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Use the existing API endpoint with CORRECTED PARAMETER NAME
+            fetch(`/api/magang/assign-dosen/${lamaranId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    dosen_id: dosenId
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Dosen pembimbing berhasil ditugaskan',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        // Reload matrix data
+                        loadMatrixData();
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Gagal menetapkan dosen pembimbing',
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat menetapkan dosen pembimbing',
+                        icon: 'error'
+                    });
+                });
         }
     </script>
 @endpush

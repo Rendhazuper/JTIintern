@@ -91,11 +91,36 @@
                             <label for="kapasitas" class="form-label">Kapasitas</label>
                             <input type="number" class="form-control" id="kapasitas" name="kapasitas" required>
                         </div>
+                        
+                        <!-- ✅ TAMBAHKAN: Field Minimal IPK -->
+                        <div class="mb-3">
+                            <label for="min_ipk" class="form-label">
+                                <i class="fas fa-star text-warning me-2"></i>Minimal IPK
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="min_ipk" 
+                                   name="min_ipk" 
+                                   step="0.01" 
+                                   min="0" 
+                                   max="4.00" 
+                                   placeholder="Contoh: 3.00"
+                                   required>
+                            <div class="form-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Masukkan minimal IPK yang dibutuhkan (0.00 - 4.00)
+                                </small>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="deskripsi" class="form-label">Deskripsi</label>
                             <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Simpan Lowongan
+                        </button>
                     </form>
                 </div>
             </div>
@@ -291,6 +316,29 @@
                             <label for="editKapasitas" class="form-label">Kapasitas</label>
                             <input type="number" class="form-control" id="editKapasitas" name="kapasitas" required>
                         </div>
+                        
+                        <!-- ✅ TAMBAHKAN: Field Edit Minimal IPK -->
+                        <div class="mb-3">
+                            <label for="editMinIpk" class="form-label">
+                                <i class="fas fa-star text-warning me-2"></i>Minimal IPK
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="editMinIpk" 
+                                   name="min_ipk" 
+                                   step="0.01" 
+                                   min="0" 
+                                   max="4.00" 
+                                   placeholder="Contoh: 3.00"
+                                   required>
+                            <div class="form-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Masukkan minimal IPK yang dibutuhkan (0.00 - 4.00)
+                                </small>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="editDeskripsi" class="form-label">Deskripsi</label>
                             <textarea class="form-control" id="editDeskripsi" name="deskripsi" rows="3" required></textarea>
@@ -573,6 +621,7 @@
                 });
         }
 
+        // ✅ UPDATE function detailLowongan untuk menampilkan min_ipk
         function detailLowongan(id) {
             console.log('Fetching detail for Lowongan ID:', id);
 
@@ -581,11 +630,11 @@
             const modalBody = detailModal.querySelector('.modal-body');
 
             modalBody.innerHTML = `
-                                                <div class="text-center py-5">
-                                                    <div class="spinner-border text-primary mb-3" role="status"></div>
-                                                    <p class="text-muted">Memuat detail lowongan...</p>
-                                                </div>
-                                            `;
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted">Memuat detail lowongan...</p>
+                </div>
+            `;
 
             // Show the modal while loading
             const modal = new bootstrap.Modal(detailModal);
@@ -650,11 +699,42 @@
                     <h6 class="mb-0">${lowongan.jenis.nama_jenis}</h6>
                 </div>
             </div>
+
+            <!-- ✅ TAMBAHKAN: Display Minimal IPK -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <label class="form-label fw-bold mb-0">Minimal IPK</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-warning text-dark fs-6 fw-bold px-3 py-2 me-2">
+                            ${lowongan.min_ipk ? parseFloat(lowongan.min_ipk).toFixed(2) : '0.00'}
+                        </span>
+                        <small class="text-muted">dari skala 4.00</small>
+                    </div>
+                    ${lowongan.min_ipk ? `
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Mahasiswa harus memiliki IPK minimal ${parseFloat(lowongan.min_ipk).toFixed(2)} untuk dapat mendaftar
+                            </small>
+                        </div>
+                    ` : `
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Tidak ada persyaratan IPK minimal
+                            </small>
+                        </div>
+                    `}
+                </div>
+            </div>
         </div>
         
         <!-- Kolom Kanan -->
         <div class="col-md-6">
-            <!-- Kapasitas Section - Insert the improved capacity HTML here -->
+            <!-- Kapasitas Section -->
             <div class="mb-4">
                 <div class="d-flex align-items-center mb-2">
                     <i class="fas fa-users text-primary me-2"></i>
@@ -780,6 +860,7 @@
     </div>
 `;
 
+
                         // Fade in animation
                         setTimeout(() => {
                             modalBody.style.transition = "opacity 0.3s ease";
@@ -788,21 +869,21 @@
 
                     } else {
                         modalBody.innerHTML = `
-                                                            <div class="alert alert-danger">
-                                                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                                                Gagal memuat detail lowongan.
-                                                            </div>
-                                                        `;
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Gagal memuat detail lowongan.
+                    </div>
+                `;
                     }
                 })
                 .catch(function (error) {
                     console.error('Error fetching detail lowongan:', error);
                     modalBody.innerHTML = `
-                                                        <div class="alert alert-danger">
-                                                            <i class="bi bi-exclamation-triangle me-2"></i>
-                                                            Terjadi kesalahan saat memuat detail lowongan.
-                                                        </div>
-                                                    `;
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Terjadi kesalahan saat memuat detail lowongan.
+                </div>
+            `;
                 });
         }
 
@@ -880,6 +961,10 @@
                         document.getElementById('editPerusahaanId').value = lowongan.perusahaan.perusahaan_id;
                         loadEditPeriodeOptions(lowongan.periode.periode_id);
                         document.getElementById('editKapasitas').value = lowongan.kapasitas;
+                        
+                        // ✅ TAMBAHKAN: Set nilai min_ipk
+                        document.getElementById('editMinIpk').value = lowongan.min_ipk || '';
+                        
                         document.getElementById('editDeskripsi').value = lowongan.deskripsi;
 
                         // Extract skill IDs - handle both single skill object or array of skills

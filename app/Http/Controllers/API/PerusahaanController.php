@@ -25,6 +25,7 @@ class PerusahaanController extends Controller
         return view('pages.detail_perusahaan', ['id' => $id]);
     }
 
+    // ✅ PERBAIKI: getPerusahaanData untuk mengembalikan logo URL yang benar
     public function getPerusahaanData()
     {
         try {
@@ -46,7 +47,9 @@ class PerusahaanController extends Controller
                         'deskripsi' => $p->deskripsi,
                         'gmaps' => $p->gmaps,
                         'lowongan_count' => $p->lowongan->count(),
+                        // ✅ PERBAIKI: Return logo path yang benar
                         'logo' => $p->logo,
+                        'logo_url' => $p->logo_url,
                     ];
                 }),
             ]);
@@ -59,6 +62,7 @@ class PerusahaanController extends Controller
         }
     }
 
+    // ✅ PERBAIKI: getDetailPerusahaan untuk logo
     public function getDetailPerusahaan($id)
     {
         try {
@@ -71,9 +75,41 @@ class PerusahaanController extends Controller
                 ], 404);
             }
 
+            // ✅ TAMBAHKAN: Log untuk debugging
+            Log::info('Detail perusahaan loaded:', [
+                'id' => $id,
+                'nama' => $perusahaan->nama_perusahaan,
+                'logo_db' => $perusahaan->logo,
+                'logo_url' => $perusahaan->logo_url
+            ]);
+
             return response()->json([
                 'success' => true,
-                'data' => $perusahaan
+                'data' => [
+                    'perusahaan_id' => $perusahaan->perusahaan_id,
+                    'nama_perusahaan' => $perusahaan->nama_perusahaan,
+                    'alamat_perusahaan' => $perusahaan->alamat_perusahaan,
+                    'wilayah_id' => $perusahaan->wilayah_id,
+                    'kota' => $perusahaan->wilayah->nama_kota ?? 'Tidak Diketahui',
+                    'contact_person' => $perusahaan->contact_person,
+                    'email' => $perusahaan->email,
+                    'instagram' => $perusahaan->instagram,
+                    'website' => $perusahaan->website,
+                    'deskripsi' => $perusahaan->deskripsi,
+                    'gmaps' => $perusahaan->gmaps,
+                    // ✅ TAMBAHKAN: Logo data yang lengkap
+                    'logo' => $perusahaan->logo,
+                    'logo_url' => $perusahaan->logo_url,
+                    'logo_path' => $perusahaan->logo_path,
+                    'lowongan' => $perusahaan->lowongan->map(function($l) {
+                        return [
+                            'id_lowongan' => $l->id_lowongan,
+                            'judul_lowongan' => $l->judul_lowongan,
+                            'deskripsi' => $l->deskripsi,
+                            'kapasitas' => $l->kapasitas
+                        ];
+                    })
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching detail perusahaan: ' . $e->getMessage());
@@ -84,6 +120,7 @@ class PerusahaanController extends Controller
         }
     }
 
+    // ✅ PERBAIKI: store method untuk handle logo upload
     public function store(Request $request)
     {
         $request->validate([
@@ -96,28 +133,70 @@ class PerusahaanController extends Controller
             'website' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
             'gmaps' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
         ]);
 
         try {
-            // Buat data perusahaan
+            DB::beginTransaction();
+
+            // ✅ BUAT data perusahaan tanpa logo dulu
             $perusahaanData = $request->except('logo');
 
-            // Tangani upload logo jika ada
+            // ✅ HANDLE logo upload jika ada
             if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-                $logoPath = $request->file('logo')->store('perusahaan_logos', 'public');
-                $perusahaanData['logo'] = $logoPath;
+                $logoFile = $request->file('logo');
+                
+                Log::info('Processing logo upload:', [
+                    'original_name' => $logoFile->getClientOriginalName(),
+                    'size' => $logoFile->getSize(),
+                    'mime_type' => $logoFile->getMimeType()
+                ]);
+
+                // ✅ BUAT nama file unik dengan timestamp
+                $timestamp = now()->format('YmdHis');
+                $originalName = pathinfo($logoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $logoFile->getClientOriginalExtension();
+                $fileName = $timestamp . '_' . str_replace(' ', '_', $originalName) . '.' . $extension;
+
+                // ✅ SIMPAN ke folder perusahaan_logos di storage/app/public
+                $logoPath = $logoFile->storeAs('perusahaan_logos', $fileName, 'public');
+                
+                if ($logoPath) {
+                    $perusahaanData['logo'] = $logoPath;
+                    Log::info('Logo uploaded successfully:', [
+                        'path' => $logoPath,
+                        'full_url' => asset('storage/' . $logoPath)
+                    ]);
+                } else {
+                    throw new \Exception('Gagal mengupload logo');
+                }
             }
 
+            // ✅ BUAT perusahaan dengan data lengkap
             $perusahaan = Perusahaan::create($perusahaanData);
+
+            DB::commit();
+
+            Log::info('Perusahaan created successfully:', [
+                'id' => $perusahaan->perusahaan_id,
+                'nama' => $perusahaan->nama_perusahaan,
+                'logo' => $perusahaan->logo
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Perusahaan berhasil ditambahkan!',
-                'data' => $perusahaan
+                'data' => [
+                    'perusahaan_id' => $perusahaan->perusahaan_id,
+                    'nama_perusahaan' => $perusahaan->nama_perusahaan,
+                    'logo' => $perusahaan->logo,
+                    'logo_url' => $perusahaan->logo_url
+                ]
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error adding perusahaan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan perusahaan: ' . $e->getMessage()
@@ -125,6 +204,7 @@ class PerusahaanController extends Controller
         }
     }
 
+    // ✅ PERBAIKI: update method untuk handle logo
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -137,37 +217,87 @@ class PerusahaanController extends Controller
             'website' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
             'gmaps' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
         ]);
 
         try {
+            DB::beginTransaction();
+
             $perusahaan = Perusahaan::findOrFail($id);
+            $oldLogo = $perusahaan->logo;
+            
+            Log::info('Updating perusahaan:', [
+                'id' => $id,
+                'nama' => $perusahaan->nama_perusahaan,
+                'old_logo' => $oldLogo,
+                'has_new_logo' => $request->hasFile('logo')
+            ]);
+
             $perusahaanData = $request->except(['logo', '_method']);
 
-            // Tangani upload logo jika ada
+            // ✅ HANDLE logo upload jika ada file baru
             if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-                // Hapus logo lama jika ada
-                if ($perusahaan->logo) {
-                    $oldLogoPath = str_replace('storage/', '', $perusahaan->logo);
+                $logoFile = $request->file('logo');
+                
+                Log::info('Processing logo update:', [
+                    'original_name' => $logoFile->getClientOriginalName(),
+                    'size' => $logoFile->getSize(),
+                    'mime_type' => $logoFile->getMimeType()
+                ]);
+
+                // ✅ HAPUS logo lama jika ada
+                if ($oldLogo) {
+                    $oldLogoPath = str_replace('storage/', '', $oldLogo);
                     if (Storage::disk('public')->exists($oldLogoPath)) {
                         Storage::disk('public')->delete($oldLogoPath);
+                        Log::info('Old logo deleted:', ['path' => $oldLogoPath]);
                     }
                 }
 
-                // Upload logo baru
-                $logoPath = $request->file('logo')->store('perusahaan_logos', 'public');
-                $perusahaanData['logo'] = $logoPath;
+                // ✅ UPLOAD logo baru
+                $timestamp = now()->format('YmdHis');
+                $originalName = pathinfo($logoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $logoFile->getClientOriginalExtension();
+                $fileName = $timestamp . '_' . str_replace(' ', '_', $originalName) . '.' . $extension;
+
+                $logoPath = $logoFile->storeAs('perusahaan_logos', $fileName, 'public');
+                
+                if ($logoPath) {
+                    $perusahaanData['logo'] = $logoPath;
+                    Log::info('New logo uploaded:', [
+                        'path' => $logoPath,
+                        'full_url' => asset('storage/' . $logoPath)
+                    ]);
+                } else {
+                    throw new \Exception('Gagal mengupload logo baru');
+                }
             }
 
+            // ✅ UPDATE data perusahaan
             $perusahaan->update($perusahaanData);
+
+            DB::commit();
+
+            Log::info('Perusahaan updated successfully:', [
+                'id' => $id,
+                'nama' => $perusahaan->nama_perusahaan,
+                'new_logo' => $perusahaan->logo
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data perusahaan berhasil diperbarui!',
-                'data' => $perusahaan
+                'data' => [
+                    'perusahaan_id' => $perusahaan->perusahaan_id,
+                    'nama_perusahaan' => $perusahaan->nama_perusahaan,
+                    'logo' => $perusahaan->logo,
+                    'logo_url' => $perusahaan->logo_url
+                ]
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error updating perusahaan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data perusahaan: ' . $e->getMessage()
@@ -175,13 +305,77 @@ class PerusahaanController extends Controller
         }
     }
 
-    public function show($id)
+    // ✅ PERBAIKI: destroy method untuk hapus logo
+    public function destroy($id)
     {
         try {
-            $perusahaan = Perusahaan::with(['wilayah', 'lowongan'])->findOrFail($id);
+            DB::beginTransaction();
+
+            // ✅ CARI perusahaan
+            $perusahaan = Perusahaan::findOrFail($id);
+
+            Log::info('Deleting perusahaan:', [
+                'id' => $id,
+                'nama' => $perusahaan->nama_perusahaan,
+                'logo' => $perusahaan->logo
+            ]);
+
+            // ✅ HAPUS semua lowongan terkait terlebih dahulu
+            $perusahaan->lowongan()->delete();
+
+            // ✅ HAPUS file logo jika ada
+            if ($perusahaan->logo && !empty($perusahaan->logo)) {
+                $logoPath = str_replace('storage/', '', $perusahaan->logo);
+                if (Storage::disk('public')->exists($logoPath)) {
+                    Storage::disk('public')->delete($logoPath);
+                    Log::info('Logo deleted:', ['path' => $logoPath]);
+                }
+            }
+
+            // ✅ HAPUS perusahaan
+            $perusahaan->delete();
+
+            DB::commit();
+
+            Log::info('Perusahaan deleted successfully:', ['id' => $id]);
+
             return response()->json([
                 'success' => true,
-                'data' => $perusahaan
+                'message' => 'Data perusahaan berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting perusahaan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data perusahaan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ✅ TAMBAHKAN: Method untuk debug logo
+    public function debugLogo($id)
+    {
+        try {
+            $perusahaan = Perusahaan::findOrFail($id);
+            
+            $logoInfo = [
+                'perusahaan_id' => $perusahaan->perusahaan_id,
+                'nama_perusahaan' => $perusahaan->nama_perusahaan,
+                'logo_db' => $perusahaan->logo,
+                'logo_url' => $perusahaan->logo_url,
+                'logo_path' => $perusahaan->logo_path,
+                'logo_exists' => $perusahaan->logo ? Storage::disk('public')->exists($perusahaan->logo_path) : false,
+                'storage_path' => storage_path('app/public/perusahaan_logos/'),
+                'public_path' => public_path('storage/perusahaan_logos/'),
+                'symlink_exists' => is_link(public_path('storage'))
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $logoInfo
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -191,47 +385,6 @@ class PerusahaanController extends Controller
         }
     }
 
-    public function destroy($id)
-    {
-        try {
-            // Cari perusahaan
-            $perusahaan = Perusahaan::findOrFail($id);
-
-            // Mulai transaksi database
-            DB::beginTransaction();
-
-            // 1. Hapus semua lowongan terkait
-            $perusahaan->lowongan()->delete();
-
-            // 2. Hapus file logo jika ada
-            if ($perusahaan->logo && !empty($perusahaan->logo)) {
-                $logoPath = str_replace('storage/', '', $perusahaan->logo);
-                if (Storage::disk('public')->exists($logoPath)) {
-                    Storage::disk('public')->delete($logoPath);
-                }
-            }
-
-            // 3. Hapus perusahaan
-            $perusahaan->delete();
-
-            // Commit transaksi
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data perusahaan berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi error
-            DB::rollBack();
-            Log::error('Error deleting perusahaan: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus data perusahaan: ' . $e->getMessage()
-            ], 500);
-        }
-    }
     public function import(Request $request)
     {
         // Validate the request
@@ -599,22 +752,30 @@ class PerusahaanController extends Controller
                 $data['gmaps'] = isset($columnMap['gmaps']) && isset($row[$columnMap['gmaps']])
                     ? trim($row[$columnMap['gmaps']]) : null;
 
-                // Handle wilayah_id - similar to CSV import
+                // Handle wilayah_id - try both wilayah and wilayah_id columns
                 if (isset($columnMap['wilayah_id']) && isset($row[$columnMap['wilayah_id']]) && !empty($row[$columnMap['wilayah_id']])) {
-                    $wilayahId = trim((string)$row[$columnMap['wilayah_id']]);
+                    // Direct wilayah_id provided
+                    $wilayahId = trim($row[$columnMap['wilayah_id']]);
+                    // Check if ID exists
                     if (!isset($allWilayahById[$wilayahId])) {
                         $errors[] = "Error pada baris {$rowNumber}: Wilayah ID '{$wilayahId}' tidak ditemukan";
                         continue;
                     }
                     $data['wilayah_id'] = $wilayahId;
                 } elseif (isset($columnMap['wilayah']) && isset($row[$columnMap['wilayah']]) && !empty($row[$columnMap['wilayah']])) {
-                    $wilayahName = trim((string)$row[$columnMap['wilayah']]);
+                    // Wilayah name provided, need to find ID
+                    $wilayahName = trim($row[$columnMap['wilayah']]);
 
+                    // Try exact match first
                     if (isset($allWilayahByName[$wilayahName])) {
                         $data['wilayah_id'] = $allWilayahByName[$wilayahName];
-                    } elseif (isset($allWilayahByNameLower[strtolower($wilayahName)])) {
+                    }
+                    // Try case-insensitive match
+                    elseif (isset($allWilayahByNameLower[strtolower($wilayahName)])) {
                         $data['wilayah_id'] = $allWilayahByNameLower[strtolower($wilayahName)];
-                    } else {
+                    }
+                    // No match found
+                    else {
                         $errors[] = "Error pada baris {$rowNumber}: Wilayah '{$wilayahName}' tidak ditemukan";
                         continue;
                     }
@@ -623,7 +784,7 @@ class PerusahaanController extends Controller
                     continue;
                 }
 
-                // Validate data (same as CSV import)
+                // Validate data
                 $validator = Validator::make($data, [
                     'nama_perusahaan' => 'required|string|max:255',
                     'wilayah_id' => 'required|exists:m_wilayah,wilayah_id',

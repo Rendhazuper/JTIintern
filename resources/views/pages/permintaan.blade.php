@@ -580,59 +580,222 @@
             // This contains the original acceptance logic
             Swal.fire({
                 title: 'Terima Permintaan Magang?',
-                text: "Permintaan ini akan diterima dan mahasiswa akan memulai magang",
+                html: `
+                <div class="text-start">
+                    <p class="mb-3">Silakan tentukan jadwal magang untuk mahasiswa ini:</p>
+                    
+                    <div class="mb-3">
+                        <label for="tgl_mulai" class="form-label fw-bold">Tanggal Mulai Magang</label>
+                        <input type="date" class="form-control" id="tgl_mulai" name="tgl_mulai" required>
+                        <small class="text-muted">Tanggal mahasiswa mulai magang</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tgl_selesai" class="form-label fw-bold">Tanggal Selesai Magang</label>
+                        <input type="date" class="form-control" id="tgl_selesai" name="tgl_selesai" required>
+                        <small class="text-muted">Tanggal selesai magang (biasanya 3-6 bulan)</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>Pastikan tanggal yang dipilih sesuai dengan periode magang yang telah ditentukan.</small>
+                    </div>
+                </div>
+            `,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, Terima',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Ya, Terima & Jadwalkan',
+                cancelButtonText: 'Batal',
+                width: '500px',
+                customClass: {
+                    htmlContainer: 'text-start'
+                },
+                preConfirm: () => {
+                    const tglMulai = document.getElementById('tgl_mulai').value;
+                    const tglSelesai = document.getElementById('tgl_selesai').value;
+                    
+                    // ✅ VALIDASI: Pastikan kedua tanggal diisi
+                    if (!tglMulai || !tglSelesai) {
+                        Swal.showValidationMessage('Harap isi kedua tanggal!');
+                        return false;
+                    }
+                    
+                    // ✅ VALIDASI: Tanggal selesai harus setelah tanggal mulai
+                    if (new Date(tglSelesai) <= new Date(tglMulai)) {
+                        Swal.showValidationMessage('Tanggal selesai harus setelah tanggal mulai!');
+                        return false;
+                    }
+                    
+                    // ✅ VALIDASI: Minimal durasi magang 1 bulan
+                    const diffTime = new Date(tglSelesai) - new Date(tglMulai);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays < 30) {
+                        Swal.showValidationMessage('Durasi magang minimal 30 hari!');
+                        return false;
+                    }
+                    
+                    // ✅ VALIDASI: Maksimal durasi magang 6 bulan
+                    if (diffDays > 180) {
+                        Swal.showValidationMessage('Durasi magang maksimal 180 hari (6 bulan)!');
+                        return false;
+                    }
+                    
+                    return {
+                        tgl_mulai: tglMulai,
+                        tgl_selesai: tglSelesai,
+                        durasi_hari: diffDays
+                    };
+                },
+                didOpen: () => {
+                    // ✅ SET DEFAULT: Tanggal mulai = hari ini + 7 hari
+                    const today = new Date();
+                    const nextWeek = new Date(today);
+                    nextWeek.setDate(today.getDate() + 7);
+                    
+                    // ✅ SET DEFAULT: Tanggal selesai = 3 bulan setelah tanggal mulai
+                    const threeMonthsLater = new Date(nextWeek);
+                    threeMonthsLater.setMonth(nextWeek.getMonth() + 3);
+                    
+                    // Format tanggal ke YYYY-MM-DD
+                    const formatDate = (date) => {
+                        return date.toISOString().split('T')[0];
+                    };
+                    
+                    document.getElementById('tgl_mulai').value = formatDate(nextWeek);
+                    document.getElementById('tgl_selesai').value = formatDate(threeMonthsLater);
+                    
+                    // ✅ SET MIN DATE: Tidak bisa pilih tanggal yang sudah lewat
+                    document.getElementById('tgl_mulai').min = formatDate(today);
+                    
+                    // ✅ EVENT LISTENER: Update tanggal selesai otomatis ketika tanggal mulai berubah
+                    document.getElementById('tgl_mulai').addEventListener('change', function() {
+                        const selectedStart = new Date(this.value);
+                        const autoEnd = new Date(selectedStart);
+                        autoEnd.setMonth(selectedStart.getMonth() + 3);
+                        
+                        document.getElementById('tgl_selesai').value = formatDate(autoEnd);
+                        document.getElementById('tgl_selesai').min = formatDate(new Date(selectedStart.getTime() + 24*60*60*1000)); // Min = start + 1 day
+                    });
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Tampilkan loading
+                    const { tgl_mulai, tgl_selesai, durasi_hari } = result.value;
+                    
+                    // ✅ KONFIRMASI AKHIR dengan info durasi
                     Swal.fire({
-                        title: 'Memproses...',
-                        text: 'Sedang memproses permintaan',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
+                        title: 'Konfirmasi Jadwal Magang',
+                        html: `
+                            <div class="text-start">
+                                <p class="mb-3">Apakah jadwal magang berikut sudah benar?</p>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <strong>Tanggal Mulai:</strong><br>
+                                                <span class="text-primary">${new Date(tgl_mulai).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}</span>
+                                            </div>
+                                            <div class="col-6">
+                                                <strong>Tanggal Selesai:</strong><br>
+                                                <span class="text-danger">${new Date(tgl_selesai).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}</span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="text-center">
+                                            <strong>Total Durasi: ${durasi_hari} hari (${Math.round(durasi_hari/30)} bulan)</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Proses Sekarang',
+                        cancelButtonText: 'Ubah Jadwal',
+                        width: '600px'
+                    }).then((finalResult) => {
+                        if (finalResult.isConfirmed) {
+                            // ✅ PROSES: Kirim data ke server dengan tanggal
+                            processAcceptanceWithDates(id, tgl_mulai, tgl_selesai);
+                        } else if (finalResult.dismiss === Swal.DismissReason.cancel) {
+                            // ✅ KEMBALI: Kembali ke form input tanggal
+                            proceedWithAcceptance(id);
                         }
                     });
-
-                    fetch(`/api/magang/${id}/accept`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ status: 'aktif' })
-                    })
-                        .then(response => response.json())
-                        .then(response => {
-                            console.log('Respons dari server:', response);
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: 'Permintaan magang telah diterima',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    loadPermintaanData(); // Refresh data
-                                });
-                            } else {
-                                Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-                        });
                 }
             });
         }
 
+        // ✅ FUNGSI BARU: Proses penerimaan dengan tanggal
+        function processAcceptanceWithDates(id, tglMulai, tglSelesai) {
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Sedang memproses permintaan dan menjadwalkan magang...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(`/api/magang/${id}/accept`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ 
+                    status: 'aktif',
+                    tgl_mulai: tglMulai,
+                    tgl_selesai: tglSelesai
+                })
+            })
+            .then(response => response.json())
+            .then(response => {
+                console.log('Respons dari server:', response);
+                if (response.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        html: `
+                            <div class="text-start">
+                                <p class="mb-3">✅ Permintaan magang telah diterima</p>
+                                <p class="mb-3">📅 Jadwal magang telah ditetapkan</p>
+                                <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        loadPermintaanData(); // Refresh data
+                    });
+                } else {
+                    Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+            });
+        }
+
+        // ✅ PERBAIKAN: Function rejectRequest - hapus onclick yang salah tempat
         function rejectRequest(id) {
             // Dialog konfirmasi yang konsisten
             Swal.fire({
@@ -664,29 +827,28 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         }
                     })
-                        .then(response => response.json())
-                        .then(response => {
-                            console.log('Respons dari server:', response);
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Ditolak!',
-                                    text: 'Permintaan magang telah ditolak',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    loadPermintaanData(); // Refresh data
-                                });
-                            } else {
-                                Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menolak permintaan.', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-                        });
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Respons dari server:', response);
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Ditolak!',
+                                text: 'Permintaan magang telah ditolak',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                loadPermintaanData(); // Refresh data
+                            });
+                        } else {
+                            Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menolak permintaan.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+                    });
                 }
-                onclick = "rejectRequest(${data.id}, 'detailModal')"
             });
         }
     </script>

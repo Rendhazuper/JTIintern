@@ -117,9 +117,39 @@
                 .then(data => {
                     if (data.success) {
                         const p = data.data;
+                        
+                        console.log('📊 Detail perusahaan loaded:', p); // ← DEBUG
+                        
                         document.getElementById('namaPerusahaan').textContent = p.nama_perusahaan;
                         document.getElementById('wilayah').textContent = p.kota;
                         document.getElementById('alamatLengkap').textContent = p.alamat_perusahaan;
+
+                        // ✅ PERBAIKI: Update logo display
+                        const logoImg = document.getElementById('companyLogo');
+                        if (p.logo && p.logo !== null && p.logo !== '') {
+                            let logoUrl;
+                            if (p.logo.startsWith('http')) {
+                                logoUrl = p.logo;
+                            } else if (p.logo.startsWith('storage/')) {
+                                logoUrl = `/${p.logo}`;
+                            } else {
+                                logoUrl = `/storage/${p.logo}`;
+                            }
+                            
+                            console.log('🖼️ Setting logo URL:', logoUrl); // ← DEBUG
+                            
+                            logoImg.src = logoUrl;
+                            logoImg.alt = `Logo ${p.nama_perusahaan}`;
+                            logoImg.onerror = function() {
+                                console.error('❌ Logo failed to load:', logoUrl);
+                                this.src = '/images/company-placeholder.png';
+                                this.alt = 'Logo tidak dapat dimuat';
+                            };
+                        } else {
+                            console.log('📝 No logo found, using placeholder');
+                            logoImg.src = '/images/company-placeholder.png';
+                            logoImg.alt = 'Tidak ada logo';
+                        }
 
                         // Update GMaps link
                         const lihatPeta = document.getElementById('lihatPeta');
@@ -134,10 +164,13 @@
                         const deskripsi = document.getElementById('deskripsiPerusahaan');
                         deskripsi.textContent = p.deskripsi || 'Tidak ada deskripsi perusahaan.';
 
-                        document.getElementById('websiteLink').href = p.website;
-                        document.getElementById('websiteLink').textContent = p.website;
-                        document.getElementById('instagramLink').href = `https://instagram.com/${p.instagram}`;
-                        document.getElementById('instagramLink').textContent = p.instagram;
+                        // Update contact info
+                        document.getElementById('websiteLink').href = p.website || '#';
+                        document.getElementById('websiteLink').textContent = p.website || 'Tidak ada website';
+                        
+                        document.getElementById('instagramLink').href = p.instagram ? `https://instagram.com/${p.instagram}` : '#';
+                        document.getElementById('instagramLink').textContent = p.instagram ? `@${p.instagram}` : 'Tidak ada Instagram';
+                        
                         document.getElementById('emailLink').href = `mailto:${p.email}`;
                         document.getElementById('emailLink').textContent = p.email;
                         document.getElementById('contactPerson').textContent = p.contact_person;
@@ -149,32 +182,32 @@
                         // Render lowongan if exists
                         if (p.lowongan && p.lowongan.length > 0) {
                             const lowonganHTML = p.lowongan.map(l => `
-                                    <div class="col-md-4 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h6 class="mb-2">${l.judul_lowongan}</h6>
-                                                <p class="text-muted small mb-3">${l.deskripsi || 'Tidak ada deskripsi.'}</p>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="badge bg-light text-dark">
-                                                        <i class="bi bi-people me-1"></i>${l.kapasitas} Orang
-                                                    </span>
-                                                    <a href="/lowongan/${l.id_lowongan}" class="btn btn-sm btn-primary">
-                                                        Lihat Detail
-                                                    </a>
-                                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="mb-2">${l.judul_lowongan}</h6>
+                                            <p class="text-muted small mb-3">${l.deskripsi || 'Tidak ada deskripsi.'}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="bi bi-people me-1"></i>${l.kapasitas} Orang
+                                                </span>
+                                                <a href="/lowongan/${l.id_lowongan}" class="btn btn-sm btn-primary">
+                                                    Lihat Detail
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
-                                `).join('');
+                                </div>
+                            `).join('');
                             document.getElementById('lowonganList').innerHTML = lowonganHTML;
                         } else {
                             document.getElementById('lowonganList').innerHTML = `
-                                    <div class="col-12">
-                                        <div class="text-center py-4">
-                                            <p class="text-muted mb-0">Belum ada lowongan tersedia.</p>
-                                        </div>
+                                <div class="col-12">
+                                    <div class="text-center py-4">
+                                        <p class="text-muted mb-0">Belum ada lowongan tersedia.</p>
                                     </div>
-                                `;
+                                </div>
+                            `;
                         }
                     }
                 })
@@ -384,35 +417,62 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Validate file type
-            if (!file.type.match('image.*')) {
+            console.log('📤 Processing logo upload:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+
+            // ✅ VALIDATE file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/svg+xml', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Invalid File',
-                    text: 'Please select an image file'
+                    title: 'File Tidak Valid',
+                    text: 'Silakan pilih file gambar (JPG, PNG, SVG, WebP)',
+                    confirmButtonText: 'OK'
                 });
+                event.target.value = '';
                 return;
             }
 
-            // Validate file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
+            // ✅ VALIDATE file size (max 2MB)
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'File Too Large',
-                    text: 'Image must be less than 2MB'
+                    title: 'File Terlalu Besar',
+                    text: 'Ukuran file maksimal 2MB',
+                    confirmButtonText: 'OK'
                 });
+                event.target.value = '';
                 return;
             }
 
-            // Preview the image
+            // ✅ PREVIEW the image
             const reader = new FileReader();
             reader.onload = function (e) {
-                document.getElementById('companyLogo').src = e.target.result;
+                const logoImg = document.getElementById('companyLogo');
+                logoImg.src = e.target.result;
+                
+                console.log('✅ Logo preview loaded successfully');
             };
+            
+            reader.onerror = function() {
+                console.error('❌ Error reading file');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal membaca file gambar'
+                });
+            };
+            
             reader.readAsDataURL(file);
 
-            // Store file for upload
+            // ✅ STORE file for upload
             window.logoFile = file;
+            
+            console.log('📝 Logo file stored for upload');
         }
     </script>
 @endpush

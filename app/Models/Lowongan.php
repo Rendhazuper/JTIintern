@@ -23,8 +23,15 @@ class Lowongan extends Model
         'periode_id',
         'jenis_id',
         'kapasitas',
+        'min_ipk',
         'deskripsi',
 
+    ];
+
+    // ✅ TAMBAHKAN: Cast min_ipk sebagai decimal
+    protected $casts = [
+        'min_ipk' => 'decimal:2',
+        'kapasitas' => 'integer',
     ];
 
     // Relasi ke model Perusahaan
