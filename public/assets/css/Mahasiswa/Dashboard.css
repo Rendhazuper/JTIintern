@@ -565,64 +565,119 @@
 }
 
 /* ================================
-   SKELETON LOADING BASE STYLES
+   SKELETON LOADING STYLES - MATCHING LOGAKTIVITAS
    ================================ */
+
+/* ✅ BASE SKELETON ANIMATION - sama seperti logaktivitas */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+/* ✅ BASE SKELETON CLASSES */
 .skeleton-text,
+.skeleton-input,
+.skeleton-textarea,
+.skeleton-button,
 .skeleton-icon,
 .skeleton-avatar,
 .skeleton-badge,
-.skeleton-button,
 .skeleton-welcome-icon,
 .skeleton-company-logo,
 .skeleton-company-logo-small,
 .skeleton-status-badge,
 .skeleton-progress-bar,
 .skeleton-badge-small,
-.skeleton-progress-bar-small {
+.skeleton-progress-bar-small,
+.skeleton-icon-box,
+.skeleton-search-box,
+.skeleton-image,
+.skeleton-status-card {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
-    border-radius: 4px;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 6px;
 }
 
+/* ✅ TEXT SKELETON VARIANTS */
 .skeleton-text-xs {
-    height: 10px;
+    height: 12px;
+    border-radius: 4px;
     width: 60%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-sm {
-    height: 12px;
+    height: 14px;
+    border-radius: 4px;
     width: 75%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-md {
     height: 16px;
+    border-radius: 5px;
     width: 85%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-lg {
     height: 20px;
+    border-radius: 5px;
     width: 70%;
     margin-bottom: 0.25rem;
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
+.skeleton-text-xl {
+    height: 28px;
+    border-radius: 6px;
+    width: 80%;
+    margin-bottom: 0.5rem;
 }
 
-/* ================================
-   WELCOME SECTION SKELETON
-   ================================ */
+/* ✅ FORM ELEMENT SKELETONS */
+.skeleton-input {
+    height: 42px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-textarea {
+    height: 100px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-button {
+    height: 44px;
+    border-radius: 8px;
+    width: 140px;
+}
+
+.skeleton-button-sm {
+    height: 32px;
+    width: 120px;
+    border-radius: 6px;
+}
+
+.skeleton-button-lg {
+    height: 48px;
+    width: 180px;
+    border-radius: 10px;
+}
+
+/* ✅ WELCOME SECTION SKELETON */
 .welcome-skeleton {
     animation: fadeIn 0.3s ease;
+    padding: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
 }
 
 .skeleton-welcome-icon {
@@ -630,40 +685,88 @@
     height: 60px;
     border-radius: 16px;
     flex-shrink: 0;
+    /* ✅ Menggunakan warna netral seperti logaktivitas */
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
-.skeleton-badge {
-    width: 120px;
-    height: 32px;
-    border-radius: 16px;
-}
-
-/* ================================
-   MAGANG CARD SKELETON
-   ================================ */
-.magang-skeleton-loading {
-    animation: fadeIn 0.3s ease;
-}
-
-.magang-skeleton-card {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
+/* ✅ PROFILE INCOMPLETE SKELETON */
+.profile-incomplete-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
     border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px 24px;
 }
 
-.skeleton-magang-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
+.skeleton-warning-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
-.skeleton-company-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
+.skeleton-complete-button {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 8px;
+    height: 40px;
+    width: 120px;
+}
+
+/* ✅ MAGANG CARD SKELETON */
+.magang-skeleton-card {
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ✅ ENHANCED SHIMMER OVERLAY - seperti logaktivitas */
+.magang-skeleton-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ✅ Blue accent bar */
+.magang-skeleton-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    z-index: 2;
 }
 
 .skeleton-company-logo {
@@ -671,84 +774,131 @@
     height: 56px;
     border-radius: 12px;
     flex-shrink: 0;
-}
-
-.skeleton-company-text {
-    flex: 1;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .skeleton-status-badge {
     width: 120px;
     height: 36px;
-    border-radius: 18px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
+/* ✅ PROGRESS SECTION SKELETON */
 .skeleton-progress-section {
-    background: rgba(248, 250, 252, 0.8);
-    padding: 20px;
+    background: linear-gradient(90deg, #f8f9fa 25%, #f1f3f4 50%, #f8f9fa 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    padding: 24px;
     border-radius: 8px;
     margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
 }
 
-.skeleton-progress-header {
-    margin-bottom: 12px;
+.skeleton-progress-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.6) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
 }
 
 .skeleton-progress-bar {
     width: 100%;
     height: 8px;
-    border-radius: 4px;
+    border-radius: 8px;
     margin-bottom: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    position: relative;
+    overflow: hidden;
 }
 
-.skeleton-dates {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
+.skeleton-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, #d0d0d0 25%, #c0c0c0 50%, #d0d0d0 75%);
+    background-size: 200% 100%;
+    animation: progressMove 3s infinite;
+    border-radius: 8px;
 }
 
-.skeleton-date-item {
-    text-align: center;
-    flex: 1;
+@keyframes progressMove {
+    0% { left: -40%; }
+    100% { left: 100%; }
 }
 
-.skeleton-action {
-    text-align: center;
+/* ✅ DETAIL ICONS SKELETON */
+.skeleton-detail-icon,
+.skeleton-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
-.skeleton-button {
-    width: 160px;
-    height: 44px;
+/* ✅ ACTION BUTTON SKELETON */
+.skeleton-action-button {
+    width: 180px;
+    height: 48px;
     border-radius: 10px;
     margin: 0 auto;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
-/* ================================
-   RECOMMENDATIONS SKELETON
-   ================================ */
-.recommendations-skeleton {
-    animation: fadeIn 0.3s ease;
-}
-
+/* ✅ RECOMMENDATIONS SKELETON */
 .recommendation-skeleton-card {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
     border-radius: 12px;
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
     height: 200px;
-    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.skeleton-card-body {
-    padding: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.skeleton-recommendation-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
+/* ✅ ENHANCED SHIMMER untuk recommendation cards */
+.recommendation-skeleton-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
 }
 
 .skeleton-company-logo-small {
@@ -757,88 +907,120 @@
     border-radius: 8px;
     margin-right: 12px;
     flex-shrink: 0;
-}
-
-.skeleton-recommendation-text {
-    flex: 1;
-}
-
-.skeleton-badges-section {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .skeleton-badge-small {
-    width: 80px;
     height: 24px;
     border-radius: 12px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
-.skeleton-progress-indicators {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
+.skeleton-badge-small:nth-child(1) { width: 80px; }
+.skeleton-badge-small:nth-child(2) { width: 90px; }
+.skeleton-badge-small:nth-child(3) { width: 70px; }
 
-.skeleton-progress-item {
-    margin-bottom: 12px;
-}
-
-.skeleton-progress-item:last-child {
-    margin-bottom: 0;
-}
-
+/* ✅ MATCH INDICATORS SKELETON */
 .skeleton-progress-bar-small {
     width: 100%;
     height: 4px;
-    border-radius: 2px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-progress-bar-small::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, #d0d0d0 25%, #c0c0c0 50%, #d0d0d0 75%);
+    background-size: 200% 100%;
+    animation: smallProgressMove 2.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes smallProgressMove {
+    0% { left: -60%; }
+    100% { left: 100%; }
+}
+
+/* ✅ SEARCH BOX SKELETON */
+.skeleton-search-box {
+    height: 38px;
+    width: 250px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ STATUS CARD SKELETON */
+.skeleton-status-card {
+    height: 60px;
+    width: 200px;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ IMAGE SKELETON */
+.skeleton-image {
+    height: 120px;
+    width: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ EMPTY STATE SKELETON */
+.skeleton-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 /* ================================
-   LOADING ANIMATIONS & TRANSITIONS
+   ENHANCED ANIMATIONS - DARI LOGAKTIVITAS
    ================================ */
-.real-welcome-content,
-.real-magang-content {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+/* ✅ PULSE EFFECT untuk elemen penting */
+.skeleton-pulse {
+    animation: skeleton-pulse 1.5s ease-in-out infinite alternate;
 }
 
-.recommendation-card-wrapper {
-    opacity: 0;
-    transform: translateY(40px) scale(0.9);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes skeleton-pulse {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.7;
+    }
 }
 
-.animated-progress {
-    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.animated-match-bar {
-    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ================================
-   SKELETON HOVER EFFECTS
-   ================================ */
-.recommendation-skeleton-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.magang-skeleton-card:hover {
-    background: #f1f3f4;
-}
-
-/* ================================
-   ENHANCED ANIMATIONS
-   ================================ */
+/* ✅ FADE ANIMATIONS */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -846,193 +1028,206 @@
     }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ✅ CONTAINER TRANSITIONS */
+.header-skeleton,
+.form-skeleton,
+.welcome-skeleton,
+.magang-skeleton,
+.recommendations-skeleton {
+    transition: opacity 0.4s ease;
 }
 
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
+.real-header,
+.real-form,
+.real-welcome,
+.real-magang,
+.real-recommendations {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.real-header.loaded,
+.real-form.loaded,
+.real-welcome.loaded,
+.real-magang.loaded,
+.real-recommendations.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ✅ LOADING COMPLETION EFFECT */
+.skeleton-fade-out {
+    animation: skeleton-fade-out 0.4s ease forwards;
+}
+
+@keyframes skeleton-fade-out {
+    0% {
         opacity: 1;
         transform: scale(1);
     }
+    100% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+
+/* ✅ CONTENT FADE IN EFFECT */
+.content-fade-in {
+    animation: content-fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes content-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ✅ STAGGERED ANIMATION untuk skeleton items */
+.skeleton-text:nth-child(1),
+.skeleton-badge-small:nth-child(1),
+.recommendation-skeleton-card:nth-child(1) { 
+    animation-delay: 0s; 
+}
+
+.skeleton-text:nth-child(2),
+.skeleton-badge-small:nth-child(2),
+.recommendation-skeleton-card:nth-child(2) { 
+    animation-delay: 0.1s; 
+}
+
+.skeleton-text:nth-child(3),
+.skeleton-badge-small:nth-child(3),
+.recommendation-skeleton-card:nth-child(3) { 
+    animation-delay: 0.2s; 
+}
+
+.skeleton-text:nth-child(4),
+.recommendation-skeleton-card:nth-child(4) { 
+    animation-delay: 0.3s; 
+}
+
+.skeleton-text:nth-child(5),
+.recommendation-skeleton-card:nth-child(5) { 
+    animation-delay: 0.4s; 
+}
+
+.recommendation-skeleton-card:nth-child(6) { 
+    animation-delay: 0.5s; 
 }
 
 /* ================================
-   COUNTER ANIMATIONS
+   RESPONSIVE SKELETON
    ================================ */
-.counter-number {
-    transition: all 0.2s ease;
+@media (max-width: 992px) {
+    .skeleton-search-box {
+        width: 200px;
+    }
+
+    .skeleton-status-card {
+        width: 160px;
+        height: 50px;
+    }
 }
 
-.counter-number.counting {
-    color: #5e72e4;
-    font-weight: 700;
-}
-
-/* ================================
-   RESPONSIVE SKELETON STYLES
-   ================================ */
 @media (max-width: 768px) {
-    .skeleton-magang-header {
-        flex-direction: column;
-        gap: 16px;
-        align-items: stretch;
+    .skeleton-text-xl {
+        height: 24px;
     }
-    
-    .skeleton-company-info {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
-    
-    .skeleton-company-logo {
-        width: 48px;
-        height: 48px;
-        align-self: center;
-    }
-    
-    .skeleton-dates {
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .skeleton-badges-section {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .skeleton-badge-small {
-        width: 100%;
-    }
-    
-    .skeleton-welcome-icon {
-        width: 48px;
-        height: 48px;
-    }
-}
 
-@media (max-width: 576px) {
     .magang-skeleton-card {
         padding: 16px;
     }
     
-    .skeleton-card-body {
-        padding: 16px;
-    }
-    
-    .recommendation-skeleton-card {
-        height: 180px;
+    .skeleton-welcome-icon,
+    .skeleton-company-logo {
+        width: 48px;
+        height: 48px;
     }
     
     .skeleton-progress-section {
         padding: 16px;
     }
-}
-
-/* ================================
-   DARK MODE SUPPORT (Future)
-   ================================ */
-@media (prefers-color-scheme: dark) {
-    .skeleton-text,
-    .skeleton-icon,
-    .skeleton-avatar,
-    .skeleton-badge,
-    .skeleton-button,
-    .skeleton-welcome-icon,
-    .skeleton-company-logo,
-    .skeleton-company-logo-small,
-    .skeleton-status-badge,
-    .skeleton-progress-bar,
-    .skeleton-badge-small,
-    .skeleton-progress-bar-small {
-        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-        background-size: 200% 100%;
-    }
     
-    .magang-skeleton-card,
-    .recommendation-skeleton-card {
-        background: #1e1e1e;
-        border-color: #333;
+    .skeleton-action-button {
+        width: 140px;
+        height: 40px;
     }
 }
 
 /* ================================
-   PERFORMANCE OPTIMIZATIONS
+   ACCESSIBILITY & PERFORMANCE
    ================================ */
-.skeleton-text,
-.skeleton-icon,
-.magang-skeleton-card,
-.recommendation-skeleton-card,
-.animated-progress,
-.animated-match-bar,
-.counter-number {
-    will-change: background-position, width, transform, opacity;
-}
-
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
     .skeleton-text,
     .skeleton-icon,
-    .skeleton-avatar,
-    .skeleton-badge,
+    .skeleton-welcome-icon,
+    .skeleton-company-logo,
+    .skeleton-status-badge,
+    .skeleton-progress-bar,
+    .recommendation-skeleton-card,
+    .magang-skeleton-card,
+    .skeleton-input,
+    .skeleton-textarea,
     .skeleton-button {
         animation: none;
-        background: #f0f0f0;
+        background: #f1f5f9;
     }
     
-    .real-welcome-content,
-    .real-magang-content,
-    .recommendation-card-wrapper {
-        transition: none;
-    }
-    
-    .animated-progress,
-    .animated-match-bar {
-        transition: none;
+    .magang-skeleton-card::before,
+    .recommendation-skeleton-card::before,
+    .skeleton-progress-section::before {
+        animation: none;
     }
 }
 
-/* ================================
-   LOADING INDICATORS
-   ================================ */
-.loading-pulse {
-    animation: pulse 1.5s ease-in-out infinite alternate;
+/* ✅ PERFORMANCE OPTIMIZATION */
+.skeleton-text,
+.skeleton-icon,
+.skeleton-welcome-icon,
+.skeleton-company-logo,
+.skeleton-status-badge,
+.skeleton-progress-bar,
+.recommendation-skeleton-card,
+.magang-skeleton-card,
+.skeleton-input,
+.skeleton-textarea,
+.skeleton-button {
+    will-change: background-position;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
-@keyframes pulse {
-    0% {
-        opacity: 0.6;
-    }
-    100% {
-        opacity: 1;
-    }
+/* ✅ LOADING STATE CONTAINERS */
+.skeleton-container {
+    position: relative;
+    overflow: hidden;
 }
 
-/* ================================
-   ENHANCED SKELETON VARIATIONS
-   ================================ */
-.skeleton-text:nth-child(1) { animation-delay: 0s; }
-.skeleton-text:nth-child(2) { animation-delay: 0.1s; }
-.skeleton-text:nth-child(3) { animation-delay: 0.2s; }
-.skeleton-text:nth-child(4) { animation-delay: 0.3s; }
-.skeleton-text:nth-child(5) { animation-delay: 0.4s; }
+.skeleton-enhanced {
+    position: relative;
+    overflow: hidden;
+}
 
-.recommendation-skeleton-card:nth-child(1) { animation-delay: 0s; }
-.recommendation-skeleton-card:nth-child(2) { animation-delay: 0.1s; }
-.recommendation-skeleton-card:nth-child(3) { animation-delay: 0.2s; }
-.recommendation-skeleton-card:nth-child(4) { animation-delay: 0.3s; }
-.recommendation-skeleton-card:nth-child(5) { animation-delay: 0.4s; }
-.recommendation-skeleton-card:nth-child(6) { animation-delay: 0.5s; }
-
-/* Rest of your existing CSS... */
+.skeleton-enhanced::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+}

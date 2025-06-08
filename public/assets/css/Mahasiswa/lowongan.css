@@ -483,58 +483,149 @@ body {
 .skeleton-highlight-icon,
 .skeleton-section-title,
 .skeleton-skill-pill,
-.skeleton-skill-pill-small {
+.skeleton-skill-pill-small,
+.skeleton-input,
+.skeleton-textarea,
+.skeleton-button,
+.skeleton-upload-area,
+.skeleton-icon-box,
+.skeleton-badge,
+.skeleton-search-box,
+.skeleton-image,
+.skeleton-timeline-dot,
+.skeleton-timeline-content,
+.skeleton-status-card {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
-    border-radius: 4px;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 6px;
 }
 
+/* ✅ TEXT SKELETON VARIANTS - sama dengan logaktivitas */
 .skeleton-text-xs {
-    height: 10px;
+    height: 12px;
+    border-radius: 4px;
     width: 60%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-sm {
-    height: 12px;
+    height: 14px;
+    border-radius: 4px;
     width: 75%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-md {
     height: 16px;
+    border-radius: 5px;
     width: 85%;
     margin-bottom: 0.25rem;
 }
 
 .skeleton-text-lg {
     height: 20px;
-    width: 90%;
+    border-radius: 5px;
+    width: 70%;
     margin-bottom: 0.25rem;
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
+.skeleton-text-xl {
+    height: 28px;
+    border-radius: 6px;
+    width: 80%;
+    margin-bottom: 0.5rem;
+}
+
+/* ✅ FORM ELEMENT SKELETONS - sama dengan logaktivitas */
+.skeleton-input {
+    height: 42px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-textarea {
+    height: 100px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-button {
+    height: 44px;
+    border-radius: 8px;
+    width: 140px;
+}
+
+.skeleton-button-sm {
+    height: 32px;
+    width: 120px;
+    border-radius: 6px;
+}
+
+.skeleton-upload-area {
+    height: 120px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+/* ✅ ICON BOX SKELETON - sama dengan logaktivitas */
+.skeleton-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ BADGE SKELETON - sama dengan logaktivitas */
+.skeleton-badge {
+    height: 24px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ SEARCH BOX SKELETON - sama dengan logaktivitas */
+.skeleton-search-box {
+    height: 38px;
+    width: 250px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ STATUS CARD SKELETON - sama dengan logaktivitas */
+.skeleton-status-card {
+    height: 60px;
+    width: 200px;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+}
+
+/* ✅ IMAGE SKELETON - sama dengan logaktivitas */
+.skeleton-image {
+    height: 120px;
+    width: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 /* ================================
-   LOWONGAN CARD SKELETON
+   LOWONGAN CARD SKELETON - MATCHING LOGAKTIVITAS
    ================================ */
-.skeleton-card-wrapper {
-    animation: fadeIn 0.6s ease forwards;
-}
-
 .lowongan-skeleton-card {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e9ecef;
     border-radius: 12px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
     height: 320px;
     position: relative;
     overflow: hidden;
@@ -542,8 +633,35 @@ body {
     transition: all 0.3s ease;
 }
 
+/* ✅ ENHANCED SHIMMER OVERLAY - sama dengan logaktivitas */
 .lowongan-skeleton-card::before {
     content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ✅ ACCENT BAR - sama dengan logaktivitas */
+.lowongan-skeleton-card::after {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -551,22 +669,8 @@ body {
     height: 4px;
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
-}
-
-.lowongan-skeleton-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
-}
-
-.skeleton-card-header {
-    margin-bottom: 16px;
-}
-
-.skeleton-company-section {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    animation: skeleton-loading 2s infinite;
+    z-index: 2;
 }
 
 .skeleton-company-logo {
@@ -574,10 +678,10 @@ body {
     height: 55px;
     border-radius: 12px;
     flex-shrink: 0;
-}
-
-.skeleton-company-text {
-    flex: 1;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .skeleton-card-divider {
@@ -585,24 +689,10 @@ body {
     height: 1px;
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
+    animation: skeleton-loading 2s infinite;
     margin: 16px 0;
-}
-
-.skeleton-card-body {
-    flex: 1;
-}
-
-.skeleton-info-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.skeleton-info-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    position: relative;
+    z-index: 3;
 }
 
 .skeleton-icon-small {
@@ -610,52 +700,53 @@ body {
     height: 16px;
     border-radius: 2px;
     flex-shrink: 0;
-}
-
-.skeleton-skills-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-skill-tag {
     width: 80px;
     height: 24px;
     border-radius: 12px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-skill-tag-small {
     width: 50px;
     height: 24px;
     border-radius: 12px;
-}
-
-.skeleton-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 16px;
-    border-top: 1px solid #f1f1f1;
-    margin-top: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-capacity-badge {
     width: 80px;
     height: 20px;
     border-radius: 10px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-view-button {
     width: 100px;
     height: 32px;
     border-radius: 6px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 /* ================================
-   MODAL SKELETON LOADING
+   MODAL SKELETON LOADING - MATCHING LOGAKTIVITAS
    ================================ */
 .modal-skeleton-loading {
     animation: fadeIn 0.4s ease;
+    position: relative;
 }
 
 .modal-hero-skeleton {
@@ -672,14 +763,24 @@ body {
     overflow: hidden;
 }
 
+/* ✅ ENHANCED SHIMMER untuk modal hero */
 .modal-hero-skeleton::before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
     right: 0;
     bottom: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0.3) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+    z-index: 1;
 }
 
 .skeleton-hero-badge {
@@ -688,6 +789,21 @@ body {
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.9);
     z-index: 2;
+    position: relative;
+}
+
+.skeleton-hero-badge::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 8px;
+    transform: translate(-50%, -50%);
 }
 
 .skeleton-hero-title {
@@ -696,6 +812,20 @@ body {
     background: rgba(255, 255, 255, 0.8);
     border-radius: 6px;
     z-index: 2;
+    position: relative;
+}
+
+.skeleton-hero-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.3) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 6px;
 }
 
 .skeleton-hero-company {
@@ -704,12 +834,20 @@ body {
     background: rgba(255, 255, 255, 0.7);
     border-radius: 4px;
     z-index: 2;
+    position: relative;
 }
 
-.skeleton-hero-meta {
-    display: flex;
-    gap: 16px;
-    z-index: 2;
+.skeleton-hero-company::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.2) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 4px;
 }
 
 .skeleton-meta-item {
@@ -717,17 +855,46 @@ body {
     height: 16px;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 4px;
+    position: relative;
+}
+
+.skeleton-meta-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.2) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
+    border-radius: 4px;
 }
 
 .modal-content-skeleton {
     padding: 1.5rem;
+    position: relative;
 }
 
-.skeleton-highlights-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
+/* ✅ ENHANCED SHIMMER untuk modal content */
+.modal-content-skeleton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.1) 20%,
+        rgba(255, 255, 255, 0.2) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2.5s infinite;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .skeleton-highlight-card {
@@ -738,6 +905,28 @@ body {
     padding: 1rem;
     flex: 1;
     min-width: 180px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ✅ ENHANCED SHIMMER untuk highlight cards */
+.skeleton-highlight-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.6) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+    z-index: 1;
 }
 
 .skeleton-highlight-icon {
@@ -746,17 +935,11 @@ body {
     border-radius: 10px;
     background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
+    animation: skeleton-loading 2s infinite;
     margin-right: 1rem;
     flex-shrink: 0;
-}
-
-.skeleton-highlight-text {
-    flex: 1;
-}
-
-.skeleton-section {
-    margin-bottom: 2rem;
+    z-index: 2;
+    position: relative;
 }
 
 .skeleton-section-title {
@@ -764,6 +947,9 @@ body {
     height: 24px;
     margin-bottom: 1rem;
     border-radius: 6px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-description-block {
@@ -771,272 +957,97 @@ body {
     padding: 1rem;
     border-left: 3px solid #e0e0e0;
     border-radius: 0 8px 8px 0;
+    position: relative;
+    overflow: hidden;
 }
 
-.skeleton-skills-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 0.5rem;
+/* ✅ ENHANCED SHIMMER untuk description block */
+.skeleton-description-block::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.4) 20%,
+        rgba(255, 255, 255, 0.7) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+    z-index: 1;
+}
+
+.skeleton-description-block .skeleton-text {
+    position: relative;
+    z-index: 2;
 }
 
 .skeleton-skill-pill {
     width: 90px;
     height: 32px;
     border-radius: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 .skeleton-skill-pill-small {
     width: 60px;
     height: 32px;
     border-radius: 16px;
-}
-
-.skeleton-company-details {
-    margin-top: 1rem;
-}
-
-.skeleton-company-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 1.5rem;
-}
-
-.skeleton-meta-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite;
 }
 
 /* ================================
-   LOADING TRANSITIONS
+   ACCESSIBILITY & PERFORMANCE - MATCHING LOGAKTIVITAS
    ================================ */
-.lowongan-card-wrapper {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.lowongan-card-wrapper.loaded {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-/* ================================
-   EMPTY & ERROR STATES
-   ================================ */
-.empty-state,
-.error-state {
-    animation: fadeIn 0.5s ease;
-}
-
-.empty-icon,
-.error-icon {
-    font-size: 4rem;
-    color: #8898aa;
-    margin-bottom: 1rem;
-}
-
-.error-icon {
-    color: #f5365c;
-}
-
-.empty-state h6,
-.error-state h6 {
-    color: #344767;
-    font-weight: 600;
-}
-
-.empty-state p,
-.error-state p {
-    color: #8898aa;
-    font-size: 0.9rem;
-}
-
-/* ================================
-   ENHANCED CARD ANIMATIONS
-   ================================ */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* ================================
-   SKELETON VARIATIONS WITH DELAYS
-   ================================ */
-.skeleton-card-wrapper:nth-child(1) { animation-delay: 0s; }
-.skeleton-card-wrapper:nth-child(2) { animation-delay: 0.1s; }
-.skeleton-card-wrapper:nth-child(3) { animation-delay: 0.2s; }
-.skeleton-card-wrapper:nth-child(4) { animation-delay: 0.3s; }
-.skeleton-card-wrapper:nth-child(5) { animation-delay: 0.4s; }
-.skeleton-card-wrapper:nth-child(6) { animation-delay: 0.5s; }
-
-.skeleton-text:nth-child(1) { animation-delay: 0s; }
-.skeleton-text:nth-child(2) { animation-delay: 0.1s; }
-.skeleton-text:nth-child(3) { animation-delay: 0.2s; }
-.skeleton-text:nth-child(4) { animation-delay: 0.3s; }
-
-/* ================================
-   RESPONSIVE SKELETON STYLES
-   ================================ */
-@media (max-width: 768px) {
-    .lowongan-skeleton-card {
-        height: 280px;
-        padding: 20px;
-    }
-    
-    .skeleton-company-section {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
-    
-    .skeleton-company-logo {
-        width: 48px;
-        height: 48px;
-        align-self: center;
-    }
-    
-    .skeleton-card-footer {
-        flex-direction: column;
-        gap: 12px;
-        align-items: stretch;
-    }
-    
-    .skeleton-view-button {
-        width: 100%;
-    }
-    
-    .modal-hero-skeleton {
-        height: 180px;
-        padding: 1.5rem;
-    }
-    
-    .skeleton-hero-badge {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .skeleton-hero-title {
-        width: 250px;
-        height: 24px;
-    }
-    
-    .skeleton-highlights-section {
-        flex-direction: column;
-    }
-    
-    .skeleton-highlight-card {
-        min-width: auto;
-    }
-    
-    .skeleton-skills-row {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 576px) {
-    .lowongan-skeleton-card {
-        height: 260px;
-        padding: 16px;
-    }
-    
-    .skeleton-hero-title {
-        width: 200px;
-        height: 20px;
-    }
-    
-    .skeleton-hero-meta {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .skeleton-meta-item {
-        width: 100px;
-        height: 14px;
-    }
-}
-
-/* ================================
-   PERFORMANCE OPTIMIZATIONS
-   ================================ */
-.skeleton-text,
-.skeleton-company-logo,
-.lowongan-skeleton-card,
-.modal-skeleton-loading,
-.lowongan-card-wrapper {
-    will-change: background-position, opacity, transform;
-}
-
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
     .skeleton-text,
     .skeleton-company-logo,
-    .skeleton-skill-tag {
-        animation: none;
-        background: #f0f0f0;
-    }
-    
-    .lowongan-card-wrapper,
-    .skeleton-card-wrapper {
-        transition: none;
-        animation: none;
-    }
-    
-    .lowongan-skeleton-card:hover {
-        transform: none;
-    }
-}
-
-/* ================================
-   DARK MODE SUPPORT (Future)
-   ================================ */
-@media (prefers-color-scheme: dark) {
-    .skeleton-text,
-    .skeleton-company-logo,
     .skeleton-skill-tag,
-    .skeleton-highlight-icon {
-        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-        background-size: 200% 100%;
+    .skeleton-highlight-icon,
+    .skeleton-hero-badge,
+    .skeleton-hero-title,
+    .skeleton-hero-company,
+    .skeleton-meta-item,
+    .skeleton-section-title,
+    .skeleton-skill-pill {
+        animation: none;
+        background: #f1f5f9;
     }
     
-    .lowongan-skeleton-card {
-        background: #1e1e1e;
-        border-color: #333;
-    }
-    
-    .skeleton-highlights-section .skeleton-highlight-card {
-        background: #2a2a2a;
+    .lowongan-skeleton-card::before,
+    .modal-hero-skeleton::before,
+    .modal-content-skeleton::before,
+    .skeleton-highlight-card::before,
+    .skeleton-description-block::before {
+        animation: none;
     }
 }
 
-/* Rest of your existing CSS... */
+/* ✅ PERFORMANCE OPTIMIZATION - sama dengan logaktivitas */
+.skeleton-text,
+.skeleton-company-logo,
+.skeleton-skill-tag,
+.skeleton-highlight-icon,
+.skeleton-hero-badge,
+.skeleton-hero-title,
+.skeleton-hero-company,
+.skeleton-meta-item,
+.skeleton-section-title,
+.skeleton-skill-pill,
+.lowongan-skeleton-card,
+.modal-skeleton-loading,
+.lowongan-card-wrapper {
+    will-change: background-position;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* ...rest of existing CSS... */

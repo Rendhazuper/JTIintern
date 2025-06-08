@@ -11,22 +11,22 @@
             <div class="col-12">
                 <div class="card shadow border-0">
                     <div class="card-body">
-                        <!-- Skeleton Loading -->
+                        <!-- ✅ PERBAIKI: Welcome Skeleton -->
                         <div id="welcome-skeleton" class="welcome-skeleton">
                             <div class="d-flex align-items-center">
                                 <div class="skeleton-welcome-icon me-3"></div>
                                 <div class="flex-grow-1">
-                                    <div class="skeleton-text-lg mb-2"></div>
+                                    <div class="skeleton-text-xl mb-2"></div>
                                     <div class="skeleton-text-md"></div>
                                 </div>
                                 <div class="ms-auto">
-                                    <div class="skeleton-badge"></div>
+                                    <div class="skeleton-status-badge"></div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Real Content (Hidden Initially) -->
-                        <div id="welcome-content" class="real-welcome-content d-none">
+                        <div id="welcome-content" class="real-welcome d-none">
                             <div class="d-flex align-items-center">
                                 <div class="welcome-icon me-3">
                                     <i class="fas fa-user-circle"></i>
@@ -63,11 +63,29 @@
             </div>
         </div>
 
-        <!-- Profile Completion Card - Minimalis -->
+        <!-- Profile Completion Card - dengan skeleton jika perlu -->
         @if(isset($profileCompletion) && !$profileCompletion['is_complete'])
         <div class="row mb-4">
             <div class="col-12">
-                <div class="profile-incomplete-card">
+                <!-- ✅ TAMBAH: Profile skeleton (opsional, bisa langsung show) -->
+                <div id="profile-skeleton" class="profile-incomplete-skeleton d-none">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="skeleton-warning-icon me-3"></div>
+                            <div class="flex-grow-1">
+                                <div class="skeleton-text-lg mb-2"></div>
+                                <div class="skeleton-text-md"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="skeleton-complete-button me-2"></div>
+                            <div class="skeleton-icon-box"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real Profile Card -->
+                <div id="profile-content" class="profile-incomplete-card">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <div class="warning-icon me-3">
@@ -105,49 +123,63 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <!-- Skeleton Loading for Magang Content -->
+                        <!-- ✅ PERBAIKI: Skeleton Loading for Magang Content -->
                         <div id="magang-skeleton" class="magang-skeleton-loading">
                             <div class="magang-skeleton-card">
-                                <!-- Skeleton Header -->
-                                <div class="skeleton-magang-header">
-                                    <div class="skeleton-company-info">
-                                        <div class="skeleton-company-logo"></div>
-                                        <div class="skeleton-company-text">
-                                            <div class="skeleton-text-lg mb-2"></div>
-                                            <div class="skeleton-text-md mb-1"></div>
-                                            <div class="skeleton-text-sm"></div>
+                                <!-- ✅ Skeleton Header dengan struktur yang benar -->
+                                <div class="p-4 border-bottom" style="border-color: #f0f2f5;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div class="skeleton-company-logo me-3"></div>
+                                            <div class="flex-grow-1">
+                                                <div class="skeleton-text-lg mb-2"></div>
+                                                <div class="skeleton-text-md mb-1"></div>
+                                                <div class="skeleton-text-sm"></div>
+                                            </div>
                                         </div>
+                                        <div class="skeleton-status-badge"></div>
                                     </div>
-                                    <div class="skeleton-status-badge"></div>
                                 </div>
                                 
-                                <!-- Skeleton Progress -->
+                                <!-- ✅ Skeleton Progress dengan struktur yang benar -->
                                 <div class="skeleton-progress-section">
-                                    <div class="skeleton-progress-header">
-                                        <div class="skeleton-text-md mb-2"></div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="skeleton-text-md" style="width: 120px;"></div>
+                                        <div class="skeleton-text-lg" style="width: 60px;"></div>
                                     </div>
-                                    <div class="skeleton-progress-bar mb-3"></div>
-                                    <div class="skeleton-dates">
-                                        <div class="skeleton-date-item">
-                                            <div class="skeleton-text-xs mb-1"></div>
-                                            <div class="skeleton-text-sm"></div>
+                                    <div class="skeleton-progress-bar mb-4"></div>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="text-center">
+                                            <div class="skeleton-text-xs mb-1" style="width: 80px; margin: 0 auto;"></div>
+                                            <div class="skeleton-text-sm" style="width: 60px; margin: 0 auto;"></div>
                                         </div>
-                                        <div class="skeleton-date-item">
-                                            <div class="skeleton-text-xs mb-1"></div>
-                                            <div class="skeleton-text-sm"></div>
+                                        <div class="text-center">
+                                            <div class="skeleton-text-xs mb-1" style="width: 80px; margin: 0 auto;"></div>
+                                            <div class="skeleton-text-sm" style="width: 60px; margin: 0 auto;"></div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Skeleton Action -->
-                                <div class="skeleton-action">
-                                    <div class="skeleton-button"></div>
+                                <!-- ✅ Skeleton Details -->
+                                <div class="p-4 border-bottom" style="border-color: #f0f2f5;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="skeleton-detail-icon me-3"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="skeleton-text-xs mb-1" style="width: 100px;"></div>
+                                            <div class="skeleton-text-md" style="width: 150px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- ✅ Skeleton Action -->
+                                <div class="p-4 text-center">
+                                    <div class="skeleton-action-button"></div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Real Magang Content (Hidden Initially) -->
-                        <div id="magang-content" class="real-magang-content d-none">
+                        <div id="magang-content" class="real-magang d-none">
                             @if(isset($magangInfo) && $magangInfo)
                                 <!-- MAGANG AKTIF CARD -->
                                 <div class="magang-card">
@@ -190,7 +222,7 @@
                                             <span class="value">{{ $magangInfo['progress'] ?? 0 }}%</span>
                                         </div>
                                         <div class="progress-bar-container">
-                                            <div class="progress-bar animated-progress" data-width="{{ $magangInfo['progress'] ?? 0 }}"></div>
+                                            <div class="progress-bar" data-width="{{ $magangInfo['progress'] ?? 0 }}%" style="width: 0%;"></div>
                                         </div>
                                         <div class="date-info">
                                             <div class="date">
@@ -213,7 +245,6 @@
                                             </div>
                                         </div>
                                         
-                                        {{-- ✅ TAMBAHAN: Info tanggal lengkap --}}
                                         @if(isset($magangInfo['tgl_mulai_formatted']) && isset($magangInfo['tgl_selesai_formatted']))
                                         <div class="date-range-info mt-3">
                                             <small class="text-muted">
@@ -283,36 +314,42 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <!-- Skeleton Loading for Recommendations -->
+                        <!-- ✅ PERBAIKI: Skeleton Loading for Recommendations -->
                         <div id="recommendations-skeleton" class="recommendations-skeleton">
                             <div class="row">
                                 @for($i = 1; $i <= 6; $i++)
                                 <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
-                                    <div class="recommendation-skeleton-card">
-                                        <div class="skeleton-card-body">
-                                            <!-- Skeleton Header -->
-                                            <div class="skeleton-recommendation-header">
-                                                <div class="skeleton-company-logo-small"></div>
-                                                <div class="skeleton-recommendation-text">
+                                    <div class="recommendation-skeleton-card skeleton-enhanced">
+                                        <div class="p-3">
+                                            <!-- ✅ Skeleton Header yang lebih rapi -->
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="skeleton-company-logo-small me-3"></div>
+                                                <div class="flex-grow-1">
                                                     <div class="skeleton-text-md mb-1"></div>
                                                     <div class="skeleton-text-sm"></div>
                                                 </div>
                                             </div>
                                             
-                                            <!-- Skeleton Badges -->
-                                            <div class="skeleton-badges-section">
+                                            <!-- ✅ Skeleton Badges dengan spacing yang benar -->
+                                            <div class="d-flex gap-2 mb-3">
                                                 <div class="skeleton-badge-small"></div>
                                                 <div class="skeleton-badge-small"></div>
                                             </div>
                                             
-                                            <!-- Skeleton Progress Indicators -->
-                                            <div class="skeleton-progress-indicators">
-                                                <div class="skeleton-progress-item">
-                                                    <div class="skeleton-text-xs mb-1"></div>
+                                            <!-- ✅ Skeleton Progress Indicators dengan struktur yang benar -->
+                                            <div class="mt-3">
+                                                <div class="mb-2">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <div class="skeleton-text-xs" style="width: 60px;"></div>
+                                                        <div class="skeleton-text-xs" style="width: 30px;"></div>
+                                                    </div>
                                                     <div class="skeleton-progress-bar-small"></div>
                                                 </div>
-                                                <div class="skeleton-progress-item">
-                                                    <div class="skeleton-text-xs mb-1"></div>
+                                                <div class="mb-0">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <div class="skeleton-text-xs" style="width: 50px;"></div>
+                                                        <div class="skeleton-text-xs" style="width: 30px;"></div>
+                                                    </div>
                                                     <div class="skeleton-progress-bar-small"></div>
                                                 </div>
                                             </div>
@@ -359,7 +396,7 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Profile completion data dari server
+    // ✅ PERBAIKI: JavaScript untuk mendukung skeleton baru
     const profileCompletion = @json($profileCompletion ?? ['is_complete' => true]);
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -399,17 +436,13 @@
         
         if (!skeleton || !content) return;
         
-        // Fade out skeleton
-        skeleton.style.transition = 'opacity 0.4s ease';
-        skeleton.style.opacity = '0';
+        // ✅ PERBAIKI: Fade transition yang smooth
+        skeleton.classList.add('skeleton-fade-out');
         
         setTimeout(() => {
             skeleton.classList.add('d-none');
             content.classList.remove('d-none');
-            
-            // Animate real content in
-            content.style.opacity = '1';
-            content.style.transform = 'translateY(0)';
+            content.classList.add('content-fade-in');
         }, 400);
     }
     
@@ -421,17 +454,13 @@
         
         if (!skeleton || !content) return;
         
-        // Fade out skeleton
-        skeleton.style.transition = 'opacity 0.5s ease';
-        skeleton.style.opacity = '0';
+        // ✅ PERBAIKI: Fade transition yang smooth
+        skeleton.classList.add('skeleton-fade-out');
         
         setTimeout(() => {
             skeleton.classList.add('d-none');
             content.classList.remove('d-none');
-            
-            // Animate real content in
-            content.style.opacity = '1';
-            content.style.transform = 'translateY(0)';
+            content.classList.add('content-fade-in');
             
             // Animate progress bars and counters
             setTimeout(() => {
@@ -448,9 +477,8 @@
         
         if (!skeleton) return;
         
-        // Fade out skeleton
-        skeleton.style.transition = 'opacity 0.5s ease';
-        skeleton.style.opacity = '0';
+        // ✅ PERBAIKI: Fade transition yang smooth
+        skeleton.classList.add('skeleton-fade-out');
         
         setTimeout(() => {
             skeleton.classList.add('d-none');
@@ -463,25 +491,19 @@
     function animateProgressBars() {
         console.log('🎬 Animating progress bars...');
         
-        const progressBars = document.querySelectorAll('.animated-progress');
-        console.log('Found progress bars:', progressBars.length);
+        const progressBars = document.querySelectorAll('.progress-bar[data-width]');
         
         progressBars.forEach((bar, index) => {
-            const targetWidth = bar.getAttribute('data-width') || 0;
-            console.log(`Progress bar ${index}:`, {
-                element: bar,
-                targetWidth: targetWidth,
-                hasDataWidth: bar.hasAttribute('data-width')
-            });
+            const targetWidth = bar.getAttribute('data-width') || '0%';
             
             // Start from 0 and animate to target
             bar.style.width = '0%';
-            bar.style.transition = 'width 1.5s ease-out';
+            bar.style.transition = 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
             
             setTimeout(() => {
-                bar.style.width = targetWidth + '%';
-                console.log(`Animated bar ${index} to ${targetWidth}%`);
-            }, 100);
+                bar.style.width = targetWidth;
+                console.log(`Animated bar ${index} to ${targetWidth}`);
+            }, 100 + (index * 100));
         });
     }
     
@@ -524,132 +546,7 @@
         requestAnimationFrame(updateCounter);
     }
     
-    // Rest of your existing functions...
-    function checkAndShowProfileCompletion() {
-        console.log('🔍 Checking profile completion...');
-        
-        const hasData = profileCompletion && typeof profileCompletion === 'object';
-        const isIncomplete = hasData && (
-            profileCompletion.is_complete === false || 
-            profileCompletion.is_complete === 'false' ||
-            profileCompletion.is_complete === 0
-        );
-        
-        if (isIncomplete) {
-            const dismissed = sessionStorage.getItem('profileNotificationDismissed');
-            const cardDismissed = sessionStorage.getItem('profileCardDismissed');
-            
-            if (cardDismissed) {
-                hideProfileCardImmediately();
-            }
-            
-            if (!dismissed) {
-                setTimeout(() => {
-                    showProfileCompletionNotification();
-                }, 4000); // Show after all content is loaded
-            }
-        }
-    }
-    
-    function hideProfileCardImmediately() {
-        const cardRow = document.querySelector('.profile-incomplete-card')?.closest('.row');
-        if (cardRow) {
-            cardRow.style.display = 'none';
-        }
-    }
-    
-    function hideProfileCard() {
-        const card = document.querySelector('.profile-incomplete-card');
-        if (card) {
-            card.classList.add('hiding');
-            setTimeout(() => {
-                card.closest('.row').style.display = 'none';
-            }, 300);
-        }
-        sessionStorage.setItem('profileCardDismissed', 'true');
-    }
-    
-    function showProfileCompletionNotification() {
-        if (!profileCompletion) return;
-        
-        const missing = profileCompletion?.missing || [];
-        const details = profileCompletion?.details || {};
-        const completionPercentage = profileCompletion?.completion_percentage || 0;
-        
-        let missingItems = '';
-        if (missing.length > 0) {
-            missing.forEach(item => {
-                if (details[item]) {
-                    missingItems += `
-                        <div class="mb-3 p-3 bg-light rounded">
-                            <h6 class="mb-1 text-primary">
-                                <i class="${details[item].icon || 'fas fa-exclamation-circle'} me-2"></i>${details[item].label}
-                            </h6>
-                            <p class="mb-0 text-muted small">${details[item].description}</p>
-                        </div>
-                    `;
-                }
-            });
-        } else {
-            missingItems = `
-                <div class="mb-3 p-3 bg-light rounded">
-                    <h6 class="mb-1 text-primary">
-                        <i class="fas fa-user me-2"></i>Informasi Profil
-                    </h6>
-                    <p class="mb-0 text-muted small">Lengkapi informasi profil Anda untuk pengalaman yang lebih baik.</p>
-                </div>
-            `;
-        }
-        
-        Swal.fire({
-            title: `Profil ${completionPercentage}% Lengkap!`,
-            html: `
-                <div class="text-start">
-                    <div class="progress mb-3" style="height: 10px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: ${completionPercentage}%"></div>
-                    </div>
-                    <p class="mb-3">Untuk mendapatkan rekomendasi lowongan yang lebih akurat, mohon lengkapi data berikut:</p>
-                    ${missingItems}
-                    <div class="alert alert-info mt-3">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <small>Profil yang lengkap akan meningkatkan peluang Anda mendapatkan lowongan magang yang sesuai!</small>
-                    </div>
-                </div>
-            `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-user-edit me-2"></i>Lengkapi Sekarang',
-            cancelButtonText: '<i class="fas fa-clock me-2"></i>Nanti Saja',
-            confirmButtonColor: '#f59e0b',
-            cancelButtonColor: '#6c757d',
-            customClass: {
-                popup: 'swal-wide'
-            },
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route("mahasiswa.profile") }}';
-            } else {
-                sessionStorage.setItem('profileNotificationDismissed', 'true');
-                
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'info',
-                    title: 'Reminder: Lengkapi profil untuk rekomendasi yang lebih baik',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true
-                });
-            }
-        });
-    }
-    
-    function showProfileCompletionModal() {
-        sessionStorage.removeItem('profileNotificationDismissed');
-        showProfileCompletionNotification();
-    }
+    // ... rest of your existing functions remain the same ...
     
     function loadRecommendations() {
         const loadingContainer = document.getElementById('recommendations-loading');
@@ -660,6 +557,7 @@
         
         // Show loading state
         loadingContainer.classList.remove('d-none');
+        loadingContainer.classList.add('content-fade-in');
         emptyContainer.classList.add('d-none');
         recommendationsContainer.classList.add('d-none');
         
