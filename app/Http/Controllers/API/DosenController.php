@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
+use App\Models\Lamaran;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -20,13 +21,12 @@ class DosenController extends Controller
 {
     public function index()
     {
-        $dosen = Dosen::with(['user', 'wilayah'])->get();
+        $dosen = Dosen::with(['user'])->get();
         $data = $dosen->map(function ($item) {
             return [
                 'id_dosen' => $item->id_dosen,
                 'nama_dosen' => $item->user->name ?? '-',
                 'email' => $item->user->email ?? '-',
-                'wilayah' => $item->wilayah->nama_kota ?? '-', // pastikan relasi wilayah ada
                 'nip' => $item->nip ?? '-',
             ];
         });
@@ -37,7 +37,6 @@ class DosenController extends Controller
     {
         $request->validate([
             'nama_dosen' => 'required|string|max:255',
-            'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
             'nip' => 'required|unique:m_dosen,nip',
             'skills' => 'nullable|array',
             'skills.*' => 'exists:m_skill,skill_id',
@@ -59,10 +58,9 @@ class DosenController extends Controller
                 'role' => 'dosen'
             ]);
 
-            // Buat dosen baru
+            // Buat dosen baru (without wilayah_id)
             $dosen = Dosen::create([
                 'user_id' => $user->id_user,
-                'wilayah_id' => $request->wilayah_id,
                 'nip' => $nip
             ]);
 
@@ -104,7 +102,7 @@ class DosenController extends Controller
 
     public function show($id)
     {
-        $dosen = Dosen::with(['user', 'wilayah'])->findOrFail($id);
+        $dosen = Dosen::with(['user'])->findOrFail($id);
 
         // Get skills for this dosen - Change dosen_id to id_dosen
         $skills = DB::table('t_skill_dosen as sd')
@@ -126,8 +124,6 @@ class DosenController extends Controller
                 'id_dosen' => $dosen->id_dosen,
                 'nama_dosen' => $dosen->user->name ?? '-',
                 'email' => $dosen->user->email ?? '-',
-                'wilayah_id' => $dosen->wilayah_id,
-                'wilayah' => $dosen->wilayah->nama_kota ?? '-',
                 'nip' => $dosen->nip ?? '-',
                 'skills' => $skills,
                 'minat' => $minat
@@ -139,7 +135,6 @@ class DosenController extends Controller
     {
         $request->validate([
             'nama_dosen' => 'required|string|max:255',
-            'wilayah_id' => 'required|integer|exists:m_wilayah,wilayah_id',
             'nip' => 'required|unique:m_dosen,nip,' . $id . ',id_dosen',
             'skills' => 'nullable|array',
             'skills.*' => 'exists:m_skill,skill_id',
@@ -156,8 +151,8 @@ class DosenController extends Controller
             $user->name = $request->nama_dosen;
             $user->save();
 
-            // Update dosen
-            $dosen->wilayah_id = $request->wilayah_id;
+            // Update dosen (without wilayah_id)
+            // $dosen->wilayah_id = $request->wilayah_id; - REMOVED
             $dosen->nip = $request->nip;
             $dosen->save();
 
@@ -234,47 +229,83 @@ class DosenController extends Controller
     public function withPerusahaan()
     {
         try {
-            // Remove this line:
-            // DB::statement("SET SESSION query_cache_type = OFF");
+            // Get all dosen with their user data (removed wilayah join)
+            $dosen = DB::table('m_dosen')
+                ->join('m_user', 'm_dosen.user_id', '=', 'm_user.id_user') // FIXED: user_id instead of id_user
+                ->select(
+                    'm_dosen.*',
+                    'm_user.name',
+                    'm_user.email'
+                )
+                ->get();
 
-            // Keep everything else the same
-            $dosens = Dosen::with(['user', 'wilayah'])->get();
+            // For each dosen, get their current assignments from BOTH t_lamaran AND m_magang
+            foreach ($dosen as $d) {
+                // 1. Get assigned students from t_lamaran (pending applications with dosen assigned)
+                $pendingAssignments = DB::table('t_lamaran')
+                    ->join('m_mahasiswa', 't_lamaran.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
+                    ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
+                    ->join('m_lowongan', 't_lamaran.id_lowongan', '=', 'm_lowongan.id_lowongan')
+                    ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
+                    ->where('t_lamaran.id_dosen', $d->id_dosen)
+                    ->select(
+                        't_lamaran.id_lamaran',
+                        'm_mahasiswa.id_mahasiswa',
+                        'm_user.name as mahasiswa_name',
+                        'm_mahasiswa.nim',
+                        'm_lowongan.judul_lowongan',
+                        'm_perusahaan.nama_perusahaan',
+                        DB::raw("'pending' as status")
+                    )
+                    ->get();
 
-            $dosens = $dosens->map(function ($dosen) {
-                try {
-                    // Load magangBimbingan relationship manually
-                    $bimbingan = Magang::where('id_dosen', $dosen->id_dosen)
-                        ->where(function ($query) {
-                            $query->where('status', '!=', 'ditolak')
-                                ->orWhereNull('status');
-                        })
-                        ->get(['id_magang', 'id_mahasiswa', 'id_lowongan', 'status', 'created_at']);
+                // 2. Get assigned students from m_magang (active internships)
+                $activeAssignments = DB::table('m_magang')
+                    ->join('m_mahasiswa', 'm_magang.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
+                    ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
+                    ->join('m_lowongan', 'm_magang.id_lowongan', '=', 'm_lowongan.id_lowongan')
+                    ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
+                    ->where('m_magang.id_dosen', $d->id_dosen)
+                    ->select(
+                        'm_magang.id_magang',
+                        'm_mahasiswa.id_mahasiswa',
+                        'm_user.name as mahasiswa_name',
+                        'm_mahasiswa.nim',
+                        'm_lowongan.judul_lowongan',
+                        'm_perusahaan.nama_perusahaan',
+                        'm_magang.status'
+                    )
+                    ->get();
 
-                    // Log count for debugging
-                    Log::info("Dosen ID {$dosen->id_dosen} has {$bimbingan->count()} bimbingan");
-
-                    // Create consistent property names
-                    $dosen->magangBimbingan = $bimbingan;
-                    $dosen->magang_bimbingan = $bimbingan;
-                } catch (\Exception $e) {
-                    Log::error('Error loading magangBimbingan for dosen ID ' . $dosen->id_dosen . ': ' . $e->getMessage());
-                    $dosen->magangBimbingan = [];
-                    $dosen->magang_bimbingan = [];
-                }
-
-                return $dosen;
-            });
+                // Combine both result sets
+                $allAssignments = $pendingAssignments->concat($activeAssignments);
+                
+                $d->magangBimbingan = $allAssignments;
+                
+                // Get dosen skills
+                $skills = DB::table('t_skill_dosen')
+                    ->join('m_skill', 't_skill_dosen.skill_id', '=', 'm_skill.skill_id')
+                    ->where('t_skill_dosen.id_dosen', $d->id_dosen)
+                    ->select('m_skill.nama as nama_skill', 'm_skill.skill_id')
+                    ->get();
+                    
+                $d->skills = $skills->map(function($skill) {
+                    return ['skill' => $skill];
+                });
+                
+                // Log for debugging
+                Log::info("Dosen {$d->id_dosen} has " . $allAssignments->count() . " total assignments");
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $dosens,
-                'timestamp' => now()->timestamp
+                'data' => $dosen
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in withPerusahaan: ' . $e->getMessage());
+            Log::error('Error fetching dosen with perusahaan: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to load data: ' . $e->getMessage()
+                'message' => 'Failed to load dosen data: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -282,10 +313,9 @@ class DosenController extends Controller
     public function withDetails()
     {
         try {
-            // Get dosen with relevant relationships
+            // Get dosen with relevant relationships (removed wilayah)
             $dosens = Dosen::with([
                 'user',
-                'wilayah',
                 'skills.skill'
             ])->get();
 
@@ -332,7 +362,7 @@ class DosenController extends Controller
             Log::info('Removing assignments for dosen ID: ' . $id);
 
             // Find all magang records where id_dosen matches $id and reset them
-            $count = Magang::where('id_dosen', $id)->update(['id_dosen' => null]);
+            $count = Lamaran::where('id_dosen', $id)->update(['id_dosen' => null]);
 
             Log::info('Removed ' . $count . ' assignments for dosen ID: ' . $id);
 
@@ -351,38 +381,61 @@ class DosenController extends Controller
         }
     }
 
-    public function assignMahasiswa(Request $request, $id)
+    public function assignMahasiswa(Request $request, $dosenId)
     {
         try {
-            // Validate request
             $request->validate([
                 'magang_ids' => 'required|array',
-                'magang_ids.*' => 'integer|exists:m_magang,id_magang'
+                'magang_ids.*' => 'required|integer'
             ]);
 
-            // Log the assignment request
-            Log::info('Assigning magang to dosen', [
-                'dosen_id' => $id,
-                'magang_ids' => $request->magang_ids
-            ]);
+            $count = 0;
+            foreach ($request->magang_ids as $lamaranId) {
+                // Update t_lamaran first (new workflow)
+                $updated = DB::table('t_lamaran')
+                    ->where('id_lamaran', $lamaranId)
+                    ->update([
+                        'id_dosen' => $dosenId,
+                        'updated_at' => now()
+                    ]);
+                    
+                if ($updated) {
+                    $count++;
+                    Log::info("Assigned dosen ID {$dosenId} to lamaran ID {$lamaranId}");
+                } else {
+                    // Legacy support - check if it's in m_magang (old workflow)
+                    $updated = DB::table('m_magang')
+                        ->where('id_magang', $lamaranId)
+                        ->update([
+                            'id_dosen' => $dosenId,
+                            'updated_at' => now()
+                        ]);
+                        
+                    if ($updated) {
+                        $count++;
+                        Log::info("Assigned dosen ID {$dosenId} to magang ID {$lamaranId}");
+                    }
+                }
+            }
 
-            // Update the magang records with the dosen ID
-            $count = Magang::whereIn('id_magang', $request->magang_ids)
-                ->update(['id_dosen' => $id]);
-
-            Log::info("Successfully assigned $count magang to dosen ID: $id");
-
-            return response()->json([
-                'success' => true,
-                'message' => "Successfully assigned $count magang",
-                'count' => $count
-            ]);
+            if ($count > 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil menetapkan {$count} mahasiswa ke dosen",
+                    'count' => $count
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada mahasiswa yang berhasil ditetapkan ke dosen'
+                ]);
+            }
         } catch (\Exception $e) {
-            Log::error('Error assigning mahasiswa: ' . $e->getMessage());
-
+            Log::error('Error assigning mahasiswa to dosen: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Gagal menetapkan mahasiswa ke dosen: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -430,14 +483,12 @@ class DosenController extends Controller
             // Map headers to expected field names (case insensitive)
             $header = array_map('strtolower', array_map('trim', $header));
 
-            // Define header mappings
+            // Define header mappings (removed wilayah mappings)
             $headerMap = [
                 'nama' => 'nama_dosen',
                 'nama dosen' => 'nama_dosen',
                 'nama_dosen' => 'nama_dosen',
-                'nip' => 'nip',
-                'wilayah' => 'wilayah',
-                'wilayah_id' => 'wilayah_id'
+                'nip' => 'nip'
             ];
 
             // Map column indices
@@ -449,7 +500,7 @@ class DosenController extends Controller
                 }
             }
 
-            // Verify required fields
+            // Verify required fields (removed wilayah requirement)
             $requiredFields = ['nama_dosen', 'nip'];
             $missingColumns = [];
 
@@ -459,11 +510,6 @@ class DosenController extends Controller
                 }
             }
 
-            // Either wilayah or wilayah_id must be present
-            if (!isset($columnMap['wilayah']) && !isset($columnMap['wilayah_id'])) {
-                $missingColumns[] = 'wilayah/wilayah_id';
-            }
-
             if (count($missingColumns) > 0) {
                 fclose($file);
                 return response()->json([
@@ -471,11 +517,6 @@ class DosenController extends Controller
                     'message' => 'File tidak memiliki kolom wajib: ' . implode(', ', $missingColumns)
                 ], 400);
             }
-
-            // Get all wilayah for mapping
-            $allWilayahById = \App\Models\Wilayah::pluck('nama_kota', 'wilayah_id')->toArray();
-            $allWilayahByName = \App\Models\Wilayah::pluck('wilayah_id', 'nama_kota')->toArray();
-            $allWilayahByNameLower = array_change_key_case($allWilayahByName, CASE_LOWER);
 
             $imported = 0;
             $errors = [];
@@ -498,32 +539,6 @@ class DosenController extends Controller
                         ? trim($row[$columnMap['nama_dosen']]) : null;
                     $data['nip'] = isset($columnMap['nip']) && isset($row[$columnMap['nip']])
                         ? trim($row[$columnMap['nip']]) : null;
-
-                    // Handle wilayah_id
-                    if (isset($columnMap['wilayah_id']) && isset($row[$columnMap['wilayah_id']]) && !empty($row[$columnMap['wilayah_id']])) {
-                        // Direct wilayah_id provided
-                        $wilayahId = trim($row[$columnMap['wilayah_id']]);
-                        if (!isset($allWilayahById[$wilayahId])) {
-                            $errors[] = "Error pada baris {$rowNumber}: Wilayah ID '{$wilayahId}' tidak ditemukan";
-                            continue;
-                        }
-                        $data['wilayah_id'] = $wilayahId;
-                    } elseif (isset($columnMap['wilayah']) && isset($row[$columnMap['wilayah']]) && !empty($row[$columnMap['wilayah']])) {
-                        // Wilayah name provided, need to find ID
-                        $wilayahName = trim($row[$columnMap['wilayah']]);
-
-                        if (isset($allWilayahByName[$wilayahName])) {
-                            $data['wilayah_id'] = $allWilayahByName[$wilayahName];
-                        } elseif (isset($allWilayahByNameLower[strtolower($wilayahName)])) {
-                            $data['wilayah_id'] = $allWilayahByNameLower[strtolower($wilayahName)];
-                        } else {
-                            $errors[] = "Error pada baris {$rowNumber}: Wilayah '{$wilayahName}' tidak ditemukan";
-                            continue;
-                        }
-                    } else {
-                        $errors[] = "Error pada baris {$rowNumber}: Wilayah tidak valid atau kosong";
-                        continue;
-                    }
 
                     // Check if NIP already exists
                     $existingDosen = Dosen::where('nip', $data['nip'])->first();
@@ -556,7 +571,6 @@ class DosenController extends Controller
                     Dosen::create([
                         'user_id' => $user->id_user, // Note: using id_user, not id
                         'nip' => $data['nip'],
-                        'wilayah_id' => $data['wilayah_id'],
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
@@ -597,10 +611,9 @@ class DosenController extends Controller
     public function exportPDF(Request $request)
     {
         try {
-            // Get filtered data
+            // Get filtered data (removed wilayah join)
             $query = DB::table('m_dosen')
                 ->leftJoin('m_user', 'm_dosen.user_id', '=', 'm_user.id_user')
-                ->leftJoin('m_wilayah', 'm_dosen.wilayah_id', '=', 'm_wilayah.wilayah_id')
                 ->leftJoin(
                     DB::raw('(SELECT id_dosen, COUNT(*) as bimbingan_count FROM m_magang WHERE status != "ditolak" OR status IS NULL GROUP BY id_dosen) m'),
                     'm_dosen.id_dosen',
@@ -612,7 +625,6 @@ class DosenController extends Controller
                     'm_dosen.nip',
                     'm_user.name as nama_dosen',
                     'm_user.email',
-                    'm_wilayah.nama_kota as wilayah',
                     DB::raw('COALESCE(m.bimbingan_count, 0) as jumlah_bimbingan')
                 );
 
@@ -638,6 +650,65 @@ class DosenController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat mengeksport PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getDosenWithPerusahaan()
+    {
+        try {
+            // Get all dosen with their user data (removed wilayah join)
+            $dosen = DB::table('m_dosen')
+                ->join('m_user', 'm_dosen.user_id', '=', 'm_user.id_user') // FIXED: user_id instead of id_user
+                ->select(
+                    'm_dosen.*',
+                    'm_user.name',
+                    'm_user.email'
+                )
+                ->get();
+
+            // For each dosen, get their current assignments from t_lamaran, not m_magang
+            foreach ($dosen as $d) {
+                // Get assigned students from t_lamaran
+                $assignments = DB::table('t_lamaran')
+                    ->join('m_mahasiswa', 't_lamaran.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
+                    ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
+                    ->join('m_lowongan', 't_lamaran.id_lowongan', '=', 'm_lowongan.id_lowongan')
+                    ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
+                    ->where('t_lamaran.id_dosen', $d->id_dosen)
+                    ->select(
+                        't_lamaran.id_lamaran',
+                        'm_mahasiswa.id_mahasiswa',
+                        'm_user.name as mahasiswa_name',
+                        'm_mahasiswa.nim',
+                        'm_lowongan.judul_lowongan',
+                        'm_perusahaan.nama_perusahaan'
+                    )
+                    ->get();
+                    
+                $d->magangBimbingan = $assignments;
+                
+                // Get dosen skills
+                $skills = DB::table('t_skill_dosen')
+                    ->join('m_skill', 't_skill_dosen.skill_id', '=', 'm_skill.skill_id')
+                    ->where('t_skill_dosen.id_dosen', $d->id_dosen)
+                    ->select('m_skill.nama as nama_skill', 'm_skill.skill_id')
+                    ->get();
+                    
+                $d->skills = $skills->map(function($skill) {
+                    return ['skill' => $skill];
+                });
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $dosen
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching dosen with perusahaan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load dosen data: ' . $e->getMessage()
             ], 500);
         }
     }

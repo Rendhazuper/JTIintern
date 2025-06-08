@@ -1,3 +1,6 @@
+/* ================================
+   EXISTING STYLES
+   ================================ */
 .container-fluid {
     padding-top: 2rem;
 }
@@ -28,6 +31,256 @@
     font-weight: bold;
 }
 
+/* ================================
+   SKELETON LOADING BASE STYLES
+   ================================ */
+.skeleton-text,
+.skeleton-avatar,
+.skeleton-score-badge,
+.skeleton-badge,
+.skeleton-date {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+    border-radius: 4px;
+}
+
+.skeleton-text-xs {
+    height: 10px;
+    width: 50%;
+    margin-bottom: 0.25rem;
+}
+
+.skeleton-text-sm {
+    height: 12px;
+    width: 65%;
+    margin-bottom: 0.25rem;
+}
+
+.skeleton-text-md {
+    height: 16px;
+    width: 80%;
+    margin-bottom: 0.25rem;
+}
+
+.skeleton-text-lg {
+    height: 18px;
+    width: 95%;
+    margin-bottom: 0.25rem;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ================================
+   SKELETON LOADING CONTAINER
+   ================================ */
+.skeleton-loading {
+    animation: fadeIn 0.6s ease;
+}
+
+.skeleton-card-wrapper {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================
+   EVALUASI SKELETON CARD
+   ================================ */
+.evaluasi-skeleton-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+}
+
+.evaluasi-skeleton-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+}
+
+.evaluasi-skeleton-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-card-body {
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================================
+   SKELETON HEADER SECTION
+   ================================ */
+.skeleton-header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.skeleton-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.skeleton-avatar-text {
+    flex: 1;
+}
+
+.skeleton-score-badge {
+    width: 60px;
+    height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+/* ================================
+   SKELETON META SECTION
+   ================================ */
+.skeleton-meta-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-badge {
+    width: 120px;
+    height: 24px;
+    border-radius: 12px;
+}
+
+.skeleton-date {
+    width: 100px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+/* ================================
+   SKELETON COMMENT SECTION
+   ================================ */
+.skeleton-comment-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* ================================
+   FILTER LOADING OVERLAY
+   ================================ */
+.filter-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.filter-loading-content {
+    text-align: center;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 300px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #5e72e4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.filter-loading-content p {
+    margin: 0;
+    color: #5e72e4;
+    font-weight: 500;
+}
+
+/* ================================
+   ENHANCED EMPTY STATE
+   ================================ */
+.empty-state-card {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+/* ================================
+   ENHANCED ANIMATIONS
+   ================================ */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -36,5 +289,216 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ================================
+   EVALUATION CARD ANIMATIONS
+   ================================ */
+.evaluation-card-wrapper {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.evaluation-card-wrapper.loaded {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* ================================
+   SKELETON VARIATIONS WITH DELAYS
+   ================================ */
+.skeleton-card-wrapper:nth-child(1) { animation-delay: 0s; }
+.skeleton-card-wrapper:nth-child(2) { animation-delay: 0.15s; }
+.skeleton-card-wrapper:nth-child(3) { animation-delay: 0.3s; }
+.skeleton-card-wrapper:nth-child(4) { animation-delay: 0.45s; }
+.skeleton-card-wrapper:nth-child(5) { animation-delay: 0.6s; }
+.skeleton-card-wrapper:nth-child(6) { animation-delay: 0.75s; }
+
+.skeleton-text:nth-child(1) { animation-delay: 0s; }
+.skeleton-text:nth-child(2) { animation-delay: 0.1s; }
+.skeleton-text:nth-child(3) { animation-delay: 0.2s; }
+
+/* ================================
+   LOADING SPINNER STYLING
+   ================================ */
+#loading-container {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* ================================
+   FILTER CARD STYLING
+   ================================ */
+.form-select:focus {
+    border-color: #5e72e4;
+    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.15);
+}
+
+/* ================================
+   RESPONSIVE SKELETON STYLES
+   ================================ */
+@media (max-width: 992px) {
+    .col-lg-6 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .evaluasi-skeleton-card {
+        height: 200px;
+    }
+    
+    .skeleton-card-body {
+        padding: 1.25rem;
+    }
+    
+    .skeleton-avatar-section {
+        gap: 10px;
+    }
+    
+    .skeleton-avatar {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    .skeleton-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .skeleton-score-badge {
+        align-self: flex-end;
+    }
+    
+    .skeleton-meta-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .evaluasi-skeleton-card {
+        height: 240px;
+    }
+    
+    .filter-loading-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .evaluasi-skeleton-card {
+        height: 220px;
+    }
+    
+    .skeleton-card-body {
+        padding: 1rem;
+    }
+    
+    .skeleton-avatar {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .empty-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}
+
+/* ================================
+   PERFORMANCE OPTIMIZATIONS
+   ================================ */
+.skeleton-text,
+.skeleton-avatar,
+.evaluasi-skeleton-card,
+.evaluation-card-wrapper,
+.filter-loading-overlay {
+    will-change: background-position, opacity, transform;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-text,
+    .skeleton-avatar,
+    .skeleton-score-badge {
+        animation: none;
+        background: #f0f0f0;
+    }
+    
+    .skeleton-card-wrapper,
+    .evaluation-card-wrapper {
+        transition: none;
+        animation: none;
+    }
+    
+    .evaluasi-skeleton-card:hover {
+        transform: none;
+    }
+    
+    .empty-icon {
+        animation: none;
+    }
+}
+
+/* ================================
+   DARK MODE SUPPORT (Future)
+   ================================ */
+@media (prefers-color-scheme: dark) {
+    .skeleton-text,
+    .skeleton-avatar,
+    .skeleton-score-badge,
+    .skeleton-badge {
+        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+        background-size: 200% 100%;
+    }
+    
+    .evaluasi-skeleton-card {
+        background: #1e1e1e;
+        border-color: #333;
+    }
+    
+    .filter-loading-overlay {
+        background: rgba(0, 0, 0, 0.9);
+    }
+    
+    .filter-loading-content {
+        background: #1e1e1e;
+        color: white;
     }
 }

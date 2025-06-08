@@ -90,6 +90,8 @@ class LowonganController extends Controller
             'skill_id.*' => 'exists:m_skill,skill_id',
             'jenis_id' => 'required|exists:m_jenis,jenis_id',
             'kapasitas' => 'required|integer|min:1',
+            // ✅ TAMBAHKAN: Validasi untuk min_ipk
+            'min_ipk' => 'required|numeric|min:0|max:4.00|regex:/^\d{1,2}(\.\d{1,2})?$/',
             'deskripsi' => 'required|string',
         ]);
 
@@ -103,6 +105,8 @@ class LowonganController extends Controller
             $lowongan->periode_id = $request->periode_id;
             $lowongan->jenis_id = $request->jenis_id;
             $lowongan->kapasitas = $request->kapasitas;
+            // ✅ TAMBAHKAN: Simpan min_ipk
+            $lowongan->min_ipk = $request->min_ipk;
             $lowongan->deskripsi = $request->deskripsi;
             $lowongan->save();
             
@@ -119,6 +123,14 @@ class LowonganController extends Controller
             
             DB::commit();
             
+            // ✅ TAMBAHKAN: Log untuk debugging
+            Log::info('Lowongan created successfully:', [
+                'id' => $lowongan->id_lowongan,
+                'judul' => $lowongan->judul_lowongan,
+                'min_ipk' => $lowongan->min_ipk,
+                'kapasitas' => $lowongan->kapasitas
+            ]);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Lowongan berhasil ditambahkan.',
@@ -127,6 +139,7 @@ class LowonganController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error adding lowongan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan lowongan: ' . $e->getMessage(),
@@ -155,6 +168,7 @@ class LowonganController extends Controller
             // Add debug info
             Log::info('Showing lowongan with ID: ' . $id);
             Log::info('Skills found: ' . $skills->count());
+            Log::info('Min IPK: ' . $lowongan->min_ipk);
             
             return response()->json([
                 'success' => true,
@@ -164,6 +178,8 @@ class LowonganController extends Controller
                     'kapasitas' => $lowongan->kapasitas,
                     'kapasitas_tersedia' => $kapasitas ? $kapasitas->kapasitas_tersedia : null,
                     'kapasitas_total' => $kapasitas ? $kapasitas->kapasitas_total : $lowongan->kapasitas,
+                    // ✅ TAMBAHKAN: Return min_ipk
+                    'min_ipk' => $lowongan->min_ipk,
                     'deskripsi' => $lowongan->deskripsi,
                     'perusahaan' => [
                         'perusahaan_id' => $lowongan->perusahaan->perusahaan_id,
@@ -203,6 +219,8 @@ class LowonganController extends Controller
             'periode_id' => 'required|exists:m_periode,periode_id',
             'jenis_id' => 'required|exists:m_jenis,jenis_id',
             'kapasitas' => 'required|integer|min:1',
+            // ✅ TAMBAHKAN: Validasi untuk min_ipk
+            'min_ipk' => 'required|numeric|min:0|max:4.00|regex:/^\d{1,2}(\.\d{1,2})?$/',
             'deskripsi' => 'required|string',
             'skill_id' => 'required|array',
             'skill_id.*' => 'exists:m_skill,skill_id'
@@ -215,6 +233,7 @@ class LowonganController extends Controller
             // Find the lowongan record
             $lowongan = Lowongan::findOrFail($id);
             $oldKapasitas = $lowongan->kapasitas;
+            $oldMinIpk = $lowongan->min_ipk;
             
             // Update the main fields
             $lowongan->judul_lowongan = $request->judul_lowongan;
@@ -222,11 +241,20 @@ class LowonganController extends Controller
             $lowongan->periode_id = $request->periode_id;
             $lowongan->jenis_id = $request->jenis_id;
             $lowongan->kapasitas = $request->kapasitas;
+            // ✅ TAMBAHKAN: Update min_ipk
+            $lowongan->min_ipk = $request->min_ipk;
             $lowongan->deskripsi = $request->deskripsi;
             $lowongan->save();
             
             // Log skill IDs for debugging
-            Log::info('Updating skills for lowongan ' . $id . ' with skill_ids: ', $request->skill_id);
+            Log::info('Updating lowongan with data:', [
+                'id' => $id,
+                'skill_ids' => $request->skill_id,
+                'min_ipk_old' => $oldMinIpk,
+                'min_ipk_new' => $request->min_ipk,
+                'kapasitas_old' => $oldKapasitas,
+                'kapasitas_new' => $request->kapasitas
+            ]);
             
             // Delete existing skills first
             DB::table('t_skill_lowongan')->where('id_lowongan', $id)->delete();
@@ -236,7 +264,6 @@ class LowonganController extends Controller
                 DB::table('t_skill_lowongan')->insert([
                     'id_lowongan' => $id,
                     'id_skill' => $skillId
-                    // Remove created_at and updated_at
                 ]);
             }
             
@@ -248,6 +275,17 @@ class LowonganController extends Controller
             // Commit transaction
             DB::commit();
 
+            // ✅ TAMBAHKAN: Log success untuk debugging
+            Log::info('Lowongan updated successfully:', [
+                'id' => $id,
+                'judul' => $lowongan->judul_lowongan,
+                'min_ipk' => $lowongan->min_ipk,
+                'changes' => [
+                    'min_ipk_changed' => $oldMinIpk != $request->min_ipk,
+                    'kapasitas_changed' => $oldKapasitas != $request->kapasitas
+                ]
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Lowongan berhasil diperbarui',
@@ -257,6 +295,7 @@ class LowonganController extends Controller
             // Rollback transaction on error
             DB::rollBack();
             Log::error('Error updating lowongan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
