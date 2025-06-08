@@ -19,6 +19,7 @@ use App\Http\Controllers\API\EvaluasiController;
 use App\Http\Controllers\API\PlottingController;
 use App\Http\Controllers\API\LogbookController;
 use App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController;
+use App\Http\Controllers\API\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,45 +61,60 @@ Route::middleware('auth:sanctum')->group(function () {
 // 3. MAHASISWA ROUTES - For Mahasiswa Role (DIPINDAHKAN KE DEPAN)
 // =========================================================
 Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group(function () {
-    // Route untuk lowongan
+    // Lowongan routes
     Route::get('/lowongan', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'index']);
     Route::get('/lowongan/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'show']);
     Route::get('/active-internship', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkActiveInternship']);
+    Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
 
-    // Profile management routes - TAMBAHAN BARU
-    Route::get('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getSkills']);
-    Route::post('/profile/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateSkills']);
-    Route::get('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getMinat']);
-    Route::post('/profile/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateMinat']);
-    Route::post('/profile/update', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'update']);
-    Route::post('/profile/avatar', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateAvatar']);
-    Route::post('/profile/password', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updatePassword']);
-    Route::get('/profile/completion', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'checkCompletion']);
+    // Profile management routes
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\MahasiswaController::class, 'getProfile']);
+        Route::put('/', [App\Http\Controllers\API\MahasiswaController::class, 'updateProfile']);
+        Route::get('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getSkills']);
+        Route::post('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateSkills']);
+        Route::get('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getMinat']);
+        Route::post('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateMinat']);
+        Route::post('/update', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'update']);
+        Route::post('/avatar', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateAvatar']);
+        Route::post('/password', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updatePassword']);
+        Route::get('/completion', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'checkCompletion']);
+    });
 
+    // Notifications routes
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\NotificationController::class, 'index']);
+        Route::get('/count', [App\Http\Controllers\API\NotificationController::class, 'getUnreadCount']);
+        Route::post('/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
+        Route::delete('/', [App\Http\Controllers\API\NotificationController::class, 'clearAll']);
+        Route::delete('/read', [App\Http\Controllers\API\NotificationController::class, 'clearRead']);
+        Route::delete('/expired', [App\Http\Controllers\API\NotificationController::class, 'clearExpired']);
+    });
+
+    // ✅ CLEANED: Lamaran routes (menggabungkan duplikasi)
+    Route::prefix('lamaran')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+        Route::get('/reload', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
+        Route::delete('/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+    });
+
+    // ✅ FIXED: Logbook routes menggunakan controller yang benar
+    Route::prefix('logbook')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
+        Route::delete('/{id}', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'destroy']);
+    });
 
     // Recommendations route
     Route::get('/recommendations', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
 
-    // Route untuk lamaran
-    Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
-    Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
-    Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
-    Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
-    Route::get('/lamaran/reload', [App\Http\Controllers\API\Mahasiswa\ViewController::class, 'lamaran']);
-    Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-    Route::delete('/lamaran/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
-
-
-    Route::get('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
-    Route::post('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
-
     // Evaluasi routes
-    Route::get('/evaluasi', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
-    Route::get('/evaluasi/filter-options', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'getFilterOptions']);
-
-    // Profile dan logbook
-    Route::get('/profile', [App\Http\Controllers\API\MahasiswaController::class, 'getProfile']);
-    Route::put('/profile', [App\Http\Controllers\API\MahasiswaController::class, 'updateProfile']);
+    Route::prefix('evaluasi')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
+        Route::get('/filter-options', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'getFilterOptions']);
+    });
 });
 
 // =========================================================
