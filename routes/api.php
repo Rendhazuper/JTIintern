@@ -110,6 +110,23 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     // Recommendations route
     Route::get('/recommendations', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
 
+<<<<<<< HEAD
+=======
+    // Route untuk lamaran
+    Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
+    Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
+    Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
+    Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
+
+    Route::get('/lamaran/reload', [App\Http\Controllers\API\Mahasiswa\ViewController::class, 'lamaran']);
+    Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+    Route::delete('/lamaran/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+
+
+    Route::get('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
+    Route::post('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
+
+>>>>>>> 59721635f51241da58774a8ff1a5f25131d4ef49
     // Evaluasi routes
     Route::prefix('evaluasi')->group(function () {
         Route::get('/', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
