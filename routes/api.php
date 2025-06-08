@@ -17,6 +17,8 @@ use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
 use App\Http\Controllers\API\EvaluasiController;
 use App\Http\Controllers\API\PlottingController;
+use App\Http\Controllers\API\LogbookController;
+use App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +41,7 @@ Route::get('/csrf-cookie', function () {
 Route::get('/wilayah', [WilayahController::class, 'index']);
 Route::get('/dosen/with-perusahaan', [DosenController::class, 'withPerusahaan']);
 Route::get('/dosen/with-details', [DosenController::class, 'withDetails']);
+Route::get('/wilayah', [WilayahController::class, 'index']);
 
 // =========================================================
 // 2. AUTHENTICATION ROUTES
@@ -56,18 +59,43 @@ Route::middleware('auth:sanctum')->group(function () {
 // =========================================================
 // 3. MAHASISWA ROUTES - For Mahasiswa Role (DIPINDAHKAN KE DEPAN)
 // =========================================================
-Route::middleware(['api', 'web', 'auth:sanctum', 'role:mahasiswa'])->prefix('mahasiswa')->group(function () {
+Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group(function () {
     // Route untuk lowongan
     Route::get('/lowongan', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'index']);
     Route::get('/lowongan/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'show']);
+    Route::get('/active-internship', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkActiveInternship']);
+
+    // Profile management routes - TAMBAHAN BARU
+    Route::get('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getSkills']);
+    Route::post('/profile/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateSkills']);
+    Route::get('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getMinat']);
+    Route::post('/profile/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateMinat']);
+    Route::post('/profile/update', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'update']);
+    Route::post('/profile/avatar', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateAvatar']);
+    Route::post('/profile/password', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updatePassword']);
+    Route::get('/profile/completion', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'checkCompletion']);
+
+
+    // Recommendations route
+    Route::get('/recommendations', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
 
     // Route untuk lamaran
     Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
     Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
     Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
     Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
-    // Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-    // Route::delete('/lamaran/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+
+    Route::get('/lamaran/reload', [App\Http\Controllers\API\Mahasiswa\ViewController::class, 'lamaran']);
+    Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+    Route::delete('/lamaran/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+
+
+    Route::get('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
+    Route::post('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
+
+    // Evaluasi routes
+    Route::get('/evaluasi', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
+    Route::get('/evaluasi/filter-options', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'getFilterOptions']);
 
     // Profile dan logbook
     Route::get('/profile', [App\Http\Controllers\API\MahasiswaController::class, 'getProfile']);
@@ -84,22 +112,24 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     Route::get('/dashboard/latest-applications', [DashboardController::class, 'getLatestApplications']);
 
     // Mahasiswa Management
+    Route::get('/export/pdf', [MahasiswaController::class, 'exportPDF']);
+    Route::post('/import', [MahasiswaController::class, 'importCSV']);
+    Route::get('/template', [MahasiswaController::class, 'downloadTemplate']);
     Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
     Route::post('/mahasiswa', [MahasiswaController::class, 'store']);
     Route::get('/mahasiswa/{id}', [MahasiswaController::class, 'show']);
     Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update']);
     Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
-    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
-    Route::get('/mahasiswa/export/pdf', [MahasiswaController::class, 'exportPDF']);
     Route::get('/kelas-options', [MahasiswaController::class, 'getKelasOptions']);
 
+
     // Magang Management
+    Route::get('/magang/available', [MagangController::class, 'getAvailable']);
     Route::get('/magang', [MagangController::class, 'index']);
     Route::get('/magang/{id}', [MagangController::class, 'show']);
     Route::post('/magang/{id}/accept', [MagangController::class, 'accept']);
     Route::post('/magang/{id}/reject', [MagangController::class, 'reject']);
-    Route::get('/magang/available', [MagangController::class, 'getAvailable']);
-    Route::post('/magang/{id}/assign-dosen', [MagangController::class, 'assignDosen']);
+    Route::post('/magang/assign-dosen/{id}', [MagangController::class, 'assignDosen']);
     Route::get('/magang/{id}/check-dosen', [MagangController::class, 'checkDosen']);
 
     // Perusahaan Management
