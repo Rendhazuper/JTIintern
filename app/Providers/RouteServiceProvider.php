@@ -17,7 +17,6 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-<<<<<<< Updated upstream
     // public const HOME = '/home';
  public static function redirectTo()
     {
@@ -36,10 +35,6 @@ class RouteServiceProvider extends ServiceProvider
         }
         return '/login';
     }
-=======
-
-
->>>>>>> Stashed changes
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */

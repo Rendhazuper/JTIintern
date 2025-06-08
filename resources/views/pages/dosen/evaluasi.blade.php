@@ -3,7 +3,7 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Evaluasi Mahasiswa'])
 
-    <div class="container-fluid px-10">
+    <div class="container-fluid py-4 ">
         <div class="row mb-4">
             <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                 <div class="card">
@@ -127,7 +127,8 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Nilai Kinerja (0-100)</label>
-                            <input type="number" class="form-control" name="nilai" min="0" max="100" required>
+                            <input type="number" class="form-control" name="nilai" min="0" max="100"
+                                required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tanggal Evaluasi</label>
@@ -137,7 +138,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Komentar</label>
-                        <textarea class="form-control" name="komentar" rows="4" required 
+                        <textarea class="form-control" name="komentar" rows="4" required
                             placeholder="Masukkan komentar evaluasi untuk mahasiswa..."></textarea>
                     </div>
 

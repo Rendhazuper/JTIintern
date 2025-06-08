@@ -2,7 +2,7 @@
 
 @section('content')
     @include('layouts.navbars.mahasiswa.topnav')
-    
+
     <div class="container-fluid px-10">
         @if(isset($hasActiveMagang) && $hasActiveMagang)
             <!-- ✅ CONTENT DENGAN SKELETON LOADING UNTUK MAGANG AKTIF -->
@@ -319,7 +319,7 @@
 @endsection
 
 @push('css')
-   <link rel="stylesheet" href="{{ asset('assets/css/Mahasiswa/logaktivitas.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Mahasiswa/logaktivitas.css') }}">
 @endpush
 
 @push('js')

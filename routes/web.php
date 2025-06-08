@@ -4,6 +4,7 @@ use App\Http\Controllers\API\Dosen\dashboardController;
 use App\Http\Controllers\API\Dosen\DosenEvaluasiController;
 use App\Http\Controllers\API\Dosen\DosenMahasiswaController;
 use App\Http\Controllers\API\Dosen\DosenProfileController;
+use App\Http\Controllers\API\Dosen\ViewController as DosenViewController;
 use App\Http\Controllers\API\Mahasiswa\ViewController;
 use App\Http\Controllers\API\MahasiswaController;
 use Illuminate\Support\Facades\Route;
@@ -16,11 +17,9 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\dataMhsController;
 use App\Http\Controllers\PerusahaanController;
-<<<<<<< Updated upstream
+
 use App\Http\Controllers\ErrorController;
-=======
-use App\Http\Controllers\API\Dosen\ViewController as DosenViewController;
->>>>>>> Stashed changes
+
 
 /*
 |--------------------------------------------------------------------------
@@ -94,18 +93,13 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 
 //dosen routes
 Route::prefix('dosen')->middleware(['auth', 'role:dosen'])->group(function () {
-<<<<<<< Updated upstream
-    Route::get('/dashboard', [dashboardController::class, 'index'])->name('dosen.dashboard');
-    Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('dosen.mahasiswa');
-    Route::get('/evaluasi', [DosenEvaluasiController::class, 'index'])->name('dosen.evaluasi');
-    Route::get('/profile', [DosenProfileController::class, 'index'])->name('dosen.profile');
-    Route::post('/profile/update', [DosenProfileController::class, 'update'])->name('dosen.profile.update');
-=======
+
     Route::get('/dashboard', [DosenViewController::class, 'dashboard'])->name('dosen.dashboard');
     Route::get('/mahasiswa', [DosenViewController::class, 'mahasiswa'])->name('dosen.mahasiswa');
     Route::get('/evaluasi', [DosenViewController::class, 'evaluasi'])->name('dosen.evaluasi');
     Route::get('/profile', [DosenViewController::class, 'profile'])->name('dosen.profile');
->>>>>>> Stashed changes
+    Route::post('/profile/update', [DosenProfileController::class, 'update'])->name('dosen.profile.update');
+
 });
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {

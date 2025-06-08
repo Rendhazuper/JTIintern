@@ -18,7 +18,8 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'dosen.dashboard' ? 'active' : '' }}"
                         href="{{ route('dosen.dashboard') }}">
-                        <div class="icon icon-shape icon-sm border-radius-md me-2 d-flex align-items-center justify-content-center">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-grid-fill text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Dashboard</span>
@@ -28,17 +29,19 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'dosen.mahasiswa' ? 'active' : '' }}"
                         href="{{ route('dosen.mahasiswa') }}">
-                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-mortarboard text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">Data Mahasiswa</span>
+                        <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'dosen.evaluasi' ? 'active' : '' }}"
                         href="{{ route('dosen.evaluasi') }}">
-                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-file-bar-graph text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Evaluasi Magang</span>
@@ -48,7 +51,8 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'dosen.profile' ? 'active' : '' }}"
                         href="{{ route('dosen.profile') }}">
-                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-person-gear text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Manajemen Profile</span>

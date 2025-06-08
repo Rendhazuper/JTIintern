@@ -47,7 +47,6 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-<<<<<<< Updated upstream
             // Redirect based on role
             switch(Auth::user()->role) {
                 case 'admin':
@@ -59,18 +58,8 @@ class LoginController extends Controller
                     return redirect()->intended('/mahasiswa/dashboard');
                 default:
                     return redirect()->intended('/dashboard');
-=======
-            // Check user role and redirect accordingly
-            if (Auth::user()->role === 'admin' || Auth::user()->role === 'superadmin') {
-                return redirect()->intended('/dashboard');
-            } else if (Auth::user()->role === 'mahasiswa') {
-                return redirect()->intended('/mahasiswa/dashboard');
-            } else if (Auth::user()->role === 'dosen') {
-                return redirect()->intended('/dosen/dashboard');
->>>>>>> Stashed changes
-            }
         }
-
+    }
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ]);

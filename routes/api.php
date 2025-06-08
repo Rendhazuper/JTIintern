@@ -17,8 +17,8 @@ use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\WilayahController;
 use App\Http\Controllers\API\EvaluasiController;
 use App\Http\Controllers\API\PlottingController;
-use App\Http\Controllers\API\LogbookController;
-use App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController;
+use App\Http\Controllers\API\Dosen\DosenMahasiswaController as DosenMaha;
+use App\Http\Controllers\API\Dosen\dashboardController as DosenDash;
 use App\Http\Controllers\API\NotificationController;
 
 /*
@@ -110,8 +110,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     // Recommendations route
     Route::get('/recommendations', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
 
-<<<<<<< HEAD
-=======
+
     // Route untuk lamaran
     Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
     Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
@@ -126,7 +125,6 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::get('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
     Route::post('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
 
->>>>>>> 59721635f51241da58774a8ff1a5f25131d4ef49
     // Evaluasi routes
     Route::prefix('evaluasi')->group(function () {
         Route::get('/', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
@@ -193,6 +191,7 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     Route::get('/dosen/export/pdf', [DosenController::class, 'exportPDF']);
     Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
     Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
+    
 
     // Kelas Management
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);
@@ -247,4 +246,18 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:superadmin'])->prefix('su
     Route::get('/admin/{id}', [AdminController::class, 'show']);
     Route::put('/admin/{id}', [AdminController::class, 'update']);
     Route::delete('/admin/{id}', [AdminController::class, 'destroy']);
+});
+
+// Route tambahan untuk mendapatkan mahasiswa bimbingan dosen
+// =========================================================
+// 6. Dosen-ONLY ROUTES
+// =========================================================
+
+
+// Dosen Dashboard Routes
+Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function () {
+    Route::get('/dosen/dashboard/stats/{id_dosen}', [DosenDash::class, 'getStats']);
+    Route::get('/dosen/dashboard/mahasiswa/{id_dosen}', [DosenDash::class, 'getMahasiswaBimbingan']);
+    Route::get('/dosen/{id_dosen}/mahasiswa-bimbingan', [DosenMaha::class, 'getMahasiswaBimbingan']);
+    Route::get('/perusahaan-list', [DosenMaha::class, 'getPerusahaanList']);
 });

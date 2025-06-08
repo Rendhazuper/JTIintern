@@ -1,13 +1,68 @@
-.card-atas {
-    /* background-color: red; */
-    padding: 0 20px 0 20px;
-}
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
 
+/* Search input and filter styles */
+.input-group .form-control,
 .form-select {
-    width: 200px;
-    height: 50px;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px !important;
+    font-weight: 600 !important;
 }
 
-.form-control {
-    padding: 0 0 0 20px;
+/* Search icon style */
+.input-group-text i {
+    font-size: 10px;
+}
+
+/* Placeholder style */
+.form-control::placeholder {
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #a0aec0;
+}
+
+/* Select options style */
+.form-select option {
+    font-family: "Open Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* Ensure consistent heights */
+.input-group,
+.form-select {
+    height: 38px;
+}
+
+/* Override modal backdrop to cover sidenav */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+/* Ensure sidenav stays below modal backdrop */
+.sidenav {
+    z-index: 1039 !important;
+}
+
+/* Ensure modal stays on top */
+.modal {
+    z-index: 1045 !important;
+}
+
+/* Additional styling for better visual hierarchy */
+.modal-backdrop.show {
+    opacity: 0.5;
+    backdrop-filter: blur(1px);
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .row.g-2 {
+        margin: 0 -0.5rem;
+    }
+    .row.g-2 > [class*="col-"] {
+        padding: 0 0.5rem;
+    }
+    .form-select {
+        width: 100%;
+    }
 }

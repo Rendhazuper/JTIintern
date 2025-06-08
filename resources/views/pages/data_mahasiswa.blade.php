@@ -101,7 +101,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0" value="6">
+                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0"
+                                value="6">
                             <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
                         </div>
                         <div class="mb-3">
@@ -110,12 +111,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="nim" class="form-label">NIM</label>
-                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15" required>
+                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk" class="form-control"
-                                required>
+                            <input type="number" step="0.01" min="0" max="4" id="ipk"
+                                name="ipk" class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -179,8 +181,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control" min="0"
-                                value="6">
+                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control"
+                                min="0" value="6">
                             <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
                         </div>
                         <div class="mb-3">
@@ -197,12 +199,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_nim" class="form-label">NIM</label>
-                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15" required>
+                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk" name="ipk" class="form-control"
-                                required>
+                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk"
+                                name="ipk" class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -215,7 +218,8 @@
     </div>
 
     <!-- Modal Import CSV -->
-    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel" aria-hidden="true">
+    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <form id="formImportCSV" enctype="multipart/form-data" onsubmit="submitImportCSV(event)">
                 <div class="modal-content">
@@ -234,7 +238,8 @@
                                 <i class="fas fa-download me-1"></i>Download Template
                             </button>
                             <label for="csvFile" class="form-label">Pilih File CSV</label>
-                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv" required>
+                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv"
+                                required>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="headerRow" name="headerRow" checked>
@@ -263,18 +268,21 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-
         function debounce(func, wait) {
             let timeout;
-            return function (...args) {
+            return function(...args) {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(this, args), wait);
             };
         }
 
-        let filterState = { prodi: '', kelas: '', search: '' }; // Tambahkan let
+        let filterState = {
+            prodi: '',
+            kelas: '',
+            search: ''
+        }; // Tambahkan let
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi
             loadKelasFilterOptions();
             loadMahasiswaData(filterState);
@@ -282,7 +290,7 @@
             // Setup event filter kelas
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) {
-                kelasFilter.addEventListener('change', function (e) {
+                kelasFilter.addEventListener('change', function(e) {
                     filterState.kelas = e.target.value;
                     loadMahasiswaData(filterState);
                 });
@@ -294,7 +302,7 @@
 
             if (searchInput) {
                 // Tambahkan kedua fungsi pada satu event listener
-                searchInput.addEventListener('input', debounce(function (e) {
+                searchInput.addEventListener('input', debounce(function(e) {
                     // Update tampilan tombol clear
                     if (clearSearch) {
                         clearSearch.style.display = this.value.length > 0 ? 'block' : 'none';
@@ -309,7 +317,7 @@
 
             // Setup tombol clear search
             if (clearSearch) {
-                clearSearch.addEventListener('click', function () {
+                clearSearch.addEventListener('click', function() {
                     if (searchInput) {
                         searchInput.value = '';
                         filterState.search = '';
@@ -333,50 +341,60 @@
 
         function loadKelasFilterOptions() {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const kelasFilter = document.getElementById('kelasFilter');
                         kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
-                        response.data.data.forEach(function (kelas) {
-                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                        response.data.data.forEach(function(kelas) {
+                            kelasFilter.innerHTML +=
+                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadKelasOptions() {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-                        response.data.data.forEach(function (kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                        response.data.data.forEach(function(kelas) {
+                            select.innerHTML +=
+                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadEditKelasOptions(selectedIdKelas = '') {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
+<<<<<<< Updated upstream
                         response.data.data.forEach(function (kelas) {
                             select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
                                                                                                                                                                                                                                                                 ${kelas.nama_kelas}
                                                                                                                                                                                                                                                             </option>`;
+=======
+                        response.data.data.forEach(function(kelas) {
+                            select.innerHTML +=
+                                `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
+                                                                                                                                                                                                                                                        ${kelas.nama_kelas}
+                                                                                                                                                                                                                                                    </option>`;
+>>>>>>> Stashed changes
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
@@ -384,6 +402,7 @@
         function loadMahasiswaData(filters = {}) {
             // Show loading state
             const tableBody = document.getElementById('mahasiswa-table-body');
+<<<<<<< Updated upstream
             tableBody.innerHTML = `
                                                                                                                                         <tr>
                                                                                                                                             <td colspan="4" class="text-center p-5">
@@ -395,13 +414,30 @@
                                                                                                                                             </td>
                                                                                                                                         </tr>
                                                                                                                                     `;
+=======
+            tableBody.innerHTML =
+                `
+                                                                                                                                <tr>
+                                                                                                                                    <td colspan="4" class="text-center p-5">
+                                                                                                                                        <div class="d-flex flex-column align-items-center">
+                                                                                                                                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                                                                                                                            <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
+                                                                                                                                            <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
+                                                                                                                                        </div>
+                                                                                                                                    </td>
+                                                                                                                                </tr>
+                                                                                                                            `;
+>>>>>>> Stashed changes
 
             // Add slight delay for better UX when loading is very fast
             setTimeout(() => {
-                api.get('/mahasiswa', { params: filters })
-                    .then(function (response) {
+                api.get('/mahasiswa', {
+                        params: filters
+                    })
+                    .then(function(response) {
                         // Handle response data
-                        if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
+                        if (response.data && (response.data.success === true || Array.isArray(response.data
+                                .data))) {
                             // Clear loading state
                             tableBody.innerHTML = '';
 
@@ -420,7 +456,8 @@
                                     // Create table row with animation delay
                                     const tr = document.createElement('tr');
                                     tr.style.opacity = '0';
-                                    tr.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
+                                    tr.style.animation =
+                                        `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
                                     tr.innerHTML = createMahasiswaRow(mahasiswa);
                                     tableBody.appendChild(tr);
                                 });
@@ -429,12 +466,22 @@
                                 if (!document.getElementById('fade-in-animation')) {
                                     const style = document.createElement('style');
                                     style.id = 'fade-in-animation';
+<<<<<<< Updated upstream
                                     style.textContent = `
                                                                                                                                                                 @keyframes fadeIn {
                                                                                                                                                                     from { opacity: 0; transform: translateY(10px); }
                                                                                                                                                                     to { opacity: 1; transform: translateY(0); }
                                                                                                                                                                 }
                                                                                                                                                             `;
+=======
+                                    style.textContent =
+                                        `
+                                                                                                                                                        @keyframes fadeIn {
+                                                                                                                                                            from { opacity: 0; transform: translateY(10px); }
+                                                                                                                                                            to { opacity: 1; transform: translateY(0); }
+                                                                                                                                                        }
+                                                                                                                                                    `;
+>>>>>>> Stashed changes
                                     document.head.appendChild(style);
                                 }
 
@@ -454,7 +501,7 @@
                             showErrorState('Gagal memuat data mahasiswa.');
                         }
                     })
-                    .catch(function (error) {
+                    .catch(function(error) {
                         // Handle API error
                         console.error('API Error:', error);
                         let errorMessage = 'Gagal memuat data mahasiswa';
@@ -547,6 +594,7 @@
                     filterMessage = 'dengan filter yang dipilih';
                 }
 
+<<<<<<< Updated upstream
                 tableBody.innerHTML = `
                                                                                                                                             <tr>
                                                                                                                                                 <td colspan="4">
@@ -570,10 +618,37 @@
                                                                                                                                                 </td>
                                                                                                                                             </tr>
                                                                                                                                         `;
+=======
+                tableBody.innerHTML =
+                    `
+                                                                                                                                    <tr>
+                                                                                                                                        <td colspan="4">
+                                                                                                                                            <div class="empty-state py-5">
+                                                                                                                                                <div class="empty-state-icon mb-3">
+                                                                                                                                                    <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
+                                                                                                                                                </div>
+                                                                                                                                                <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
+                                                                                                                                                <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
+                                                                                                                                                <div class="d-flex justify-content-center gap-2">
+                                                                                                                                                    <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
+                                                                                                                                                        <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
+                                                                                                                                                    </button>
+                                                                                                                                                    ${filters && (filters.kelas || filters.prodi) ? `
+                                                                                                                                                                    <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                                                                                                                                                        <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                                                                                                                                                    </button>
+                                                                                                                                                                ` : ''}
+                                                                                                                                                </div>
+                                                                                                                                            </div>
+                                                                                                                                        </td>
+                                                                                                                                    </tr>
+                                                                                                                                `;
+>>>>>>> Stashed changes
             }
 
             // Helper function to show error state
             function showErrorState(message, isSystemError = false) {
+<<<<<<< Updated upstream
                 tableBody.innerHTML = `
                                                                                                                                             <tr>
                                                                                                                                                 <td colspan="4">
@@ -592,6 +667,27 @@
                                                                                                                                                 </td>
                                                                                                                                             </tr>
                                                                                                                                         `;
+=======
+                tableBody.innerHTML =
+                    `
+                                                                                                                                    <tr>
+                                                                                                                                        <td colspan="4">
+                                                                                                                                            <div class="text-center py-4">
+                                                                                                                                                <div class="mb-3">
+                                                                                                                                                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                                                                                                                                                </div>
+                                                                                                                                                <h5 class="text-danger">${message}</h5>
+                                                                                                                                                ${isSystemError ? `
+                                                                                                                                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                                                                            ` : ''}
+                                                                                                                                                <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
+                                                                                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                                                                                </button>
+                                                                                                                                            </div>
+                                                                                                                                        </td>
+                                                                                                                                    </tr>
+                                                                                                                                `;
+>>>>>>> Stashed changes
             }
 
             // Helper function to add hover effects
@@ -627,6 +723,7 @@
                     const currentPage = responseData.meta.current_page;
                     const lastPage = responseData.meta.last_page;
 
+<<<<<<< Updated upstream
                     let paginationHtml = `
                                                                                                                                                 <nav aria-label="Page navigation">
                                                                                                                                                     <ul class="pagination pagination-sm justify-content-center my-3">
@@ -665,6 +762,49 @@
                                                                                                                                                     </ul>
                                                                                                                                                 </nav>
                                                                                                                                             `;
+=======
+                    let paginationHtml =
+                        `
+                                                                                                                                        <nav aria-label="Page navigation">
+                                                                                                                                            <ul class="pagination pagination-sm justify-content-center my-3">
+                                                                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(1)">
+                                                                                                                                                        <i class="fas fa-angle-double-left"></i>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
+                                                                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                                                                                                                                                        <i class="fas fa-angle-left"></i>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
+                                                                                                                                    `;
+
+                    // Generate page numbers
+                    for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
+                        paginationHtml +=
+                            `
+                                                                                                                                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                                                                                                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                                                                                                                                            </li>
+                                                                                                                                        `;
+                    }
+
+                    paginationHtml +=
+                        `
+                                                                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                                                                                                                                                        <i class="fas fa-angle-right"></i>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
+                                                                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
+                                                                                                                                                        <i class="fas fa-angle-double-right"></i>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
+                                                                                                                                            </ul>
+                                                                                                                                        </nav>
+                                                                                                                                    `;
+>>>>>>> Stashed changes
 
                     paginationContainer.innerHTML = paginationHtml;
                 }
@@ -674,16 +814,17 @@
         // Load minat options
         function loadMinatOptions() {
             api.get('/minat')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data) {
                         const select = document.getElementById('minat');
                         select.innerHTML = '';
-                        response.data.forEach(function (minat) {
-                            select.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                        response.data.forEach(function(minat) {
+                            select.innerHTML +=
+                                `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data minat:', error);
                 });
         }
@@ -691,11 +832,11 @@
         // Load minat options for edit form
         function loadEditMinatOptions(selectedMinatIds = []) {
             api.get('/minat')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data) {
                         const select = document.getElementById('edit_minat');
                         select.innerHTML = '';
-                        response.data.forEach(function (minat) {
+                        response.data.forEach(function(minat) {
                             const isSelected = selectedMinatIds.includes(minat.minat_id);
                             select.innerHTML += `
                                                                         <option value="${minat.minat_id}" ${isSelected ? 'selected' : ''}>
@@ -704,7 +845,7 @@
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data minat:', error);
                 });
         }
@@ -734,13 +875,19 @@
         // Function to handle page navigation
         function changePage(page) {
             // Clone current filter state and add page
-            const paginatedFilter = { ...filterState, page };
+            const paginatedFilter = {
+                ...filterState,
+                page
+            };
 
             // Load data with pagination
             loadMahasiswaData(paginatedFilter);
 
             // Scroll to top of table
-            document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.querySelector('.card').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
 
             // Prevent default action
             return false;
@@ -759,16 +906,16 @@
         // Load skills options
         function loadSkillsOptions() {
             api.get('/skills')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function (skill) {
+                        response.data.data.forEach(function(skill) {
                             select.innerHTML += `<option value="${skill.skill_id}">${skill.nama}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
@@ -776,11 +923,11 @@
         // Load skills options for edit form
         function loadEditSkillsOptions(selectedSkillIds = []) {
             api.get('/skills')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function (skill) {
+                        response.data.data.forEach(function(skill) {
                             const isSelected = selectedSkillIds.includes(skill.skill_id);
                             select.innerHTML += `
                                                 <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
@@ -789,7 +936,7 @@
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
@@ -806,7 +953,7 @@
             });
 
             api.get(`/mahasiswa/${id}`)
-                .then(function (response) {
+                .then(function(response) {
                     Swal.close();
 
                     if (response.data.success) {
@@ -818,6 +965,7 @@
                         console.log('Data minat:', mahasiswa.minat);
 
                         // Render skills badges dengan penanganan data yang fleksibel
+<<<<<<< Updated upstream
                         const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0
                             ? mahasiswa.skills.map(skill => `
                                                                     <span class="badge bg-primary me-1">
@@ -846,6 +994,38 @@
                                                                                                                                                                                     </li>
                                                                                                                                                                                   `).join('')
                             : '<li class="list-group-item">Tidak ada dokumen</li>';
+=======
+                        const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 ?
+                            mahasiswa.skills.map(skill => `
+                                                            <span class="badge bg-primary me-1">
+                                                                ${skill.nama || 'Tidak Diketahui'} 
+                                                                (${skill.lama_skill || 'Tidak Diketahui'})
+                                                            </span>
+                                                          `).join('') :
+                            '<span class="text-muted">Tidak ada skill</span>';
+
+                        // Render minat badges
+                        const minat = Array.isArray(mahasiswa.minat) && mahasiswa.minat.length > 0 ?
+                            mahasiswa.minat.map(m => `
+                                                            <span class="badge bg-info me-1">
+                                                                ${m.nama_minat || 'Tidak Diketahui'}
+                                                            </span>
+                                                          `).join('') :
+                            '<span class="text-muted">Tidak ada minat</span>';
+
+                        // Render dokumen dengan pengecekan array
+                        const dokumen = Array.isArray(mahasiswa.dokumen) && mahasiswa.dokumen.length > 0 ?
+                            mahasiswa.dokumen.map(doc =>
+                                `
+                                                                                                                                                                            <li class="list-group-item">
+                                                                                                                                                                                <strong>${doc.file_type || 'Dokumen'}:</strong> 
+                                                                                                                                                                                <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
+                                                                                                                                                                                <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
+                                                                                                                                                                            </li>
+                                                                                                                                                                          `
+                            ).join('') :
+                            '<li class="list-group-item">Tidak ada dokumen</li>';
+>>>>>>> Stashed changes
 
                         // Isi modal dengan data mahasiswa
                         document.getElementById('detailMahasiswaModalLabel').innerText =
@@ -881,7 +1061,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat detail mahasiswa', 'error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     Swal.close();
                     console.error('Error:', error);
 
@@ -901,7 +1081,7 @@
 
         function editMahasiswa(id) {
             api.get(`/mahasiswa/${id}`)
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
                         document.getElementById('edit_id_mahasiswa').value = mahasiswa.id_mahasiswa;
@@ -919,14 +1099,12 @@
                         loadEditKelasOptions(mahasiswa.id_kelas);
 
                         // Extract minat IDs
-                        const minatIds = Array.isArray(mahasiswa.minat)
-                            ? mahasiswa.minat.map(m => m.minat_id)
-                            : [];
+                        const minatIds = Array.isArray(mahasiswa.minat) ?
+                            mahasiswa.minat.map(m => m.minat_id) : [];
 
                         // Extract skill IDs 
-                        const skillIds = Array.isArray(mahasiswa.skills)
-                            ? mahasiswa.skills.map(s => s.skill_id)
-                            : [];
+                        const skillIds = Array.isArray(mahasiswa.skills) ?
+                            mahasiswa.skills.map(s => s.skill_id) : [];
 
                         // Load minat and skills options with selected values
                         loadEditMinatOptions(minatIds);
@@ -938,7 +1116,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat data mahasiswa', 'error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat memuat data mahasiswa', 'error');
                 });
@@ -1013,7 +1191,8 @@
                                 );
                                 loadMahasiswaData(); // Refresh data mahasiswa
                             } else {
-                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa', 'error');
+                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa',
+                                    'error');
                             }
                         })
                         .catch(err => {
@@ -1083,7 +1262,7 @@
                                                                                             `;
 
             api.get('/dashboard/latest-applications')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const applications = response.data.data;
                         const tableBody = document.getElementById('latest-applications');
@@ -1118,7 +1297,8 @@
                                     statusBadge = '<span class="badge bg-gradient-warning">Menunggu</span>';
                                     break;
                                 default:
-                                    statusBadge = `<span class="badge bg-gradient-secondary">${app.status || 'Menunggu'}</span>`;
+                                    statusBadge =
+                                        `<span class="badge bg-gradient-secondary">${app.status || 'Menunggu'}</span>`;
                             }
 
                             const row = `
@@ -1153,7 +1333,7 @@
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error loading latest applications:', error);
                     if (error.response) {
                         console.error('Response status:', error.response.status);
@@ -1203,6 +1383,7 @@
                 didOpen: () => Swal.showLoading()
             });
 
+<<<<<<< Updated upstream
             // ✅ PERBAIKAN: Gunakan route import yang sudah ada
             axios.post('/api/import', formData, {
                 headers: {
@@ -1211,6 +1392,15 @@
                 },
                 timeout: 60000
             })
+=======
+            // Kirim request ke endpoint yang sesuai
+            axios.post('/api/mahasiswa/import', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+>>>>>>> Stashed changes
                 .then(response => {
                     Swal.close();
                     if (response.data.success) {
@@ -1258,10 +1448,16 @@
         function downloadTemplate() {
             // ✅ PERBAIKAN: Gunakan route yang sudah ada
             api.get('/kelas')
+<<<<<<< Updated upstream
                 .then(function (response) {
                     if (response.data.success || response.data.length > 0) {
                         const kelas = response.data.success ? response.data.data : response.data;
                         const contohKelas = kelas[0]?.nama_kelas || 'TI-3A';
+=======
+                .then(function(response) {
+                    if (response.data.success) {
+                        const kelas = response.data.data;
+>>>>>>> Stashed changes
 
                         // ✅ Header CSV dengan format yang benar
                         let csvContent = "nama,nim,alamat,ipk,nama_kelas,email\n";
@@ -1270,7 +1466,18 @@
                         csvContent += `Budi Santoso,2341720003,Jl. Veteran No. 789 Surabaya,3.25,${contohKelas},\n`;
                         csvContent += `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
 
+<<<<<<< Updated upstream
                         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+=======
+                        // Tambahkan contoh data
+                        csvContent +=
+                            `Nama Mahasiswa,E41230001,Jl. Contoh No.123,3.50,${kelas[0]?.nama_kelas || 'TIF-3A'}\n`;
+
+                        // Buat file dan trigger download
+                        const blob = new Blob([csvContent], {
+                            type: 'text/csv;charset=utf-8;'
+                        });
+>>>>>>> Stashed changes
                         const link = document.createElement("a");
                         const url = URL.createObjectURL(blob);
                         link.setAttribute("href", url);
@@ -1285,7 +1492,7 @@
                         Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data kelas', 'error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
                 });

@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <title>
-        Argon Dashboard 2 by Creative Tim
+        JTIintern - Sistem Informasi Magang Jurusan Teknik Informatika Politeknik Negeri Malang
     </title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -41,7 +41,7 @@
                 'recover-password',
                 'rtl',
                 'virtual-reality',
-                'unauthorized'  // Tambahkan route unauthorized disini
+                'unauthorized', // Tambahkan route unauthorized disini
             ]))
             @yield('content')
         @else
@@ -82,8 +82,10 @@
     </script>
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
+    <script src="{{ asset('assets/js/fix-dashboard.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('js');
 </body>
 

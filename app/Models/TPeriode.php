@@ -7,19 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class TPeriode extends Model
 {
     protected $table = 't_periode';
-    protected $fillable = ['periode_id'];
+    protected $primaryKey = 'id_tperiode';
 
-    public static function setActivePeriod($periodeId)
+    public function periode()
     {
-        // Clear existing record
-        self::query()->delete();
-        
-        // Insert new record
-        return self::create(['periode_id' => $periodeId]);
-    }
-
-    public static function getActivePeriod()
-    {
-        return self::first();
+        return $this->belongsTo(Periode::class, 'periode_id', 'periode_id');
     }
 }

@@ -192,8 +192,6 @@
             </div>
         </div>
     </div>
-
-    @include('layouts.footers.auth.footer')
 @endsection
 
 @push('js')
@@ -219,7 +217,7 @@
         // Fungsi untuk memuat data summary dashboard
         function loadDashboardSummary() {
             api.get('/dashboard/summary')
-                .then(function (response) {
+                .then(function(response) {
                     console.log('Respons dari server:', response.data); // Debugging
                     if (response.data.success) {
                         const data = response.data.data;
@@ -233,7 +231,7 @@
                         showError('lowongan-aktif', 'Error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error:', error);
                     if (error.response && error.response.status === 401) {
                         // Redirect ke login jika tidak terautentikasi
@@ -247,21 +245,24 @@
 
         function loadActivePeriod() {
             axios.get('/api/dashboard/active-period')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success && response.data.data) {
                         const period = response.data.data;
                         console.log("Active period data:", period); // Debugging output
 
                         try {
                             // Format for displaying academic year
-                            document.getElementById('period-title').innerText = `Tahun Akademik ${period.waktu || 'Unknown'}`;
-                            document.getElementById('period-description').innerText = `Periode aktif yang sedang berjalan`;
+                            document.getElementById('period-title').innerText =
+                                `Tahun Akademik ${period.waktu || 'Unknown'}`;
+                            document.getElementById('period-description').innerText =
+                                `Periode aktif yang sedang berjalan`;
 
                             // Safely parse dates with error handling
                             let startDate, endDate;
                             try {
                                 startDate = period.tgl_mulai ? new Date(period.tgl_mulai) : new Date();
-                                endDate = period.tgl_selesai ? new Date(period.tgl_selesai) : new Date(startDate.getTime() + 365 * 24 * 60 * 60 * 1000);
+                                endDate = period.tgl_selesai ? new Date(period.tgl_selesai) : new Date(startDate
+                                    .getTime() + 365 * 24 * 60 * 60 * 1000);
 
                                 // Check if dates are valid
                                 if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
@@ -273,19 +274,27 @@
                                 endDate = new Date(startDate.getTime() + 365 * 24 * 60 * 60 * 1000);
                             }
 
-                            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+                            const options = {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            };
 
-                            document.getElementById('period-start-date').innerText = startDate.toLocaleDateString('id-ID', options);
-                            document.getElementById('period-end-date').innerText = endDate.toLocaleDateString('id-ID', options);
+                            document.getElementById('period-start-date').innerText = startDate.toLocaleDateString(
+                                'id-ID', options);
+                            document.getElementById('period-end-date').innerText = endDate.toLocaleDateString('id-ID',
+                                options);
 
                             // Calculate actual academic year progress
                             const today = new Date();
                             const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-                            const daysElapsed = Math.min(totalDays, Math.ceil((today - startDate) / (1000 * 60 * 60 * 24)));
+                            const daysElapsed = Math.min(totalDays, Math.ceil((today - startDate) / (1000 * 60 * 60 *
+                                24)));
                             const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
                             // Calculate progress percentage
-                            const progressPercent = Math.max(0, Math.min(100, Math.round((daysElapsed / totalDays) * 100)));
+                            const progressPercent = Math.max(0, Math.min(100, Math.round((daysElapsed / totalDays) *
+                                100)));
 
                             // Update progress bar
                             const progressBar = document.getElementById('period-progress-bar');
@@ -325,7 +334,7 @@
                         handleNoPeriodActive();
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error loading active period:', error);
                     handleNoPeriodActive("Terjadi kesalahan saat memuat data periode");
                 });
@@ -403,7 +412,7 @@
         // Fungsi untuk memuat data aplikasi terbaru
         function loadLatestApplications() {
             api.get('/dashboard/latest-applications')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const applications = response.data.data;
                         const tableBody = document.getElementById('latest-applications');
@@ -441,7 +450,7 @@
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error loading latest applications:', error);
                     document.getElementById('latest-applications').innerHTML = `
                                                                                         <tr>
@@ -454,7 +463,7 @@
         }
 
         // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             loadDashboardSummary();
             loadLatestApplications();
             loadActivePeriod();

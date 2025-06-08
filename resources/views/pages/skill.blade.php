@@ -75,7 +75,6 @@
                 </div>
             </div>
         </div>
-        @include('layouts.footers.auth.footer')
     </div>
 
     {{-- Modal Add/Edit Skill --}}
