@@ -16,6 +16,11 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\dataMhsController;
 use App\Http\Controllers\PerusahaanController;
+<<<<<<< Updated upstream
+use App\Http\Controllers\ErrorController;
+=======
+use App\Http\Controllers\API\Dosen\ViewController as DosenViewController;
+>>>>>>> Stashed changes
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +33,10 @@ use App\Http\Controllers\PerusahaanController;
 |
 */
 
+Route::get('/unauthorized', function() {
+    return view('unauthorized');
+})->name('unauthorized');
+
 // Redirect root to appropriate dashboard based on role
 Route::get('/', function () {
     if (auth()->check()) {
@@ -35,10 +44,14 @@ Route::get('/', function () {
             return redirect('/dashboard');
         } else if (auth()->user()->role === 'admin') {
             return redirect('/dashboard');
+        } else if (auth()->user()->role === 'dosen') {  // Tambahkan ini
+            return redirect('/dosen/dashboard');
         } else if (auth()->user()->role === 'mahasiswa') {
             return redirect('/mahasiswa/dashboard');
-        }
+        }else if (auth()->user()->role === 'dosen') {
+            return redirect('/dosen/dashboard');
     }
+}
     return redirect('/login');
 });
 
@@ -81,12 +94,18 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 
 //dosen routes
 Route::prefix('dosen')->middleware(['auth', 'role:dosen'])->group(function () {
-    Route::get('/dashboard', [dashboardController::class, 'index'])->name('home');
+<<<<<<< Updated upstream
     Route::get('/dashboard', [dashboardController::class, 'index'])->name('dosen.dashboard');
     Route::get('/mahasiswa', [DosenMahasiswaController::class, 'index'])->name('dosen.mahasiswa');
     Route::get('/evaluasi', [DosenEvaluasiController::class, 'index'])->name('dosen.evaluasi');
     Route::get('/profile', [DosenProfileController::class, 'index'])->name('dosen.profile');
     Route::post('/profile/update', [DosenProfileController::class, 'update'])->name('dosen.profile.update');
+=======
+    Route::get('/dashboard', [DosenViewController::class, 'dashboard'])->name('dosen.dashboard');
+    Route::get('/mahasiswa', [DosenViewController::class, 'mahasiswa'])->name('dosen.mahasiswa');
+    Route::get('/evaluasi', [DosenViewController::class, 'evaluasi'])->name('dosen.evaluasi');
+    Route::get('/profile', [DosenViewController::class, 'profile'])->name('dosen.profile');
+>>>>>>> Stashed changes
 });
 // Mahasiswa routes
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(function () {
@@ -98,3 +117,4 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(functi
     Route::get('/evaluasi', [ViewController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
     Route::get('/profile', [MahasiswaController::class, 'profile'])->name('mahasiswa.profile');
 });
+

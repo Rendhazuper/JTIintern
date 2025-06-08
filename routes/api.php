@@ -84,6 +84,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
     Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
     Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
+
     Route::get('/lamaran/reload', [App\Http\Controllers\API\Mahasiswa\ViewController::class, 'lamaran']);
     Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
     Route::delete('/lamaran/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);

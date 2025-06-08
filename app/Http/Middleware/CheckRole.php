@@ -47,6 +47,7 @@ class CheckRole
             return $next($request);
         }
 
-        return response()->json(['error' => 'Unauthorized: Required roles: ' . implode(', ', $allowedRoles)], 403);
+        // Ganti response JSON dengan redirect ke halaman unauthorized
+        return redirect()->route('unauthorized');
     }
 }

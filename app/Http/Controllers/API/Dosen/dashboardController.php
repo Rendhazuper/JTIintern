@@ -9,8 +9,6 @@ class dashboardController extends Controller
 {
     public function index()
     {
-        return view('pages.dosen.dashboard', [
-            'title' => 'Dashboard Dosen',
-        ]);
+        return view('pages.dosen.dashboard');
     }
 }
