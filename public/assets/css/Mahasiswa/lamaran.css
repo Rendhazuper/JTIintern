@@ -1047,3 +1047,164 @@
 .table-card .real-content {
     min-height: 300px;
 }
+
+/* ✅ TAMBAHKAN CSS untuk modal detail */
+.detail-lamaran-modal {
+    border-radius: 12px !important;
+}
+
+.detail-content-wrapper {
+    text-align: left !important;
+    font-size: 14px;
+}
+
+.company-logo-large .avatar {
+    width: 80px !important;
+    height: 80px !important;
+}
+
+.info-card {
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.description-content {
+    border-left: 4px solid #007bff;
+    margin-left: 4px;
+}
+
+.modal-footer-actions {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+    margin-top: 20px;
+}
+
+/* ✅ Card header controls styling */
+.card-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filter-container {
+    position: relative;
+}
+
+.filter-container select {
+    background-color: #fff;
+    border: 1px solid #d2d6da;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-container select:focus {
+    border-color: #5e72e4;
+    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+}
+
+/* ✅ Refresh button enhancement */
+#refreshLamaranBtn {
+    height: 32px;
+    min-width: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#refreshLamaranBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#refreshLamaranBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ✅ Filter animations */
+.lamaran-row {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-empty-state {
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 1rem;
+    padding: 2rem 1rem;
+}
+
+/* ✅ Loading states */
+.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ✅ ENHANCED toast animations */
+.toast-notification {
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ✅ Status badge improvements */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ✅ Table row hover improvements */
+.lamaran-row:hover {
+    background-color: #f8f9fa !important;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ✅ Responsive improvements */
+@media (max-width: 768px) {
+    .card-header-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .filter-container select,
+    #refreshLamaranBtn {
+        width: 100%;
+    }
+}

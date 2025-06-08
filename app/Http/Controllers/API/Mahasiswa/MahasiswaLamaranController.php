@@ -596,5 +596,135 @@ class MahasiswaLamaranController extends Controller
         }
     }
 
-    
+    // ✅ TAMBAHKAN method baru untuk detail lamaran
+    public function getDetailLamaran($id)
+    {
+        try {
+            $user = Auth::user();
+            
+            // Get mahasiswa data
+            $mahasiswa = DB::table('m_mahasiswa')
+                ->where('id_user', $user->id_user)
+                ->first();
+
+            if (!$mahasiswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data mahasiswa tidak ditemukan'
+                ], 404);
+            }
+
+            // ✅ PERBAIKI: GET DETAIL LAMARAN dengan nama tabel yang benar
+            $lamaran = DB::table('t_lamaran as l')
+                ->join('m_lowongan as low', 'l.id_lowongan', '=', 'low.id_lowongan')
+                ->join('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
+                ->leftJoin('m_wilayah as w', 'p.wilayah_id', '=', 'w.wilayah_id')
+                ->leftJoin('m_jenis as jl', 'low.jenis_id', '=', 'jl.jenis_id') // ✅ FIX: m_jenis bukan m_jenis_lowongan
+                ->leftJoin('m_periode as per', 'low.periode_id', '=', 'per.periode_id') // ✅ TAMBAH: periode info
+                ->where('l.id_lamaran', $id)
+                ->where('l.id_mahasiswa', $mahasiswa->id_mahasiswa)
+                ->select([
+                    // Lamaran info
+                    'l.id_lamaran',
+                    'l.tanggal_lamaran',
+                    'l.auth as status',
+                    
+                    // Lowongan details
+                    'low.id_lowongan',
+                    'low.judul_lowongan',
+                    'low.deskripsi as deskripsi_lowongan',
+                    'low.kapasitas',
+                    'low.min_ipk',
+                    'low.created_at as lowongan_posted',
+                    
+                    // Perusahaan details
+                    'p.perusahaan_id',
+                    'p.nama_perusahaan',
+                    'p.logo',
+                    'p.alamat_perusahaan',
+                    'p.email as perusahaan_email',
+                    'p.website',
+                    'p.deskripsi as deskripsi_perusahaan',
+                    
+                    // Location & Type
+                    'w.nama_kota',
+                    'jl.nama_jenis',
+                    'per.waktu as periode_waktu'
+                ])
+                ->first();
+
+            if (!$lamaran) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lamaran tidak ditemukan atau bukan milik Anda'
+                ], 404);
+            }
+
+            // ✅ GENERATE LOGO URL yang benar
+            $logoUrl = null;
+            if ($lamaran->logo && !empty($lamaran->logo)) {
+                if (strpos($lamaran->logo, 'http') === 0) {
+                    $logoUrl = $lamaran->logo;
+                } else if (strpos($lamaran->logo, 'storage/') === 0) {
+                    $logoUrl = asset($lamaran->logo);
+                } else {
+                    $logoUrl = asset('storage/' . $lamaran->logo);
+                }
+            }
+
+            // ✅ TRANSFORM data untuk response
+            $detailLamaran = [
+                'id_lamaran' => $lamaran->id_lamaran,
+                'tanggal_lamaran' => $lamaran->tanggal_lamaran,
+                'status' => $lamaran->status,
+                
+                // Lowongan details
+                'id_lowongan' => $lamaran->id_lowongan,
+                'judul_lowongan' => $lamaran->judul_lowongan,
+                'deskripsi_lowongan' => $lamaran->deskripsi_lowongan,
+                'kapasitas' => $lamaran->kapasitas,
+                'min_ipk' => $lamaran->min_ipk,
+                'lowongan_posted' => $lamaran->lowongan_posted,
+                'nama_jenis' => $lamaran->nama_jenis,
+                'periode_waktu' => $lamaran->periode_waktu,
+                
+                // Perusahaan details
+                'perusahaan_id' => $lamaran->perusahaan_id,
+                'nama_perusahaan' => $lamaran->nama_perusahaan,
+                'logo_perusahaan' => $lamaran->logo,
+                'logo_url' => $logoUrl,
+                'alamat_perusahaan' => $lamaran->alamat_perusahaan,
+                'perusahaan_email' => $lamaran->perusahaan_email,
+                'website' => $lamaran->website,
+                'deskripsi_perusahaan' => $lamaran->deskripsi_perusahaan,
+                'nama_kota' => $lamaran->nama_kota
+            ];
+
+            // ✅ LOG untuk debugging
+            Log::info('Detail lamaran loaded:', [
+                'lamaran_id' => $id,
+                'user_id' => $user->id_user,
+                'perusahaan' => $lamaran->nama_perusahaan,
+                'has_logo' => !empty($logoUrl)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail lamaran berhasil dimuat',
+                'data' => $detailLamaran
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting detail lamaran: ' . $e->getMessage(), [
+                'lamaran_id' => $id,
+                'user_id' => Auth::user()->id_user ?? 'unknown',
+                'stack' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat detail lamaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

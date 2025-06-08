@@ -218,70 +218,196 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         try {
+            Log::info('🔄 Profile update request received:', [
+                'user_id' => auth()->user()->id_user,
+                'request_data' => $request->all(),
+                'content_type' => $request->header('Content-Type')
+            ]);
+
+            // ✅ PERBAIKAN: Validasi dengan rules yang lebih tepat
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
-                'telp' => 'nullable|string|max:15',
-                'ipk' => 'nullable|numeric|min:0|max:4',
-                'alamat' => 'nullable|string|max:255',
+                'telp' => 'nullable|string|max:15|regex:/^[0-9+\-\s]+$/',
+                'ipk' => 'nullable|numeric|between:0,4.00',
+                'alamat' => 'nullable|string|max:1000',
                 'wilayah_id' => 'nullable|integer|exists:m_wilayah,wilayah_id',
+            ], [
+                'name.required' => 'Nama wajib diisi',
+                'name.max' => 'Nama maksimal 255 karakter',
+                'telp.max' => 'Nomor telepon maksimal 15 karakter',
+                'telp.regex' => 'Format nomor telepon tidak valid',
+                'ipk.numeric' => 'IPK harus berupa angka',
+                'ipk.between' => 'IPK harus antara 0.00 - 4.00',
+                'alamat.max' => 'Alamat maksimal 1000 karakter',
+                'wilayah_id.exists' => 'Wilayah yang dipilih tidak valid',
+                'wilayah_id.integer' => 'Wilayah ID harus berupa angka'
             ]);
 
             if ($validator->fails()) {
+                Log::warning('❌ Profile update validation failed:', [
+                    'errors' => $validator->errors()->toArray(),
+                    'input' => $request->all()
+                ]);
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
+                    'message' => 'Data yang dimasukkan tidak valid',
                     'errors' => $validator->errors()
                 ], 422);
             }
 
             $user = auth()->user();
+            
+            if (!$user) {
+                Log::error('❌ No authenticated user found');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User tidak ditemukan'
+                ], 401);
+            }
+            
+            DB::beginTransaction();
 
-            // Update user data
-            DB::table('m_user')
-                ->where('id_user', $user->id_user)
-                ->update([
-                    'name' => $request->name,
-                    'updated_at' => now()
+            try {
+                // ✅ STEP 1: UPDATE USER DATA
+                $userUpdateResult = DB::table('m_user')
+                    ->where('id_user', $user->id_user)
+                    ->update([
+                        'name' => trim($request->name),
+                        'updated_at' => now()
+                    ]);
+
+                Log::info('👤 User table update:', [
+                    'user_id' => $user->id_user,
+                    'affected_rows' => $userUpdateResult,
+                    'new_name' => $request->name,
+                    'sql_executed' => true
                 ]);
 
-            // Update mahasiswa data
-            $mahasiswa = DB::table('m_mahasiswa')
-                ->where('id_user', $user->id_user)
-                ->first();
+                // ✅ STEP 2: GET OR CREATE MAHASISWA RECORD
+                $mahasiswa = DB::table('m_mahasiswa')
+                    ->where('id_user', $user->id_user)
+                    ->first();
 
-            if ($mahasiswa) {
-                DB::table('m_mahasiswa')
-                    ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
-                    ->update([
+                Log::info('📋 Mahasiswa record check:', [
+                    'user_id' => $user->id_user,
+                    'mahasiswa_exists' => $mahasiswa ? true : false,
+                    'mahasiswa_id' => $mahasiswa->id_mahasiswa ?? null
+                ]);
+
+                if (!$mahasiswa) {
+                    // ✅ CREATE NEW MAHASISWA RECORD
+                    $mahasiswaId = DB::table('m_mahasiswa')->insertGetId([
+                        'id_user' => $user->id_user,
+                        'nim' => null, // Will be set by admin
+                        'telp' => $request->telp,
+                        'ipk' => $request->ipk,
+                        'alamat' => $request->alamat,
+                        'wilayah_id' => $request->wilayah_id,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    
+                    Log::info('✅ Created new mahasiswa record:', [
+                        'mahasiswa_id' => $mahasiswaId,
+                        'user_id' => $user->id_user
+                    ]);
+                    
+                    $mahasiswaUpdateResult = 1; // Consider as successful insert
+                } else {
+                    // ✅ UPDATE EXISTING MAHASISWA RECORD
+                    $mahasiswaUpdateData = [
                         'telp' => $request->telp,
                         'ipk' => $request->ipk,
                         'alamat' => $request->alamat,
                         'wilayah_id' => $request->wilayah_id,
                         'updated_at' => now()
+                    ];
+
+                    $mahasiswaUpdateResult = DB::table('m_mahasiswa')
+                        ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                        ->update($mahasiswaUpdateData);
+
+                    Log::info('📋 Mahasiswa table update:', [
+                        'mahasiswa_id' => $mahasiswa->id_mahasiswa,
+                        'affected_rows' => $mahasiswaUpdateResult,
+                        'update_data' => $mahasiswaUpdateData,
+                        'sql_executed' => true
                     ]);
+                }
+
+                // ✅ COMMIT TRANSACTION
+                DB::commit();
+                
+                Log::info('💾 Transaction committed successfully');
+
+                // ✅ STEP 3: FETCH FRESH DATA
+                $updatedUser = DB::table('m_user')
+                    ->where('id_user', $user->id_user)
+                    ->first();
+
+                $updatedMahasiswa = DB::table('m_mahasiswa')
+                    ->where('id_user', $user->id_user)
+                    ->first();
+
+                // ✅ STEP 4: VERIFY DATA WAS ACTUALLY UPDATED
+                $verificationData = [
+                    'user_name_updated' => $updatedUser->name === trim($request->name),
+                    'mahasiswa_telp_updated' => $updatedMahasiswa->telp === $request->telp,
+                    'mahasiswa_ipk_updated' => $updatedMahasiswa->ipk == $request->ipk,
+                    'mahasiswa_alamat_updated' => $updatedMahasiswa->alamat === $request->alamat,
+                    'mahasiswa_wilayah_updated' => $updatedMahasiswa->wilayah_id == $request->wilayah_id
+                ];
+
+                Log::info('✅ Data verification after update:', [
+                    'user_id' => $user->id_user,
+                    'verification' => $verificationData,
+                    'user_update_count' => $userUpdateResult,
+                    'mahasiswa_update_count' => $mahasiswaUpdateResult,
+                    'fresh_user_data' => $updatedUser,
+                    'fresh_mahasiswa_data' => $updatedMahasiswa
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profil berhasil diperbarui',
+                    'user' => $updatedUser,
+                    'mahasiswa' => $updatedMahasiswa,
+                    'debug' => [
+                        'user_updated' => $userUpdateResult > 0,
+                        'mahasiswa_updated' => $mahasiswaUpdateResult > 0,
+                        'verification' => $verificationData
+                    ]
+                ]);
+
+            } catch (\Exception $dbError) {
+                DB::rollBack();
+                
+                Log::error('❌ Database error during profile update:', [
+                    'user_id' => $user->id_user,
+                    'error_message' => $dbError->getMessage(),
+                    'error_code' => $dbError->getCode(),
+                    'trace' => $dbError->getTraceAsString()
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan data ke database: ' . $dbError->getMessage()
+                ], 500);
             }
 
-            // Get updated data
-            $updatedUser = DB::table('m_user')
-                ->where('id_user', $user->id_user)
-                ->first();
-
-            $updatedMahasiswa = DB::table('m_mahasiswa')
-                ->where('id_user', $user->id_user)
-                ->first();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully',
-                'user' => $updatedUser,
-                'mahasiswa' => $updatedMahasiswa
-            ]);
-
         } catch (\Exception $e) {
-            Log::error('Error updating profile: ' . $e->getMessage());
+            Log::error('❌ General error updating profile:', [
+                'user_id' => auth()->user()->id_user ?? 'unknown',
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update profile'
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
             ], 500);
         }
     }
