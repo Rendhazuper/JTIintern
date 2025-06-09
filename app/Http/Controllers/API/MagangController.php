@@ -113,18 +113,92 @@ class MagangController extends Controller
                 ], 404);
             }
 
-            Log::info('Lamaran data fetched:', ['id' => $id, 'data' => (array)$lamaran]);
+            // ✅ IMPROVED: Ambil catatan penolakan dengan fallback untuk nama tabel
+            $catatanPenolakan = null;
+            $tanggalDitolak = null;
+
+            if ($lamaran->auth === 'ditolak') {
+                try {
+                    // ✅ TRY: Coba beberapa kemungkinan nama tabel notifikasi
+                    $possibleTables = ['t_notifikasi', 'notifications', 'm_notifikasi', 't_notification'];
+                    $notifikasi = null;
+
+                    foreach ($possibleTables as $tableName) {
+                        try {
+                            // Cek apakah tabel ada
+                            $tableExists = DB::select("SHOW TABLES LIKE '{$tableName}'");
+                            
+                            if (!empty($tableExists)) {
+                                Log::info("Found notification table: {$tableName}");
+                                
+                                // Coba query dengan nama kolom yang berbeda
+                                if ($tableName === 'notifications') {
+                                    // Laravel default notifications table
+                                    $notifikasi = DB::table($tableName)
+                                        ->where('notifiable_id', $lamaran->id_user)
+                                        ->where('type', 'LIKE', '%rejection%')
+                                        ->whereRaw("JSON_EXTRACT(data, '$.lamaran_id') = ?", [$id])
+                                        ->orderBy('created_at', 'desc')
+                                        ->first();
+                                } else {
+                                    // Custom notification tables
+                                    $notifikasi = DB::table($tableName)
+                                        ->where('user_id', $lamaran->id_user)
+                                        ->where(function($query) {
+                                            $query->where('tipe', 'lamaran_rejected')
+                                                  ->orWhere('type', 'lamaran_rejected')
+                                                  ->orWhere('kategori', 'lamaran_rejected');
+                                        })
+                                        ->whereRaw("JSON_EXTRACT(data, '$.lamaran_id') = ?", [$id])
+                                        ->orderBy('created_at', 'desc')
+                                        ->first();
+                                }
+                                
+                                if ($notifikasi) {
+                                    Log::info("Found notification in table: {$tableName}");
+                                    break;
+                                }
+                            }
+                        } catch (\Exception $tableError) {
+                            Log::debug("Table {$tableName} check failed: " . $tableError->getMessage());
+                            continue;
+                        }
+                    }
+
+                    if ($notifikasi && $notifikasi->data) {
+                        $notifData = json_decode($notifikasi->data, true);
+                        $catatanPenolakan = $notifData['catatan_penolakan'] ?? null;
+                        $tanggalDitolak = $notifData['tanggal_ditolak'] ?? null;
+                        
+                        Log::info("Retrieved rejection data from notification", [
+                            'lamaran_id' => $id,
+                            'catatan' => $catatanPenolakan ? 'Yes' : 'No',
+                            'tanggal' => $tanggalDitolak
+                        ]);
+                    }
+                } catch (\Exception $notifError) {
+                    Log::warning('Could not retrieve rejection details from notification: ' . $notifError->getMessage());
+                    // Continue without catatan - tidak fatal
+                }
+            }
+
+            Log::info('Lamaran data fetched:', ['id' => $id, 'auth' => $lamaran->auth]);
 
             // Fetch skills for the student
             $skills = [];
             if ($lamaran->id_user) {
-                $skills = DB::table('t_skill_mahasiswa as sm')
-                    ->join('m_skill as s', 'sm.skill_id', '=', 's.skill_id')
-                    ->where('sm.user_id', $lamaran->id_user)
-                    ->select('s.nama')
-                    ->get()
-                    ->pluck('nama')
-                    ->toArray();
+                try {
+                    $skills = DB::table('t_skill_mahasiswa as sm')
+                        ->join('m_skill as s', 'sm.skill_id', '=', 's.skill_id')
+                        ->where('sm.user_id', $lamaran->id_user)
+                        ->select('s.nama')
+                        ->get()
+                        ->pluck('nama')
+                        ->toArray();
+                } catch (\Exception $skillError) {
+                    Log::warning('Could not fetch skills: ' . $skillError->getMessage());
+                    $skills = [];
+                }
             }
 
             // Format the data similar to the original structure
@@ -154,31 +228,37 @@ class MagangController extends Controller
                     'cv_url' => '#',
                     'surat_url' => '#',
                 ],
-                'status' => 'menunggu',
+                'status' => $lamaran->auth === 'ditolak' ? 'tidak aktif' : 'menunggu',
                 'auth' => $lamaran->auth ?? 'menunggu',
+                'catatan' => $catatanPenolakan,              // ✅ Dari notifikasi (bisa null)
+                'tanggal_ditolak' => $tanggalDitolak         // ✅ Dari notifikasi (bisa null)
             ];
 
             // Fetch documents if available
             if ($lamaran->id_user) {
-                $documents = DB::table('m_dokumen')
-                    ->where('id_user', $lamaran->id_user)
-                    ->get();
+                try {
+                    $documents = DB::table('m_dokumen')
+                        ->where('id_user', $lamaran->id_user)
+                        ->get();
 
-                if ($documents->count() > 0) {
-                    foreach ($documents as $doc) {
-                        if (
-                            stripos($doc->description, 'cv') !== false ||
-                            stripos($doc->file_type, 'cv') !== false ||
-                            stripos($doc->file_name, 'cv') !== false
-                        ) {
-                            $formattedData['dokumen']['cv_url'] = asset('storage/' . $doc->file_path);
-                        } elseif (
-                            stripos($doc->description, 'surat') !== false ||
-                            stripos($doc->file_name, 'surat') !== false
-                        ) {
-                            $formattedData['dokumen']['surat_url'] = asset('storage/' . $doc->file_path);
+                    if ($documents->count() > 0) {
+                        foreach ($documents as $doc) {
+                            if (
+                                stripos($doc->description, 'cv') !== false ||
+                                stripos($doc->file_type, 'cv') !== false ||
+                                stripos($doc->file_name, 'cv') !== false
+                            ) {
+                                $formattedData['dokumen']['cv_url'] = asset('storage/' . $doc->file_path);
+                            } elseif (
+                                stripos($doc->description, 'surat') !== false ||
+                                stripos($doc->file_name, 'surat') !== false
+                            ) {
+                                $formattedData['dokumen']['surat_url'] = asset('storage/' . $doc->file_path);
+                            }
                         }
                     }
+                } catch (\Exception $docError) {
+                    Log::warning('Could not fetch documents: ' . $docError->getMessage());
                 }
             }
 
@@ -391,79 +471,193 @@ class MagangController extends Controller
     }
 
     // ✅ ENHANCED - Method reject dengan notifikasi
-    public function reject($id)
+    public function reject(Request $request, $id)
     {
         try {
-            DB::beginTransaction();
+            // Validasi request
+            $request->validate([
+                'catatan' => 'nullable|string|max:1000'
+            ]);
 
-            // ✅ REVISI: Get lamaran data untuk notifikasi SEBELUM di delete
-            $lamaranData = DB::table('t_lamaran')
-                ->where('id_lamaran', $id)
-                ->join('m_mahasiswa', 't_lamaran.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
-                ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
-                ->join('m_lowongan', 't_lamaran.id_lowongan', '=', 'm_lowongan.id_lowongan')
-                ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
-                ->select(
-                    't_lamaran.id_mahasiswa',
-                    'm_mahasiswa.id_user',
-                    'm_user.name as mahasiswa_name',
-                    'm_lowongan.judul_lowongan',
-                    'm_perusahaan.nama_perusahaan'
-                )
-                ->first();
-
-            if (!$lamaranData) {
+            // Cari data lamaran
+            $lamaran = DB::table('t_lamaran')->where('id_lamaran', $id)->first();
+            
+            if (!$lamaran) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data lamaran tidak ditemukan.'
+                    'message' => 'Data lamaran tidak ditemukan'
                 ], 404);
             }
 
-            // ✅ TAMBAHAN: Trigger notifikasi lamaran ditolak
-            try {
-                $this->notificationService->lamaranDitolak(
-                    $lamaranData->id_user,
-                    $lamaranData->nama_perusahaan,
-                    $lamaranData->judul_lowongan,
-                    'Tidak sesuai dengan kriteria yang dibutuhkan' // Default reason
-                );
-
-                Log::info('Rejection notification sent', [
-                    'user_id' => $lamaranData->id_user,
-                    'lamaran_id' => $id
-                ]);
-            } catch (\Exception $notifError) {
-                Log::error('Error sending rejection notification: ' . $notifError->getMessage());
-                // Don't rollback transaction just because notification failed
-            }
-
-            // Delete entry in t_lamaran table
-            $deleted = DB::table('t_lamaran')
-                ->where('id_lamaran', $id)
-                ->delete();
-
-            if (!$deleted) {
-                DB::rollBack();
+            // Validasi status
+            if ($lamaran->auth === 'ditolak') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menghapus data lamaran.'
+                    'message' => 'Lamaran sudah ditolak sebelumnya'
+                ], 400);
+            }
+
+            if ($lamaran->auth === 'diterima') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lamaran yang sudah diterima tidak dapat ditolak'
+                ], 400);
+            }
+
+            // Update status
+            $updated = DB::table('t_lamaran')
+                ->where('id_lamaran', $id)
+                ->update([
+                    'auth' => 'ditolak',
+                    'updated_at' => now()
+                ]);
+
+            if (!$updated) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengubah status lamaran'
                 ], 500);
             }
 
-            Log::info('Deleted lamaran entry with ID: ' . $id);
+            // Ambil data mahasiswa untuk notifikasi
+            $mahasiswaData = DB::table('t_lamaran as l')
+                ->join('m_mahasiswa as mhs', 'l.id_mahasiswa', '=', 'mhs.id_mahasiswa')
+                ->join('m_user as u', 'mhs.id_user', '=', 'u.id_user')
+                ->join('m_lowongan as low', 'l.id_lowongan', '=', 'low.id_lowongan')
+                ->join('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
+                ->where('l.id_lamaran', $id)
+                ->select([
+                    'u.id_user',
+                    'u.name as nama_mahasiswa',
+                    'u.email',
+                    'low.judul_lowongan',
+                    'p.nama_perusahaan'
+                ])
+                ->first();
 
-            DB::commit();
+            if ($mahasiswaData) {
+                try {
+                    // ✅ IMPROVED: Simpan notifikasi dengan fallback untuk nama tabel
+                    $notifikasiData = [
+                        'lamaran_id' => $id,
+                        'lowongan_title' => $mahasiswaData->judul_lowongan,
+                        'perusahaan' => $mahasiswaData->nama_perusahaan,
+                        'catatan_penolakan' => $request->catatan,
+                        'tanggal_ditolak' => now()->toDateString(),
+                        'action_url' => '/mahasiswa/lowongan',
+                        'type' => 'rejection'
+                    ];
+
+                    // ✅ TRY: Coba beberapa kemungkinan nama tabel notifikasi
+                    $possibleTables = ['notifications', 't_notifikasi', 'm_notifikasi', 't_notification'];
+                    $notificationSaved = false;
+
+                    foreach ($possibleTables as $tableName) {
+                        try {
+                            $tableExists = DB::select("SHOW TABLES LIKE '{$tableName}'");
+                            
+                            if (!empty($tableExists)) {
+                                if ($tableName === 'notifications') {
+                                    // Laravel default notifications table structure
+                                    DB::table($tableName)->insert([
+                                        'id' => \Illuminate\Support\Str::uuid(),
+                                        'type' => 'App\Notifications\LamaranRejected',
+                                        'notifiable_type' => 'App\Models\User',
+                                        'notifiable_id' => $mahasiswaData->id_user,
+                                        'data' => json_encode($notifikasiData),
+                                        'read_at' => null,
+                                        'created_at' => now(),
+                                        'updated_at' => now()
+                                    ]);
+                                } else {
+                                    // Custom notification table structure
+                                    $insertData = [
+                                        'user_id' => $mahasiswaData->id_user,
+                                        'data' => json_encode($notifikasiData),
+                                        'created_at' => now(),
+                                        'updated_at' => now()
+                                    ];
+
+                                    // Try different column names
+                                    if ($tableName === 't_notifikasi') {
+                                        $insertData['judul'] = 'Lamaran Magang Ditolak ❌';
+                                        $insertData['pesan'] = "Maaf, lamaran Anda untuk posisi '{$mahasiswaData->judul_lowongan}' di {$mahasiswaData->nama_perusahaan} telah ditolak." . 
+                                                              ($request->catatan ? " Catatan: {$request->catatan}" : ' Jangan menyerah, masih banyak kesempatan lainnya!');
+                                        $insertData['tipe'] = 'lamaran_rejected';
+                                        $insertData['dibaca'] = 0;
+                                        $insertData['tanggal_kirim'] = now();
+                                        $insertData['tanggal_kadaluarsa'] = now()->addDays(7);
+                                    } else {
+                                        $insertData['title'] = 'Lamaran Magang Ditolak ❌';
+                                        $insertData['message'] = "Maaf, lamaran Anda untuk posisi '{$mahasiswaData->judul_lowongan}' di {$mahasiswaData->nama_perusahaan} telah ditolak." . 
+                                                               ($request->catatan ? " Catatan: {$request->catatan}" : ' Jangan menyerah, masih banyak kesempatan lainnya!');
+                                        $insertData['type'] = 'lamaran_rejected';
+                                        $insertData['is_read'] = 0;
+                                    }
+
+                                    DB::table($tableName)->insert($insertData);
+                                }
+                                
+                                $notificationSaved = true;
+                                Log::info("Notification saved to table: {$tableName}", [
+                                    'lamaran_id' => $id,
+                                    'user_id' => $mahasiswaData->id_user
+                                ]);
+                                break;
+                            }
+                        } catch (\Exception $tableError) {
+                            Log::debug("Failed to save notification to {$tableName}: " . $tableError->getMessage());
+                            continue;
+                        }
+                    }
+
+                    if (!$notificationSaved) {
+                        Log::warning('Could not save notification - no suitable table found');
+                    }
+
+                } catch (\Exception $notifError) {
+                    Log::error('Error saving rejection notification: ' . $notifError->getMessage());
+                    // Jangan gagalkan proses utama
+                }
+
+                // Log aktivitas
+                Log::info('Lamaran request rejected', [
+                    'lamaran_id' => $id,
+                    'mahasiswa' => $mahasiswaData->nama_mahasiswa,
+                    'lowongan' => $mahasiswaData->judul_lowongan,
+                    'perusahaan' => $mahasiswaData->nama_perusahaan,
+                    'catatan' => $request->catatan,
+                    'rejected_by' => auth()->user()->name ?? 'System'
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Permintaan magang berhasil ditolak dan notifikasi telah dikirim.'
+                'message' => 'Lamaran berhasil ditolak',
+                'data' => [
+                    'id_lamaran' => $id,
+                    'auth' => 'ditolak',
+                    'catatan' => $request->catatan,
+                    'tanggal_ditolak' => now()->toDateString()
+                ]
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error rejecting magang: ' . $e->getMessage());
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menolak permintaan magang: ' . $e->getMessage()
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error rejecting lamaran request: ' . $e->getMessage(), [
+                'lamaran_id' => $id,
+                'user_id' => auth()->user()->id ?? 'unknown',
+                'stack' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
             ], 500);
         }
     }

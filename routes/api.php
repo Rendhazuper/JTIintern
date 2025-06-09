@@ -71,10 +71,15 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::prefix('profile')->group(function () {
         Route::get('/', [App\Http\Controllers\API\MahasiswaController::class, 'getProfile']);
         Route::put('/', [App\Http\Controllers\API\MahasiswaController::class, 'updateProfile']);
+        // ✅ FIXED: Skills routes untuk mahasiswa
         Route::get('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getSkills']);
         Route::post('/skills', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateSkills']);
+
+        // ✅ FIXED: Minat routes untuk mahasiswa
         Route::get('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'getMinat']);
         Route::post('/minat', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateMinat']);
+
+        // ✅ FIXED: Profile update route
         Route::post('/update', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'update']);
         Route::post('/avatar', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateAvatar']);
         Route::post('/password', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updatePassword']);
@@ -97,6 +102,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::prefix('lamaran')->group(function () {
         Route::get('/', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
         Route::get('/reload', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
+        Route::get('/{id}/detail', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getDetailLamaran']); // ✅ NEW
         Route::delete('/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
     });
 
@@ -161,6 +167,8 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     Route::post('/magang/{id}/reject', [MagangController::class, 'reject']);
     Route::post('/magang/assign-dosen/{id}', [MagangController::class, 'assignDosen']);
     Route::get('/magang/{id}/check-dosen', [MagangController::class, 'checkDosen']);
+    Route::put('/magang/{id}/reject', [MagangController::class, 'reject']); // ✅ NEW: PUT method untuk reject
+    Route::put('/magang/{id}/reactivate', [MagangController::class, 'reactivate']); // ✅ NEW: Reactivate route
 
     // Perusahaan Management
     Route::get('/perusahaan', [PerusahaanController::class, 'getPerusahaanData']);
@@ -191,7 +199,7 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     Route::get('/dosen/export/pdf', [DosenController::class, 'exportPDF']);
     Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
     Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
-    
+
 
     // Kelas Management
     Route::get('/kelas', [dataMhsController::class, 'getKelas']);

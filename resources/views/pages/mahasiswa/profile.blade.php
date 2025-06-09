@@ -148,40 +148,49 @@
                                 <div class="row mb-4">
                                     <div class="col-12 col-md-6 mb-3">
                                         <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Pribadi</h6>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">NIM</small>
-                                            <p class="mb-0" data-profile="nim">{{ $mahasiswaData->nim ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">Nama Lengkap</label>
+                                            <p class="mb-0" data-profile="name">{{ $userData->name ?? 'Belum ada data nama' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">Nama Lengkap</small>
-                                            <p class="mb-0" data-profile="name">{{ $userData->name ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">Email</label>
+                                            <p class="mb-0" data-profile="email">{{ $userData->email ?? 'Belum ada data email' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">Email</small>
-                                            <p class="mb-0" data-profile="email">{{ $userData->email ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">NIM</label>
+                                            <p class="mb-0" data-profile="nim">{{ $mahasiswaData->nim ?? 'Belum ada data NIM' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">No. Telepon</small>
-                                            <p class="mb-0" data-profile="no_hp">{{ $mahasiswaData->telp ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">No. HP/WhatsApp</label>
+                                            <p class="mb-0" data-profile="no_hp">{{ $mahasiswaData->telp ?? 'Belum ada data nomor HP' }}</p>
                                         </div>
                                     </div>
+                                    
                                     <div class="col-12 col-md-6 mb-3">
                                         <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Akademik</h6>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">Program Studi</small>
-                                            <p class="mb-0" data-profile="prodi">{{ $kelasData->kode_prodi ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">Kelas</label>
+                                            <p class="mb-0" data-profile="kelas">{{ $kelasData->nama_kelas ?? 'Belum ada data kelas' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">Kelas</small>
-                                            <p class="mb-0" data-profile="kelas">{{ $kelasData->nama_kelas ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">Program Studi</label>
+                                            <p class="mb-0" data-profile="prodi">{{ $kelasData->kode_prodi ?? 'Belum ada data prodi' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">Tahun Masuk</small>
-                                            <p class="mb-0" data-profile="tahun_masuk">{{ $kelasData->tahun_masuk ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">Tahun Masuk</label>
+                                            <p class="mb-0" data-profile="tahun_masuk">{{ $kelasData->tahun_masuk ?? 'Belum ada data tahun masuk' }}</p>
                                         </div>
+                                        
                                         <div class="mb-3">
-                                            <small class="d-block text-uppercase text-xs text-muted">IPK</small>
-                                            <p class="mb-0" data-profile="ipk">{{ $mahasiswaData->ipk ?? '-' }}</p>
+                                            <label class="form-label text-sm font-weight-bold">IPK</label>
+                                            <p class="mb-0" data-profile="ipk">{{ $mahasiswaData->ipk ?? 'Belum ada data IPK' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -201,61 +210,110 @@
                             <!-- Edit Mode -->
                             <div id="profile-edit-mode" style="display: none;">
                                 <form id="profile-form">
+                                    @csrf
                                     <div class="row mb-4">
                                         <div class="col-12 col-md-6 mb-3">
-                                            <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Pribadi</h6>
+                                            <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Personal</h6>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Nama -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">NIM</label>
-                                                <input type="text" class="form-control" name="nim" value="{{ $mahasiswaData->nim ?? '' }}" readonly>
+                                                <label class="form-label text-sm font-weight-bold">Nama Lengkap</label>
+                                                <input type="text" class="form-control" name="name" id="edit-name" 
+                                                       value="{{ $userData->name ?? '' }}" required>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Email (readonly) -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">Nama Lengkap</label>
-                                                <input type="text" class="form-control" name="name" value="{{ $userData->name ?? '' }}">
+                                                <label class="form-label text-sm font-weight-bold">Email</label>
+                                                <input type="email" class="form-control" name="email" id="edit-email" 
+                                                       value="{{ $userData->email ?? '' }}" readonly>
+                                                <small class="text-muted">Email tidak dapat diubah</small>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input NIM (readonly) -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">Email</label>
-                                                <input type="email" class="form-control" name="email" value="{{ $userData->email ?? '' }}" readonly>
+                                                <label class="form-label text-sm font-weight-bold">NIM</label>
+                                                <input type="text" class="form-control" name="nim" id="edit-nim" 
+                                                       value="{{ $mahasiswaData->nim ?? '' }}" readonly>
+                                                <small class="text-muted">NIM tidak dapat diubah</small>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input No HP -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">No. Telepon</label>
-                                                <input type="text" class="form-control" name="telp" value="{{ $mahasiswaData->telp ?? '' }}">
+                                                <label class="form-label text-sm font-weight-bold">No. HP/WhatsApp</label>
+                                                <input type="tel" class="form-control" name="telp" id="edit-telp" 
+                                                       value="{{ $mahasiswaData->telp ?? '' }}" placeholder="Contoh: 08123456789">
                                             </div>
                                         </div>
+                                        
                                         <div class="col-12 col-md-6 mb-3">
-                                            <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Akademik & Preferensi</h6>
+                                            <h6 class="text-uppercase text-sm text-muted mb-2">Informasi Akademik</h6>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Kelas (readonly) -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">Program Studi</label>
-                                                <input type="text" class="form-control" name="prodi" value="{{ $kelasData->kode_prodi ?? '' }}" readonly>
+                                                <label class="form-label text-sm font-weight-bold">Kelas</label>
+                                                <input type="text" class="form-control" name="kelas" id="edit-kelas" 
+                                                       value="{{ $kelasData->nama_kelas ?? 'Belum ada data kelas' }}" readonly>
+                                                <small class="text-muted">Kelas diatur oleh admin</small>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Program Studi (readonly) -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">Kelas</label>
-                                                <input type="text" class="form-control" name="kelas" value="{{ $kelasData->nama_kelas ?? '' }}" readonly>
+                                                <label class="form-label text-sm font-weight-bold">Program Studi</label>
+                                                <input type="text" class="form-control" name="prodi" id="edit-prodi" 
+                                                       value="{{ $kelasData->kode_prodi ?? 'Belum ada data prodi' }}" readonly>
+                                                <small class="text-muted">Program studi diatur oleh admin</small>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Tahun Masuk (readonly) -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">IPK</label>
-                                                <input type="number" class="form-control" name="ipk" value="{{ $mahasiswaData->ipk ?? '' }}" step="0.01" min="0" max="4">
+                                                <label class="form-label text-sm font-weight-bold">Tahun Masuk</label>
+                                                <input type="text" class="form-control" name="tahun_masuk" id="edit-tahun-masuk" 
+                                                       value="{{ $kelasData->tahun_masuk ?? 'Belum ada data tahun masuk' }}" readonly>
                                             </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input IPK -->
                                             <div class="mb-3">
-                                                <label class="form-label text-xs text-uppercase text-muted">Preferensi Wilayah Magang</label>
-                                                <select class="form-select" name="wilayah_id" id="wilayah-select">
-                                                    <option value="">Pilih Wilayah</option>
-                                                </select>
+                                                <label class="form-label text-sm font-weight-bold">IPK</label>
+                                                <input type="number" class="form-control" name="ipk" id="edit-ipk" 
+                                                       value="{{ $mahasiswaData->ipk ?? '' }}" step="0.01" min="0" max="4" 
+                                                       placeholder="Contoh: 3.75">
+                                                <small class="text-muted">IPK saat ini (0.00 - 4.00)</small>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-12 mb-4">
-                                            <h6 class="text-uppercase text-sm text-muted mb-2">Alamat</h6>
-                                            <textarea class="form-control" name="alamat" rows="2">{{ $mahasiswaData->alamat ?? '' }}</textarea>
+                                            <h6 class="text-uppercase text-sm text-muted mb-2">Alamat & Lokasi</h6>
+                                            
+                                            <!-- ✅ TAMBAHAN: Input Alamat -->
+                                            <div class="mb-3">
+                                                <label class="form-label text-sm font-weight-bold">Alamat Lengkap</label>
+                                                <textarea class="form-control" name="alamat" id="edit-alamat" rows="3" 
+                                                          placeholder="Masukkan alamat lengkap Anda">{{ $mahasiswaData->alamat ?? '' }}</textarea>
+                                            </div>
+                                            
+                                            <!-- ✅ TAMBAHAN: Select Wilayah -->
+                                            <div class="mb-3">
+                                                <label class="form-label text-sm font-weight-bold">Preferensi Wilayah Magang</label>
+                                                <select class="form-select" name="wilayah_id" id="wilayah-select">
+                                                    <option value="">Pilih Wilayah</option>
+                                                    <!-- Options akan diload via JavaScript -->
+                                                </select>
+                                                <small class="text-muted">Pilih wilayah yang Anda inginkan untuk magang</small>
+                                            </div>
                                         </div>
+                                        
                                         <div class="col-12">
                                             <div class="d-flex justify-content-end">
-                                                <button type="button" id="cancel-edit-btn" class="btn btn-sm btn-outline-secondary me-2">
+                                                <!-- ✅ TAMBAHAN: Tombol Cancel dan Save -->
+                                                <button type="button" id="cancel-edit-btn" class="btn btn-outline-secondary me-2">
                                                     <i class="fas fa-times me-1"></i>Batal
                                                 </button>
-                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                <button type="submit" class="btn btn-primary">
                                                     <div class="d-flex align-items-center">
+                                                        <i class="fas fa-save me-2"></i>
                                                         <span id="save-btn-text">Simpan Perubahan</span>
                                                         <div id="save-btn-loader" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
                                                             <span class="visually-hidden">Loading...</span>
@@ -584,19 +642,56 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Global variables
+    // ✅ GLOBAL VARIABLES
     const api = axios.create({
         baseURL: '/api',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         withCredentials: true
     });
 
-    // Document ready handler
+    // ✅ ADD: Request interceptor for debugging
+    api.interceptors.request.use(
+        config => {
+            console.log('📤 API Request:', {
+                method: config.method?.toUpperCase(),
+                url: config.url,
+                data: config.data,
+                headers: config.headers
+            });
+            return config;
+        },
+        error => {
+            console.error('❌ Request Error:', error);
+            return Promise.reject(error);
+        }
+    );
+
+    // ✅ ADD: Response interceptor for debugging
+    api.interceptors.response.use(
+        response => {
+            console.log('📥 API Response:', {
+                status: response.status,
+                url: response.config.url,
+                data: response.data
+            });
+            return response;
+        },
+        error => {
+            console.error('❌ Response Error:', {
+                status: error.response?.status,
+                url: error.config?.url,
+                data: error.response?.data,
+                message: error.message
+            });
+            return Promise.reject(error);
+        }
+    );
+
+    // ✅ DOCUMENT READY HANDLER
     document.addEventListener('DOMContentLoaded', function () {
         console.log('🚀 === PROFILE PAGE LOADED ===');
         
@@ -616,7 +711,7 @@
         }, 3000);
     });
 
-    // Progressive Loading System
+    // ✅ PROGRESSIVE LOADING SYSTEM
     function simulateProfileLoading() {
         console.log('⏳ Starting progressive profile loading...');
         
@@ -635,10 +730,8 @@
     function loadProfileInfoSection() {
         console.log('📋 Loading profile info section...');
         
-        // Load header first
         transitionSection('info-header-skeleton', 'info-header-content', 400);
         
-        // Load content with delay
         setTimeout(() => {
             transitionSection('profile-info-skeleton', 'profile-info-content', 500);
         }, 200);
@@ -660,10 +753,8 @@
     }
 
     function loadSectionWithStagger(headerSkeletonId, headerContentId, contentSkeletonId, contentRealId) {
-        // Load header first
         transitionSection(headerSkeletonId, headerContentId, 400);
         
-        // Load content with delay
         setTimeout(() => {
             transitionSection(contentSkeletonId, contentRealId, 500);
         }, 200);
@@ -675,7 +766,6 @@
         
         if (!skeleton || !content) return;
         
-        // Fade out skeleton
         skeleton.style.transition = `opacity ${duration}ms ease`;
         skeleton.style.opacity = '0';
         
@@ -683,14 +773,13 @@
             skeleton.classList.add('d-none');
             content.classList.remove('d-none');
             
-            // Add show class for animation
             setTimeout(() => {
                 content.classList.add('show');
             }, 50);
         }, duration);
     }
 
-    // Initialize password toggles
+    // ✅ INITIALIZE PASSWORD TOGGLES
     function initPasswordToggles() {
         document.querySelectorAll('.toggle-password').forEach(button => {
             button.addEventListener('click', function () {
@@ -711,7 +800,7 @@
         });
     }
 
-    // Initialize password strength meter
+    // ✅ INITIALIZE PASSWORD STRENGTH METER
     function initPasswordStrengthMeter() {
         const passwordInput = document.getElementById('new-password');
         const confirmInput = document.getElementById('confirm-password');
@@ -774,7 +863,7 @@
         }
     }
 
-    // Initialize profile edit functionality
+    // ✅ INITIALIZE PROFILE EDIT
     function initProfileEdit() {
         const editBtn = document.getElementById('edit-profile-btn');
         const cancelBtn = document.getElementById('cancel-edit-btn');
@@ -796,7 +885,7 @@
         }
     }
 
-    // Initialize skills edit functionality
+    // ✅ INITIALIZE SKILLS EDIT
     function initSkillsEdit() {
         const editBtn = document.getElementById('edit-skills-btn');
         const cancelBtn = document.getElementById('cancel-skills-btn');
@@ -805,6 +894,7 @@
 
         if (editBtn) {
             editBtn.addEventListener('click', () => {
+                console.log('🎯 Skills edit button clicked');
                 loadSkillsData();
                 viewMode.style.display = 'none';
                 editMode.style.display = 'block';
@@ -815,16 +905,56 @@
             cancelBtn.addEventListener('click', () => {
                 editMode.style.display = 'none';
                 viewMode.style.display = 'block';
+                $('#skill-select').val(null).trigger('change');
             });
         }
 
+        // ✅ INITIALIZE SELECT2 FOR SKILLS
         $('#skill-select').select2({
-            placeholder: 'Pilih keahlian',
-            multiple: true
+            placeholder: 'Cari dan pilih keahlian...',
+            multiple: true,
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "Tidak ditemukan keahlian yang sesuai";
+                },
+                searching: function() {
+                    return "Mencari keahlian...";
+                },
+                inputTooShort: function() {
+                    return "Ketik minimal 1 karakter untuk mencari";
+                },
+                loadingMore: function() {
+                    return "Memuat lebih banyak data...";
+                }
+            },
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            minimumInputLength: 0,
+            templateResult: function(data) {
+                if (data.loading) {
+                    return 'Mencari keahlian...';
+                }
+                
+                if (!data.id) {
+                    return data.text;
+                }
+                
+                return $('<span><i class="fas fa-tools me-2"></i>' + data.text + '</span>');
+            },
+            templateSelection: function(data) {
+                if (!data.id) {
+                    return data.text;
+                }
+                
+                return data.text;
+            }
         });
     }
 
-    // Initialize minat edit functionality
+    // ✅ INITIALIZE MINAT EDIT
     function initMinatEdit() {
         const editBtn = document.getElementById('edit-minat-btn');
         const cancelBtn = document.getElementById('cancel-minat-btn');
@@ -833,6 +963,7 @@
 
         if (editBtn) {
             editBtn.addEventListener('click', () => {
+                console.log('❤️ Minat edit button clicked');
                 loadMinatData();
                 viewMode.style.display = 'none';
                 editMode.style.display = 'block';
@@ -843,100 +974,56 @@
             cancelBtn.addEventListener('click', () => {
                 editMode.style.display = 'none';
                 viewMode.style.display = 'block';
+                $('#minat-select').val(null).trigger('change');
             });
         }
 
+        // ✅ INITIALIZE SELECT2 FOR MINAT
         $('#minat-select').select2({
-            placeholder: 'Pilih minat',
-            multiple: true
+            placeholder: 'Cari dan pilih minat...',
+            multiple: true,
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "Tidak ditemukan minat yang sesuai";
+                },
+                searching: function() {
+                    return "Mencari minat...";
+                },
+                inputTooShort: function() {
+                    return "Ketik minimal 1 karakter untuk mencari";
+                },
+                loadingMore: function() {
+                    return "Memuat lebih banyak data...";
+                }
+            },
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            minimumInputLength: 0,
+            templateResult: function(data) {
+                if (data.loading) {
+                    return 'Mencari minat...';
+                }
+                
+                if (!data.id) {
+                    return data.text;
+                }
+                
+                return $('<span><i class="fas fa-heart me-2"></i>' + data.text + '</span>');
+            },
+            templateSelection: function(data) {
+                if (!data.id) {
+                    return data.text;
+                }
+                
+                return data.text;
+            }
         });
     }
 
-    // Load skills data
-    function loadSkillsData() {
-        api.get('/mahasiswa/skills')
-            .then(response => {
-                if (response.data?.success) {
-                    const skillSelect = document.getElementById('skill-select');
-                    skillSelect.innerHTML = '';
-
-                    response.data.allSkills.forEach(skill => {
-                        const option = document.createElement('option');
-                        option.value = skill.skill_id;
-                        option.textContent = skill.nama_skill;
-
-                        if (response.data.userSkills.some(userSkill => userSkill.skill_id === skill.skill_id)) {
-                            option.selected = true;
-                        }
-
-                        skillSelect.appendChild(option);
-                    });
-
-                    $('#skill-select').trigger('change');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading skills:', error);
-                showErrorToast('Gagal memuat data keahlian');
-            });
-    }
-
-    // Load minat data
-    function loadMinatData() {
-        api.get('/mahasiswa/minat')
-            .then(response => {
-                if (response.data?.success) {
-                    const minatSelect = document.getElementById('minat-select');
-                    minatSelect.innerHTML = '';
-
-                    response.data.data.all_minat.forEach(minat => {
-                        const option = document.createElement('option');
-                        option.value = minat.minat_id;
-                        option.textContent = minat.nama_minat;
-
-                        if (response.data.data.user_minat.some(userMinat => userMinat.minat_id === minat.minat_id)) {
-                            option.selected = true;
-                        }
-
-                        minatSelect.appendChild(option);
-                    });
-
-                    $('#minat-select').trigger('change');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading minat:', error);
-                showErrorToast('Gagal memuat data minat');
-            });
-    }
-
-    // Load wilayah data
-    function loadWilayahData() {
-        api.get('/wilayah')
-            .then(response => {
-                if (response.data?.success) {
-                    const wilayahSelect = document.getElementById('wilayah-select');
-                    const currentWilayahId = '{{ $mahasiswaData->wilayah_id ?? "" }}';
-
-                    response.data.data.forEach(wilayah => {
-                        const option = document.createElement('option');
-                        option.value = wilayah.wilayah_id;
-                        option.textContent = wilayah.nama_kota;
-
-                        if (currentWilayahId && wilayah.wilayah_id == currentWilayahId) {
-                            option.selected = true;
-                        }
-
-                        wilayahSelect.appendChild(option);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error loading wilayah:', error);
-            });
-    }
-
-    // Initialize avatar upload
+    // ✅ INITIALIZE AVATAR UPLOAD
     function initAvatarUpload() {
         const uploadTrigger = document.getElementById('upload-trigger');
         const avatarUpload = document.getElementById('avatar-upload');
@@ -946,8 +1033,28 @@
 
             avatarUpload.addEventListener('change', function (event) {
                 if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    if (!file.type.startsWith('image/')) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Invalid!',
+                            text: 'Silakan pilih file gambar (JPG, PNG, GIF, dll.)'
+                        });
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Terlalu Besar!',
+                            text: 'Ukuran file maksimal 5MB'
+                        });
+                        return;
+                    }
+
                     const formData = new FormData();
-                    formData.append('foto', this.files[0]);
+                    formData.append('foto', file);
 
                     Swal.fire({
                         title: 'Upload Foto Profil',
@@ -961,10 +1068,14 @@
                         headers: { 'Content-Type': 'multipart/form-data' }
                     })
                     .then(response => {
+                        console.log('✅ Avatar upload response:', response.data);
+                        
                         if (response.data?.success) {
                             const avatar = document.getElementById('current-avatar');
-                            avatar.style.backgroundImage = `url(${response.data.foto_url})`;
-                            avatar.innerHTML = '';
+                            if (avatar) {
+                                avatar.style.backgroundImage = `url(${response.data.foto_url})`;
+                                avatar.innerHTML = '';
+                            }
 
                             Swal.fire({
                                 icon: 'success',
@@ -977,178 +1088,220 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: 'Gagal mengunggah foto profil'
+                                text: response.data?.message || 'Gagal mengunggah foto profil'
                             });
                         }
                     })
                     .catch(error => {
-                        console.error('Error uploading avatar:', error);
+                        console.error('❌ Error uploading avatar:', error);
+                        
+                        let errorMessage = 'Gagal mengunggah foto profil';
+                        if (error.response?.data?.message) {
+                            errorMessage = error.response.data.message;
+                        }
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: 'Gagal mengunggah foto profil'
+                            text: errorMessage
                         });
+                    })
+                    .finally(() => {
+                        avatarUpload.value = '';
                     });
                 }
             });
         }
     }
 
-    // Initialize form submissions
+    // ✅ INITIALIZE FORM SUBMISSIONS (CENTRALIZED)
     function initFormSubmissions() {
-        // Profile form
+        // ✅ PROFILE FORM SUBMISSION
         const profileForm = document.getElementById('profile-form');
         if (profileForm) {
             profileForm.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const formData = new FormData(this);
+                console.log('📤 Submitting profile form...');
+
+                const formData = {
+                    name: document.getElementById('edit-name')?.value || '',
+                    telp: document.getElementById('edit-telp')?.value || '',
+                    ipk: document.getElementById('edit-ipk')?.value || '',
+                    alamat: document.getElementById('edit-alamat')?.value || '',
+                    wilayah_id: document.getElementById('wilayah-select')?.value || null
+                };
+                
+                console.log('📋 Profile data to submit:', formData);
+
                 const saveBtn = document.getElementById('save-btn-text');
                 const saveLoader = document.getElementById('save-btn-loader');
+                const submitButton = this.querySelector('button[type="submit"]');
 
-                saveBtn.style.opacity = '0.5';
-                saveLoader.classList.remove('d-none');
+                if (submitButton) submitButton.disabled = true;
+                if (saveBtn) saveBtn.style.opacity = '0.5';
+                if (saveLoader) saveLoader.classList.remove('d-none');
 
-                api.post('/mahasiswa/profile/update', formData)
-                    .then(response => {
-                        if (response.data?.success) {
-                            document.getElementById('profile-edit-mode').style.display = 'none';
-                            updateProfileViewData(response.data.user, response.data.mahasiswa);
+                api.post('/mahasiswa/profile/update', formData, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    console.log('✅ Profile update response:', response.data);
+                    
+                    if (response.data?.success) {
+                        document.getElementById('profile-edit-mode').style.display = 'none';
+                        updateProfileViewData(response.data.user, response.data.mahasiswa);
+                        
+                        if (formData.wilayah_id) {
+                            const wilayahSelect = document.getElementById('wilayah-select');
+                            const selectedOption = wilayahSelect?.querySelector(`option[value="${formData.wilayah_id}"]`);
+                            const wilayahName = selectedOption ? selectedOption.textContent : 'Belum memilih preferensi wilayah';
                             
-                            // Update wilayah
-                            const wilayahId = formData.get('wilayah_id');
-                            if (wilayahId) {
-                                const wilayahSelect = document.getElementById('wilayah-select');
-                                const selectedOption = wilayahSelect.querySelector(`option[value="${wilayahId}"]`);
-                                const wilayahName = selectedOption ? selectedOption.textContent : 'Belum memilih preferensi wilayah';
-                                
-                                document.querySelectorAll('[data-profile="wilayah"]').forEach(el => {
-                                    el.textContent = wilayahName;
-                                });
-                            }
-                            
-                            document.getElementById('profile-view-mode').style.display = 'block';
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Profil berhasil diperbarui',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Gagal memperbarui profil'
+                            document.querySelectorAll('[data-profile="wilayah"]').forEach(el => {
+                                el.textContent = wilayahName;
                             });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error updating profile:', error);
+                        
+                        document.getElementById('profile-view-mode').style.display = 'block';
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Profil berhasil diperbarui',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: 'Gagal memperbarui profil'
+                            text: response.data?.message || 'Gagal memperbarui profil'
                         });
-                    })
-                    .finally(() => {
-                        saveBtn.style.opacity = '1';
-                        saveLoader.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating profile:', error);
+                    
+                    let errorMessage = 'Gagal memperbarui profil';
+                    if (error.response?.data?.message) {
+                        errorMessage = error.response.data.message;
+                    } else if (error.response?.data?.errors) {
+                        const errors = error.response.data.errors;
+                        errorMessage = Object.values(errors).flat().join(', ');
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage
                     });
+                })
+                .finally(() => {
+                    if (submitButton) submitButton.disabled = false;
+                    if (saveBtn) saveBtn.style.opacity = '1';
+                    if (saveLoader) saveLoader.classList.add('d-none');
+                });
             });
         }
 
-        // Skills form
+        // ✅ SKILLS FORM SUBMISSION
         const skillsForm = document.getElementById('skills-form');
         if (skillsForm) {
             skillsForm.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const selectedSkills = $('#skill-select').val();
+                const selectedSkills = $('#skill-select').val() || [];
+                console.log('📤 Submitting skills:', selectedSkills);
 
                 api.post('/mahasiswa/profile/skills', { skills: selectedSkills })
-                    .then(response => {
-                        if (response.data?.success) {
-                            document.getElementById('skills-edit-mode').style.display = 'none';
-                            updateSkillsView(response.data.skills);
-                            document.getElementById('skills-view-mode').style.display = 'block';
+                .then(response => {
+                    console.log('✅ Skills update response:', response.data);
+                    
+                    if (response.data?.success) {
+                        document.getElementById('skills-edit-mode').style.display = 'none';
+                        updateSkillsView(response.data.skills);
+                        document.getElementById('skills-view-mode').style.display = 'block';
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Keahlian berhasil diperbarui',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Gagal memperbarui keahlian'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error updating skills:', error);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Keahlian berhasil diperbarui',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: 'Gagal memperbarui keahlian'
+                            text: response.data?.message || 'Gagal memperbarui keahlian'
                         });
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating skills:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Gagal memperbarui keahlian'
                     });
+                });
             });
         }
 
-        // Minat form
+        // ✅ MINAT FORM SUBMISSION
         const minatForm = document.getElementById('minat-form');
         if (minatForm) {
             minatForm.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const selectedMinat = $('#minat-select').val();
+                const selectedMinat = $('#minat-select').val() || [];
+                console.log('📤 Submitting minat:', selectedMinat);
 
                 api.post('/mahasiswa/profile/minat', { minat: selectedMinat })
-                    .then(response => {
-                        if (response.data?.success) {
-                            document.getElementById('minat-edit-mode').style.display = 'none';
-                            updateMinatView(response.data.data.minat);
-                            document.getElementById('minat-view-mode').style.display = 'block';
+                .then(response => {
+                    console.log('✅ Minat update response:', response.data);
+                    
+                    if (response.data?.success) {
+                        document.getElementById('minat-edit-mode').style.display = 'none';
+                        updateMinatView(response.data.data.minat);
+                        document.getElementById('minat-view-mode').style.display = 'block';
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Minat berhasil diperbarui',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Gagal memperbarui minat'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error updating minat:', error);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Minat berhasil diperbarui',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: 'Gagal memperbarui minat'
+                            text: response.data?.message || 'Gagal memperbarui minat'
                         });
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating minat:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Gagal memperbarui minat'
                     });
+                });
             });
         }
 
-        // Password form
+        // ✅ PASSWORD FORM SUBMISSION
         const passwordForm = document.getElementById('password-form');
         if (passwordForm) {
             passwordForm.addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const password = document.getElementById('new-password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
+                const password = document.getElementById('new-password')?.value || '';
+                const confirmPassword = document.getElementById('confirm-password')?.value || '';
 
                 if (password !== confirmPassword) {
                     Swal.fire({
@@ -1173,62 +1326,195 @@
                 const btnText = document.getElementById('password-btn-text');
                 const btnLoader = document.getElementById('password-btn-loader');
 
-                submitBtn.disabled = true;
-                btnText.style.opacity = '0.5';
-                btnLoader.classList.remove('d-none');
+                if (submitBtn) submitBtn.disabled = true;
+                if (btnText) btnText.style.opacity = '0.5';
+                if (btnLoader) btnLoader.classList.remove('d-none');
 
                 api.post('/mahasiswa/profile/password', formData)
-                    .then(response => {
-                        if (response.data?.success) {
-                            passwordForm.reset();
+                .then(response => {
+                    if (response.data?.success) {
+                        passwordForm.reset();
 
-                            // Reset strength indicator
-                            document.getElementById('password-strength-bar').style.width = '0%';
-                            document.getElementById('password-strength-bar').className = 'progress-bar';
-                            document.getElementById('password-strength-text').textContent = 'Minimal 8 karakter dengan kombinasi huruf dan angka';
-                            document.getElementById('password-strength-text').className = 'form-text text-muted mt-1';
-                            document.getElementById('password-match-message').innerHTML = '';
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Password berhasil diubah',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.data.message || 'Gagal mengubah password'
-                            });
+                        // Reset strength indicator
+                        const strengthBar = document.getElementById('password-strength-bar');
+                        const strengthText = document.getElementById('password-strength-text');
+                        const matchMessage = document.getElementById('password-match-message');
+                        
+                        if (strengthBar) {
+                            strengthBar.style.width = '0%';
+                            strengthBar.className = 'progress-bar';
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error updating password:', error);
-                        let errorMessage = 'Gagal mengubah password';
-
-                        if (error.response?.data?.message) {
-                            errorMessage = error.response.data.message;
+                        if (strengthText) {
+                            strengthText.textContent = 'Minimal 8 karakter dengan kombinasi huruf dan angka';
+                            strengthText.className = 'form-text text-muted mt-1';
+                        }
+                        if (matchMessage) {
+                            matchMessage.innerHTML = '';
                         }
 
                         Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Password berhasil diubah',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: errorMessage
+                            text: response.data?.message || 'Gagal mengubah password'
                         });
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        btnText.style.opacity = '1';
-                        btnLoader.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating password:', error);
+                    let errorMessage = 'Gagal mengubah password';
+
+                    if (error.response?.data?.message) {
+                        errorMessage = error.response.data.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage
                     });
+                })
+                .finally(() => {
+                    if (submitBtn) submitBtn.disabled = false;
+                    if (btnText) btnText.style.opacity = '1';
+                    if (btnLoader) btnLoader.classList.add('d-none');
+                });
             });
         }
     }
 
-    // Update profile view data
+    // ✅ LOAD SKILLS DATA
+    function loadSkillsData() {
+        console.log('🔄 Loading skills data...');
+        
+        const skillSelect = $('#skill-select');
+        skillSelect.empty().append('<option value="">Memuat data keahlian...</option>');
+        
+        api.get('/mahasiswa/profile/skills')
+        .then(response => {
+            console.log('✅ Skills data received:', response.data);
+            
+            if (response.data?.success) {
+                skillSelect.empty();
+                
+                response.data.allSkills.forEach(skill => {
+                    const option = new Option(skill.nama_skill, skill.skill_id, false, false);
+                    skillSelect.append(option);
+                });
+                
+                const selectedSkills = response.data.userSkills.map(skill => skill.skill_id.toString());
+                skillSelect.val(selectedSkills);
+                skillSelect.trigger('change');
+                
+                console.log('✅ Skills options populated:', {
+                    total_skills: response.data.allSkills.length,
+                    selected_skills: selectedSkills
+                });
+            } else {
+                console.error('❌ Skills API returned unsuccessful response');
+                skillSelect.empty().append('<option value="">Gagal memuat data keahlian</option>');
+                showErrorToast('Gagal memuat data keahlian');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error loading skills:', error);
+            skillSelect.empty().append('<option value="">Error memuat data</option>');
+            showErrorToast('Gagal memuat data keahlian: ' + (error.response?.data?.message || error.message));
+        });
+    }
+
+    // ✅ LOAD MINAT DATA
+    function loadMinatData() {
+        console.log('🔄 Loading minat data...');
+        
+        const minatSelect = $('#minat-select');
+        minatSelect.empty().append('<option value="">Memuat data minat...</option>');
+        
+        api.get('/mahasiswa/profile/minat')
+        .then(response => {
+            console.log('✅ Minat data received:', response.data);
+            
+            if (response.data?.success) {
+                minatSelect.empty();
+                
+                response.data.data.all_minat.forEach(minat => {
+                    const option = new Option(minat.nama_minat, minat.minat_id, false, false);
+                    minatSelect.append(option);
+                });
+                
+                const selectedMinat = response.data.data.user_minat.map(minat => minat.minat_id.toString());
+                minatSelect.val(selectedMinat);
+                minatSelect.trigger('change');
+                
+                console.log('✅ Minat options populated:', {
+                    total_minat: response.data.data.all_minat.length,
+                    selected_minat: selectedMinat
+                });
+            } else {
+                console.error('❌ Minat API returned unsuccessful response');
+                minatSelect.empty().append('<option value="">Gagal memuat data minat</option>');
+                showErrorToast('Gagal memuat data minat');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error loading minat:', error);
+            minatSelect.empty().append('<option value="">Error memuat data</option>');
+            showErrorToast('Gagal memuat data minat: ' + (error.response?.data?.message || error.message));
+        });
+    }
+
+    // ✅ LOAD WILAYAH DATA
+    function loadWilayahData() {
+        console.log('🌍 Loading wilayah data...');
+        
+        api.get('/wilayah')
+        .then(response => {
+            console.log('✅ Wilayah data received:', response.data);
+            
+            if (response.data?.success) {
+                const wilayahSelect = document.getElementById('wilayah-select');
+                const currentWilayahId = '{{ $mahasiswaData->wilayah_id ?? "" }}';
+
+                if (wilayahSelect) {
+                    wilayahSelect.innerHTML = '<option value="">Pilih Wilayah</option>';
+
+                    response.data.data.forEach(wilayah => {
+                        const option = document.createElement('option');
+                        option.value = wilayah.wilayah_id;
+                        option.textContent = wilayah.nama_kota;
+
+                        if (currentWilayahId && wilayah.wilayah_id == currentWilayahId) {
+                            option.selected = true;
+                            console.log('✅ Selected wilayah:', wilayah.nama_kota);
+                        }
+
+                        wilayahSelect.appendChild(option);
+                    });
+                    
+                    console.log('✅ Wilayah options populated:', response.data.data.length);
+                }
+            } else {
+                console.error('❌ Wilayah API returned unsuccessful response');
+                showErrorToast('Gagal memuat data wilayah');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error loading wilayah:', error);
+            showErrorToast('Gagal memuat data wilayah: ' + (error.response?.data?.message || error.message));
+        });
+    }
+
+    // ✅ UPDATE PROFILE VIEW DATA
     function updateProfileViewData(user, mahasiswa) {
+        console.log('🔄 Updating profile view data:', { user, mahasiswa });
+        
         if (user) {
             document.querySelectorAll('[data-profile="name"]').forEach(el => {
                 el.textContent = user.name || '-';
@@ -1254,7 +1540,7 @@
         }
     }
 
-    // Update skills view
+    // ✅ UPDATE SKILLS VIEW
     function updateSkillsView(skills) {
         const skillsContainer = document.getElementById('skills-container');
 
@@ -1265,16 +1551,16 @@
                 skills.forEach(skill => {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-light-primary';
-                    badge.textContent = skill.nama_skill || skill.nama;
+                    badge.innerHTML = `<i class="fas fa-tools me-1"></i>${skill.nama_skill || skill.nama}`;
                     skillsContainer.appendChild(badge);
                 });
             } else {
-                skillsContainer.innerHTML = '<p class="text-muted mb-0">Belum ada keahlian yang ditambahkan</p>';
+                skillsContainer.innerHTML = '<p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>Belum ada keahlian yang ditambahkan</p>';
             }
         }
     }
 
-    // Update minat view
+    // ✅ UPDATE MINAT VIEW
     function updateMinatView(minat) {
         const minatContainer = document.getElementById('minat-container');
 
@@ -1285,25 +1571,27 @@
                 minat.forEach(item => {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-light-success';
-                    badge.textContent = item.nama_minat;
+                    badge.innerHTML = `<i class="fas fa-heart me-1"></i>${item.nama_minat}`;
                     minatContainer.appendChild(badge);
                 });
             } else {
-                minatContainer.innerHTML = '<p class="text-muted mb-0">Belum ada minat yang ditambahkan</p>';
+                minatContainer.innerHTML = '<p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>Belum ada minat yang ditambahkan</p>';
             }
         }
     }
 
-    // Utility functions
+    // ✅ UTILITY FUNCTIONS
     function showSuccessToast(message) {
         const toast = new bootstrap.Toast(document.getElementById('success-toast'));
-        document.getElementById('success-message').textContent = message;
+        const messageEl = document.getElementById('success-message');
+        if (messageEl) messageEl.textContent = message;
         toast.show();
     }
 
     function showErrorToast(message) {
         const toast = new bootstrap.Toast(document.getElementById('error-toast'));
-        document.getElementById('error-message').textContent = message;
+        const messageEl = document.getElementById('error-message');
+        if (messageEl) messageEl.textContent = message;
         toast.show();
     }
 </script>
