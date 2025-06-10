@@ -391,15 +391,16 @@
             }
         });
 
+        // ✅ PERBAIKAN: Function showDetail dengan safe checks yang lengkap
         function showDetail(id) {
             // Tampilkan loading state
             const detailModalBody = document.querySelector('#detailModal .modal-body');
             detailModalBody.innerHTML = `
-                                            <div class="text-center py-4">
-                                                <div class="spinner-border text-primary mb-2" role="status"></div>
-                                                <p class="mb-0">Memuat detail permintaan...</p>
-                                            </div>
-                                        `;
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <p class="mb-0">Memuat detail permintaan...</p>
+        </div>
+    `;
 
             // Tampilkan modal dengan loading state
             const modal = new bootstrap.Modal(document.getElementById('detailModal'));
@@ -413,162 +414,356 @@
                     'Accept': 'application/json'
                 }
             })
-                .then(response => response.json())
-                .then(response => {
-                    if (response.success) {
-                        const data = response.data;
+            .then(response => response.json())
+            .then(response => {
+                if (response.success) {
+                    const data = response.data;
 
-                        // Perbaiki title modal
-                        document.querySelector('#detailModal .modal-title').innerText = `Detail Permintaan - ${data.lowongan.judul_lowongan}`;
+                    // Perbaiki title modal
+                    document.querySelector('#detailModal .modal-title').innerText = `Detail Permintaan - ${data.lowongan?.judul_lowongan || 'Lowongan'}`;
 
-                        // Tambahkan konten detail dengan styling yang lebih baik
-                        detailModalBody.innerHTML = `
-                                                    <div class="p-2 mb-3 rounded-3" style="background-color: rgba(89, 136, 255, 0.05);">
-                                                        <div class="d-flex align-items-center mb-3">
-                                                            <div class="avatar avatar-md bg-gradient-primary rounded-circle p-2 me-3">
-                                                                <span class="text-white fs-5">${data.mahasiswa.name.charAt(0)}</span>
-                                                            </div>
-                                                            <div>
-                                                                <h5 class="mb-0">${data.mahasiswa.name}</h5>
-                                                                <p class="text-muted mb-0">${data.mahasiswa.nim} | ${data.mahasiswa.email}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                    // ✅ UPDATE: Bagian periode info dengan data yang benar
+                    const periodeInfo = data.lowongan?.periode ? `
+    <div>
+        <label class="text-muted small">Periode Magang</label>
+        <p class="mb-0">${data.lowongan.periode.waktu}</p>
+        <small class="text-muted">
+            ${data.lowongan.periode.tanggal_mulai} - ${data.lowongan.periode.tanggal_selesai}
+        </small>
+    </div>
+` : `
+    <div>
+        <label class="text-muted small">Periode Magang</label>
+        <p class="mb-0 text-muted">Informasi periode tidak tersedia</p>
+    </div>
+`;
 
-                                                    <div class="row">
-                                                        <div class="col-md-6 mb-4">
-                                                            <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Mahasiswa</h6>
-                                                            <div class="mb-2">
-                                                                <label class="text-muted small">Prodi</label>
-                                                                <p class="mb-0">${data.mahasiswa.prodi || '-'}</p>
-                                                            </div>
-                                                            <div>
-                                                                <label class="text-muted small">Skills</label>
-                                                                <div>
-                                                                    ${(data.mahasiswa.skills || []).map(skill =>
-                            `<span class="badge bg-light text-dark me-1 mb-1">${skill}</span>`
-                        ).join('')}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-6 mb-4">
-                                                            <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Lowongan</h6>
-                                                            <div class="mb-2">
-                                                                <label class="text-muted small">Judul</label>
-                                                                <p class="mb-0">${data.lowongan.judul_lowongan}</p>
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="text-muted small">Kapasitas</label>
-                                                                <p class="mb-0">${data.lowongan.persyaratan} Kandidat</p>
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="text-muted small">Periode</label>
-                                                                <p class="mb-0">${data.lowongan.tanggal_mulai} s/d ${data.lowongan.tanggal_selesai}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="row">
-                                                        <div class="col-12 mb-4">
-                                                            <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Detail Perusahaan</h6>
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-2">
-                                                                        <label class="text-muted small">Nama Perusahaan</label>
-                                                                        <p class="mb-0">${data.perusahaan.nama_perusahaan}</p>
-                                                                    </div>
-                                                                    <div class="mb-2">
-                                                                        <label class="text-muted small">Kota</label>
-                                                                        <p class="mb-0">${data.perusahaan.kota}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-2">
-                                                                        <label class="text-muted small">Contact Person</label>
-                                                                        <p class="mb-0">${data.perusahaan.contact_person}</p>
-                                                                    </div>
-                                                                    <div class="mb-2">
-                                                                        <label class="text-muted small">Email</label>
-                                                                        <p class="mb-0">${data.perusahaan.email}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <label class="text-muted small">Alamat</label>
-                                                                <p class="mb-0">${data.perusahaan.alamat_perusahaan}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">Dokumen</h6>
-                                                            <div class="d-flex gap-2">
-                                                                <a href="${data.dokumen.cv_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                                    <i class="fas fa-file-alt me-1"></i>Download CV
-                                                                </a>
-                                                                <a href="${data.dokumen.surat_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                                    <i class="fas fa-file-pdf me-1"></i>Download Surat Lamaran
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mt-4 pt-3 border-top">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <label class="text-uppercase text-muted small">Status</label>
-                                                                <div>
-                                                                    <span class="status-badge ${data.status === 'aktif' ? 'diterima' : data.status === 'tidak aktif' ? 'ditolak' : 'menunggu'}">
-                                                                        ${data.status || 'Menunggu'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="action-buttons">
-                                                                ${data.auth === 'menunggu' ? `
-            <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                <i class="fas fa-times me-1"></i>Tolak
-            </button>
-            <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                <i class="fas fa-check me-1"></i>Terima
-            </button>
-        ` : data.auth === 'ditolak' ? `
-         
-        ` : `
-            <span class="text-muted"><i class="fas fa-check-circle me-1"></i>Permintaan telah diterima</span>
-        `}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    ${data.catatan ? `
-        <div class="mt-3 pt-3 border-top">
-            <h6 class="text-uppercase text-muted mb-2">Catatan Penolakan</h6>
-            <div class="alert alert-warning">
-                <i class="fas fa-comment me-2"></i>
-                ${data.catatan}
-            </div>
-        </div>
-    ` : ''}
-                                                `;
+                    // ✅ UPDATE: Skills dengan lama pengalaman
+                    let skillsHTML = '';
+                    if (data.mahasiswa?.skills && Array.isArray(data.mahasiswa.skills) && data.mahasiswa.skills.length > 0) {
+                        skillsHTML = data.mahasiswa.skills.map(skill =>
+        `<span class="badge bg-primary text-white me-1 mb-1" title="Pengalaman: ${skill.lama_skill}">
+            ${skill.nama_skill}
+        </span>`
+    ).join('');
                     } else {
-                        detailModalBody.innerHTML = `
-                                                    <div class="alert alert-danger">
-                                                        Gagal memuat detail: ${response.message || 'Terjadi kesalahan.'}
-                                                    </div>
-                                                `;
+                        skillsHTML = '<span class="text-muted small">Belum ada skill yang ditambahkan</span>';
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+
+                    // ✅ UPDATE: Minat mahasiswa
+                    let minatHTML = '';
+                    if (data.mahasiswa?.minat && Array.isArray(data.mahasiswa.minat) && data.mahasiswa.minat.length > 0) {
+                        minatHTML = data.mahasiswa.minat.map(minat =>
+        `<span class="badge bg-info text-white me-1 mb-1">${minat}</span>`
+    ).join('');
+                    } else {
+                        minatHTML = '<span class="text-muted small">Belum ada minat yang dipilih</span>';
+                    }
+
+                    // ✅ UPDATE: Skills yang dibutuhkan lowongan
+                    let skillsRequiredHTML = '';
+                    if (data.lowongan?.skills_required && Array.isArray(data.lowongan.skills_required) && data.lowongan.skills_required.length > 0) {
+                        skillsRequiredHTML = data.lowongan.skills_required.map(skill =>
+        `<span class="badge bg-warning text-dark me-1 mb-1">${skill}</span>`
+    ).join('');
+                    } else {
+                        skillsRequiredHTML = '<span class="text-muted small">Tidak ada skill khusus yang dibutuhkan</span>';
+                    }
+
+                    // ✅ SAFE CHECK: Dokumen dengan fallback
+                    let dokumenHTML = '';
+                    if (data.dokumen && Array.isArray(data.dokumen) && data.dokumen.length > 0) {
+                        dokumenHTML = data.dokumen.map(doc => {
+                            // Tentukan icon berdasarkan tipe file
+                            let icon = 'fas fa-file';
+                            const fileType = (doc.file_type || '').toLowerCase();
+                            
+                            if (fileType.includes('cv')) {
+                                icon = 'fas fa-file-alt text-primary';
+                            } else if (fileType.includes('surat')) {
+                                icon = 'fas fa-file-pdf text-danger';
+                            } else if (fileType.includes('transkrip')) {
+                                icon = 'fas fa-file-excel text-success';
+                            } else if (fileType.includes('sertifikat')) {
+                                icon = 'fas fa-certificate text-warning';
+                            } else if (fileType.includes('portofolio')) {
+                                icon = 'fas fa-folder text-info';
+                            }
+
+                            return `
+                                <div class="document-item border rounded p-3 mb-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="document-info flex-grow-1">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="${icon} me-2"></i>
+                                                <strong class="document-type">${doc.file_type || 'Dokumen'}</strong>
+                                            </div>
+                                            <p class="file-name mb-1">${doc.file_name || 'Nama file tidak tersedia'}</p>
+                                            <small class="text-muted">${doc.description || 'Tidak ada deskripsi'}</small>
+                                            <div class="file-meta mt-1">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>${doc.upload_date || 'Tanggal tidak tersedia'}
+                                                    <span class="ms-2">
+                                                        <i class="fas fa-weight-hanging me-1"></i>${doc.file_size || 'Ukuran tidak diketahui'}
+                                                    </span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="document-actions">
+                                            ${doc.file_url ? `
+                                                <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download me-1"></i>Download
+                                                </a>
+                                            ` : `
+                                                <span class="text-muted small">File tidak tersedia</span>
+                                            `}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        dokumenHTML = `
+                            <div class="text-center py-3">
+                                <i class="fas fa-file-excel text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                <p class="text-muted mb-0">Belum ada dokumen yang diupload</p>
+                            </div>
+                        `;
+                    }
+
+                    // ✅ SAFE CHECK: Dosen pembimbing dengan fallback yang aman
+                    let dosenHTML = '';
+                    if (data.dosen_pembimbing && typeof data.dosen_pembimbing === 'object') {
+                        if (data.dosen_pembimbing.assigned === true || data.dosen_pembimbing.assigned === 'true') {
+                            dosenHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-user-graduate me-2"></i>
+                            <strong>Dosen Pembimbing:</strong> ${data.dosen_pembimbing.nama || 'Nama tidak tersedia'} 
+                            <span class="text-muted">(NIP: ${data.dosen_pembimbing.nip || 'NIP tidak tersedia'})</span>
+                        </div>
+                    `;
+                        } else {
+                            dosenHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Belum ada dosen pembimbing yang ditugaskan</strong>
+                            <div class="mt-2">
+                                <a href="/plotting" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-user-plus me-1"></i>Assign Dosen Pembimbing
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                        }
+                    } else {
+                        // Fallback jika data.dosen_pembimbing tidak ada atau null
+                        dosenHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Belum ada dosen pembimbing yang ditugaskan</strong>
+                            <div class="mt-2">
+                                <a href="/plotting" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-user-plus me-1"></i>Assign Dosen Pembimbing
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    }
+
+                    // ✅ ENHANCED: Konten detail yang lengkap dengan safe checks
                     detailModalBody.innerHTML = `
-                                                <div class="alert alert-danger">
-                                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                                    Gagal memuat detail permintaan magang
-                                                </div>
-                                            `;
-                });
+                <div class="p-2 mb-3 rounded-3" style="background-color: rgba(89, 136, 255, 0.05);">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-md bg-gradient-primary rounded-circle p-2 me-3">
+                            <span class="text-white fs-5">${(data.mahasiswa?.name || 'N').charAt(0)}</span>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">${data.mahasiswa?.name || 'Nama tidak tersedia'}</h5>
+                            <p class="text-muted mb-0">${data.mahasiswa?.nim || 'NIM tidak tersedia'} | ${data.mahasiswa?.email || 'Email tidak tersedia'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">
+                            <i class="fas fa-user me-2"></i>Detail Mahasiswa
+                        </h6>
+                        <div class="mb-2">
+                            <label class="text-muted small">Prodi/Kelas</label>
+                            <p class="mb-0">${data.mahasiswa?.prodi || 'Prodi tidak tersedia'} - ${data.mahasiswa?.kelas || 'Kelas tidak tersedia'}</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">IPK</label>
+                            <p class="mb-0">${data.mahasiswa?.ipk || 'IPK tidak tersedia'}</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">Alamat</label>
+                            <p class="mb-0">${data.mahasiswa?.alamat || 'Alamat tidak tersedia'}</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">No. Telepon</label>
+                            <p class="mb-0">${data.mahasiswa?.telp || 'Telepon tidak tersedia'}</p>
+                        </div>
+                        <div>
+                            <label class="text-muted small">Skills</label>
+                            <div>${skillsHTML}</div>
+                        </div>
+                        <div>
+                            <label class="text-muted small">Minat</label>
+                            <div>${minatHTML}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">
+                            <i class="fas fa-briefcase me-2"></i>Detail Lowongan
+                        </h6>
+                        <div class="mb-2">
+                            <label class="text-muted small">Posisi</label>
+                            <p class="mb-0">${data.lowongan?.judul_lowongan || 'Posisi tidak tersedia'}</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">Deskripsi</label>
+                            <p class="mb-0">${data.lowongan?.deskripsi || 'Deskripsi tidak tersedia'}</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">Kapasitas</label>
+                            <p class="mb-0">${data.lowongan?.kapasitas || 'Tidak diketahui'} orang</p>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-muted small">Minimal IPK</label>
+                            <p class="mb-0">${data.lowongan?.min_ipk || 'Tidak ditentukan'}</p>
+                        </div>
+                        ${periodeInfo}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">
+                            <i class="fas fa-building me-2"></i>Detail Perusahaan
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="text-muted small">Nama Perusahaan</label>
+                                    <p class="mb-0">${data.perusahaan?.nama_perusahaan || 'Nama perusahaan tidak tersedia'}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="text-muted small">Kota</label>
+                                    <p class="mb-0">${data.perusahaan?.kota || 'Kota tidak tersedia'}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="text-muted small">Website</label>
+                                    <p class="mb-0">${data.perusahaan?.website || 'Website tidak tersedia'}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="text-muted small">Contact Person</label>
+                                    <p class="mb-0">${data.perusahaan?.contact_person || 'Contact person tidak tersedia'}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="text-muted small">Email</label>
+                                    <p class="mb-0">${data.perusahaan?.email || 'Email tidak tersedia'}</p>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="text-muted small">Instagram</label>
+                                    <p class="mb-0">${data.perusahaan?.instagram || 'Instagram tidak tersedia'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-muted small">Alamat</label>
+                            <p class="mb-0">${data.perusahaan?.alamat_perusahaan || 'Alamat perusahaan tidak tersedia'}</p>
+                        </div>
+                        <div class="mt-2">
+                            <label class="text-muted small">Deskripsi</label>
+                            <p class="mb-0">${data.perusahaan?.deskripsi || 'Deskripsi perusahaan tidak tersedia'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${dosenHTML}
+
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <h6 class="text-uppercase text-muted mb-3 border-bottom pb-2">
+                            <i class="fas fa-file-alt me-2"></i>Dokumen Lamaran
+                        </h6>
+                        ${dokumenHTML}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <label class="text-uppercase text-muted small">Status Lamaran</label>
+                            <div>
+                                <span class="status-badge ${(data.auth || '').toLowerCase() === 'diterima' ? 'diterima' : (data.auth || '').toLowerCase() === 'ditolak' ? 'ditolak' : 'menunggu'}">
+                                    ${data.status || 'Status tidak tersedia'}
+                                </span>
+                            </div>
+                            <small class="text-muted">Tanggal lamaran: ${data.tanggal_lamaran || 'Tanggal tidak tersedia'}</small>
+                        </div>
+                        <div class="action-buttons">
+                            ${(data.auth || '').toLowerCase() === 'menunggu' ? `
+                                <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                    <i class="fas fa-times me-1"></i>Tolak
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                    <i class="fas fa-check me-1"></i>Terima
+                                </button>
+                            ` : (data.auth || '').toLowerCase() === 'ditolak' ? `
+                                <span class="text-muted">
+                                    <i class="fas fa-times-circle me-1"></i>Permintaan telah ditolak
+                                    ${data.tanggal_ditolak ? ` pada ${data.tanggal_ditolak}` : ''}
+                                </span>
+                            ` : `
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Permintaan telah diterima
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+
+                ${data.catatan ? `
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="text-uppercase text-muted mb-2">
+                            <i class="fas fa-comment me-2"></i>Catatan Penolakan
+                        </h6>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-comment me-2"></i>
+                            ${data.catatan}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+                } else {
+                    detailModalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    Gagal memuat detail: ${response.message || 'Terjadi kesalahan.'}
+                </div>
+            `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                detailModalBody.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Gagal memuat detail permintaan magang. 
+                <br><small class="text-muted">Error: ${error.message}</small>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="showDetail(${id})">
+                        <i class="fas fa-redo me-1"></i>Coba Lagi
+                    </button>
+                </div>
+            </div>
+        `;
+            });
         }
 
         function acceptRequest(id) {
@@ -800,33 +995,33 @@
                     tgl_selesai: tglSelesai
                 })
             })
-                .then(response => response.json())
-                .then(response => {
-                    console.log('Respons dari server:', response);
-                    if (response.success) {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            html: `
-                                <div class="text-start">
-                                    <p class="mb-3">✅ Permintaan magang telah diterima</p>
-                                    <p class="mb-3">📅 Jadwal magang telah ditetapkan</p>
-                                    <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
-                                </div>
-                            `,
-                            icon: 'success',
-                            timer: 3000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            loadPermintaanData(); // Refresh data
-                        });
-                    } else {
-                        Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-                });
+            .then(response => response.json())
+            .then(response => {
+                console.log('Respons dari server:', response);
+                if (response.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        html: `
+                            <div class="text-start">
+                                <p class="mb-3">✅ Permintaan magang telah diterima</p>
+                                <p class="mb-3">📅 Jadwal magang telah ditetapkan</p>
+                                <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        loadPermintaanData(); // Refresh data
+                    });
+                } else {
+                    Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+            });
         }
 
         // ✅ PERBAIKAN: Function rejectRequest - ubah status tanpa menghapus data
@@ -975,32 +1170,32 @@
                             tanggal_reaktivasi: new Date().toISOString().split('T')[0]
                         })
                     })
-                        .then(response => response.json())
-                        .then(response => {
-                            console.log('Respons dari server:', response);
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Berhasil Diaktifkan!',
-                                    html: `
-                                        <div class="text-start">
-                                            <p class="mb-3">✅ Status permintaan telah diubah menjadi "Menunggu"</p>
-                                            <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
-                                        </div>
-                                    `,
-                                    icon: 'success',
-                                    timer: 3000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    loadPermintaanData(); // Refresh data
-                                });
-                            } else {
-                                Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat mengaktifkan permintaan.', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-                        });
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Respons dari server:', response);
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Berhasil Diaktifkan!',
+                                html: `
+                                    <div class="text-start">
+                                        <p class="mb-3">✅ Status permintaan telah diubah menjadi "Menunggu"</p>
+                                        <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
+                                    </div>
+                                `,
+                                icon: 'success',
+                                timer: 3000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                loadPermintaanData(); // Refresh data
+                            });
+                        } else {
+                            Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat mengaktifkan permintaan.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+                    });
                 }
             });
         }

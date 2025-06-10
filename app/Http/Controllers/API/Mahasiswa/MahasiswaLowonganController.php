@@ -638,4 +638,184 @@ class MahasiswaLowonganController extends Controller
 
         return min(100, $completion);
     }
+
+    // ✅ TAMBAH method baru di MahasiswaLowonganController.php
+
+    public function applyWithDocuments(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $lowongan_id = $request->input('lowongan_id');
+            
+            // Validasi input
+            $request->validate([
+                'lowongan_id' => 'required|exists:m_lowongan,id_lowongan',
+                'documents' => 'required|array|min:1|max:5',
+                'documents.*.file' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB
+                'documents.*.type' => 'required|string',
+                'documents.*.description' => 'nullable|string'
+            ]);
+
+            // Get mahasiswa data
+            $mahasiswa = DB::table('m_mahasiswa')
+                ->where('id_user', $user->id_user)
+                ->first();
+
+            if (!$mahasiswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data mahasiswa tidak ditemukan'
+                ], 404);
+            }
+
+            // Check if already applied
+            $existingLamaran = DB::table('t_lamaran')
+                ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                ->where('id_lowongan', $lowongan_id)
+                ->exists();
+
+            if ($existingLamaran) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah melamar untuk lowongan ini'
+                ], 400);
+            }
+
+            // Check active magang
+            $activeMagang = DB::table('m_magang')
+                ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                ->where('status', 'aktif')
+                ->exists();
+
+            if ($activeMagang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah memiliki magang aktif'
+                ], 400);
+            }
+
+            // Get lowongan details
+            $lowongan = DB::table('m_lowongan as l')
+                ->join('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
+                ->where('l.id_lowongan', $lowongan_id)
+                ->select('l.*', 'p.nama_perusahaan', 'p.email as perusahaan_email')
+                ->first();
+
+            if (!$lowongan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lowongan tidak ditemukan'
+                ], 404);
+            }
+
+            $uploadedDocuments = [];
+
+            // Process and store documents
+            foreach ($request->file('documents') as $index => $documentData) {
+                $file = $documentData['file'];
+                $type = $request->input("documents.{$index}.type");
+                $description = $request->input("documents.{$index}.description", "Dokumen {$type} untuk lamaran");
+
+                // Generate unique filename
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+                $fileName = $originalName . '_' . time() . '_' . uniqid() . '.' . $extension;
+
+                // Store file
+                $filePath = $file->storeAs('documents/lamaran/' . $user->id_user, $fileName, 'public');
+
+                // Save to database
+                $document_id = DB::table('m_dokumen')->insertGetId([
+                    'id_user' => $user->id_user,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'file_type' => $type,
+                    'description' => $description,
+                    'upload_date' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $uploadedDocuments[] = [
+                    'id_dokumen' => $document_id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $type,
+                    'file_path' => $filePath
+                ];
+
+                Log::info("Document uploaded: {$file->getClientOriginalName()} for user {$user->id_user}");
+            }
+
+            // Insert lamaran dengan dokumen pertama sebagai referensi
+            $lamaran_id = DB::table('t_lamaran')->insertGetId([
+                'id_lowongan' => $lowongan_id,
+                'id_mahasiswa' => $mahasiswa->id_mahasiswa,
+                'id_dokumen' => $uploadedDocuments[0]['id_dokumen'], // Dokumen utama
+                'tanggal_lamaran' => now(),
+                'auth' => 'menunggu',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // ✅ TRIGGER NOTIFIKASI dengan info dokumen
+            try {
+                $documentTypes = array_column($uploadedDocuments, 'file_type');
+                $documentTypesText = implode(', ', array_unique($documentTypes));
+
+                $this->notificationService->createNotification(
+                    $user->id_user,
+                    'Lamaran dengan Dokumen Berhasil Dikirim! 📄',
+                    "Lamaran Anda untuk posisi {$lowongan->judul_lowongan} di {$lowongan->nama_perusahaan} telah berhasil dikirim dengan " . count($uploadedDocuments) . " dokumen ({$documentTypesText}). Tim HR akan meninjau lamaran dan dokumen Anda.",
+                    'lamaran',
+                    'success',
+                    false,
+                    [
+                        'lamaran_id' => $lamaran_id,
+                        'lowongan_id' => $lowongan_id,
+                        'perusahaan' => $lowongan->nama_perusahaan,
+                        'posisi' => $lowongan->judul_lowongan,
+                        'action' => 'submitted_with_documents',
+                        'documents_count' => count($uploadedDocuments),
+                        'document_types' => $documentTypes
+                    ],
+                    14 // 2 minggu
+                );
+
+            } catch (\Exception $notifError) {
+                Log::error('Error sending application notification: ' . $notifError->getMessage());
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lamaran dengan dokumen berhasil dikirim!',
+                'data' => [
+                    'lamaran_id' => $lamaran_id,
+                    'lowongan' => $lowongan->judul_lowongan,
+                    'perusahaan' => $lowongan->nama_perusahaan,
+                    'documents_uploaded' => count($uploadedDocuments),
+                    'documents' => $uploadedDocuments,
+                    'status' => 'menunggu'
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error applying with documents: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim lamaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -6,17 +6,51 @@
 }
 
 /* ================================
-   MAIN LAYOUT - FIX TOPNAV POSITION
+   MAIN LAYOUT - SAMAKAN DENGAN LOGAKTIVITAS
    ================================ */
 .main-content {
     position: relative;
-    padding-top: 2rem; /* ✅ ADD PADDING TOP LIKE OTHER PAGES */
+    /* ✅ HAPUS: padding-top: 2rem; - KONFLIK! */
 }
 
 .container-fluid {
     max-width: 1200px;
     margin: 0 auto;
-    padding-top: 2rem; /* ✅ ADD PADDING TOP LIKE EVALUASI & LOGAKTIVITAS */
+    padding-top: 2rem; /* ✅ SAMA PERSIS dengan logaktivitas.css */
+}
+
+/* ✅ TAMBAH: Consistent body layout seperti logaktivitas */
+body.g-sidenav-show .main-content {
+    margin-left: 17rem;
+    transition: margin-left 0.15s ease-in-out;
+}
+
+@media (max-width: 1199.98px) {
+    body.g-sidenav-show .main-content {
+        margin-left: 0;
+    }
+    
+    .container-fluid {
+        padding-top: 2rem; /* ✅ KONSISTEN: sama dengan logaktivitas */
+    }
+}
+
+@media (max-width: 991.98px) {
+    .container-fluid {
+        padding-top: 1.75rem; /* ✅ RESPONSIVE: sedikit kurangi untuk mobile */
+    }
+}
+
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding-top: 1.5rem; /* ✅ MOBILE: sama dengan logaktivitas */
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-top: 1.25rem; /* ✅ SMALL MOBILE: optimal spacing */
+    }
 }
 
 /* ================================

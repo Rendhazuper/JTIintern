@@ -171,4 +171,65 @@ class DashboardController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * ✅ SIMPLE: Get automation status
+     */
+    public function getSimpleAutomationStatus()
+    {
+        try {
+            $automationService = app(\App\Services\SimpleAutomationService::class);
+            $status = $automationService->getCurrentStatus();
+
+            return response()->json([
+                'success' => true,
+                'data' => $status
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching simple automation status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load automation status'
+            ], 500);
+        }
+    }
+
+    /**
+     * ✅ SIMPLE: Manual trigger automation
+     */
+    public function triggerSimpleAutomation(Request $request)
+    {
+        try {
+            if (auth()->user()->role !== 'admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $type = $request->get('type', 'completion'); // completion or warning
+            $automationService = app(\App\Services\SimpleAutomationService::class);
+
+            if ($type === 'completion') {
+                $result = $automationService->autoCompleteExpired();
+                cache()->put('last_manual_completion', now(), 86400);
+            } else {
+                $result = $automationService->checkExpiringMagang(3);
+            }
+
+            return response()->json([
+                'success' => $result['success'],
+                'message' => $result['success'] ? 'Automation completed successfully' : 'Automation failed',
+                'data' => $result
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error triggering automation: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

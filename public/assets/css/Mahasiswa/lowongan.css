@@ -1004,9 +1004,216 @@ body {
     animation: skeleton-loading 2s infinite;
 }
 
-/* ================================
-   ACCESSIBILITY & PERFORMANCE - MATCHING LOGAKTIVITAS
-   ================================ */
+/* ===================================
+   DOCUMENT UPLOAD MODAL STYLES
+   =================================== */
+
+.upload-instructions {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    border-left: 4px solid #007bff;
+}
+
+.documents-container {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 1.5rem;
+}
+
+.document-upload-item {
+    background: #fff;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.document-upload-item:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+}
+
+.document-upload-item.has-file {
+    border-style: solid;
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.document-upload-item.uploading {
+    border-color: #ffc107;
+    background: #fffbf0;
+}
+
+.document-upload-item.error {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.upload-area {
+    text-align: center;
+    cursor: pointer;
+    padding: 1rem;
+}
+
+.upload-area .upload-icon {
+    font-size: 2rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.upload-area.has-file .upload-icon {
+    color: #28a745;
+}
+
+.upload-area .upload-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.upload-area.has-file .upload-text {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.document-info {
+    display: none;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: 1rem;
+}
+
+.document-upload-item.has-file .document-info {
+    display: block;
+}
+
+.document-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.file-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-size {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.document-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-remove-document {
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.btn-remove-document:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.document-type-select {
+    margin-top: 1rem;
+}
+
+.document-type-select select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.upload-progress {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border-left: 4px solid #007bff;
+}
+
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* ✅ RESPONSIVE: Mobile optimization */
+@media (max-width: 768px) {
+    .upload-instructions .row {
+        text-align: center;
+    }
+    
+    .document-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .document-actions {
+        align-self: flex-end;
+    }
+    
+    .modal-dialog.modal-lg {
+        margin: 0.5rem;
+    }
+}
+
+/* ✅ ANIMATION: Smooth transitions */
+.document-upload-item {
+    animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-out {
+    animation: slideOutDown 0.3s ease forwards;
+}
+
+@keyframes slideOutDown {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/* Accessibility and performance enhancements */
 @media (prefers-reduced-motion: reduce) {
     .skeleton-text,
     .skeleton-company-logo,
@@ -1031,7 +1238,7 @@ body {
     }
 }
 
-/* ✅ PERFORMANCE OPTIMIZATION - sama dengan logaktivitas */
+/* Performance optimization */
 .skeleton-text,
 .skeleton-company-logo,
 .skeleton-skill-tag,
@@ -1049,5 +1256,3 @@ body {
     backface-visibility: hidden;
     transform: translateZ(0);
 }
-
-/* ...rest of existing CSS... */
