@@ -1,68 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap");
 
-/* Search input and filter styles */
-.input-group .form-control,
-.form-select {
-    font-family: "Open Sans", sans-serif;
-    font-size: 12px !important;
-    font-weight: 600 !important;
+.badge-active {
+    background-color: #caffcc !important;
+    color: #57c45a !important;
+    border: 1px solid #57c45a;
 }
 
-/* Search icon style */
-.input-group-text i {
-    font-size: 10px;
-}
-
-/* Placeholder style */
-.form-control::placeholder {
-    font-family: "Open Sans", sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #a0aec0;
-}
-
-/* Select options style */
-.form-select option {
-    font-family: "Open Sans", sans-serif;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-/* Ensure consistent heights */
-.input-group,
-.form-select {
-    height: 38px;
-}
-
-/* Override modal backdrop to cover sidenav */
-.modal-backdrop {
-    z-index: 1040 !important;
-}
-
-/* Ensure sidenav stays below modal backdrop */
-.sidenav {
-    z-index: 1039 !important;
-}
-
-/* Ensure modal stays on top */
-.modal {
-    z-index: 1045 !important;
-}
-
-/* Additional styling for better visual hierarchy */
-.modal-backdrop.show {
-    opacity: 0.5;
-    backdrop-filter: blur(1px);
-}
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .row.g-2 {
-        margin: 0 -0.5rem;
-    }
-    .row.g-2 > [class*="col-"] {
-        padding: 0 0.5rem;
-    }
-    .form-select {
-        width: 100%;
-    }
+.badge-completed {
+    background-color: #ffdcc3 !important;
+    color: #fd6900 !important;
+    border: 1px solid #f88f44;
 }

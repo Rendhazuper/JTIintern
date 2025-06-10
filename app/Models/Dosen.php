@@ -17,21 +17,14 @@ class Dosen extends Model
     protected $fillable = [
         'user_id',
         'nip',
-        'wilayah_id',
-        'created_at',
-        'updated_at',
+        'no_hp',
+        'alamat',
     ];
 
     // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');
-    }
-
-    // Relasi ke Wilayah
-    public function wilayah()
-    {
-        return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
     }
 
     // Relasi ke Skills

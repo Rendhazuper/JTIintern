@@ -11,8 +11,25 @@ class DosenMahasiswaController extends Controller
 {
     public function index()
     {
+        // Get the authenticated user's dosen data
+        $user = auth()->user();
+        
+        if ($user->role !== 'dosen') {
+            return redirect()->route('unauthorized')->with('error', 'Anda tidak memiliki akses sebagai dosen');
+        }
+        
+        $dosen = DB::table('m_dosen')
+            ->where('user_id', $user->id_user)
+            ->first();
+        
+        if (!$dosen) {
+            // Log this issue for admin awareness
+            Log::warning("User with ID {$user->id_user} has dosen role but no dosen record");
+        }
+        
         return view('pages.dosen.DosenMahasiswa', [
             'title' => 'Data Mahasiswa',
+            'dosen_id' => $dosen ? $dosen->id_dosen : null,
         ]);
     }
 
@@ -22,8 +39,10 @@ class DosenMahasiswaController extends Controller
             $search = $request->get('search');
             $status = $request->get('status');
             $perusahaan = $request->get('perusahaan');
+            $perPage = 6; // Set to 6 items per page
+            $page = $request->get('page', 1); // Get the requested page, default to 1
 
-            $mahasiswa = DB::table('m_magang as mg')
+            $mahasiswaQuery = DB::table('m_magang as mg')
                 ->join('m_mahasiswa as mhs', 'mg.id_mahasiswa', '=', 'mhs.id_mahasiswa')
                 ->join('m_user as u', 'mhs.id_user', '=', 'u.id_user')
                 ->join('m_kelas as k', 'mhs.id_kelas', '=', 'k.id_kelas')
@@ -47,18 +66,36 @@ class DosenMahasiswaController extends Controller
                 ->select(
                     'mhs.id_mahasiswa',
                     'u.name',
-                    'mhs.nim',
+                    'mhs.nim', 
                     'k.nama_kelas',
-                    'mhs.ipk',
                     'mg.status',
                     'p.nama_perusahaan',
                     'l.judul_lowongan'
-                )
+                );
+
+            // Get total count for pagination
+            $total = $mahasiswaQuery->count();
+            
+            // Apply pagination
+            $mahasiswa = $mahasiswaQuery
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
                 ->get();
+
+            // Create pagination metadata
+            $meta = [
+                'current_page' => (int)$page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => ceil($total / $perPage),
+                'from' => ($page - 1) * $perPage + 1,
+                'to' => min($page * $perPage, $total)
+            ];
 
             return response()->json([
                 'success' => true,
                 'data' => $mahasiswa,
+                'meta' => $meta,
                 'message' => 'Data mahasiswa bimbingan berhasil diambil'
             ]);
         } catch (\Exception $e) {

@@ -15,9 +15,6 @@ class LogbookController extends Controller
 {
     protected $photoService;
 
-    /**
-     * ✅ PERBAIKAN: Manual instantiate tanpa AppServiceProvider
-     */
     public function __construct()
     {
         $this->photoService = new LogbookPhotoService();

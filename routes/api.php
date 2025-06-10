@@ -19,6 +19,8 @@ use App\Http\Controllers\API\EvaluasiController;
 use App\Http\Controllers\API\PlottingController;
 use App\Http\Controllers\API\Dosen\DosenMahasiswaController as DosenMaha;
 use App\Http\Controllers\API\Dosen\dashboardController as DosenDash;
+use App\Http\Controllers\API\Dosen\DosenProfileController;
+use App\Http\Controllers\API\Dosen\ProfileController as DosenProfile;
 use App\Http\Controllers\API\NotificationController;
 
 /*
@@ -265,8 +267,15 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:superadmin'])->prefix('su
 
 // Dosen Dashboard Routes
 Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function () {
+    Route::get('/dosen/current', [DosenProfileController::class, 'getCurrentDosen']);
     Route::get('/dosen/dashboard/stats/{id_dosen}', [DosenDash::class, 'getStats']);
     Route::get('/dosen/dashboard/mahasiswa/{id_dosen}', [DosenDash::class, 'getMahasiswaBimbingan']);
     Route::get('/dosen/{id_dosen}/mahasiswa-bimbingan', [DosenMaha::class, 'getMahasiswaBimbingan']);
     Route::get('/perusahaan-list', [DosenMaha::class, 'getPerusahaanList']);
+    Route::get('dosen/profile/data', [DosenProfile::class, 'getProfileData']);
+    Route::get('dosen/profile/minat', [DosenProfile::class, 'getMinat']);
+    Route::post('dosen/profile/minat', [DosenProfile::class, 'updateMinat']);
+    Route::get('dosen/profile/skills', [DosenProfile::class, 'getSkills']);
+    Route::post('dosen/profile/skills', [DosenProfile::class, 'updateSkills']);
+    Route::post('/dosen/profile/update', [DosenProfile::class, 'update'])->name('dosen.profile.update');
 });

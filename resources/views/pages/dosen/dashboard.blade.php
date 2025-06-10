@@ -12,8 +12,9 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="text-dark mb-2"
-                                    style="font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 600;">
-                                    Mahasiswa Bimbingan</h5>
+                                    style="font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 600;">Total
+                                    Mahasiswa
+                                </h5>
                                 <h3 class="mb-0" id="total-mahasiswa"
                                     style="font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 600;">
                                     <div class="spinner-border spinner-border-sm" role="status"></div>
@@ -117,21 +118,7 @@
 @endsection
 
 @push('css')
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap');
-
-        .badge-active {
-            background-color: #CAFFCC !important;
-            color: #57C45A !important;
-            border: 1px solid #57C45A;
-        }
-
-        .badge-completed {
-            background-color: #FFDCC3 !important;
-            color: #FD6900 !important;
-            border: 1px solid #F88F44;
-        }
-    </style>
+    
 @endpush
 
 @push('js')
@@ -199,11 +186,11 @@
                                         Log Aktivitas
                                     </button>
                                     ${mhs.status.toLowerCase() === 'selesai' ? `
-                                                <button class="btn btn-outline-secondary btn-sm px-3" 
-                                                    onclick="evaluasiMahasiswa('${mhs.id_mahasiswa}')">
-                                                    Evaluasi
-                                                </button>
-                                            ` : ''}
+                                                    <button class="btn btn-outline-secondary btn-sm px-3" 
+                                                        onclick="evaluasiMahasiswa('${mhs.id_mahasiswa}')">
+                                                        Evaluasi
+                                                    </button>
+                                                ` : ''}
                                 </div>
                             </td>
                         </tr>

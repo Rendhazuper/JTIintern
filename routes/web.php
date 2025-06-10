@@ -99,6 +99,7 @@ Route::prefix('dosen')->middleware(['auth', 'role:dosen'])->group(function () {
     Route::get('/evaluasi', [DosenViewController::class, 'evaluasi'])->name('dosen.evaluasi');
     Route::get('/profile', [DosenViewController::class, 'profile'])->name('dosen.profile');
     Route::post('/profile/update', [DosenProfileController::class, 'update'])->name('dosen.profile.update');
+    Route::get('/bimbingan', [DosenProfileController::class, 'update'])->name('dosen.request.bimbingan');
 
 });
 // Mahasiswa routes
