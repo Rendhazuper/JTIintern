@@ -66,6 +66,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::get('/lowongan/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'show']);
     Route::get('/active-internship', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkActiveInternship']);
     Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
+    Route::post('/apply-with-documents', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyWithDocuments']);
 
     // Profile management routes
     Route::prefix('profile')->group(function () {

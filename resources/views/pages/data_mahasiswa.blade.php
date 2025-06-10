@@ -280,14 +280,12 @@
             prodi: '',
             kelas: '',
             search: ''
-        }; // Tambahkan let
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi
             loadKelasFilterOptions();
             loadMahasiswaData(filterState);
 
-            // Setup event filter kelas
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) {
                 kelasFilter.addEventListener('change', function(e) {
@@ -296,33 +294,25 @@
                 });
             }
 
-            // Setup event pencarian dengan debounce
             const searchInput = document.getElementById('searchInput');
             const clearSearch = document.getElementById('clearSearch');
 
             if (searchInput) {
-                // Tambahkan kedua fungsi pada satu event listener
                 searchInput.addEventListener('input', debounce(function(e) {
-                    // Update tampilan tombol clear
                     if (clearSearch) {
                         clearSearch.style.display = this.value.length > 0 ? 'block' : 'none';
                     }
-
-                    // Update filter state dan reload data
                     filterState.search = this.value.trim();
-                    console.log("Search filter changed:", filterState); // Debug log
                     loadMahasiswaData(filterState);
                 }, 500));
             }
 
-            // Setup tombol clear search
             if (clearSearch) {
                 clearSearch.addEventListener('click', function() {
                     if (searchInput) {
                         searchInput.value = '';
                         filterState.search = '';
                         this.style.display = 'none';
-                        console.log("Search cleared:", filterState); // Debug log
                         loadMahasiswaData(filterState);
                     }
                 });
@@ -346,8 +336,7 @@
                         const kelasFilter = document.getElementById('kelasFilter');
                         kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
                         response.data.data.forEach(function(kelas) {
-                            kelasFilter.innerHTML +=
-                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -363,8 +352,7 @@
                         const select = document.getElementById('id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
                         response.data.data.forEach(function(kelas) {
-                            select.innerHTML +=
-                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                            select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -379,18 +367,8 @@
                     if (response.data.success) {
                         const select = document.getElementById('edit_id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-<<<<<<< Updated upstream
-                        response.data.data.forEach(function (kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
-                                                                                                                                                                                                                                                                ${kelas.nama_kelas}
-                                                                                                                                                                                                                                                            </option>`;
-=======
                         response.data.data.forEach(function(kelas) {
-                            select.innerHTML +=
-                                `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>
-                                                                                                                                                                                                                                                        ${kelas.nama_kelas}
-                                                                                                                                                                                                                                                    </option>`;
->>>>>>> Stashed changes
+                            select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -400,95 +378,53 @@
         }
 
         function loadMahasiswaData(filters = {}) {
-            // Show loading state
             const tableBody = document.getElementById('mahasiswa-table-body');
-<<<<<<< Updated upstream
             tableBody.innerHTML = `
-                                                                                                                                        <tr>
-                                                                                                                                            <td colspan="4" class="text-center p-5">
-                                                                                                                                                <div class="d-flex flex-column align-items-center">
-                                                                                                                                                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                                                                                                                                                    <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
-                                                                                                                                                    <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
-                                                                                                                                                </div>
-                                                                                                                                            </td>
-                                                                                                                                        </tr>
-                                                                                                                                    `;
-=======
-            tableBody.innerHTML =
-                `
-                                                                                                                                <tr>
-                                                                                                                                    <td colspan="4" class="text-center p-5">
-                                                                                                                                        <div class="d-flex flex-column align-items-center">
-                                                                                                                                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                                                                                                                                            <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
-                                                                                                                                            <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
-                                                                                                                                        </div>
-                                                                                                                                    </td>
-                                                                                                                                </tr>
-                                                                                                                            `;
->>>>>>> Stashed changes
+                <tr>
+                    <td colspan="5" class="text-center p-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                            <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
+                            <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
 
-            // Add slight delay for better UX when loading is very fast
             setTimeout(() => {
-                api.get('/mahasiswa', {
-                        params: filters
-                    })
+                api.get('/mahasiswa', { params: filters })
                     .then(function(response) {
-                        // Handle response data
-                        if (response.data && (response.data.success === true || Array.isArray(response.data
-                                .data))) {
-                            // Clear loading state
+                        if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
                             tableBody.innerHTML = '';
-
-                            // Parse mahasiswa data safely
                             const mahasiswaData = (response.data.data || []);
 
-                            // Show empty state if no data
                             if (mahasiswaData.length === 0) {
                                 showEmptyState(filters);
                                 return;
                             }
 
-                            // Render data with error handling
                             try {
                                 mahasiswaData.forEach((mahasiswa, index) => {
-                                    // Create table row with animation delay
                                     const tr = document.createElement('tr');
                                     tr.style.opacity = '0';
-                                    tr.style.animation =
-                                        `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
+                                    tr.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
                                     tr.innerHTML = createMahasiswaRow(mahasiswa);
                                     tableBody.appendChild(tr);
                                 });
 
-                                // Add animation keyframes if not already added
                                 if (!document.getElementById('fade-in-animation')) {
                                     const style = document.createElement('style');
                                     style.id = 'fade-in-animation';
-<<<<<<< Updated upstream
                                     style.textContent = `
-                                                                                                                                                                @keyframes fadeIn {
-                                                                                                                                                                    from { opacity: 0; transform: translateY(10px); }
-                                                                                                                                                                    to { opacity: 1; transform: translateY(0); }
-                                                                                                                                                                }
-                                                                                                                                                            `;
-=======
-                                    style.textContent =
-                                        `
-                                                                                                                                                        @keyframes fadeIn {
-                                                                                                                                                            from { opacity: 0; transform: translateY(10px); }
-                                                                                                                                                            to { opacity: 1; transform: translateY(0); }
-                                                                                                                                                        }
-                                                                                                                                                    `;
->>>>>>> Stashed changes
+                                        @keyframes fadeIn {
+                                            from { opacity: 0; transform: translateY(10px); }
+                                            to { opacity: 1; transform: translateY(0); }
+                                        }
+                                    `;
                                     document.head.appendChild(style);
                                 }
 
-                                // Add hover effect to rows
                                 addRowHoverEffects();
-
-                                // Check if we need pagination
                                 addPaginationIfNeeded(response.data);
 
                             } catch (err) {
@@ -496,20 +432,17 @@
                                 showErrorState('Terjadi kesalahan saat menampilkan data.', true);
                             }
                         } else {
-                            // Handle response error
                             console.error('Error response:', response.data);
                             showErrorState('Gagal memuat data mahasiswa.');
                         }
                     })
                     .catch(function(error) {
-                        // Handle API error
                         console.error('API Error:', error);
                         let errorMessage = 'Gagal memuat data mahasiswa';
 
                         if (error.response) {
                             if (error.response.status === 401) {
                                 errorMessage = 'Sesi Anda telah berakhir. Silakan login kembali.';
-                                // Redirect to login after short delay
                                 setTimeout(() => {
                                     window.location.href = '/login';
                                 }, 2000);
@@ -524,294 +457,329 @@
 
                         showErrorState(errorMessage);
                     });
-            }, 300); // Short delay for better visual feedback
+            }, 300);
 
-            // Helper function to create a mahasiswa row
             function createMahasiswaRow(mahasiswa) {
-                // ✅ Safe name handling
                 const name = mahasiswa.name || 'Tidak Diketahui';
                 const nameInitial = name.charAt(0).toUpperCase();
 
                 return `
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
-                            <span class="text-white" style="font-weight: 600;">${nameInitial}</span>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
+                                <span class="text-white" style="font-weight: 600;">${nameInitial}</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-sm">${name}</h6>
+                                <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-0 text-sm">${name}</h6>
-                            <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
+                    </td>
+                    <td>
+                        <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark">${mahasiswa.nama_kelas || '-'}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
+                            ${mahasiswa.status_magang || 'Belum Magang'}
+                        </span>
+                    </td>
+                    <td>
+                       <div class="action-buttons">
+                            <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
+                                <i class="fas fa-eye me-1"></i>Detail
+                            </button>
+                            <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
+                                <i class="fas fa-trash-alt me-1"></i>Hapus
+                            </button>
                         </div>
-                    </div>
-                </td>
-                <td>
-                    <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
-                </td>
-                <td>
-                    <span class="badge bg-light text-dark">${mahasiswa.nama_kelas || '-'}</span>
-                </td>
-                <td class="text-center">
-                    <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
-                        ${mahasiswa.status_magang || 'Belum Magang'}
-                    </span>
-                </td>
-                <td>
-                   <div class="action-buttons">
-                        <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
-                            <i class="fas fa-eye me-1"></i>Detail
-                        </button>
-                        <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
-                            <i class="fas fa-trash-alt me-1"></i>Hapus
-                        </button>
-                    </div>
-                </td>
-            `;
+                    </td>
+                `;
             }
 
-            // Helper function to determine status badge class
             function getStatusClass(status) {
                 if (!status) return 'belum';
-
                 switch (status) {
-                    case 'Sedang Magang':
-                        return 'magang';
-                    case 'Selesai Magang':
-                        return 'selesai';
-                    case 'Menunggu Konfirmasi':
-                        return 'menunggu';
-                    default:
-                        return 'belum';
+                    case 'Sedang Magang': return 'magang';
+                    case 'Selesai Magang': return 'selesai';
+                    case 'Menunggu Konfirmasi': return 'menunggu';
+                    default: return 'belum';
                 }
             }
 
-            // Helper function to show empty state
             function showEmptyState(filters) {
                 let filterMessage = '';
                 if (filters && (filters.kelas || filters.prodi || filters.search)) {
                     filterMessage = 'dengan filter yang dipilih';
                 }
 
-<<<<<<< Updated upstream
                 tableBody.innerHTML = `
-                                                                                                                                            <tr>
-                                                                                                                                                <td colspan="4">
-                                                                                                                                                    <div class="empty-state py-5">
-                                                                                                                                                        <div class="empty-state-icon mb-3">
-                                                                                                                                                            <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
-                                                                                                                                                        </div>
-                                                                                                                                                        <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
-                                                                                                                                                        <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
-                                                                                                                                                        <div class="d-flex justify-content-center gap-2">
-                                                                                                                                                            <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
-                                                                                                                                                                <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
-                                                                                                                                                            </button>
-                                                                                                                                                            ${filters && (filters.kelas || filters.prodi) ? `
-                                                                                                                                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                                                                                                                                                    <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                                                                                                                                                </button>
-                                                                                                                                                            ` : ''}
-                                                                                                                                                        </div>
-                                                                                                                                                    </div>
-                                                                                                                                                </td>
-                                                                                                                                            </tr>
-                                                                                                                                        `;
-=======
-                tableBody.innerHTML =
-                    `
-                                                                                                                                    <tr>
-                                                                                                                                        <td colspan="4">
-                                                                                                                                            <div class="empty-state py-5">
-                                                                                                                                                <div class="empty-state-icon mb-3">
-                                                                                                                                                    <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
-                                                                                                                                                </div>
-                                                                                                                                                <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
-                                                                                                                                                <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
-                                                                                                                                                <div class="d-flex justify-content-center gap-2">
-                                                                                                                                                    <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
-                                                                                                                                                        <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
-                                                                                                                                                    </button>
-                                                                                                                                                    ${filters && (filters.kelas || filters.prodi) ? `
-                                                                                                                                                                    <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                                                                                                                                                        <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                                                                                                                                                    </button>
-                                                                                                                                                                ` : ''}
-                                                                                                                                                </div>
-                                                                                                                                            </div>
-                                                                                                                                        </td>
-                                                                                                                                    </tr>
-                                                                                                                                `;
->>>>>>> Stashed changes
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state py-5">
+                                <div class="empty-state-icon mb-3">
+                                    <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
+                                </div>
+                                <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
+                                <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
+                                        <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
+                                    </button>
+                                    ${filters && (filters.kelas || filters.prodi) ? `
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                            <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
 
-            // Helper function to show error state
             function showErrorState(message, isSystemError = false) {
-<<<<<<< Updated upstream
                 tableBody.innerHTML = `
-                                                                                                                                            <tr>
-                                                                                                                                                <td colspan="4">
-                                                                                                                                                    <div class="text-center py-4">
-                                                                                                                                                        <div class="mb-3">
-                                                                                                                                                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                                                                                                                                                        </div>
-                                                                                                                                                        <h5 class="text-danger">${message}</h5>
-                                                                                                                                                        ${isSystemError ? `
-                                                                                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                                                                                        ` : ''}
-                                                                                                                                                        <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
-                                                                                                                                                            <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                                                                                        </button>
-                                                                                                                                                    </div>
-                                                                                                                                                </td>
-                                                                                                                                            </tr>
-                                                                                                                                        `;
-=======
-                tableBody.innerHTML =
-                    `
-                                                                                                                                    <tr>
-                                                                                                                                        <td colspan="4">
-                                                                                                                                            <div class="text-center py-4">
-                                                                                                                                                <div class="mb-3">
-                                                                                                                                                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                                                                                                                                                </div>
-                                                                                                                                                <h5 class="text-danger">${message}</h5>
-                                                                                                                                                ${isSystemError ? `
-                                                                                                                                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                                                                                            ` : ''}
-                                                                                                                                                <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
-                                                                                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                                                                                </button>
-                                                                                                                                            </div>
-                                                                                                                                        </td>
-                                                                                                                                    </tr>
-                                                                                                                                `;
->>>>>>> Stashed changes
+                    <tr>
+                        <td colspan="5">
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                                </div>
+                                <h5 class="text-danger">${message}</h5>
+                                ${isSystemError ? `
+                                    <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                ` : ''}
+                                <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
+                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
 
-            // Helper function to add hover effects
             function addRowHoverEffects() {
                 const rows = document.querySelectorAll('#mahasiswa-table-body tr');
                 rows.forEach(row => {
                     row.addEventListener('mouseenter', () => {
                         const buttons = row.querySelectorAll('.action-buttons .btn');
-                        buttons.forEach(btn => {
-                            btn.classList.add('shadow-sm');
-                        });
+                        buttons.forEach(btn => btn.classList.add('shadow-sm'));
                     });
-
                     row.addEventListener('mouseleave', () => {
                         const buttons = row.querySelectorAll('.action-buttons .btn');
-                        buttons.forEach(btn => {
-                            btn.classList.remove('shadow-sm');
-                        });
+                        buttons.forEach(btn => btn.classList.remove('shadow-sm'));
                     });
                 });
             }
 
-            // Helper function to add pagination if needed
             function addPaginationIfNeeded(responseData) {
                 const paginationContainer = document.getElementById('pagination-container');
                 if (!paginationContainer) return;
 
-                // Clear existing pagination
                 paginationContainer.innerHTML = '';
 
-                // Check if we have pagination data
                 if (responseData.meta && responseData.meta.last_page > 1) {
                     const currentPage = responseData.meta.current_page;
                     const lastPage = responseData.meta.last_page;
 
-<<<<<<< Updated upstream
                     let paginationHtml = `
-                                                                                                                                                <nav aria-label="Page navigation">
-                                                                                                                                                    <ul class="pagination pagination-sm justify-content-center my-3">
-                                                                                                                                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                                                                            <a class="page-link" href="#" onclick="changePage(1)">
-                                                                                                                                                                <i class="fas fa-angle-double-left"></i>
-                                                                                                                                                            </a>
-                                                                                                                                                        </li>
-                                                                                                                                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                                                                            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                                                                                                                                                                <i class="fas fa-angle-left"></i>
-                                                                                                                                                            </a>
-                                                                                                                                                        </li>
-                                                                                                                                            `;
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm justify-content-center my-3">
+                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="#" onclick="changePage(1)">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                    `;
 
-                    // Generate page numbers
                     for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
                         paginationHtml += `
-                                                                                                                                                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                                                                                                                                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                                                                                                                                    </li>
-                                                                                                                                                `;
+                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                            </li>
+                        `;
                     }
 
                     paginationHtml += `
-                                                                                                                                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                                                                            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                                                                                                                                                                <i class="fas fa-angle-right"></i>
-                                                                                                                                                            </a>
-                                                                                                                                                        </li>
-                                                                                                                                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                                                                            <a class="page-link" href="#" onclick="changePage(${lastPage})">
-                                                                                                                                                                <i class="fas fa-angle-double-right"></i>
-                                                                                                                                                            </a>
-                                                                                                                                                        </li>
-                                                                                                                                                    </ul>
-                                                                                                                                                </nav>
-                                                                                                                                            `;
-=======
-                    let paginationHtml =
-                        `
-                                                                                                                                        <nav aria-label="Page navigation">
-                                                                                                                                            <ul class="pagination pagination-sm justify-content-center my-3">
-                                                                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(1)">
-                                                                                                                                                        <i class="fas fa-angle-double-left"></i>
-                                                                                                                                                    </a>
-                                                                                                                                                </li>
-                                                                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                                                                                                                                                        <i class="fas fa-angle-left"></i>
-                                                                                                                                                    </a>
-                                                                                                                                                </li>
-                                                                                                                                    `;
-
-                    // Generate page numbers
-                    for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
-                        paginationHtml +=
-                            `
-                                                                                                                                            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                                                                                                                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                                                                                                                            </li>
-                                                                                                                                        `;
-                    }
-
-                    paginationHtml +=
-                        `
-                                                                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                                                                                                                                                        <i class="fas fa-angle-right"></i>
-                                                                                                                                                    </a>
-                                                                                                                                                </li>
-                                                                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                                                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
-                                                                                                                                                        <i class="fas fa-angle-double-right"></i>
-                                                                                                                                                    </a>
-                                                                                                                                                </li>
-                                                                                                                                            </ul>
-                                                                                                                                        </nav>
-                                                                                                                                    `;
->>>>>>> Stashed changes
+                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    `;
 
                     paginationContainer.innerHTML = paginationHtml;
                 }
             }
         }
 
-        // Load minat options
+        function reactivateRequest(id) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin mengaktifkan kembali permintaan ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Aktifkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Mengaktifkan...',
+                        text: 'Sedang mengaktifkan kembali permintaan...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    api.post(`/reactivate-request/${id}`)
+                        .then(response => {
+                            if (response.data.success) {
+                                Swal.fire('Berhasil!', 'Permintaan berhasil diaktifkan kembali', 'success');
+                                loadMahasiswaData(filterState);
+                            } else {
+                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan permintaan', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Terjadi kesalahan saat mengaktifkan permintaan', 'error');
+                        });
+                }
+            });
+        }
+
+        function downloadTemplate() {
+            api.get('/kelas')
+                .then(function(response) {
+                    let kelas = [];
+                    
+                    if (response.data.success && response.data.data) {
+                        kelas = response.data.data;
+                    } else if (Array.isArray(response.data)) {
+                        kelas = response.data;
+                    }
+
+                    const contohKelas = kelas.length > 0 ? kelas[0].nama_kelas || 'TI-3A' : 'TI-3A';
+
+                    let csvContent = "nama,nim,alamat,ipk,nama_kelas,email\n";
+                    csvContent += `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
+                    csvContent += `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
+                    csvContent += `Budi Santoso,2341720003,Jl. Veteran No. 789 Surabaya,3.25,${contohKelas},\n`;
+                    csvContent += `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
+
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", "template_mahasiswa.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    Swal.fire('Berhasil!', 'Template CSV berhasil didownload', 'success');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
+                });
+        }
+
+        function submitImportCSV(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('csvFile');
+
+            if (!fileInput.files[0]) {
+                Swal.fire('Error', 'Silakan pilih file CSV terlebih dahulu', 'error');
+                return;
+            }
+
+            formData.append('csv_file', fileInput.files[0]);
+            const headerRow = document.getElementById('headerRow').checked;
+            formData.append('header_row', headerRow ? '1' : '0');
+
+            Swal.fire({
+                title: 'Mengimpor Data...',
+                text: 'Mohon tunggu, sedang memproses file CSV',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            axios.post('/api/mahasiswa/import', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                timeout: 60000
+            })
+            .then(response => {
+                Swal.close();
+                if (response.data.success) {
+                    let message = response.data.message;
+
+                    if (response.data.errors && response.data.errors.length > 0) {
+                        Swal.fire({
+                            title: 'Import Sebagian Berhasil',
+                            html: `
+                                ${message}<br><br>
+                                <div class="alert alert-warning">
+                                    <strong>Beberapa data tidak dapat diimpor:</strong>
+                                    <ul class="mb-0 mt-1 text-start">
+                                        ${response.data.errors.slice(0, 10).map(err => `<li class="small">${err}</li>`).join('')}
+                                        ${response.data.errors.length > 10 ? `<li class="small text-muted">... dan ${response.data.errors.length - 10} error lainnya</li>` : ''}
+                                    </ul>
+                                </div>
+                            `,
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire('Berhasil', message, 'success');
+                    }
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
+                    modal.hide();
+                    document.getElementById('formImportCSV').reset();
+                    loadMahasiswaData(filterState);
+                } else {
+                    Swal.fire('Gagal', response.data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Import error:', error);
+                let message = 'Terjadi kesalahan saat mengimpor data';
+                if (error.response && error.response.data && error.response.data.message) {
+                    message = error.response.data.message;
+                }
+                Swal.fire('Error', message, 'error');
+            });
+        }
+
+        // Other functions remain the same...
         function loadMinatOptions() {
             api.get('/minat')
                 .then(function(response) {
@@ -819,8 +787,7 @@
                         const select = document.getElementById('minat');
                         select.innerHTML = '';
                         response.data.forEach(function(minat) {
-                            select.innerHTML +=
-                                `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                            select.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
                         });
                     }
                 })
@@ -829,7 +796,6 @@
                 });
         }
 
-        // Load minat options for edit form
         function loadEditMinatOptions(selectedMinatIds = []) {
             api.get('/minat')
                 .then(function(response) {
@@ -839,9 +805,9 @@
                         response.data.forEach(function(minat) {
                             const isSelected = selectedMinatIds.includes(minat.minat_id);
                             select.innerHTML += `
-                                                                        <option value="${minat.minat_id}" ${isSelected ? 'selected' : ''}>
-                                                                            ${minat.nama_minat}
-                                                                        </option>`;
+                                <option value="${minat.minat_id}" ${isSelected ? 'selected' : ''}>
+                                    ${minat.nama_minat}
+                                </option>`;
                         });
                     }
                 })
@@ -851,49 +817,25 @@
         }
 
         function resetFilters() {
-            // Reset filter state
-            filterState = {
-                prodi: '',
-                kelas: '',
-                search: ''
-            };
-
-            // Reset form elements
+            filterState = { prodi: '', kelas: '', search: '' };
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) kelasFilter.value = '';
-
             const searchInput = document.getElementById('searchInput');
             if (searchInput) searchInput.value = '';
-
             const clearSearch = document.getElementById('clearSearch');
             if (clearSearch) clearSearch.style.display = 'none';
-
-            // Reload data dengan filter yang sudah direset
             loadMahasiswaData(filterState);
         }
 
-        // Function to handle page navigation
         function changePage(page) {
-            // Clone current filter state and add page
-            const paginatedFilter = {
-                ...filterState,
-                page
-            };
-
-            // Load data with pagination
+            const paginatedFilter = { ...filterState, page };
             loadMahasiswaData(paginatedFilter);
-
-            // Scroll to top of table
             document.querySelector('.card').scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             });
-
-            // Prevent default action
             return false;
         }
-
-
 
         function tambahMahasiswa() {
             loadKelasOptions();
@@ -903,7 +845,6 @@
             modal.show();
         }
 
-        // Load skills options
         function loadSkillsOptions() {
             api.get('/skills')
                 .then(function(response) {
@@ -920,7 +861,6 @@
                 });
         }
 
-        // Load skills options for edit form
         function loadEditSkillsOptions(selectedSkillIds = []) {
             api.get('/skills')
                 .then(function(response) {
@@ -930,9 +870,9 @@
                         response.data.data.forEach(function(skill) {
                             const isSelected = selectedSkillIds.includes(skill.skill_id);
                             select.innerHTML += `
-                                                <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
-                                                    ${skill.nama}
-                                                </option>`;
+                                <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
+                                    ${skill.nama}
+                                </option>`;
                         });
                     }
                 })
@@ -942,119 +882,59 @@
         }
 
         function detailMahasiswa(id) {
-            // Tampilkan loading
             Swal.fire({
                 title: 'Loading...',
                 text: 'Mengambil data mahasiswa',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+                didOpen: () => Swal.showLoading()
             });
 
             api.get(`/mahasiswa/${id}`)
                 .then(function(response) {
                     Swal.close();
-
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
 
-                        // Logging untuk debugging
-                        console.log('Data mahasiswa:', mahasiswa);
-                        console.log('Data skills:', mahasiswa.skills);
-                        console.log('Data minat:', mahasiswa.minat);
-
-                        // Render skills badges dengan penanganan data yang fleksibel
-<<<<<<< Updated upstream
-                        const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0
-                            ? mahasiswa.skills.map(skill => `
-                                                                    <span class="badge bg-primary me-1">
-                                                                        ${skill.nama || 'Tidak Diketahui'} 
-                                                                        (${skill.lama_skill || 'Tidak Diketahui'})
-                                                                    </span>
-                                                                  `).join('')
-                            : '<span class="text-muted">Tidak ada skill</span>';
-
-                        // Render minat badges
-                        const minat = Array.isArray(mahasiswa.minat) && mahasiswa.minat.length > 0
-                            ? mahasiswa.minat.map(m => `
-                                                                    <span class="badge bg-info me-1">
-                                                                        ${m.nama_minat || 'Tidak Diketahui'}
-                                                                    </span>
-                                                                  `).join('')
-                            : '<span class="text-muted">Tidak ada minat</span>';
-
-                        // Render dokumen dengan pengecekan array
-                        const dokumen = Array.isArray(mahasiswa.dokumen) && mahasiswa.dokumen.length > 0
-                            ? mahasiswa.dokumen.map(doc => `
-                                                                                                                                                                                    <li class="list-group-item">
-                                                                                                                                                                                        <strong>${doc.file_type || 'Dokumen'}:</strong> 
-                                                                                                                                                                                        <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
-                                                                                                                                                                                        <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
-                                                                                                                                                                                    </li>
-                                                                                                                                                                                  `).join('')
-                            : '<li class="list-group-item">Tidak ada dokumen</li>';
-=======
                         const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 ?
                             mahasiswa.skills.map(skill => `
-                                                            <span class="badge bg-primary me-1">
-                                                                ${skill.nama || 'Tidak Diketahui'} 
-                                                                (${skill.lama_skill || 'Tidak Diketahui'})
-                                                            </span>
-                                                          `).join('') :
+                                <span class="badge bg-primary me-1">
+                                    ${skill.nama || 'Tidak Diketahui'} 
+                                    (${skill.lama_skill || 'Tidak Diketahui'})
+                                </span>
+                            `).join('') :
                             '<span class="text-muted">Tidak ada skill</span>';
 
-                        // Render minat badges
                         const minat = Array.isArray(mahasiswa.minat) && mahasiswa.minat.length > 0 ?
                             mahasiswa.minat.map(m => `
-                                                            <span class="badge bg-info me-1">
-                                                                ${m.nama_minat || 'Tidak Diketahui'}
-                                                            </span>
-                                                          `).join('') :
+                                <span class="badge bg-info me-1">
+                                    ${m.nama_minat || 'Tidak Diketahui'}
+                                </span>
+                            `).join('') :
                             '<span class="text-muted">Tidak ada minat</span>';
 
-                        // Render dokumen dengan pengecekan array
-                        const dokumen = Array.isArray(mahasiswa.dokumen) && mahasiswa.dokumen.length > 0 ?
-                            mahasiswa.dokumen.map(doc =>
-                                `
-                                                                                                                                                                            <li class="list-group-item">
-                                                                                                                                                                                <strong>${doc.file_type || 'Dokumen'}:</strong> 
-                                                                                                                                                                                <a href="${doc.file_url}" target="_blank">${doc.file_name || 'Unduh'}</a>
-                                                                                                                                                                                <br><small>${doc.description || 'Tidak ada deskripsi'}</small>
-                                                                                                                                                                            </li>
-                                                                                                                                                                          `
-                            ).join('') :
-                            '<li class="list-group-item">Tidak ada dokumen</li>';
->>>>>>> Stashed changes
-
-                        // Isi modal dengan data mahasiswa
-                        document.getElementById('detailMahasiswaModalLabel').innerText =
-                            `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
+                        document.getElementById('detailMahasiswaModalLabel').innerText = `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
 
                         document.getElementById('detailMahasiswaBody').innerHTML = `
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
-                                                                <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
-                                                                <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
-                                                                <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
-                                                                <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
-                                                                <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
-                                                                <p><strong>Skills:</strong></p>
-                                                                <div>${skills}</div>
-                                                                <p class="mt-2"><strong>Minat:</strong></p>
-                                                                <div>${minat}</div>
-                                                            </div>
-                                                        </div>
-                                                        <hr>
-                                                        <p><strong>Dokumen:</strong></p>
-                                                        <ul class="list-group">${dokumen}</ul>
-                                                    `;
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
+                                    <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
+                                    <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
+                                    <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
+                                    <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
+                                    <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
+                                    <p><strong>Skills:</strong></p>
+                                    <div>${skills}</div>
+                                    <p class="mt-2"><strong>Minat:</strong></p>
+                                    <div>${minat}</div>
+                                </div>
+                            </div>
+                            <hr>
+                        `;
 
-                        // Tampilkan modal
                         const modal = new bootstrap.Modal(document.getElementById('detailMahasiswaModal'));
                         modal.show();
                     } else {
@@ -1064,8 +944,6 @@
                 .catch(function(error) {
                     Swal.close();
                     console.error('Error:', error);
-
-                    // Tampilkan pesan error yang lebih informatif
                     let errorMessage = 'Terjadi kesalahan saat memuat detail mahasiswa';
                     if (error.response) {
                         if (error.response.status === 404) {
@@ -1074,7 +952,6 @@
                             errorMessage = error.response.data.message;
                         }
                     }
-
                     Swal.fire('Error', errorMessage, 'error');
                 });
         }
@@ -1090,23 +967,15 @@
                         document.getElementById('edit_nim').value = mahasiswa.nim;
                         document.getElementById('edit_ipk').value = mahasiswa.ipk;
 
-                        // If there are skills with lama_skill property, use it
-                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 &&
-                            mahasiswa.skills[0].lama_skill) {
+                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 && mahasiswa.skills[0].lama_skill) {
                             document.getElementById('edit_lama_skill').value = mahasiswa.skills[0].lama_skill;
                         }
 
                         loadEditKelasOptions(mahasiswa.id_kelas);
 
-                        // Extract minat IDs
-                        const minatIds = Array.isArray(mahasiswa.minat) ?
-                            mahasiswa.minat.map(m => m.minat_id) : [];
+                        const minatIds = Array.isArray(mahasiswa.minat) ? mahasiswa.minat.map(m => m.minat_id) : [];
+                        const skillIds = Array.isArray(mahasiswa.skills) ? mahasiswa.skills.map(s => s.skill_id) : [];
 
-                        // Extract skill IDs 
-                        const skillIds = Array.isArray(mahasiswa.skills) ?
-                            mahasiswa.skills.map(s => s.skill_id) : [];
-
-                        // Load minat and skills options with selected values
                         loadEditMinatOptions(minatIds);
                         loadEditSkillsOptions(skillIds);
 
@@ -1127,11 +996,9 @@
             const form = event.target;
             const id = document.getElementById('edit_id_mahasiswa').value;
 
-            // Get selected minat values
             const minatSelect = document.getElementById('edit_minat');
             const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
 
-            // Get selected skills values
             const skillsSelect = document.getElementById('edit_skills');
             const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
             const lamaSkill = document.getElementById('edit_lama_skill').value;
@@ -1154,7 +1021,7 @@
                         const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditMahasiswa'));
                         modal.hide();
                         form.reset();
-                        loadMahasiswaData(); // Refresh data mahasiswa
+                        loadMahasiswaData();
                     } else {
                         Swal.fire('Gagal', res.data.message || 'Gagal memperbarui data mahasiswa', 'error');
                     }
@@ -1180,19 +1047,13 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
                     api.delete(`/mahasiswa/${id}`)
                         .then(res => {
                             if (res.data.success) {
-                                Swal.fire(
-                                    'Terhapus!',
-                                    'Data mahasiswa berhasil dihapus.',
-                                    'success'
-                                );
-                                loadMahasiswaData(); // Refresh data mahasiswa
+                                Swal.fire('Terhapus!', 'Data mahasiswa berhasil dihapus.', 'success');
+                                loadMahasiswaData();
                             } else {
-                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa',
-                                    'error');
+                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa', 'error');
                             }
                         })
                         .catch(err => {
@@ -1208,11 +1069,9 @@
             const form = event.target;
             const nim = form.nim.value;
 
-            // Get selected minat values
             const minatSelect = document.getElementById('minat');
             const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
 
-            // Get selected skills values
             const skillsSelect = document.getElementById('skills');
             const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
             const lamaSkill = document.getElementById('lama_skill').value;
@@ -1251,407 +1110,150 @@
                 });
         }
 
-        function loadLatestApplications() {
-            document.getElementById('latest-applications').innerHTML = `
-                                                                                                <tr>
-                                                                                                    <td colspan="4" class="text-center py-3">
-                                                                                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                                                                                                        <span class="text-sm">Memuat data...</span>
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            `;
-
-            api.get('/dashboard/latest-applications')
-                .then(function(response) {
-                    if (response.data.success) {
-                        const applications = response.data.data;
-                        const tableBody = document.getElementById('latest-applications');
-
-                        tableBody.innerHTML = '';
-
-                        if (applications.length === 0) {
-                            tableBody.innerHTML = `
-                                                                                                                <tr>
-                                                                                                                    <td colspan="4" class="text-center py-4">
-                                                                                                                        <img src="/assets/img/empty-data.svg" height="60" class="mb-3 opacity-60">
-                                                                                                                        <p class="mb-0 text-muted">Tidak ada permintaan magang terbaru</p>
-                                                                                                                    </td>
-                                                                                                                </tr>
-                                                                                                            `;
-                            return;
-                        }
-
-                        applications.forEach(app => {
-                            let statusBadge;
-
-                            // Penanganan status sesuai field auth
-                            switch (app.status?.toLowerCase()) {
-                                case 'diterima':
-                                    statusBadge = '<span class="badge bg-gradient-success">Diterima</span>';
-                                    break;
-                                case 'ditolak':
-                                    statusBadge = '<span class="badge bg-gradient-danger">Ditolak</span>';
-                                    break;
-                                case 'menunggu':
-                                case 'pending':
-                                    statusBadge = '<span class="badge bg-gradient-warning">Menunggu</span>';
-                                    break;
-                                default:
-                                    statusBadge =
-                                        `<span class="badge bg-gradient-secondary">${app.status || 'Menunggu'}</span>`;
-                            }
-
-                            const row = `
-                                                                                                                <tr>
-                                                                                                                    <td class="ps-3">
-                                                                                                                        <div class="d-flex align-items-center">
-                                                                                                                            <div class="avatar avatar-xs me-2 bg-gradient-primary rounded-circle">
-                                                                                                                                <span class="text-white font-weight-bold">${app.nama_mahasiswa.charAt(0)}</span>
-                                                                                                                            </div>
-                                                                                                                            <div>
-                                                                                                                                <h6 class="mb-0 text-sm">${app.nama_mahasiswa}</h6>
-                                                                                                                                <p class="text-xs text-muted mb-0">${app.nim}</p>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </td>
-                                                                                                                    <td class="text-sm">${app.perusahaan}</td>
-                                                                                                                    <td class="text-sm">${statusBadge}</td>
-                                                                                                                    <td class="text-center">
-                                                                                                                        <a href="/magang/detail/${app.id_lamaran}" class="btn btn-link btn-sm m-0 p-0" data-toggle="tooltip" title="Lihat Detail">
-                                                                                                                            <i class="fas fa-eye"></i>
-                                                                                                                        </a>
-                                                                                                                    </td>
-                                                                                                                </tr>
-                                                                                                            `;
-                            tableBody.innerHTML += row;
-                        });
-
-                        // Initialize tooltips
-                        const tooltips = document.querySelectorAll('[data-toggle="tooltip"]');
-                        tooltips.forEach(tooltip => {
-                            new bootstrap.Tooltip(tooltip);
-                        });
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error loading latest applications:', error);
-                    if (error.response) {
-                        console.error('Response status:', error.response.status);
-                        console.error('Response data:', error.response.data);
-                    }
-                    document.getElementById('latest-applications').innerHTML = `
-                                                                                                        <tr>
-                                                                                                            <td colspan="4" class="text-center text-danger py-3">
-                                                                                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                                                                Gagal memuat data. Coba lagi nanti.
-                                                                                                            </td>
-                                                                                                        </tr>
-                                                                                                    `;
-                });
-        }
-
-
-
         function importCSV() {
-            // Tampilkan modal import CSV
             const modal = new bootstrap.Modal(document.getElementById('modalImportCSV'));
             modal.show();
-
-            // Reset form
             document.getElementById('formImportCSV').reset();
         }
 
-        function submitImportCSV(event) {
-            event.preventDefault();
-
-            const formData = new FormData();
-            const fileInput = document.getElementById('csvFile');
-
-            if (!fileInput.files[0]) {
-                Swal.fire('Error', 'Silakan pilih file CSV terlebih dahulu', 'error');
-                return;
-            }
-
-            formData.append('csv_file', fileInput.files[0]);
-            const headerRow = document.getElementById('headerRow').checked;
-            formData.append('header_row', headerRow ? '1' : '0');
-
-            Swal.fire({
-                title: 'Mengimpor Data...',
-                text: 'Mohon tunggu, sedang memproses file CSV',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-<<<<<<< Updated upstream
-            // ✅ PERBAIKAN: Gunakan route import yang sudah ada
-            axios.post('/api/import', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                timeout: 60000
-            })
-=======
-            // Kirim request ke endpoint yang sesuai
-            axios.post('/api/mahasiswa/import', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                })
->>>>>>> Stashed changes
-                .then(response => {
-                    Swal.close();
-                    if (response.data.success) {
-                        let message = response.data.message;
-
-                        if (response.data.errors && response.data.errors.length > 0) {
-                            Swal.fire({
-                                title: 'Import Sebagian Berhasil',
-                                html: `
-                            ${message}<br><br>
-                            <div class="alert alert-warning">
-                                <strong>Beberapa data tidak dapat diimpor:</strong>
-                                <ul class="mb-0 mt-1 text-start">
-                                    ${response.data.errors.slice(0, 10).map(err => `<li class="small">${err}</li>`).join('')}
-                                    ${response.data.errors.length > 10 ? `<li class="small text-muted">... dan ${response.data.errors.length - 10} error lainnya</li>` : ''}
-                                </ul>
-                            </div>
-                        `,
-                                icon: 'warning',
-                                confirmButtonText: 'OK'
-                            });
-                        } else {
-                            Swal.fire('Berhasil', message, 'success');
-                        }
-
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
-                        modal.hide();
-                        document.getElementById('formImportCSV').reset();
-                        loadMahasiswaData(filterState);
-                    } else {
-                        Swal.fire('Gagal', response.data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    Swal.close();
-                    console.error('Import error:', error);
-                    let message = 'Terjadi kesalahan saat mengimpor data';
-                    if (error.response && error.response.data && error.response.data.message) {
-                        message = error.response.data.message;
-                    }
-                    Swal.fire('Error', message, 'error');
-                });
-        }
-
-        function downloadTemplate() {
-            // ✅ PERBAIKAN: Gunakan route yang sudah ada
-            api.get('/kelas')
-<<<<<<< Updated upstream
-                .then(function (response) {
-                    if (response.data.success || response.data.length > 0) {
-                        const kelas = response.data.success ? response.data.data : response.data;
-                        const contohKelas = kelas[0]?.nama_kelas || 'TI-3A';
-=======
-                .then(function(response) {
-                    if (response.data.success) {
-                        const kelas = response.data.data;
->>>>>>> Stashed changes
-
-                        // ✅ Header CSV dengan format yang benar
-                        let csvContent = "nama,nim,alamat,ipk,nama_kelas,email\n";
-                        csvContent += `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
-                        csvContent += `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
-                        csvContent += `Budi Santoso,2341720003,Jl. Veteran No. 789 Surabaya,3.25,${contohKelas},\n`;
-                        csvContent += `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
-
-<<<<<<< Updated upstream
-                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-=======
-                        // Tambahkan contoh data
-                        csvContent +=
-                            `Nama Mahasiswa,E41230001,Jl. Contoh No.123,3.50,${kelas[0]?.nama_kelas || 'TIF-3A'}\n`;
-
-                        // Buat file dan trigger download
-                        const blob = new Blob([csvContent], {
-                            type: 'text/csv;charset=utf-8;'
-                        });
->>>>>>> Stashed changes
-                        const link = document.createElement("a");
-                        const url = URL.createObjectURL(blob);
-                        link.setAttribute("href", url);
-                        link.setAttribute("download", "template_mahasiswa.csv");
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-
-                        Swal.fire('Berhasil!', 'Template CSV berhasil didownload', 'success');
-                    } else {
-                        Swal.fire('Gagal', 'Tidak dapat membuat template, gagal memuat data kelas', 'error');
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
-                });
-        }
-
         function exportPDF() {
-            // ✅ PERBAIKAN: Gunakan route yang sudah ada di struktur API
             Swal.fire({
                 title: 'Menyiapkan Export PDF...',
                 html: `
-                <div class="text-center">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                    <p class="mb-2"><strong>Memproses data mahasiswa...</strong></p>
-                    <div class="progress mt-3">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <p class="mb-2"><strong>Memproses data mahasiswa...</strong></p>
+                        <div class="progress mt-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                            </div>
                         </div>
+                        <small class="text-muted mt-2 d-block">PDF akan terunduh otomatis setelah selesai</small>
                     </div>
-                    <small class="text-muted mt-2 d-block">PDF akan terunduh otomatis setelah selesai</small>
-                </div>
-            `,
+                `,
                 allowOutsideClick: false,
                 showConfirmButton: false
             });
 
-            // ✅ PERBAIKAN: Gunakan route yang sudah ada sesuai struktur API
             const params = new URLSearchParams();
-            if (filterState.kelas) {
-                params.append('kelas', filterState.kelas);
-            }
-            if (filterState.search) {
-                params.append('search', filterState.search);
-            }
+            if (filterState.kelas) params.append('kelas', filterState.kelas);
+            if (filterState.search) params.append('search', filterState.search);
 
-            console.log('Export PDF with correct route:', {
-                kelas: filterState.kelas,
-                search: filterState.search,
-                url: `/api/export/pdf?${params.toString()}`  // ✅ Route yang benar sesuai struktur
-            });
-
-            // ✅ PERBAIKAN: Gunakan route yang sudah terdaftar
-            fetch(`/api/export/pdf?${params.toString()}`, {
+            fetch(`/api/mahasiswa/export/pdf?${params.toString()}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/pdf',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
-                .then(response => {
-                    // Update progress
-                    Swal.update({
-                        html: `
-                    <div class="text-center">
-                        <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                        <p class="mb-2"><strong>Mengunduh file...</strong></p>
-                        <div class="progress mt-3">
-                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                                 role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+            .then(response => {
+                Swal.update({
+                    html: `
+                        <div class="text-center">
+                            <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                            <p class="mb-2"><strong>Mengunduh file...</strong></p>
+                            <div class="progress mt-3">
+                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `
-                    });
-
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                        }).catch(() => {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        });
-                    }
-
-                    return response.blob();
-                })
-                .then(blob => {
-                    Swal.close();
-
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-
-                    const now = new Date();
-                    const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
-                    const filename = `data_mahasiswa_${timestamp}.pdf`;
-
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-
-                    Swal.fire({
-                        title: 'Export Berhasil!',
-                        html: `
-                    <div class="text-center">
-                        <i class="fas fa-file-pdf text-danger mb-3" style="font-size: 3.5rem;"></i>
-                        <h5 class="text-success mb-2">PDF Berhasil Diunduh!</h5>
-                        <p class="mb-2"><strong>File:</strong> ${filename}</p>
-                        <p class="mb-0"><strong>Lokasi:</strong> Folder Download Anda</p>
-                        <hr class="my-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Total ${blob.size > 1024 ? Math.round(blob.size / 1024) + ' KB' : blob.size + ' bytes'} data diekspor
-                        </small>
-                    </div>
-                `,
-                        icon: 'success',
-                        timer: 4000,
-                        showConfirmButton: true,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#28a745'
-                    });
-                })
-                .catch(error => {
-                    Swal.close();
-                    console.error('Export PDF error:', error);
-
-                    let errorMessage = 'Gagal mengeksport PDF';
-                    let errorDetail = '';
-
-                    if (error.message.includes('404')) {
-                        errorMessage = 'Route export tidak ditemukan';
-                        errorDetail = 'Route /api/export/pdf tidak tersedia';
-                    } else if (error.message.includes('500')) {
-                        errorMessage = 'Terjadi kesalahan server';
-                        errorDetail = 'Coba lagi dalam beberapa saat';
-                    } else if (error.message.includes('403')) {
-                        errorMessage = 'Akses ditolak';
-                        errorDetail = 'Anda tidak memiliki izin untuk export';
-                    } else if (error.message) {
-                        errorMessage = error.message;
-                    }
-
-                    Swal.fire({
-                        title: 'Export Gagal',
-                        html: `
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
-                        <h5 class="text-danger mb-2">${errorMessage}</h5>
-                        ${errorDetail ? `<p class="text-muted mb-3">${errorDetail}</p>` : ''}
-                        <hr class="my-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Debug: Periksa route ${window.location.origin}/api/export/pdf
-                        </small>
-                    </div>
-                `,
-                        icon: 'error',
-                        confirmButtonText: 'Coba Lagi',
-                        showCancelButton: true,
-                        cancelButtonText: 'Tutup',
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            exportPDF();
-                        }
-                    });
+                    `
                 });
+
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                    }).catch(() => {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                Swal.close();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+
+                const now = new Date();
+                const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
+                const filename = `data_mahasiswa_${timestamp}.pdf`;
+
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                Swal.fire({
+                    title: 'Export Berhasil!',
+                    html: `
+                        <div class="text-center">
+                            <i class="fas fa-file-pdf text-danger mb-3" style="font-size: 3.5rem;"></i>
+                            <h5 class="text-success mb-2">PDF Berhasil Diunduh!</h5>
+                            <p class="mb-2"><strong>File:</strong> ${filename}</p>
+                            <p class="mb-0"><strong>Lokasi:</strong> Folder Download Anda</p>
+                            <hr class="my-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Total ${blob.size > 1024 ? Math.round(blob.size / 1024) + ' KB' : blob.size + ' bytes'} data diekspor
+                            </small>
+                        </div>
+                    `,
+                    icon: 'success',
+                    timer: 4000,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#28a745'
+                });
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Export PDF error:', error);
+
+                let errorMessage = 'Gagal mengeksport PDF';
+                let errorDetail = '';
+
+                if (error.message.includes('404')) {
+                    errorMessage = 'Route export tidak ditemukan';
+                    errorDetail = 'Route /api/mahasiswa/export/pdf tidak tersedia';
+                } else if (error.message.includes('500')) {
+                    errorMessage = 'Terjadi kesalahan server';
+                    errorDetail = 'Coba lagi dalam beberapa saat';
+                } else if (error.message.includes('403')) {
+                    errorMessage = 'Akses ditolak';
+                    errorDetail = 'Anda tidak memiliki izin untuk export';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                Swal.fire({
+                    title: 'Export Gagal',
+                    html: `
+                        <div class="text-center">
+                            <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="text-danger mb-2">${errorMessage}</h5>
+                            ${errorDetail ? `<p class="text-muted mb-3">${errorDetail}</p>` : ''}
+                            <hr class="my-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Debug: Periksa route ${window.location.origin}/api/mahasiswa/export/pdf
+                            </small>
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonText: 'Coba Lagi',
+                    showCancelButton: true,
+                    cancelButtonText: 'Tutup',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        exportPDF();
+                    }
+                });
+            });
         }
     </script>
 @endpush

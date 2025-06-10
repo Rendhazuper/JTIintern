@@ -74,36 +74,87 @@ class MagangController extends Controller
         }
     }
 
-    // ✅ TIDAK BERUBAH - Method show tetap sama
+    // ✅ REPLACE: Method show di MagangController.php yang lebih dinamis
     public function show($id)
     {
         try {
-            // Fetch from t_lamaran instead of m_magang
-            $lamaran = DB::table('t_lamaran')
-                ->where('t_lamaran.id_lamaran', $id)
-                ->join('m_mahasiswa', 't_lamaran.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
-                ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
-                ->join('m_lowongan', 't_lamaran.id_lowongan', '=', 'm_lowongan.id_lowongan')
-                ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
-                ->leftJoin('m_dosen', 't_lamaran.id_dosen', '=', 'm_dosen.id_dosen')
-                ->select(
-                    't_lamaran.id_lamaran',
-                    't_lamaran.id_mahasiswa',
-                    't_lamaran.id_lowongan',
-                    't_lamaran.id_dosen',
-                    't_lamaran.tanggal_lamaran',
-                    't_lamaran.auth',
-                    'm_mahasiswa.nim',
-                    'm_mahasiswa.id_user',
-                    'm_user.name',
-                    'm_user.email',
-                    'm_lowongan.judul_lowongan',
-                    'm_lowongan.deskripsi',
-                    'm_perusahaan.nama_perusahaan',
-                    'm_perusahaan.alamat_perusahaan',
-                    'm_perusahaan.contact_person',
-                    'm_perusahaan.email as perusahaan_email'
-                )
+            // ✅ ENHANCED: Query dengan JOIN yang lebih lengkap sesuai struktur database
+            $lamaran = DB::table('t_lamaran as l')
+                ->where('l.id_lamaran', $id)
+                // Mahasiswa & User
+                ->join('m_mahasiswa as mhs', 'l.id_mahasiswa', '=', 'mhs.id_mahasiswa')
+                ->join('m_user as u', 'mhs.id_user', '=', 'u.id_user')
+                // Kelas & Prodi (untuk mendapat prodi yang benar)
+                ->leftJoin('m_kelas as k', 'mhs.id_kelas', '=', 'k.id_kelas')
+                ->leftJoin('m_prodi as pr', 'k.kode_prodi', '=', 'pr.kode_prodi')
+                // Wilayah mahasiswa
+                ->leftJoin('m_wilayah as w_mhs', 'mhs.wilayah_id', '=', 'w_mhs.wilayah_id')
+                // Lowongan & Periode
+                ->join('m_lowongan as low', 'l.id_lowongan', '=', 'low.id_lowongan')
+                ->leftJoin('m_periode as per', 'low.periode_id', '=', 'per.periode_id')
+                ->leftJoin('m_jenis as jen', 'low.jenis_id', '=', 'jen.jenis_id')
+                // Perusahaan & Wilayah perusahaan
+                ->join('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
+                ->leftJoin('m_wilayah as w_per', 'p.wilayah_id', '=', 'w_per.wilayah_id')
+                // Dosen pembimbing (jika ada)
+                ->leftJoin('m_dosen as d', 'l.id_dosen', '=', 'd.id_dosen')
+                ->leftJoin('m_user as u_dosen', 'd.user_id', '=', 'u_dosen.id_user')
+                ->select([
+                    // Data lamaran
+                    'l.id_lamaran',
+                    'l.id_mahasiswa', 
+                    'l.id_lowongan',
+                    'l.id_dosen',
+                    'l.tanggal_lamaran',
+                    'l.auth',
+                    
+                    // Data mahasiswa lengkap
+                    'mhs.nim',
+                    'mhs.id_user',
+                    'mhs.alamat as alamat_mahasiswa',
+                    'mhs.ipk',
+                    'mhs.telp',
+                    'mhs.cv',
+                    'u.name as nama_mahasiswa',
+                    'u.email as email_mahasiswa',
+                    
+                    // Data kelas & prodi
+                    'k.nama_kelas',
+                    'pr.nama_prodi',
+                    'pr.kode_prodi',
+                    'w_mhs.nama_kota as kota_mahasiswa',
+                    
+                    // Data lowongan lengkap
+                    'low.judul_lowongan',
+                    'low.deskripsi as deskripsi_lowongan',
+                    'low.kapasitas',
+                    'low.min_ipk',
+                    
+                    // Data periode
+                    'per.waktu as periode_waktu',
+                    'per.tgl_mulai as periode_mulai',
+                    'per.tgl_selesai as periode_selesai',
+                    
+                    // Data jenis magang
+                    'jen.nama_jenis',
+                    
+                    // Data perusahaan lengkap
+                    'p.nama_perusahaan',
+                    'p.alamat_perusahaan', 
+                    'p.contact_person',
+                    'p.email as email_perusahaan',
+                    'p.instagram',
+                    'p.website',
+                    'p.deskripsi as deskripsi_perusahaan',
+                    'p.logo',
+                    'p.gmaps',
+                    'w_per.nama_kota as kota_perusahaan',
+                    
+                    // Data dosen pembimbing
+                    'd.nip',
+                    'u_dosen.name as nama_dosen',
+                    'u_dosen.email as email_dosen'
+                ])
                 ->first();
 
             if (!$lamaran) {
@@ -113,87 +164,24 @@ class MagangController extends Controller
                 ], 404);
             }
 
-            // ✅ IMPROVED: Ambil catatan penolakan dengan fallback untuk nama tabel
-            $catatanPenolakan = null;
-            $tanggalDitolak = null;
-
-            if ($lamaran->auth === 'ditolak') {
-                try {
-                    // ✅ TRY: Coba beberapa kemungkinan nama tabel notifikasi
-                    $possibleTables = ['t_notifikasi', 'notifications', 'm_notifikasi', 't_notification'];
-                    $notifikasi = null;
-
-                    foreach ($possibleTables as $tableName) {
-                        try {
-                            // Cek apakah tabel ada
-                            $tableExists = DB::select("SHOW TABLES LIKE '{$tableName}'");
-                            
-                            if (!empty($tableExists)) {
-                                Log::info("Found notification table: {$tableName}");
-                                
-                                // Coba query dengan nama kolom yang berbeda
-                                if ($tableName === 'notifications') {
-                                    // Laravel default notifications table
-                                    $notifikasi = DB::table($tableName)
-                                        ->where('notifiable_id', $lamaran->id_user)
-                                        ->where('type', 'LIKE', '%rejection%')
-                                        ->whereRaw("JSON_EXTRACT(data, '$.lamaran_id') = ?", [$id])
-                                        ->orderBy('created_at', 'desc')
-                                        ->first();
-                                } else {
-                                    // Custom notification tables
-                                    $notifikasi = DB::table($tableName)
-                                        ->where('user_id', $lamaran->id_user)
-                                        ->where(function($query) {
-                                            $query->where('tipe', 'lamaran_rejected')
-                                                  ->orWhere('type', 'lamaran_rejected')
-                                                  ->orWhere('kategori', 'lamaran_rejected');
-                                        })
-                                        ->whereRaw("JSON_EXTRACT(data, '$.lamaran_id') = ?", [$id])
-                                        ->orderBy('created_at', 'desc')
-                                        ->first();
-                                }
-                                
-                                if ($notifikasi) {
-                                    Log::info("Found notification in table: {$tableName}");
-                                    break;
-                                }
-                            }
-                        } catch (\Exception $tableError) {
-                            Log::debug("Table {$tableName} check failed: " . $tableError->getMessage());
-                            continue;
-                        }
-                    }
-
-                    if ($notifikasi && $notifikasi->data) {
-                        $notifData = json_decode($notifikasi->data, true);
-                        $catatanPenolakan = $notifData['catatan_penolakan'] ?? null;
-                        $tanggalDitolak = $notifData['tanggal_ditolak'] ?? null;
-                        
-                        Log::info("Retrieved rejection data from notification", [
-                            'lamaran_id' => $id,
-                            'catatan' => $catatanPenolakan ? 'Yes' : 'No',
-                            'tanggal' => $tanggalDitolak
-                        ]);
-                    }
-                } catch (\Exception $notifError) {
-                    Log::warning('Could not retrieve rejection details from notification: ' . $notifError->getMessage());
-                    // Continue without catatan - tidak fatal
-                }
-            }
-
-            Log::info('Lamaran data fetched:', ['id' => $id, 'auth' => $lamaran->auth]);
-
-            // Fetch skills for the student
+            // ✅ ENHANCED: Ambil skills mahasiswa yang dinamis
             $skills = [];
             if ($lamaran->id_user) {
                 try {
                     $skills = DB::table('t_skill_mahasiswa as sm')
                         ->join('m_skill as s', 'sm.skill_id', '=', 's.skill_id')
                         ->where('sm.user_id', $lamaran->id_user)
-                        ->select('s.nama')
+                        ->select([
+                            's.nama as nama_skill',
+                            'sm.lama_skill'
+                        ])
                         ->get()
-                        ->pluck('nama')
+                        ->map(function($skill) {
+                            return [
+                                'nama_skill' => $skill->nama_skill,
+                                'lama_skill' => $skill->lama_skill ? $skill->lama_skill . ' tahun' : 'Belum ditentukan'
+                            ];
+                        })
                         ->toArray();
                 } catch (\Exception $skillError) {
                     Log::warning('Could not fetch skills: ' . $skillError->getMessage());
@@ -201,71 +189,189 @@ class MagangController extends Controller
                 }
             }
 
-            // Format the data similar to the original structure
-            $formattedData = [
-                'id' => $lamaran->id_lamaran,
-                'mahasiswa' => [
-                    'name' => $lamaran->name ?? 'Tidak Diketahui',
-                    'nim' => $lamaran->nim ?? 'Tidak Diketahui',
-                    'email' => $lamaran->email ?? 'Tidak Diketahui',
-                    'prodi' => 'Teknologi Informasi',
-                    'skills' => $skills
-                ],
-                'lowongan' => [
-                    'judul_lowongan' => $lamaran->judul_lowongan ?? 'Tidak Diketahui',
-                    'deskripsi' => $lamaran->deskripsi ?? 'Tidak Diketahui',
-                    'persyaratan' => 'Tidak Diketahui',
-                    'tanggal_mulai' => '-',
-                    'tanggal_selesai' => '-',
-                ],
-                'perusahaan' => [
-                    'nama_perusahaan' => $lamaran->nama_perusahaan ?? 'Tidak Diketahui',
-                    'alamat_perusahaan' => $lamaran->alamat_perusahaan ?? 'Tidak Diketahui',
-                    'contact_person' => $lamaran->contact_person ?? 'Tidak Diketahui',
-                    'email' => $lamaran->perusahaan_email ?? 'Tidak Diketahui',
-                ],
-                'dokumen' => [
-                    'cv_url' => '#',
-                    'surat_url' => '#',
-                ],
-                'status' => $lamaran->auth === 'ditolak' ? 'tidak aktif' : 'menunggu',
-                'auth' => $lamaran->auth ?? 'menunggu',
-                'catatan' => $catatanPenolakan,              // ✅ Dari notifikasi (bisa null)
-                'tanggal_ditolak' => $tanggalDitolak         // ✅ Dari notifikasi (bisa null)
-            ];
-
-            // Fetch documents if available
+            // ✅ ENHANCED: Ambil dokumen mahasiswa yang dinamis
+            $dokumen = [];
             if ($lamaran->id_user) {
                 try {
                     $documents = DB::table('m_dokumen')
                         ->where('id_user', $lamaran->id_user)
+                        ->select([
+                            'id_dokumen',
+                            'file_name',
+                            'file_path',
+                            'file_type',
+                            'description',
+                            'upload_date'
+                        ])
                         ->get();
 
-                    if ($documents->count() > 0) {
-                        foreach ($documents as $doc) {
-                            if (
-                                stripos($doc->description, 'cv') !== false ||
-                                stripos($doc->file_type, 'cv') !== false ||
-                                stripos($doc->file_name, 'cv') !== false
-                            ) {
-                                $formattedData['dokumen']['cv_url'] = asset('storage/' . $doc->file_path);
-                            } elseif (
-                                stripos($doc->description, 'surat') !== false ||
-                                stripos($doc->file_name, 'surat') !== false
-                            ) {
-                                $formattedData['dokumen']['surat_url'] = asset('storage/' . $doc->file_path);
-                            }
+                    $dokumen = $documents->map(function($doc) {
+                        // ✅ CALCULATE: File size jika file ada
+                        $filePath = storage_path('app/public/' . $doc->file_path);
+                        $fileSize = 'Unknown';
+                        
+                        if (file_exists($filePath)) {
+                            $bytes = filesize($filePath);
+                            $fileSize = $this->formatFileSize($bytes);
                         }
-                    }
+
+                        return [
+                            'file_type' => $doc->file_type,
+                            'file_name' => $doc->file_name,
+                            'description' => $doc->description,
+                            'upload_date' => \Carbon\Carbon::parse($doc->upload_date)->format('d M Y'),
+                            'file_size' => $fileSize,
+                            'file_url' => asset('storage/' . $doc->file_path)
+                        ];
+                    })->toArray();
                 } catch (\Exception $docError) {
                     Log::warning('Could not fetch documents: ' . $docError->getMessage());
+                    $dokumen = [];
                 }
             }
+
+            // ✅ ENHANCED: Ambil minat mahasiswa (jika ada)
+            $minat = [];
+            if ($lamaran->id_mahasiswa) {
+                try {
+                    $minat = DB::table('t_minat_mahasiswa as mm')
+                        ->join('m_minat as m', 'mm.minat_id', '=', 'm.minat_id')
+                        ->where('mm.mahasiswa_id', $lamaran->id_mahasiswa)
+                        ->pluck('m.nama_minat')
+                        ->toArray();
+                } catch (\Exception $minatError) {
+                    Log::warning('Could not fetch minat: ' . $minatError->getMessage());
+                    $minat = [];
+                }
+            }
+
+            // ✅ ENHANCED: Ambil skills yang dibutuhkan lowongan
+            $skillsLowongan = [];
+            try {
+                $skillsLowongan = DB::table('t_skill_lowongan as sl')
+                    ->join('m_skill as s', 'sl.id_skill', '=', 's.skill_id')
+                    ->where('sl.id_lowongan', $lamaran->id_lowongan)
+                    ->pluck('s.nama')
+                    ->toArray();
+            } catch (\Exception $skillLowError) {
+                Log::warning('Could not fetch lowongan skills: ' . $skillLowError->getMessage());
+                $skillsLowongan = [];
+            }
+
+            // ✅ ENHANCED: Cek informasi dosen pembimbing yang lengkap
+            $dosenPembimbing = null;
+            if ($lamaran->id_dosen && $lamaran->nama_dosen) {
+                $dosenPembimbing = [
+                    'assigned' => true,
+                    'nama' => $lamaran->nama_dosen,
+                    'nip' => $lamaran->nip,
+                    'email' => $lamaran->email_dosen
+                ];
+            } else {
+                $dosenPembimbing = [
+                    'assigned' => false,
+                    'nama' => null,
+                    'nip' => null,
+                    'email' => null
+                ];
+            }
+
+            // ✅ ENHANCED: Handle rejection notes dari tabel notifikasi
+            $catatanPenolakan = null;
+            $tanggalDitolak = null;
+
+            if ($lamaran->auth === 'ditolak') {
+                try {
+                    // Cari notifikasi penolakan
+                    $notifikasi = DB::table('m_notifikasi')
+                        ->where('id_user', $lamaran->id_user)
+                        ->where('kategori', 'lamaran')
+                        ->where('jenis', 'danger')
+                        ->whereRaw("JSON_EXTRACT(data_terkait, '$.lamaran_id') = ?", [$id])
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    if ($notifikasi && $notifikasi->data_terkait) {
+                        $notifData = json_decode($notifikasi->data_terkait, true);
+                        $catatanPenolakan = $notifData['catatan_penolakan'] ?? null;
+                        $tanggalDitolak = $notifData['tanggal_ditolak'] ?? null;
+                        
+                        if ($tanggalDitolak) {
+                            $tanggalDitolak = \Carbon\Carbon::parse($tanggalDitolak)->format('d M Y');
+                        }
+                    }
+                } catch (\Exception $notifError) {
+                    Log::warning('Could not retrieve rejection details: ' . $notifError->getMessage());
+                }
+            }
+
+            // ✅ ENHANCED: Format response data yang dinamis dan lengkap
+            $formattedData = [
+                'id' => $lamaran->id_lamaran,
+                'tanggal_lamaran' => \Carbon\Carbon::parse($lamaran->tanggal_lamaran)->format('d M Y'),
+                'status' => $this->mapStatusAuth($lamaran->auth),
+                'auth' => $lamaran->auth,
+                
+                // ✅ DYNAMIC: Data mahasiswa lengkap
+                'mahasiswa' => [
+                    'name' => $lamaran->nama_mahasiswa,
+                    'nim' => $lamaran->nim,
+                    'email' => $lamaran->email_mahasiswa,
+                    'prodi' => $lamaran->nama_prodi ?? 'Teknologi Informasi',
+                    'kelas' => $lamaran->nama_kelas ?? 'Tidak diketahui',
+                    'ipk' => $lamaran->ipk ? number_format($lamaran->ipk, 2) : 'Belum diisi',
+                    'alamat' => $lamaran->alamat_mahasiswa ?? 'Belum diisi',
+                    'telp' => $lamaran->telp ?? 'Belum diisi',
+                    'kota' => $lamaran->kota_mahasiswa ?? 'Belum diisi',
+                    'skills' => $skills,
+                    'minat' => $minat
+                ],
+
+                // ✅ DYNAMIC: Data lowongan lengkap
+                'lowongan' => [
+                    'judul_lowongan' => $lamaran->judul_lowongan,
+                    'deskripsi' => $lamaran->deskripsi_lowongan ?? 'Tidak ada deskripsi',
+                    'kapasitas' => $lamaran->kapasitas,
+                    'min_ipk' => $lamaran->min_ipk ? number_format($lamaran->min_ipk, 2) : 'Tidak ditentukan',
+                    'jenis_magang' => $lamaran->nama_jenis ?? 'Tidak ditentukan',
+                    'skills_required' => $skillsLowongan,
+                    'periode' => [
+                        'waktu' => $lamaran->periode_waktu ?? 'Tidak ditentukan',
+                        'tanggal_mulai' => $lamaran->periode_mulai ? \Carbon\Carbon::parse($lamaran->periode_mulai)->format('d M Y') : 'Tidak ditentukan',
+                        'tanggal_selesai' => $lamaran->periode_selesai ? \Carbon\Carbon::parse($lamaran->periode_selesai)->format('d M Y') : 'Tidak ditentukan'
+                    ]
+                ],
+
+                // ✅ DYNAMIC: Data perusahaan lengkap
+                'perusahaan' => [
+                    'nama_perusahaan' => $lamaran->nama_perusahaan,
+                    'alamat_perusahaan' => $lamaran->alamat_perusahaan ?? 'Tidak diketahui',
+                    'kota' => $lamaran->kota_perusahaan ?? 'Tidak diketahui',
+                    'contact_person' => $lamaran->contact_person,
+                    'email' => $lamaran->email_perusahaan,
+                    'instagram' => $lamaran->instagram ? '@' . str_replace('@', '', $lamaran->instagram) : 'Tidak ada',
+                    'website' => $lamaran->website ?? 'Tidak ada',
+                    'deskripsi' => $lamaran->deskripsi_perusahaan ?? 'Tidak ada deskripsi',
+                    'logo' => $lamaran->logo ? asset('storage/' . $lamaran->logo) : null,
+                    'gmaps' => $lamaran->gmaps ?? null
+                ],
+
+                // ✅ DYNAMIC: Data dokumen
+                'dokumen' => $dokumen,
+
+                // ✅ DYNAMIC: Data dosen pembimbing
+                'dosen_pembimbing' => $dosenPembimbing,
+
+                // ✅ DYNAMIC: Data penolakan (jika ada)
+                'catatan' => $catatanPenolakan,
+                'tanggal_ditolak' => $tanggalDitolak
+            ];
 
             return response()->json([
                 'success' => true,
                 'data' => $formattedData
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error fetching detail lamaran: ' . $e->getMessage());
             Log::error('Error trace: ' . $e->getTraceAsString());
@@ -274,6 +380,38 @@ class MagangController extends Controller
                 'success' => false,
                 'message' => 'Gagal memuat detail lamaran: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * ✅ HELPER: Format file size
+     */
+    private function formatFileSize($bytes)
+    {
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        } else {
+            return $bytes . ' B';
+        }
+    }
+
+    /**
+     * ✅ HELPER: Map status auth ke status yang readable
+     */
+    private function mapStatusAuth($auth)
+    {
+        switch (strtolower($auth)) {
+            case 'diterima':
+                return 'Diterima';
+            case 'ditolak':
+                return 'Ditolak';
+            case 'menunggu':
+            default:
+                return 'Menunggu Persetujuan';
         }
     }
 

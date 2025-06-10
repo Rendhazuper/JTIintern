@@ -191,6 +191,136 @@
                 </div>
             </div>
         </div>
+
+        {{-- ✅ SIMPLE: Automation widget untuk dashboard --}}
+
+        @if(auth()->user()->role === 'admin')
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-magic me-2"></i>
+                        Simple Automation
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {{-- Status Cards --}}
+                    <div class="row g-3 mb-3">
+                        <div class="col-3">
+                            <div class="text-center">
+                                <div class="h4 mb-0" id="simple-active-count">-</div>
+                                <small class="text-muted">Active</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-danger" id="simple-expired-count">-</div>
+                                <small class="text-muted">Expired</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-warning" id="simple-expiring-count">-</div>
+                                <small class="text-muted">Expiring</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center">
+                                <small class="text-muted">Last Run</small>
+                                <div class="small" id="simple-last-run">Never</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-sm w-100" onclick="runSimpleAutomation('completion')">
+                                <i class="fas fa-play me-1"></i>
+                                Complete Expired
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-warning btn-sm w-100" onclick="runSimpleAutomation('warning')">
+                                <i class="fas fa-bell me-1"></i>
+                                Send Warnings
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Result Display --}}
+                    <div id="simple-automation-result" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // ✅ SIMPLE: Automation functions
+        function loadSimpleAutomationStatus() {
+            fetch('/api/dashboard/simple-automation-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('simple-active-count').textContent = data.data.active_magang;
+                        document.getElementById('simple-expired-count').textContent = data.data.expired_magang;
+                        document.getElementById('simple-expiring-count').textContent = data.data.expiring_soon;
+                        document.getElementById('simple-last-run').textContent = 
+                            data.data.last_auto_run !== 'Never' ? 
+                            new Date(data.data.last_auto_run).toLocaleString('id-ID') : 
+                            'Never';
+                    }
+                })
+                .catch(error => console.error('Error loading automation status:', error));
+        }
+
+        function runSimpleAutomation(type) {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running...';
+
+            fetch('/api/dashboard/trigger-simple-automation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ type: type })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('simple-automation-result');
+                
+                if (data.success) {
+                    if (type === 'completion') {
+                        resultDiv.innerHTML = `<div class="alert alert-success">✅ Completed ${data.data.completed} magang (checked ${data.data.total_checked})</div>`;
+                    } else {
+                        resultDiv.innerHTML = `<div class="alert alert-success">📧 Sent ${data.data.notifications_sent} warnings</div>`;
+                    }
+                    setTimeout(() => loadSimpleAutomationStatus(), 2000);
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('simple-automation-result').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error occurred</div>';
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
+        }
+
+        // ✅ LOAD: Initial status
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSimpleAutomationStatus();
+            
+            // ✅ REFRESH: Every 2 minutes
+            setInterval(loadSimpleAutomationStatus, 120000);
+        });
+        </script>
+        @endif
     </div>
 @endsection
 
