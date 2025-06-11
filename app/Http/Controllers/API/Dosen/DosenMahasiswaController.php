@@ -39,6 +39,7 @@ class DosenMahasiswaController extends Controller
             $search = $request->get('search');
             $status = $request->get('status');
             $perusahaan = $request->get('perusahaan');
+            $periode = $request->get('periode'); // Add this line
             $perPage = 6; // Set to 6 items per page
             $page = $request->get('page', 1); // Get the requested page, default to 1
 
@@ -48,6 +49,7 @@ class DosenMahasiswaController extends Controller
                 ->join('m_kelas as k', 'mhs.id_kelas', '=', 'k.id_kelas')
                 ->leftJoin('m_lowongan as l', 'mg.id_lowongan', '=', 'l.id_lowongan')
                 ->leftJoin('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
+                ->leftJoin('m_periode as pr', 'l.periode_id', '=', 'pr.periode_id') // Add this line
                 ->where('mg.id_dosen', $id_dosen)
                 ->when($search, function ($query) use ($search) {
                     return $query->where(function ($q) use ($search) {
@@ -63,6 +65,9 @@ class DosenMahasiswaController extends Controller
                 ->when($perusahaan, function ($query) use ($perusahaan) {
                     return $query->where('p.perusahaan_id', $perusahaan);
                 })
+                ->when($periode, function ($query) use ($periode) { // Add this block
+                    return $query->where('pr.periode_id', $periode);
+                })
                 ->select(
                     'mhs.id_mahasiswa',
                     'u.name',
@@ -70,7 +75,8 @@ class DosenMahasiswaController extends Controller
                     'k.nama_kelas',
                     'mg.status',
                     'p.nama_perusahaan',
-                    'l.judul_lowongan'
+                    'l.judul_lowongan',
+                    'pr.waktu as periode' // Add this line
                 );
 
             // Get total count for pagination
@@ -123,6 +129,29 @@ class DosenMahasiswaController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error in getPerusahaanList: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Add new method to get periode list
+    public function getPeriodeList()
+    {
+        try {
+            $periode = DB::table('m_periode')
+                ->select('periode_id', 'waktu')
+                ->orderBy('waktu', 'desc')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $periode,
+                'message' => 'Data periode berhasil diambil'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getPeriodeList: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()

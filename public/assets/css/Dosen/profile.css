@@ -162,3 +162,31 @@
     gap: 0.5rem;
     margin-top: 0.5rem;
 }
+
+#edit-profile-btn {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 10px 20px;
+    color: #344767;
+    font-size: 14px;
+    font-weight: 500;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#edit-profile-btn:hover {
+    background-color: #5988ff;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#edit-profile-btn:hover::before,
+#edit-profile-btn:hover::after {
+    width: 100%;
+}
+
+#edit-profile-btn i {
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+}

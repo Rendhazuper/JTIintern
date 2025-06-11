@@ -278,4 +278,5 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function 
     Route::get('dosen/profile/skills', [DosenProfile::class, 'getSkills']);
     Route::post('dosen/profile/skills', [DosenProfile::class, 'updateSkills']);
     Route::post('/dosen/profile/update', [DosenProfile::class, 'update'])->name('dosen.profile.update');
+    Route::get('/periode-list', [DosenMaha::class, 'getPeriodeList']);
 });

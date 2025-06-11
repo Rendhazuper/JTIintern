@@ -24,8 +24,9 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <select id="statusFilter" class="form-select">
-                        <option value="">Semester 6</option>
+                    <select id="periodeFilter" class="form-select">
+                        <option value="">Semua Periode</option>
+                        <!-- Will be populated by JavaScript -->
                     </select>
                 </div>
             </div>
@@ -87,6 +88,7 @@
             if (dosen_id) {
                 loadMahasiswaData(filterState);
                 loadPerusahaanOptions();
+                loadPeriodeOptions(); // Add this line
             } else {
                 showErrorState('Tidak dapat menentukan ID dosen Anda. Silakan muat ulang halaman.');
             }
@@ -146,8 +148,8 @@
                             </div>
                             <h5 class="text-danger">${message}</h5>
                             ${isSystemError ? `
-                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                        ` : ''}
+                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                        ` : ''}
                             <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
                                 <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                             </button>
@@ -254,16 +256,16 @@
                                         </button>
                                         
                                         ${item.status && item.status.toLowerCase() === 'selesai' ? `
-                                                        <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}')" class="btn btn-sm" style="padding: 5px 15px; background: white; border-radius: 5px; border: 1px solid #7D7D7D; display: flex; align-items: center; gap: 12px;">
-                                                            <i class="fas fa-star" style="color: #7D7D7D; font-size: 14px;"></i>
-                                                            <span style="color: #7D7D7D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
-                                                        </button>
-                                                    ` : `
-                                                        <button disabled class="btn btn-sm" style="padding: 5px 15px; background: #939393; border-radius: 5px; border: none; display: flex; align-items: center; gap: 12px;">
-                                                            <i class="fas fa-star" style="color: #D0CFCF; font-size: 14px;"></i>
-                                                            <span style="color: #D0CFCF; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
-                                                        </button>
-                                                    `}
+                                                                        <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}')" class="btn btn-sm" style="padding: 5px 15px; background: white; border-radius: 5px; border: 1px solid #7D7D7D; display: flex; align-items: center; gap: 12px;">
+                                                                            <i class="fas fa-star" style="color: #7D7D7D; font-size: 14px;"></i>
+                                                                            <span style="color: #7D7D7D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
+                                                                        </button>
+                                                                    ` : `
+                                                                        <button disabled class="btn btn-sm" style="padding: 5px 15px; background: #939393; border-radius: 5px; border: none; display: flex; align-items: center; gap: 12px;">
+                                                                            <i class="fas fa-star" style="color: #D0CFCF; font-size: 14px;"></i>
+                                                                            <span style="color: #D0CFCF; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
+                                                                        </button>
+                                                                    `}
                                     </div>
                                 </div>
                             `;
@@ -338,10 +340,10 @@
                             </div>
                             <h5 class="fw-semibold">${message}</h5>
                             ${filters.search || filters.status || filters.perusahaan || filters.periode ? `
-                                                                <button class="btn btn-sm btn-outline-secondary mt-3" onclick="resetFilters()">
-                                                                    <i class="fas fa-times me-1"></i>Reset Filter
-                                                                </button>
-                                                            ` : ''}
+                                                                                <button class="btn btn-sm btn-outline-secondary mt-3" onclick="resetFilters()">
+                                                                                    <i class="fas fa-times me-1"></i>Reset Filter
+                                                                                </button>
+                                                                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -526,6 +528,29 @@
                 });
         }
 
+        // Add function to load periode options
+        function loadPeriodeOptions() {
+            api.get('/periode-list')
+                .then(function(response) {
+                    if (response.data.success) {
+                        const periodeFilter = document.getElementById('periodeFilter');
+                        if (periodeFilter) {
+                            periodeFilter.innerHTML = '<option value="">Semua Periode</option>';
+                            response.data.data.forEach(function(periode) {
+                                periodeFilter.innerHTML += `
+                            <option value="${periode.periode_id}">
+                                ${periode.waktu}
+                            </option>
+                        `;
+                            });
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Gagal memuat data periode:', error);
+                });
+        }
+
         // Add reset filters function
         function resetFilters() {
             // Reset all filters
@@ -533,14 +558,14 @@
                 search: '',
                 status: '',
                 perusahaan: '',
-                periode: ''
+                periode: '' // Add this line
             };
 
             // Reset form inputs
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = '';
             document.getElementById('perusahaanFilter').value = '';
-            document.getElementById('periodeFilter').value = '';
+            document.getElementById('periodeFilter').value = ''; // Add this line
 
             // Reload data
             loadMahasiswaData(filterState);

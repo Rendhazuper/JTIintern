@@ -22,7 +22,7 @@
                         </p>
                     </div>
                     <div class="col-auto">
-                        <button id="edit-profile-btn" class="btn btn-sm btn-light">
+                        <button id="edit-profile-btn" class="btn btn-sm ">
                             <i class="fas fa-pencil-alt me-2"></i>Edit Profile
                         </button>
                     </div>
@@ -65,7 +65,7 @@
             <div class="col-8">
                 <div class="card mb-4">
                     <div class="card-header p-3">
-                        <h6 class="mb-0">Informasi Dosen</h6>
+                        <h6 class="px-2">Data Dosen</h6>
                     </div>
 
                     <div class="card-body p-4">
@@ -98,8 +98,16 @@
                                     <h6 class="text-uppercase text-sm text-muted mb-3">Informasi Akademik</h6>
                                     <div class="mb-3">
                                         <small class="d-block text-uppercase text-xs text-muted">Bidang Keahlian</small>
-                                        <p class="mb-0" data-profile="bidang_keahlian">
-                                            {{ $dosenData->bidang_keahlian ?? '-' }}</p>
+                                        <div data-profile="bidang_keahlian" class="d-flex flex-wrap gap-2">
+                                            @if (isset($skills) && count($skills) > 0)
+                                                @foreach ($skills as $skill)
+                                                    <span
+                                                        class="badge bg-light-success me-2 mb-2">{{ $skill->nama }}</span>
+                                                @endforeach
+                                            @else
+                                                <p class="text-muted mb-0">Belum ada bidang keahlian yang ditambahkan</p>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <small class="d-block text-uppercase text-xs text-muted">Minat</small>
@@ -356,12 +364,11 @@
                 });
             }
 
-            // Update dosen data
+            // Update dosen data - remove bidang_keahlian from here
             const profileElements = {
                 'nip': data.dosenData?.nip || '-',
                 'no_hp': data.dosenData?.no_hp || '-',
                 'alamat': data.dosenData?.alamat || '-',
-                'bidang_keahlian': data.dosenData?.bidang_keahlian || '-',
                 'jumlah_bimbingan': data.jumlahBimbingan ? `${data.jumlahBimbingan} Mahasiswa` : '0 Mahasiswa'
             };
 
@@ -373,6 +380,21 @@
                 }
             });
 
+            // Update skills display in view mode
+            const skillsViewContainer = document.querySelector('[data-profile="bidang_keahlian"]');
+            if (skillsViewContainer && data.skills) {
+                if (data.skills.length > 0) {
+                    const skillBadges = data.skills.map(skill =>
+                        `<span class="badge" style="background-color: #e3f2fd; color: #1565c0; border: 1px solid #1565c0; font-weight: 600; margin : 10px 0 0 0;">
+                            ${skill.nama}
+                        </span>`
+                    ).join('');
+                    skillsViewContainer.innerHTML = skillBadges;
+                } else {
+                    skillsViewContainer.innerHTML = 'Belum ada bidang keahlian yang ditambahkan';
+                }
+            }
+
             // Update minat container - Modified this part
             const minatContainer = document.getElementById('minat-container');
             if (minatContainer) {
@@ -381,7 +403,7 @@
 
                 if (data.minat && data.minat.length > 0) {
                     const minatBadges = data.minat.map(item =>
-                        `<span class="badge bg-light-success me-2 mb-2">${item.nama_minat}</span>`
+                        `<span style = "background-color: #89f0b7; color: #28c76f; border: 1px solid #28c76f; margin : 10px 0 0 0" class="badge bg-light-success me-2 mb-2">${item.nama_minat}</span>`
                     ).join('');
                     console.log('Generated badges:', minatBadges);
                     minatContainer.innerHTML = minatBadges;

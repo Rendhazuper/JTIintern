@@ -26,14 +26,12 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            // Get skills data
             $skills = DB::table('t_skill_dosen')
                 ->join('m_skill', 'm_skill.skill_id', '=', 't_skill_dosen.skill_id')
                 ->where('t_skill_dosen.id_dosen', $dosen->id_dosen)
                 ->select('m_skill.skill_id', 'm_skill.nama')
                 ->get();
 
-            // Get minat data
             $minat = DB::table('t_minat_dosen')
                 ->join('m_minat', 'm_minat.minat_id', '=', 't_minat_dosen.minat_id')
                 ->where('t_minat_dosen.dosen_id', $dosen->id_dosen)
@@ -50,8 +48,8 @@ class ProfileController extends Controller
                     'jumlahBimbingan' => DB::table('m_magang')->where('id_dosen', $dosen->id_dosen)->count(),
                     'profileCompletion' => [
                         'is_complete' => !empty($dosen->nip) && !empty($dosen->no_hp) 
-                            && !empty($dosen->alamat) && $skills->count() > 0,
-                        'missing_fields' => $this->getMissingFields($dosen, $skills)
+                            && !empty($dosen->alamat) && $skills->count() > 0 && $minat->count() > 0,
+                        'missing_fields' => $this->getMissingFields($dosen, $skills, $minat)
                     ]
                 ]
             ]);
@@ -65,16 +63,10 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Get minat data for dosen profile
-     */
     public function getMinat()
     {
         try {
-            // Get authenticated user
             $user = Auth::user();
-            
-            // Get dosen data
             $dosen = Dosen::where('user_id', $user->id_user)->first();
 
             if (!$dosen) {
@@ -84,13 +76,11 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            // Get all available minat
             $allMinat = DB::table('m_minat')
                 ->select('minat_id', 'nama_minat')
                 ->orderBy('nama_minat')
                 ->get();
 
-            // Get dosen's current minat
             $dosenMinat = DB::table('t_minat_dosen')
                 ->join('m_minat', 't_minat_dosen.minat_id', '=', 'm_minat.minat_id')
                 ->where('t_minat_dosen.dosen_id', $dosen->id_dosen)
@@ -105,7 +95,6 @@ class ProfileController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error getting minat: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load minat data'
@@ -113,9 +102,6 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Update dosen minat
-     */
     public function updateMinat(Request $request)
     {
         try {
@@ -132,12 +118,10 @@ class ProfileController extends Controller
 
             DB::beginTransaction();
 
-            // Delete existing minat
             DB::table('t_minat_dosen')
                 ->where('dosen_id', $dosen->id_dosen)
                 ->delete();
 
-            // Insert new minat
             if (!empty($minatIds)) {
                 $minatData = array_map(function($minatId) use ($dosen) {
                     return [
@@ -168,7 +152,6 @@ class ProfileController extends Controller
         }
     }
 
-    // Add new method for getting skills
     public function getSkills()
     {
         try {
@@ -182,13 +165,11 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            // Get all available skills
             $allSkills = DB::table('m_skill')
                 ->select('skill_id', 'nama')
                 ->orderBy('nama')
                 ->get();
 
-            // Get dosen's current skills
             $dosenSkills = DB::table('t_skill_dosen')
                 ->join('m_skill', 't_skill_dosen.skill_id', '=', 'm_skill.skill_id')
                 ->where('t_skill_dosen.id_dosen', $dosen->id_dosen)
@@ -210,7 +191,6 @@ class ProfileController extends Controller
         }
     }
 
-    // Add new method for updating skills
     public function updateSkills(Request $request)
     {
         try {
@@ -227,12 +207,10 @@ class ProfileController extends Controller
 
             DB::beginTransaction();
 
-            // Delete existing skills
             DB::table('t_skill_dosen')
                 ->where('id_dosen', $dosen->id_dosen)
                 ->delete();
 
-            // Insert new skills
             if (!empty($skillIds)) {
                 $skillData = array_map(function($skillId) use ($dosen) {
                     return [
@@ -275,7 +253,6 @@ class ProfileController extends Controller
                 throw new \Exception('Data dosen tidak ditemukan');
             }
 
-            // Update user name if changed
             if ($request->filled('name') && $request->name !== $user->name) {
                 $userModel = User::where('id_user', $user->id_user)->first();
                 if ($userModel) {
@@ -284,12 +261,10 @@ class ProfileController extends Controller
                 }
             }
 
-            // Update dosen data
             $dosen->no_hp = $request->no_hp;
             $dosen->alamat = $request->alamat;
             $dosen->save();
 
-            // Update skills
             if ($request->has('skill_ids')) {
                 $skillIds = json_decode($request->skill_ids);
                 DB::table('t_skill_dosen')->where('id_dosen', $dosen->id_dosen)->delete();
@@ -306,7 +281,6 @@ class ProfileController extends Controller
                 }
             }
 
-            // Update minat
             if ($request->has('minat_ids')) {
                 $minatIds = json_decode($request->minat_ids);
                 DB::table('t_minat_dosen')->where('dosen_id', $dosen->id_dosen)->delete();
@@ -333,7 +307,6 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating profile: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update profile: ' . $e->getMessage()
@@ -341,16 +314,15 @@ class ProfileController extends Controller
         }
     }
 
-    private function getMissingFields($dosen, $skills)
+    private function getMissingFields($dosen, $skills, $minat)
     {
         $missingFields = [];
         
         if (empty($dosen->nip)) $missingFields[] = 'NIP';
-        if (empty($dosen->pendidikan_terakhir)) $missingFields[] = 'Pendidikan Terakhir';
         if (empty($dosen->no_hp)) $missingFields[] = 'Nomor Telepon';
         if (empty($dosen->alamat)) $missingFields[] = 'Alamat';
-        if (empty($dosen->bidang_keahlian)) $missingFields[] = 'Bidang Keahlian';
-        if ($skills->count() == 0) $missingFields[] = 'Skills';
+        if (empty($skills) || count($skills) === 0) $missingFields[] = 'Bidang Keahlian';
+        if (empty($minat) || count($minat) === 0) $missingFields[] = 'Minat';
         
         return $missingFields;
     }

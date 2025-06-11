@@ -37,23 +37,13 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'dosen.evaluasi' ? 'active' : '' }}"
-                        href="{{ route('dosen.evaluasi') }}">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-file-bar-graph text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Evaluasi Magang</span>
-                    </a>
-                </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ Route::currentRouteName() == 'dosen.profile' ? 'active' : '' }}"
                         href="{{ route('dosen.profile') }}">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-person-gear text-sm opacity-10"></i>
+                            <i class="bi bi-person-gear text-sm opacity-10" style="color: #E091FF;"></i>
                         </div>
                         <span class="nav-link-text ms-1">Manajemen Profile</span>
                     </a>
