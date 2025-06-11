@@ -728,7 +728,7 @@
                 didOpen: () => Swal.showLoading()
             });
 
-            axios.post('/api/mahasiswa/import', formData, {
+            axios.post('/api/import', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -1139,7 +1139,7 @@
             if (filterState.kelas) params.append('kelas', filterState.kelas);
             if (filterState.search) params.append('search', filterState.search);
 
-            fetch(`/api/mahasiswa/export/pdf?${params.toString()}`, {
+            fetch(`/api/export/pdf?${params.toString()}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/pdf',
@@ -1217,7 +1217,7 @@
 
                 if (error.message.includes('404')) {
                     errorMessage = 'Route export tidak ditemukan';
-                    errorDetail = 'Route /api/mahasiswa/export/pdf tidak tersedia';
+                    errorDetail = 'Route /api/export/pdf tidak tersedia';
                 } else if (error.message.includes('500')) {
                     errorMessage = 'Terjadi kesalahan server';
                     errorDetail = 'Coba lagi dalam beberapa saat';
@@ -1238,7 +1238,7 @@
                             <hr class="my-3">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Debug: Periksa route ${window.location.origin}/api/mahasiswa/export/pdf
+                                Debug: Periksa route ${window.location.origin}/api/export/pdf
                             </small>
                         </div>
                     `,
