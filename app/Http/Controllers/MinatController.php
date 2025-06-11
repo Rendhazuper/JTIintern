@@ -13,10 +13,26 @@ class MinatController extends Controller
         return view('pages.minat');
     }
 
+    // Update method getMinat() agar response format konsisten:
     public function getMinat()
     {
-        $minat = Minat::all();
-        return response()->json($minat);
+        try {
+            $minat = Minat::select('minat_id', 'nama_minat', 'deskripsi')
+                ->orderBy('nama_minat')
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $minat,
+                'message' => 'Data minat berhasil diambil'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data minat',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)

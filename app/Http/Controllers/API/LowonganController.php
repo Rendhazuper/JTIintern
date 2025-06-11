@@ -23,7 +23,7 @@ class LowonganController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get lowongan without eager loading skills
+            // Get lowongan with relationships
             $query = Lowongan::with(['perusahaan.wilayah'])
                      ->orderBy('created_at', 'desc');
 
@@ -43,6 +43,13 @@ class LowonganController extends Controller
                 ->select('tsl.id_lowongan', 'ms.skill_id', 'ms.nama')
                 ->get();
 
+            // ✅ TAMBAHAN: Get minat data for listing
+            $minatData = DB::table('t_minat_lowongan as tml')
+                ->join('m_minat as mm', 'tml.minat_id', '=', 'mm.minat_id')
+                ->whereIn('tml.id_lowongan', $lowonganIds)
+                ->select('tml.id_lowongan', 'mm.minat_id', 'mm.nama_minat')
+                ->get();
+
             // Group skills by lowongan ID
             $skillsByLowongan = [];
             foreach ($skillsData as $skill) {
@@ -52,17 +59,28 @@ class LowonganController extends Controller
                 ];
             }
 
-            $formattedLowongan = $lowongan->map(function ($item) use ($skillsByLowongan) {
+            // ✅ Group minat by lowongan ID
+            $minatByLowongan = [];
+            foreach ($minatData as $minat) {
+                $minatByLowongan[$minat->id_lowongan][] = [
+                    'minat_id' => $minat->minat_id,
+                    'nama_minat' => $minat->nama_minat
+                ];
+            }
+
+            $formattedLowongan = $lowongan->map(function ($item) use ($skillsByLowongan, $minatByLowongan) {
                 return [
                     'id_lowongan' => $item->id_lowongan,
                     'judul_lowongan' => $item->judul_lowongan,
                     'deskripsi' => $item->deskripsi,
                     'kapasitas' => $item->kapasitas,
+                    'min_ipk' => $item->min_ipk,
                     'perusahaan' => [
                         'nama_perusahaan' => $item->perusahaan->nama_perusahaan ?? 'Tidak Diketahui',
                         'nama_kota' => $item->perusahaan->wilayah->nama_kota ?? 'Tidak Diketahui',
                     ],
                     'skills' => $skillsByLowongan[$item->id_lowongan] ?? [],
+                    'minat' => $minatByLowongan[$item->id_lowongan] ?? [], // ✅ TAMBAHAN
                     'created_at' => $item->created_at,
                 ];
             });
@@ -80,23 +98,39 @@ class LowonganController extends Controller
             ], 500);
         }
     }
+
     public function store(Request $request)
     {
+        // ✅ PERBAIKI: Validasi yang lebih lengkap
         $request->validate([
             'judul_lowongan' => 'required|string|max:255',
             'perusahaan_id' => 'required|exists:m_perusahaan,perusahaan_id',
             'periode_id' => 'required|exists:m_periode,periode_id',
-            'skill_id' => 'required|array',
-            'skill_id.*' => 'exists:m_skill,skill_id',
             'jenis_id' => 'required|exists:m_jenis,jenis_id',
             'kapasitas' => 'required|integer|min:1',
-            // ✅ TAMBAHKAN: Validasi untuk min_ipk
-            'min_ipk' => 'required|numeric|min:0|max:4.00|regex:/^\d{1,2}(\.\d{1,2})?$/',
+            'min_ipk' => 'required|numeric|min:0|max:4.00',
             'deskripsi' => 'required|string',
+            'skill_id' => 'required|array|min:1',
+            'skill_id.*' => 'required|exists:m_skill,skill_id',
+            'minat_id' => 'required|array|min:1',
+            'minat_id.*' => 'required|exists:m_minat,minat_id',
+        ], [
+            'skill_id.required' => 'Minimal pilih satu skill',
+            'skill_id.min' => 'Minimal pilih satu skill',
+            'minat_id.required' => 'Minimal pilih satu minat',
+            'minat_id.min' => 'Minimal pilih satu minat',
         ]);
 
         try {
             DB::beginTransaction();
+            
+            // ✅ DEBUG: Log input data
+            Log::info('Creating lowongan with input:', [
+                'judul' => $request->judul_lowongan,
+                'skills' => $request->skill_id,
+                'minat' => $request->minat_id,
+                'all_request' => $request->all()
+            ]);
             
             // Create lowongan
             $lowongan = new Lowongan();
@@ -105,36 +139,78 @@ class LowonganController extends Controller
             $lowongan->periode_id = $request->periode_id;
             $lowongan->jenis_id = $request->jenis_id;
             $lowongan->kapasitas = $request->kapasitas;
-            // ✅ TAMBAHKAN: Simpan min_ipk
             $lowongan->min_ipk = $request->min_ipk;
             $lowongan->deskripsi = $request->deskripsi;
             $lowongan->save();
             
-            // Add skills
+            Log::info('Lowongan created successfully:', [
+                'id' => $lowongan->id_lowongan
+            ]);
+            
+            // ✅ Add skills
             foreach ($request->skill_id as $skillId) {
                 DB::table('t_skill_lowongan')->insert([
                     'id_lowongan' => $lowongan->id_lowongan,
-                    'id_skill' => $skillId
+                    'id_skill' => $skillId,
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
             }
+            
+            Log::info('Skills added successfully:', [
+                'count' => count($request->skill_id)
+            ]);
+            
+            // ✅ PERBAIKI: Add minat dengan error handling yang lebih baik
+            foreach ($request->minat_id as $minatId) {
+                $insertResult = DB::table('t_minat_lowongan')->insert([
+                    'id_lowongan' => $lowongan->id_lowongan,
+                    'minat_id' => $minatId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                
+                if (!$insertResult) {
+                    throw new \Exception("Failed to insert minat_id: $minatId");
+                }
+            }
+            
+            Log::info('Minat added successfully:', [
+                'count' => count($request->minat_id)
+            ]);
             
             // Initialize capacity record
             $this->kapasitasService->initializeKapasitas($lowongan->id_lowongan, $request->kapasitas);
             
             DB::commit();
             
-            // ✅ TAMBAHKAN: Log untuk debugging
-            Log::info('Lowongan created successfully:', [
-                'id' => $lowongan->id_lowongan,
-                'judul' => $lowongan->judul_lowongan,
-                'min_ipk' => $lowongan->min_ipk,
-                'kapasitas' => $lowongan->kapasitas
+            // ✅ VERIFIKASI: Final verification
+            $savedSkills = DB::table('t_skill_lowongan')
+                ->where('id_lowongan', $lowongan->id_lowongan)
+                ->count();
+                
+            $savedMinat = DB::table('t_minat_lowongan')
+                ->where('id_lowongan', $lowongan->id_lowongan)
+                ->count();
+                
+            Log::info('Final verification:', [
+                'lowongan_id' => $lowongan->id_lowongan,
+                'saved_skills' => $savedSkills,
+                'saved_minat' => $savedMinat,
+                'expected_skills' => count($request->skill_id),
+                'expected_minat' => count($request->minat_id)
             ]);
             
             return response()->json([
                 'success' => true,
                 'message' => 'Lowongan berhasil ditambahkan.',
-                'data' => $lowongan
+                'data' => $lowongan,
+                'verification' => [
+                    'skills_saved' => $savedSkills,
+                    'minat_saved' => $savedMinat,
+                    'skills_expected' => count($request->skill_id),
+                    'minat_expected' => count($request->minat_id)
+                ]
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -150,7 +226,7 @@ class LowonganController extends Controller
     public function show($id)
     {
         try {
-            // Load lowongan without the skills relationship
+            // Load lowongan with relationships
             $lowongan = Lowongan::with(['perusahaan', 'periode', 'jenis'])->findOrFail($id);
             
             // Get capacity information
@@ -158,17 +234,25 @@ class LowonganController extends Controller
                 ->where('id_lowongan', $id)
                 ->first();
             
-            // Get skills manually for this specific lowongan
+            // Get skills for this lowongan
             $skills = DB::table('t_skill_lowongan as tsl')
                 ->join('m_skill as ms', 'tsl.id_skill', '=', 'ms.skill_id')
                 ->where('tsl.id_lowongan', $id)
                 ->select('ms.skill_id', 'ms.nama')
                 ->get();
             
-            // Add debug info
-            Log::info('Showing lowongan with ID: ' . $id);
-            Log::info('Skills found: ' . $skills->count());
-            Log::info('Min IPK: ' . $lowongan->min_ipk);
+            // ✅ Get minat for this lowongan
+            $minat = DB::table('t_minat_lowongan as tml')
+                ->join('m_minat as m', 'tml.minat_id', '=', 'm.minat_id')
+                ->where('tml.id_lowongan', $id)
+                ->select('m.minat_id', 'm.nama_minat')
+                ->get();
+            
+            Log::info('Showing lowongan detail:', [
+                'id' => $id,
+                'skills_count' => $skills->count(),
+                'minat_count' => $minat->count()
+            ]);
             
             return response()->json([
                 'success' => true,
@@ -178,7 +262,6 @@ class LowonganController extends Controller
                     'kapasitas' => $lowongan->kapasitas,
                     'kapasitas_tersedia' => $kapasitas ? $kapasitas->kapasitas_tersedia : null,
                     'kapasitas_total' => $kapasitas ? $kapasitas->kapasitas_total : $lowongan->kapasitas,
-                    // ✅ TAMBAHKAN: Return min_ipk
                     'min_ipk' => $lowongan->min_ipk,
                     'deskripsi' => $lowongan->deskripsi,
                     'perusahaan' => [
@@ -193,6 +276,12 @@ class LowonganController extends Controller
                         return [
                             'skill_id' => $skill->skill_id,
                             'nama' => $skill->nama ?? 'Tidak Diketahui',
+                        ];
+                    }),
+                    'minat' => $minat->map(function($m) {
+                        return [
+                            'minat_id' => $m->minat_id,
+                            'nama_minat' => $m->nama_minat ?? 'Tidak Diketahui',
                         ];
                     }),
                     'jenis' => [
@@ -213,58 +302,74 @@ class LowonganController extends Controller
 
     public function update(Request $request, $id)
     {
+        // ✅ PERBAIKI: Validasi yang konsisten dengan store
         $request->validate([
             'judul_lowongan' => 'required|string|max:255',
             'perusahaan_id' => 'required|exists:m_perusahaan,perusahaan_id',
             'periode_id' => 'required|exists:m_periode,periode_id',
             'jenis_id' => 'required|exists:m_jenis,jenis_id',
             'kapasitas' => 'required|integer|min:1',
-            // ✅ TAMBAHKAN: Validasi untuk min_ipk
-            'min_ipk' => 'required|numeric|min:0|max:4.00|regex:/^\d{1,2}(\.\d{1,2})?$/',
+            'min_ipk' => 'required|numeric|min:0|max:4.00',
             'deskripsi' => 'required|string',
-            'skill_id' => 'required|array',
-            'skill_id.*' => 'exists:m_skill,skill_id'
+            'skill_id' => 'required|array|min:1',
+            'skill_id.*' => 'required|exists:m_skill,skill_id',
+            'minat_id' => 'required|array|min:1',
+            'minat_id.*' => 'required|exists:m_minat,minat_id',
+        ], [
+            'skill_id.required' => 'Minimal pilih satu skill',
+            'skill_id.min' => 'Minimal pilih satu skill',
+            'minat_id.required' => 'Minimal pilih satu minat',
+            'minat_id.min' => 'Minimal pilih satu minat',
         ]);
 
         try {
-            // Use DB transaction to ensure data integrity
             DB::beginTransaction();
 
-            // Find the lowongan record
+            // ✅ DEBUG: Log update data
+            Log::info('Updating lowongan with input:', [
+                'id' => $id,
+                'judul' => $request->judul_lowongan,
+                'skills' => $request->skill_id,
+                'minat' => $request->minat_id
+            ]);
+
+            // Find and update lowongan
             $lowongan = Lowongan::findOrFail($id);
             $oldKapasitas = $lowongan->kapasitas;
-            $oldMinIpk = $lowongan->min_ipk;
             
-            // Update the main fields
             $lowongan->judul_lowongan = $request->judul_lowongan;
             $lowongan->perusahaan_id = $request->perusahaan_id;
             $lowongan->periode_id = $request->periode_id;
             $lowongan->jenis_id = $request->jenis_id;
             $lowongan->kapasitas = $request->kapasitas;
-            // ✅ TAMBAHKAN: Update min_ipk
             $lowongan->min_ipk = $request->min_ipk;
             $lowongan->deskripsi = $request->deskripsi;
             $lowongan->save();
             
-            // Log skill IDs for debugging
-            Log::info('Updating lowongan with data:', [
-                'id' => $id,
-                'skill_ids' => $request->skill_id,
-                'min_ipk_old' => $oldMinIpk,
-                'min_ipk_new' => $request->min_ipk,
-                'kapasitas_old' => $oldKapasitas,
-                'kapasitas_new' => $request->kapasitas
-            ]);
-            
-            // Delete existing skills first
+            // ✅ Delete and recreate skills
             DB::table('t_skill_lowongan')->where('id_lowongan', $id)->delete();
-            
-            // Add the new skills
             foreach ($request->skill_id as $skillId) {
                 DB::table('t_skill_lowongan')->insert([
                     'id_lowongan' => $id,
-                    'id_skill' => $skillId
+                    'id_skill' => $skillId,
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
+            }
+            
+            // ✅ Delete and recreate minat
+            DB::table('t_minat_lowongan')->where('id_lowongan', $id)->delete();
+            foreach ($request->minat_id as $minatId) {
+                $insertResult = DB::table('t_minat_lowongan')->insert([
+                    'id_lowongan' => $id,
+                    'minat_id' => $minatId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                
+                if (!$insertResult) {
+                    throw new \Exception("Failed to update minat_id: $minatId");
+                }
             }
             
             // Update kapasitas if changed
@@ -272,27 +377,37 @@ class LowonganController extends Controller
                 $this->kapasitasService->updateKapasitasTotal($id, $request->kapasitas);
             }
             
-            // Commit transaction
             DB::commit();
 
-            // ✅ TAMBAHKAN: Log success untuk debugging
-            Log::info('Lowongan updated successfully:', [
-                'id' => $id,
-                'judul' => $lowongan->judul_lowongan,
-                'min_ipk' => $lowongan->min_ipk,
-                'changes' => [
-                    'min_ipk_changed' => $oldMinIpk != $request->min_ipk,
-                    'kapasitas_changed' => $oldKapasitas != $request->kapasitas
-                ]
+            // ✅ VERIFIKASI: Final verification for update
+            $savedSkills = DB::table('t_skill_lowongan')
+                ->where('id_lowongan', $id)
+                ->count();
+                
+            $savedMinat = DB::table('t_minat_lowongan')
+                ->where('id_lowongan', $id)
+                ->count();
+                
+            Log::info('Update verification:', [
+                'lowongan_id' => $id,
+                'saved_skills' => $savedSkills,
+                'saved_minat' => $savedMinat,
+                'expected_skills' => count($request->skill_id),
+                'expected_minat' => count($request->minat_id)
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Lowongan berhasil diperbarui',
-                'data' => $lowongan
+                'data' => $lowongan,
+                'verification' => [
+                    'skills_saved' => $savedSkills,
+                    'minat_saved' => $savedMinat,
+                    'skills_expected' => count($request->skill_id),
+                    'minat_expected' => count($request->minat_id)
+                ]
             ]);
         } catch (\Exception $e) {
-            // Rollback transaction on error
             DB::rollBack();
             Log::error('Error updating lowongan: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -309,10 +424,12 @@ class LowonganController extends Controller
         try {
             DB::beginTransaction();
             
-            // First delete the associated skills
+            // ✅ Delete all related data
             DB::table('t_skill_lowongan')->where('id_lowongan', $id)->delete();
+            DB::table('t_minat_lowongan')->where('id_lowongan', $id)->delete(); // ✅ TAMBAHAN
+            DB::table('t_kapasitas_lowongan')->where('id_lowongan', $id)->delete();
             
-            // Then delete the lowongan itself
+            // Delete the lowongan
             $lowongan = Lowongan::findOrFail($id);
             $lowongan->delete();
             
@@ -335,7 +452,9 @@ class LowonganController extends Controller
     public function getSkill()
     {
         try {
-            $skills = Skill::all();
+            $skills = Skill::select('skill_id', 'nama')
+                ->orderBy('nama')
+                ->get();
             return response()->json([
                 'success' => true,
                 'data' => $skills
@@ -351,7 +470,9 @@ class LowonganController extends Controller
     public function getJenis()
     {
         try {
-            $jenis = Jenis::all();
+            $jenis = Jenis::select('jenis_id', 'nama_jenis')
+                ->orderBy('nama_jenis')
+                ->get();
             return response()->json([
                 'success' => true,
                 'data' => $jenis
@@ -364,7 +485,6 @@ class LowonganController extends Controller
         }
     }
 
-    // Add this method to your controller
     public function getAvailableCapacity($id)
     {
         try {
@@ -372,7 +492,6 @@ class LowonganController extends Controller
             $kapasitas = $lowongan->kapasitas()->first();
             
             if (!$kapasitas) {
-                // Sync capacity record if it doesn't exist
                 $this->kapasitasService->syncKapasitas($id);
                 $kapasitas = $lowongan->kapasitas()->first();
             }
@@ -394,7 +513,6 @@ class LowonganController extends Controller
         }
     }
 
-    // Add this method to your LowonganController
     public function syncCapacity($id)
     {
         try {
