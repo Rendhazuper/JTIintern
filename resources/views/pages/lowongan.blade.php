@@ -80,6 +80,24 @@
                                 <small>Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa skill</small>
                             </div>
                         </div>
+                        
+                        <!-- ✅ TAMBAHKAN: Field Minat -->
+                        <div class="mb-3">
+                            <label for="minat_id" class="form-label">
+                                <i class="fas fa-heart text-danger me-2"></i>Minat yang Dibutuhkan (pilih beberapa)
+                            </label>
+                            <select class="form-select" id="minat_id" name="minat_id[]" multiple required>
+                                <option value="" disabled>Pilih Minat</option>
+                                <!-- Minat akan dimuat di sini -->
+                            </select>
+                            <div class="form-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa minat yang sesuai dengan lowongan ini
+                                </small>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="jenis_id" class="form-label">Jenis</label>
                             <select class="form-select" id="jenis_id" name="jenis_id" required>
@@ -305,6 +323,24 @@
                                 <small>Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa skill</small>
                             </div>
                         </div>
+                        
+                        <!-- ✅ TAMBAHKAN: Field Edit Minat -->
+                        <div class="mb-3">
+                            <label for="editMinatId" class="form-label">
+                                <i class="fas fa-heart text-danger me-2"></i>Minat yang Dibutuhkan (pilih beberapa)
+                            </label>
+                            <select class="form-select" id="editMinatId" name="minat_id[]" multiple required>
+                                <option value="" disabled>Pilih Minat</option>
+                                <!-- Minat akan dimuat di sini -->
+                            </select>
+                            <div class="form-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Tekan tombol Ctrl (Windows) atau Command (Mac) untuk memilih beberapa minat yang sesuai dengan lowongan ini
+                                </small>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="editJenisId" class="form-label">Jenis</label>
                             <select class="form-select" id="editJenisId" name="jenis_id" required>
@@ -512,6 +548,40 @@
                 });
         }
 
+        // ✅ TAMBAHKAN: Function untuk load minat options
+        function loadMinatOptions() {
+            api.get('/minat')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const minatSelect = document.getElementById('minat_id');
+                        minatSelect.innerHTML = '<option value="" disabled>Pilih Minat</option>';
+                        response.data.data.forEach(function (minat) {
+                            const option = `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                            minatSelect.innerHTML += option;
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error loading minat:', error);
+                });
+        }
+
+        // ✅ TAMBAHKAN: Function untuk load edit minat options
+        function loadEditMinatOptions(selectedIds = []) {
+            api.get('/minat')
+                .then(function (response) {
+                    if (response.data.success) {
+                        const minatSelect = document.getElementById('editMinatId');
+                        minatSelect.innerHTML = '<option value="" disabled>Pilih Minat</option>';
+                        response.data.data.forEach(function (minat) {
+                            // Check if this minat is in the selectedIds array
+                            const selected = selectedIds.includes(minat.minat_id) ? 'selected' : '';
+                            minatSelect.innerHTML += `<option value="${minat.minat_id}" ${selected}>${minat.nama_minat}</option>`;
+                        });
+                    }
+                });
+        }
+
         function loadLowonganData(filters = {}) {
             // Show loading state
             const tableBody = document.getElementById('lowongan-table-body');
@@ -653,6 +723,15 @@
                         } else if (lowongan.skill && lowongan.skill.nama) {
                             skillsDisplay = lowongan.skill.nama;
                         }
+
+                        // ✅ TAMBAHKAN: Format minat for display
+                        let minatDisplay = '';
+                        if (Array.isArray(lowongan.minat)) {
+                            minatDisplay = lowongan.minat.map(minat => minat.nama_minat).join(', ');
+                        } else if (lowongan.minat && lowongan.minat.nama_minat) {
+                            minatDisplay = lowongan.minat.nama_minat;
+                        }
+                        lowongan.minat_display = minatDisplay;
 
                         // Add animation to the content when it loads
                         modalBody.style.opacity = "0";
@@ -838,6 +917,24 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ✅ TAMBAHKAN: Display Minat -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-heart text-danger me-2"></i>
+                    <label class="form-label fw-bold mb-0">Minat yang Dibutuhkan</label>
+                </div>
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex flex-wrap gap-1">
+                        ${lowongan.minat_display ? 
+                            lowongan.minat_display.split(', ').map(minat => 
+                                `<span class="badge bg-danger bg-opacity-10 text-danger-emphasis fw-medium py-2 px-3">${minat}</span>`
+                            ).join('') :
+                            '<span class="text-muted">Tidak ada minat yang ditentukan</span>'
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -891,31 +988,85 @@
         function tambahLowongan() {
             loadFilterOptions();
             loadPeriodeOptions();
-            loadSkillOptions();   // <--- Tambahkan ini
-            loadJenisOptions();   // <--- Tambahkan ini
+            loadSkillOptions();
+            loadMinatOptions();  // ✅ TAMBAHKAN ini
+            loadJenisOptions();
 
             const modal = new bootstrap.Modal(document.getElementById('tambahLowonganModal'));
             modal.show();
         }
 
+        // ✅ PERBAIKI: Form submission handler dengan debugging yang lebih detail
         document.getElementById('tambahLowonganForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Show loading state on button
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...`;
 
-            const formData = new FormData(this);
+            // ✅ DEBUGGING: Check minat selection
+            const minatSelect = document.getElementById('minat_id');
+            const selectedMinat = [...minatSelect.selectedOptions].map(o => o.value);
+            
+            console.log('🔍 Debug form submission:');
+            console.log('Minat select element:', minatSelect);
+            console.log('Selected minat options:', minatSelect.selectedOptions);
+            console.log('Selected minat values:', selectedMinat);
+            console.log('Minat count:', selectedMinat.length);
 
-            api.post('/lowongan', formData)
+            if (selectedMinat.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: 'Silakan pilih minimal satu minat untuk lowongan ini.',
+                });
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                return;
+            }
+
+            // Handle multiple selects
+            const formData = new FormData(this);
+            
+            // Convert to JSON to properly handle arrays
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                if (jsonData[key]) {
+                    if (Array.isArray(jsonData[key])) {
+                        jsonData[key].push(value);
+                    } else {
+                        jsonData[key] = [jsonData[key], value];
+                    }
+                } else {
+                    jsonData[key] = value;
+                }
+            });
+
+            // Special handling for multi-select fields
+            const selectedSkills = [...document.getElementById('skill_id').selectedOptions].map(o => o.value);
+            
+            jsonData.skill_id = selectedSkills;
+            jsonData.minat_id = selectedMinat;  // Use the verified array
+
+            console.log('📤 Final data being sent:', jsonData);
+            console.log('📤 Minat data specifically:', jsonData.minat_id);
+
+            api.post('/lowongan', jsonData)
                 .then(function (response) {
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
+                    console.log('📥 Server response:', response.data);
+
                     if (response.data.success) {
+                        // Show debug info if available
+                        if (response.data.debug) {
+                            console.log('🔍 Server debug info:', response.data.debug);
+                        }
+                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
@@ -925,6 +1076,7 @@
                         }).then(() => {
                             const modal = bootstrap.Modal.getInstance(document.getElementById('tambahLowonganModal'));
                             modal.hide();
+                            document.getElementById('tambahLowonganForm').reset();
                             loadLowonganData();
                         });
                     } else {
@@ -936,15 +1088,16 @@
                     }
                 })
                 .catch(function (error) {
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    console.error('Error adding lowongan:', error);
+                    console.error('❌ Error adding lowongan:', error);
+                    console.error('❌ Error response:', error.response?.data);
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menambahkan lowongan.',
+                        text: error.response?.data?.message || 'Terjadi kesalahan saat menambahkan lowongan.',
                     });
                 });
         });
@@ -961,22 +1114,26 @@
                         document.getElementById('editPerusahaanId').value = lowongan.perusahaan.perusahaan_id;
                         loadEditPeriodeOptions(lowongan.periode.periode_id);
                         document.getElementById('editKapasitas').value = lowongan.kapasitas;
-                        
-                        // ✅ TAMBAHKAN: Set nilai min_ipk
                         document.getElementById('editMinIpk').value = lowongan.min_ipk || '';
-                        
                         document.getElementById('editDeskripsi').value = lowongan.deskripsi;
 
-                        // Extract skill IDs - handle both single skill object or array of skills
+                        // Extract skill IDs
                         let skillIds = [];
                         if (Array.isArray(lowongan.skills)) {
-                            // If the backend returns an array of skills
                             skillIds = lowongan.skills.map(skill => skill.skill_id);
                         } else if (lowongan.skill && lowongan.skill.skill_id) {
-                            // If the backend returns a single skill object
                             skillIds = [lowongan.skill.skill_id];
                         }
                         loadEditSkillOptions(skillIds);
+
+                        // ✅ TAMBAHKAN: Extract minat IDs
+                        let minatIds = [];
+                        if (Array.isArray(lowongan.minat)) {
+                            minatIds = lowongan.minat.map(minat => minat.minat_id);
+                        } else if (lowongan.minat && lowongan.minat.minat_id) {
+                            minatIds = [lowongan.minat.minat_id];
+                        }
+                        loadEditMinatOptions(minatIds);
 
                         loadEditJenisOptions(lowongan.jenis.jenis_id);
 
@@ -1006,13 +1163,10 @@
             // Convert FormData to JSON to ensure proper handling of arrays
             const jsonData = {};
             formData.forEach((value, key) => {
-                // If the key already exists, it's part of an array
                 if (jsonData[key]) {
-                    // If it's already an array, push the new value
                     if (Array.isArray(jsonData[key])) {
                         jsonData[key].push(value);
                     } else {
-                        // Convert to array with both values
                         jsonData[key] = [jsonData[key], value];
                     }
                 } else {
@@ -1020,11 +1174,14 @@
                 }
             });
 
-            // Special handling for multi-select skill_id
+            // Special handling for multi-select fields
             const selectedSkills = [...document.getElementById('editSkillId').selectedOptions].map(o => o.value);
+            const selectedMinat = [...document.getElementById('editMinatId').selectedOptions].map(o => o.value);
+            
             jsonData.skill_id = selectedSkills;
+            jsonData.minat_id = selectedMinat;  // ✅ TAMBAHKAN ini
 
-            console.log("Submitting data:", jsonData); // For debugging
+            console.log("Submitting edit data:", jsonData); // For debugging
 
             api.put(`/lowongan/${id}`, jsonData)
                 .then(function (response) {

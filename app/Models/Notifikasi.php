@@ -4,6 +4,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 class Notifikasi extends Model
@@ -32,52 +33,61 @@ class Notifikasi extends Model
         'updated_at' => 'datetime'
     ];
 
-    // ✅ Relationships
-    public function user()
+    // ✅ Relationship dengan User
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    // ✅ Scopes
-    public function scopeUnread($query)
-    {
-        return $query->where('is_read', false);
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where(function($q) {
-            $q->whereNull('expired_at')
-              ->orWhere('expired_at', '>', now());
-        });
-    }
-
-    public function scopeByCategory($query, $category)
-    {
-        return $query->where('kategori', $category);
-    }
-
-    public function scopeImportant($query)
-    {
-        return $query->where('is_important', true);
-    }
-
-    // ✅ Methods
-    public function markAsRead()
-    {
-        $this->update(['is_read' => true]);
-    }
-
-    public function isExpired()
-    {
-        return $this->expired_at && $this->expired_at->isPast();
-    }
-
+    // ✅ Accessor untuk time_ago
     public function getTimeAgoAttribute()
     {
         return $this->created_at->diffForHumans();
     }
 
+    // ✅ Accessor untuk formatted date
+    public function getFormattedDateAttribute()
+    {
+        return $this->created_at->format('d M Y, H:i');
+    }
+
+    // ✅ Scope untuk unread notifications
+    public function scopeUnread($query)
+    {
+        return $query->where('is_read', false);
+    }
+
+    // ✅ Scope untuk specific user
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('id_user', $userId);
+    }
+
+    // ✅ Scope untuk specific category
+    public function scopeCategory($query, $category)
+    {
+        return $query->where('kategori', $category);
+    }
+
+    // ✅ Check if notification is expired
+    public function getIsExpiredAttribute()
+    {
+        return $this->expired_at && $this->expired_at->isPast();
+    }
+
+    // ✅ Get badge class based on jenis
+    public function getBadgeClassAttribute()
+    {
+        return match($this->jenis) {
+            'success' => 'bg-success',
+            'warning' => 'bg-warning',
+            'danger' => 'bg-danger',
+            'info' => 'bg-info',
+            default => 'bg-primary'
+        };
+    }
+
+    // ✅ Get icon based on kategori
     public function getIconAttribute()
     {
         return match($this->kategori) {
@@ -86,18 +96,8 @@ class Notifikasi extends Model
             'sistem' => 'bi-gear',
             'pengumuman' => 'bi-megaphone',
             'evaluasi' => 'bi-clipboard-check',
-            'deadline' => 'bi-clock-history',
+            'deadline' => 'bi-alarm',
             default => 'bi-bell'
-        };
-    }
-
-    public function getColorClassAttribute()
-    {
-        return match($this->jenis) {
-            'success' => 'text-success',
-            'warning' => 'text-warning',
-            'danger' => 'text-danger',
-            default => 'text-primary'
         };
     }
 }

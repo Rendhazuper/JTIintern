@@ -93,6 +93,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::prefix('notifications')->group(function () {
         Route::get('/', [App\Http\Controllers\API\NotificationController::class, 'index']);
         Route::get('/count', [App\Http\Controllers\API\NotificationController::class, 'getUnreadCount']);
+        Route::get('/{id}', [App\Http\Controllers\API\NotificationController::class, 'show']);
         Route::post('/{id}/read', [App\Http\Controllers\API\NotificationController::class, 'markAsRead']);
         Route::post('/mark-all-read', [App\Http\Controllers\API\NotificationController::class, 'markAllAsRead']);
         Route::delete('/{id}', [App\Http\Controllers\API\NotificationController::class, 'destroy']);
@@ -116,8 +117,23 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
         Route::delete('/{id}', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'destroy']);
     });
 
-    // Recommendations route
-    Route::get('/recommendations', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
+    Route::prefix('recommendations')->group(function () {
+        Route::get('/test', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'test']);
+        // Basic endpoints
+        Route::get('/', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getRecommendations']);
+        Route::delete('/cache', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'clearCache']);
+        Route::get('/debug', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'debug']);
+        Route::get('/debug-files', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'debugFiles']);
+
+        // ✅ TAMBAH: Missing SPK routes
+        Route::get('/saw', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getSAWRecommendations']);
+        Route::get('/stats', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getStats']);
+        Route::get('/analysis/{lowonganId}', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getDetailedAnalysis']);
+
+        // ✅ TAMBAH: Direct calculation endpoints
+        Route::get('/edas/{mahasiswaId}', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getEDASRecommendation']);
+        Route::get('/saw/{mahasiswaId}', [App\Http\Controllers\API\Mahasiswa\RecommendationController::class, 'getSAWRecommendation']);
+    });
 
 
     // Route untuk lamaran
