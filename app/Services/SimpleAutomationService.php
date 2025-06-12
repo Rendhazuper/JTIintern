@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class SimpleAutomationService
 {
     /**
-     * ✅ MAIN: Auto complete expired magang (Fixed untuk struktur database yang ada)
+     * ✅ PERBAIKI: Auto complete expired magang
      */
     public function autoCompleteExpired()
     {
@@ -22,7 +22,7 @@ class SimpleAutomationService
                 'current_time' => $today->toDateTimeString()
             ]);
             
-            // ✅ FIND: Expired magang yang masih aktif (gunakan DB query karena model mungkin belum tepat)
+            // ✅ PERBAIKI: Gunakan <= untuk include hari ini
             $expiredMagang = DB::table('m_magang as m')
                 ->leftJoin('m_mahasiswa as mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
                 ->leftJoin('m_user as u', 'mhs.id_user', '=', 'u.id_user')
@@ -30,7 +30,7 @@ class SimpleAutomationService
                 ->leftJoin('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
                 ->where('m.status', 'aktif')
                 ->whereNotNull('m.tgl_selesai')
-                ->where('m.tgl_selesai', '<', $todayString)
+                ->where('m.tgl_selesai', '<=', $todayString) // ✅ CHANGED: dari < ke <=
                 ->select([
                     'm.id_magang',
                     'm.id_mahasiswa',
@@ -38,6 +38,7 @@ class SimpleAutomationService
                     'm.id_dosen',
                     'm.tgl_mulai',
                     'm.tgl_selesai',
+                    'm.status',
                     'u.name as nama_mahasiswa',
                     'u.id_user',
                     'p.nama_perusahaan',
@@ -45,9 +46,10 @@ class SimpleAutomationService
                 ])
                 ->get();
 
-            Log::info('🔍 Found expired magang', [
+            Log::info('🔍 Found expired/completed magang', [
                 'count' => $expiredMagang->count(),
-                'ids' => $expiredMagang->pluck('id_magang')->toArray()
+                'ids' => $expiredMagang->pluck('id_magang')->toArray(),
+                'dates' => $expiredMagang->pluck('tgl_selesai')->toArray()
             ]);
 
             $completed = 0;
@@ -56,13 +58,14 @@ class SimpleAutomationService
 
             foreach ($expiredMagang as $magang) {
                 try {
-                    $daysExpired = Carbon::parse($magang->tgl_selesai)->diffInDays($today);
+                    $daysExpired = Carbon::parse($magang->tgl_selesai)->diffInDays($today, false);
                     
                     Log::info('⚙️ Processing magang', [
                         'id_magang' => $magang->id_magang,
                         'mahasiswa' => $magang->nama_mahasiswa ?? 'Unknown',
                         'tgl_selesai' => $magang->tgl_selesai,
-                        'days_expired' => $daysExpired
+                        'days_expired' => $daysExpired,
+                        'current_status' => $magang->status
                     ]);
 
                     $result = $this->completeSingleMagang($magang);
@@ -119,7 +122,7 @@ class SimpleAutomationService
     }
 
     /**
-     * ✅ COMPLETE: Single magang dengan validasi lengkap
+     * ✅ PERBAIKI: Complete single magang dengan validasi yang lebih fleksibel
      */
     private function completeSingleMagang($magang)
     {
@@ -128,14 +131,22 @@ class SimpleAutomationService
 
             $today = Carbon::now();
             $endDate = Carbon::parse($magang->tgl_selesai);
-            $daysExpired = $endDate->diffInDays($today);
+            $daysExpired = $endDate->diffInDays($today, false);
 
-            // ✅ VALIDATE: Pastikan magang memang sudah expired
-            if ($today->lte($endDate)) {
-                throw new \Exception("Magang belum expired. End date: {$magang->tgl_selesai}");
+            // ✅ PERBAIKI: Validasi yang lebih fleksibel (izinkan pada hari yang sama)
+            if ($today->lt($endDate)) { // ✅ CHANGED: dari lte ke lt
+                throw new \Exception("Magang belum expired. End date: {$magang->tgl_selesai}, today: {$today->toDateString()}");
             }
 
-            // ✅ CHECK: Apakah kolom completed_at, completed_by, catatan_penyelesaian ada
+            Log::info('🎯 Processing magang completion', [
+                'id_magang' => $magang->id_magang,
+                'end_date' => $magang->tgl_selesai,
+                'today' => $today->toDateString(),
+                'days_expired' => $daysExpired,
+                'status' => 'valid_for_completion'
+            ]);
+
+            // ✅ CHECK: Kolom yang tersedia
             $tableColumns = DB::select("SHOW COLUMNS FROM m_magang");
             $columnNames = array_column($tableColumns, 'Field');
             
@@ -152,57 +163,42 @@ class SimpleAutomationService
                 $updateData['completed_by'] = 'system';
             }
             if (in_array('catatan_penyelesaian', $columnNames)) {
-                $updateData['catatan_penyelesaian'] = "Magang diselesaikan otomatis oleh sistem karena telah melewati tanggal selesai ({$daysExpired} hari)";
+                $updateData['catatan_penyelesaian'] = $daysExpired >= 0 
+                    ? "Magang diselesaikan otomatis oleh sistem pada tanggal selesai" 
+                    : "Magang diselesaikan otomatis oleh sistem setelah {$daysExpired} hari melewati tanggal selesai";
             }
 
             // ✅ UPDATE: Status magang ke selesai
-            DB::table('m_magang')
+            $updated = DB::table('m_magang')
                 ->where('id_magang', $magang->id_magang)
                 ->update($updateData);
 
-            // ✅ CALCULATE: Durasi magang
-            $startDate = Carbon::parse($magang->tgl_mulai);
-            $durasiHari = $startDate->diffInDays($endDate);
+            Log::info('📝 Database update result', [
+                'id_magang' => $magang->id_magang,
+                'rows_affected' => $updated,
+                'update_data' => $updateData
+            ]);
 
-            // ✅ CREATE: History record yang lengkap (jika tabel ada)
-            $riwayatId = null;
-            try {
-                // ✅ CHECK: Apakah tabel t_riwayat_magang ada
-                $tableExists = DB::select("SHOW TABLES LIKE 't_riwayat_magang'");
-                
-                if (!empty($tableExists)) {
-                    $riwayatId = DB::table('t_riwayat_magang')->insertGetId([
-                        'id_magang' => $magang->id_magang,
-                        'id_mahasiswa' => $magang->id_mahasiswa,
-                        'id_lowongan' => $magang->id_lowongan,
-                        'id_dosen' => $magang->id_dosen,
-                        'tgl_mulai' => $magang->tgl_mulai,
-                        'tgl_selesai' => $magang->tgl_selesai,
-                        'durasi_hari' => $durasiHari,
-                        'status_awal' => 'aktif',
-                        'status_akhir' => 'selesai',
-                        'completed_at' => $today,
-                        'completed_by' => 'system',
-                        'status_completion' => 'auto_completed',
-                        'catatan_penyelesaian' => "Magang diselesaikan otomatis setelah {$daysExpired} hari melewati tanggal selesai",
-                        'created_at' => $today,
-                        'updated_at' => $today
-                    ]);
-                    
-                    Log::info('📝 History record created', ['id_riwayat' => $riwayatId]);
-                } else {
-                    Log::info('📝 Table t_riwayat_magang not found, skipping history creation');
-                }
-            } catch (\Exception $e) {
-                Log::warning('⚠️ Failed to create history record: ' . $e->getMessage());
-            }
+            // ✅ VERIFY: Update berhasil
+            $verification = DB::table('m_magang')
+                ->where('id_magang', $magang->id_magang)
+                ->first();
+
+            Log::info('🔍 Verification after update', [
+                'id_magang' => $magang->id_magang,
+                'new_status' => $verification->status ?? 'NOT_FOUND',
+                'updated_at' => $verification->updated_at ?? 'NOT_FOUND'
+            ]);
+
+            // ✅ CREATE: History record
+            $riwayatId = $this->createHistoryRecord($magang, $today, $daysExpired);
 
             // ✅ SEND: Notification
             if ($magang->id_user) {
                 $this->sendCompletionNotification($magang, $daysExpired);
             }
 
-            // ✅ UPDATE: Kapasitas lowongan (kembalikan slot)
+            // ✅ UPDATE: Kapasitas lowongan
             $this->updateLowonganCapacity($magang->id_lowongan);
 
             DB::commit();
@@ -213,17 +209,20 @@ class SimpleAutomationService
                 'id_riwayat' => $riwayatId,
                 'mahasiswa' => $magang->nama_mahasiswa ?? 'Unknown',
                 'perusahaan' => $magang->nama_perusahaan ?? 'Unknown',
-                'durasi_hari' => $durasiHari,
+                'old_status' => $magang->status,
+                'new_status' => 'selesai',
                 'days_expired' => $daysExpired,
-                'completed_at' => $today->toDateTimeString()
+                'completed_at' => $today->toDateTimeString(),
+                'rows_updated' => $updated
             ];
 
         } catch (\Exception $e) {
             DB::rollBack();
             
-            Log::error('Failed to complete single magang', [
+            Log::error('💥 Failed to complete single magang', [
                 'id_magang' => $magang->id_magang,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return [
@@ -231,6 +230,51 @@ class SimpleAutomationService
                 'error' => $e->getMessage(),
                 'id_magang' => $magang->id_magang
             ];
+        }
+    }
+
+    /**
+     * ✅ NEW: Create history record
+     */
+    private function createHistoryRecord($magang, $today, $daysExpired)
+    {
+        try {
+            $tableExists = DB::select("SHOW TABLES LIKE 't_riwayat_magang'");
+            
+            if (!empty($tableExists)) {
+                $startDate = Carbon::parse($magang->tgl_mulai);
+                $endDate = Carbon::parse($magang->tgl_selesai);
+                $durasiHari = $startDate->diffInDays($endDate);
+
+                $riwayatId = DB::table('t_riwayat_magang')->insertGetId([
+                    'id_magang' => $magang->id_magang,
+                    'id_mahasiswa' => $magang->id_mahasiswa,
+                    'id_lowongan' => $magang->id_lowongan,
+                    'id_dosen' => $magang->id_dosen,
+                    'tgl_mulai' => $magang->tgl_mulai,
+                    'tgl_selesai' => $magang->tgl_selesai,
+                    'durasi_hari' => $durasiHari,
+                    'status_awal' => 'aktif',
+                    'status_akhir' => 'selesai',
+                    'completed_at' => $today,
+                    'completed_by' => 'system',
+                    'status_completion' => 'auto_completed',
+                    'catatan_penyelesaian' => $daysExpired >= 0 
+                        ? "Diselesaikan otomatis pada tanggal selesai"
+                        : "Diselesaikan otomatis setelah {$daysExpired} hari",
+                    'created_at' => $today,
+                    'updated_at' => $today
+                ]);
+                
+                Log::info('📝 History record created', ['id_riwayat' => $riwayatId]);
+                return $riwayatId;
+            } else {
+                Log::info('📝 Table t_riwayat_magang not found, skipping history creation');
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::warning('⚠️ Failed to create history record: ' . $e->getMessage());
+            return null;
         }
     }
 
@@ -606,6 +650,101 @@ class SimpleAutomationService
 
         } catch (\Exception $e) {
             return [
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * ✅ NEW: Force complete today (untuk testing)
+     */
+    public function forceCompleteToday()
+    {
+        try {
+            $today = Carbon::now()->toDateString();
+            
+            Log::info('🔧 FORCE COMPLETION: Starting manual completion for today', [
+                'target_date' => $today
+            ]);
+            
+            // Ambil semua magang aktif yang seharusnya selesai hari ini atau sebelumnya
+            $targetMagang = DB::table('m_magang as m')
+                ->leftJoin('m_mahasiswa as mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
+                ->leftJoin('m_user as u', 'mhs.id_user', '=', 'u.id_user')
+                ->leftJoin('m_lowongan as low', 'm.id_lowongan', '=', 'low.id_lowongan')
+                ->leftJoin('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
+                ->where('m.status', 'aktif')
+                ->whereNotNull('m.tgl_selesai')
+                ->where('m.tgl_selesai', '<=', $today)
+                ->select([
+                    'm.id_magang',
+                    'm.id_mahasiswa',
+                    'm.id_lowongan',
+                    'm.id_dosen',
+                    'm.tgl_mulai',
+                    'm.tgl_selesai',
+                    'm.status',
+                    'u.name as nama_mahasiswa',
+                    'u.id_user',
+                    'p.nama_perusahaan',
+                    'low.judul_lowongan'
+                ])
+                ->get();
+
+            Log::info('🎯 FORCE: Found target magang', [
+                'count' => $targetMagang->count(),
+                'details' => $targetMagang->map(function($m) {
+                    return [
+                        'id' => $m->id_magang,
+                        'mahasiswa' => $m->nama_mahasiswa,
+                        'end_date' => $m->tgl_selesai,
+                        'status' => $m->status
+                    ];
+                })
+            ]);
+
+            $results = [];
+            foreach ($targetMagang as $magang) {
+                try {
+                    $result = $this->completeSingleMagang($magang);
+                    $results[] = $result;
+                    
+                    Log::info('✅ FORCE: Completed magang', [
+                        'id_magang' => $magang->id_magang,
+                        'result' => $result
+                    ]);
+                } catch (\Exception $e) {
+                    $results[] = [
+                        'success' => false,
+                        'id_magang' => $magang->id_magang,
+                        'error' => $e->getMessage()
+                    ];
+                    
+                    Log::error('❌ FORCE: Failed to complete magang', [
+                        'id_magang' => $magang->id_magang,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            return [
+                'success' => true,
+                'processed' => $targetMagang->count(),
+                'results' => $results,
+                'summary' => [
+                    'successful' => collect($results)->where('success', true)->count(),
+                    'failed' => collect($results)->where('success', false)->count()
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('💥 FORCE COMPLETION FAILED', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return [
+                'success' => false,
                 'error' => $e->getMessage()
             ];
         }
