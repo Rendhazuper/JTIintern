@@ -101,8 +101,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0"
-                                value="6">
+                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0" value="6">
                             <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
                         </div>
                         <div class="mb-3">
@@ -111,13 +110,12 @@
                         </div>
                         <div class="mb-3">
                             <label for="nim" class="form-label">NIM</label>
-                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15"
-                                required>
+                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15" required>
                         </div>
                         <div class="mb-3">
                             <label for="ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="ipk"
-                                name="ipk" class="form-control" required>
+                            <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk" class="form-control"
+                                required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -181,8 +179,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control"
-                                min="0" value="6">
+                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control" min="0"
+                                value="6">
                             <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
                         </div>
                         <div class="mb-3">
@@ -199,13 +197,12 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_nim" class="form-label">NIM</label>
-                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15"
-                                required>
+                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15" required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk"
-                                name="ipk" class="form-control" required>
+                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk" name="ipk" class="form-control"
+                                required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -218,8 +215,7 @@
     </div>
 
     <!-- Modal Import CSV -->
-    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form id="formImportCSV" enctype="multipart/form-data" onsubmit="submitImportCSV(event)">
                 <div class="modal-content">
@@ -238,8 +234,7 @@
                                 <i class="fas fa-download me-1"></i>Download Template
                             </button>
                             <label for="csvFile" class="form-label">Pilih File CSV</label>
-                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv"
-                                required>
+                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv" required>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="headerRow" name="headerRow" checked>
@@ -270,7 +265,7 @@
     <script>
         function debounce(func, wait) {
             let timeout;
-            return function(...args) {
+            return function (...args) {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(this, args), wait);
             };
@@ -282,13 +277,13 @@
             search: ''
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadKelasFilterOptions();
             loadMahasiswaData(filterState);
 
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) {
-                kelasFilter.addEventListener('change', function(e) {
+                kelasFilter.addEventListener('change', function (e) {
                     filterState.kelas = e.target.value;
                     loadMahasiswaData(filterState);
                 });
@@ -298,7 +293,7 @@
             const clearSearch = document.getElementById('clearSearch');
 
             if (searchInput) {
-                searchInput.addEventListener('input', debounce(function(e) {
+                searchInput.addEventListener('input', debounce(function (e) {
                     if (clearSearch) {
                         clearSearch.style.display = this.value.length > 0 ? 'block' : 'none';
                     }
@@ -308,7 +303,7 @@
             }
 
             if (clearSearch) {
-                clearSearch.addEventListener('click', function() {
+                clearSearch.addEventListener('click', function () {
                     if (searchInput) {
                         searchInput.value = '';
                         filterState.search = '';
@@ -331,48 +326,48 @@
 
         function loadKelasFilterOptions() {
             api.get('/kelas')
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const kelasFilter = document.getElementById('kelasFilter');
                         kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
-                        response.data.data.forEach(function(kelas) {
+                        response.data.data.forEach(function (kelas) {
                             kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadKelasOptions() {
             api.get('/kelas')
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const select = document.getElementById('id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-                        response.data.data.forEach(function(kelas) {
+                        response.data.data.forEach(function (kelas) {
                             select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadEditKelasOptions(selectedIdKelas = '') {
             api.get('/kelas')
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-                        response.data.data.forEach(function(kelas) {
+                        response.data.data.forEach(function (kelas) {
                             select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
@@ -380,20 +375,20 @@
         function loadMahasiswaData(filters = {}) {
             const tableBody = document.getElementById('mahasiswa-table-body');
             tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center p-5">
-                        <div class="d-flex flex-column align-items-center">
-                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                            <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
-                            <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        <tr>
+                            <td colspan="5" class="text-center p-5">
+                                <div class="d-flex flex-column align-items-center">
+                                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                    <div class="text-primary fw-semibold">Memuat data mahasiswa...</div>
+                                    <div class="text-muted small mt-2">Mohon tunggu sebentar</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
 
             setTimeout(() => {
                 api.get('/mahasiswa', { params: filters })
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
                             tableBody.innerHTML = '';
                             const mahasiswaData = (response.data.data || []);
@@ -416,11 +411,11 @@
                                     const style = document.createElement('style');
                                     style.id = 'fade-in-animation';
                                     style.textContent = `
-                                        @keyframes fadeIn {
-                                            from { opacity: 0; transform: translateY(10px); }
-                                            to { opacity: 1; transform: translateY(0); }
-                                        }
-                                    `;
+                                                @keyframes fadeIn {
+                                                    from { opacity: 0; transform: translateY(10px); }
+                                                    to { opacity: 1; transform: translateY(0); }
+                                                }
+                                            `;
                                     document.head.appendChild(style);
                                 }
 
@@ -436,7 +431,7 @@
                             showErrorState('Gagal memuat data mahasiswa.');
                         }
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                         console.error('API Error:', error);
                         let errorMessage = 'Gagal memuat data mahasiswa';
 
@@ -464,42 +459,42 @@
                 const nameInitial = name.charAt(0).toUpperCase();
 
                 return `
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
-                                <span class="text-white" style="font-weight: 600;">${nameInitial}</span>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 text-sm">${name}</h6>
-                                <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
-                    </td>
-                    <td>
-                        <span class="badge bg-light text-dark">${mahasiswa.nama_kelas || '-'}</span>
-                    </td>
-                    <td class="text-center">
-                        <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
-                            ${mahasiswa.status_magang || 'Belum Magang'}
-                        </span>
-                    </td>
-                    <td>
-                       <div class="action-buttons">
-                            <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
-                                <i class="fas fa-eye me-1"></i>Detail
-                            </button>
-                            <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
-                                <i class="fas fa-trash-alt me-1"></i>Hapus
-                            </button>
-                        </div>
-                    </td>
-                `;
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm bg-gradient-primary rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm">
+                                        <span class="text-white" style="font-weight: 600;">${nameInitial}</span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-sm">${name}</h6>
+                                        <p class="text-xs text-muted mb-0">${mahasiswa.email || '-'}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">${mahasiswa.nim || '-'}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark">${mahasiswa.nama_kelas || '-'}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-badge ${getStatusClass(mahasiswa.status_magang)}">
+                                    ${mahasiswa.status_magang || 'Belum Magang'}
+                                </span>
+                            </td>
+                            <td>
+                               <div class="action-buttons">
+                                    <button class="btn btn-sm btn-info me-1" onclick="detailMahasiswa(${mahasiswa.id_mahasiswa})">
+                                        <i class="fas fa-eye me-1"></i>Detail
+                                    </button>
+                                    <button class="btn btn-sm btn-primary me-1" onclick="editMahasiswa(${mahasiswa.id_mahasiswa})">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteMahasiswa(${mahasiswa.id_mahasiswa})">
+                                        <i class="fas fa-trash-alt me-1"></i>Hapus
+                                    </button>
+                                </div>
+                            </td>
+                        `;
             }
 
             function getStatusClass(status) {
@@ -519,49 +514,49 @@
                 }
 
                 tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5">
-                            <div class="empty-state py-5">
-                                <div class="empty-state-icon mb-3">
-                                    <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
-                                </div>
-                                <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
-                                <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
-                                        <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
-                                    </button>
-                                    ${filters && (filters.kelas || filters.prodi) ? `
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                            <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state py-5">
+                                        <div class="empty-state-icon mb-3">
+                                            <i class="fas fa-user-graduate text-muted opacity-25" style="font-size: 70px;"></i>
+                                        </div>
+                                        <h5 class="fw-semibold">Tidak ada data mahasiswa ${filterMessage}</h5>
+                                        <p class="text-muted mb-3">Silakan tambahkan data mahasiswa baru atau ubah filter pencarian</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button class="btn btn-sm btn-primary" onclick="tambahMahasiswa()">
+                                                <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
+                                            </button>
+                                            ${filters && (filters.kelas || filters.prodi) ? `
+                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                                    <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
             }
 
             function showErrorState(message, isSystemError = false) {
                 tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5">
-                            <div class="text-center py-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                                </div>
-                                <h5 class="text-danger">${message}</h5>
-                                ${isSystemError ? `
-                                    <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                ` : ''}
-                                <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
-                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            <tr>
+                                <td colspan="5">
+                                    <div class="text-center py-4">
+                                        <div class="mb-3">
+                                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                                        </div>
+                                        <h5 class="text-danger">${message}</h5>
+                                        ${isSystemError ? `
+                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                        ` : ''}
+                                        <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
+                                            <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
             }
 
             function addRowHoverEffects() {
@@ -589,42 +584,42 @@
                     const lastPage = responseData.meta.last_page;
 
                     let paginationHtml = `
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination pagination-sm justify-content-center my-3">
-                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(1)">
-                                        <i class="fas fa-angle-double-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                                        <i class="fas fa-angle-left"></i>
-                                    </a>
-                                </li>
-                    `;
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination pagination-sm justify-content-center my-3">
+                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" onclick="changePage(1)">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                            `;
 
                     for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
                         paginationHtml += `
-                            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                            </li>
-                        `;
+                                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                                    </li>
+                                `;
                     }
 
                     paginationHtml += `
-                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                                        <i class="fas fa-angle-right"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
-                                        <i class="fas fa-angle-double-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    `;
+                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" onclick="changePage(${lastPage})">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            `;
 
                     paginationContainer.innerHTML = paginationHtml;
                 }
@@ -671,9 +666,9 @@
 
         function downloadTemplate() {
             api.get('/kelas')
-                .then(function(response) {
+                .then(function (response) {
                     let kelas = [];
-                    
+
                     if (response.data.success && response.data.data) {
                         kelas = response.data.data;
                     } else if (Array.isArray(response.data)) {
@@ -700,7 +695,7 @@
 
                     Swal.fire('Berhasil!', 'Template CSV berhasil didownload', 'success');
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
                 });
@@ -735,84 +730,87 @@
                 },
                 timeout: 60000
             })
-            .then(response => {
-                Swal.close();
-                if (response.data.success) {
-                    let message = response.data.message;
+                .then(response => {
+                    Swal.close();
+                    if (response.data.success) {
+                        let message = response.data.message;
 
-                    if (response.data.errors && response.data.errors.length > 0) {
-                        Swal.fire({
-                            title: 'Import Sebagian Berhasil',
-                            html: `
-                                ${message}<br><br>
-                                <div class="alert alert-warning">
-                                    <strong>Beberapa data tidak dapat diimpor:</strong>
-                                    <ul class="mb-0 mt-1 text-start">
-                                        ${response.data.errors.slice(0, 10).map(err => `<li class="small">${err}</li>`).join('')}
-                                        ${response.data.errors.length > 10 ? `<li class="small text-muted">... dan ${response.data.errors.length - 10} error lainnya</li>` : ''}
-                                    </ul>
-                                </div>
-                            `,
-                            icon: 'warning',
-                            confirmButtonText: 'OK'
-                        });
+                        if (response.data.errors && response.data.errors.length > 0) {
+                            Swal.fire({
+                                title: 'Import Sebagian Berhasil',
+                                html: `
+                                        ${message}<br><br>
+                                        <div class="alert alert-warning">
+                                            <strong>Beberapa data tidak dapat diimpor:</strong>
+                                            <ul class="mb-0 mt-1 text-start">
+                                                ${response.data.errors.slice(0, 10).map(err => `<li class="small">${err}</li>`).join('')}
+                                                ${response.data.errors.length > 10 ? `<li class="small text-muted">... dan ${response.data.errors.length - 10} error lainnya</li>` : ''}
+                                            </ul>
+                                        </div>
+                                    `,
+                                icon: 'warning',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            Swal.fire('Berhasil', message, 'success');
+                        }
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
+                        modal.hide();
+                        document.getElementById('formImportCSV').reset();
+                        loadMahasiswaData(filterState);
                     } else {
-                        Swal.fire('Berhasil', message, 'success');
+                        Swal.fire('Gagal', response.data.message, 'error');
                     }
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
-                    modal.hide();
-                    document.getElementById('formImportCSV').reset();
-                    loadMahasiswaData(filterState);
-                } else {
-                    Swal.fire('Gagal', response.data.message, 'error');
-                }
-            })
-            .catch(error => {
-                Swal.close();
-                console.error('Import error:', error);
-                let message = 'Terjadi kesalahan saat mengimpor data';
-                if (error.response && error.response.data && error.response.data.message) {
-                    message = error.response.data.message;
-                }
-                Swal.fire('Error', message, 'error');
-            });
+                })
+                .catch(error => {
+                    Swal.close();
+                    console.error('Import error:', error);
+                    let message = 'Terjadi kesalahan saat mengimpor data';
+                    if (error.response && error.response.data && error.response.data.message) {
+                        message = error.response.data.message;
+                    }
+                    Swal.fire('Error', message, 'error');
+                });
         }
 
         // Other functions remain the same...
         function loadMinatOptions() {
-            api.get('/minat')
-                .then(function(response) {
-                    if (response.data) {
-                        const select = document.getElementById('minat');
-                        select.innerHTML = '';
-                        response.data.forEach(function(minat) {
-                            select.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+            axios.get('/api/minat')
+                .then(function (response) {
+                    console.log('Minat response:', response.data); // Debug
+                    const minatSelect = document.getElementById('minat');
+                    minatSelect.innerHTML = '';
+                    if (response.data && Array.isArray(response.data.data)) {
+                        response.data.data.forEach(function (minat) {
+                            minatSelect.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
                         });
+                    } else {
+                        minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
                     }
                 })
-                .catch(function(error) {
-                    console.error('Gagal memuat data minat:', error);
+                .catch(function (error) {
+                    console.error('Error loading minat:', error);
                 });
         }
 
-        function loadEditMinatOptions(selectedMinatIds = []) {
-            api.get('/minat')
-                .then(function(response) {
-                    if (response.data) {
-                        const select = document.getElementById('edit_minat');
-                        select.innerHTML = '';
-                        response.data.forEach(function(minat) {
-                            const isSelected = selectedMinatIds.includes(minat.minat_id);
-                            select.innerHTML += `
-                                <option value="${minat.minat_id}" ${isSelected ? 'selected' : ''}>
-                                    ${minat.nama_minat}
-                                </option>`;
+        function loadEditMinatOptions(selectedMinat = []) {
+            axios.get('/api/minat')
+                .then(function (response) {
+                    const minatSelect = document.getElementById('edit_minat');
+                    minatSelect.innerHTML = '';
+                    // Gunakan response.data.data, bukan response.data
+                    if (response.data && Array.isArray(response.data.data)) {
+                        response.data.data.forEach(function (minat) {
+                            const isSelected = selectedMinat.includes(minat.minat_id) ? 'selected' : '';
+                            minatSelect.innerHTML += `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
                         });
+                    } else {
+                        minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
                     }
                 })
-                .catch(function(error) {
-                    console.error('Gagal memuat data minat:', error);
+                .catch(function (error) {
+                    console.error('Error loading minat:', error);
                 });
         }
 
@@ -847,36 +845,36 @@
 
         function loadSkillsOptions() {
             api.get('/skills')
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const select = document.getElementById('skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function(skill) {
+                        response.data.data.forEach(function (skill) {
                             select.innerHTML += `<option value="${skill.skill_id}">${skill.nama}</option>`;
                         });
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
 
         function loadEditSkillsOptions(selectedSkillIds = []) {
             api.get('/skills')
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function(skill) {
+                        response.data.data.forEach(function (skill) {
                             const isSelected = selectedSkillIds.includes(skill.skill_id);
                             select.innerHTML += `
-                                <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
-                                    ${skill.nama}
-                                </option>`;
+                                        <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
+                                            ${skill.nama}
+                                        </option>`;
                         });
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
@@ -890,50 +888,50 @@
             });
 
             api.get(`/mahasiswa/${id}`)
-                .then(function(response) {
+                .then(function (response) {
                     Swal.close();
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
 
                         const skills = Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 ?
                             mahasiswa.skills.map(skill => `
-                                <span class="badge bg-primary me-1">
-                                    ${skill.nama || 'Tidak Diketahui'} 
-                                    (${skill.lama_skill || 'Tidak Diketahui'})
-                                </span>
-                            `).join('') :
+                                        <span class="badge bg-primary me-1">
+                                            ${skill.nama || 'Tidak Diketahui'} 
+                                            (${skill.lama_skill || 'Tidak Diketahui'})
+                                        </span>
+                                    `).join('') :
                             '<span class="text-muted">Tidak ada skill</span>';
 
                         const minat = Array.isArray(mahasiswa.minat) && mahasiswa.minat.length > 0 ?
                             mahasiswa.minat.map(m => `
-                                <span class="badge bg-info me-1">
-                                    ${m.nama_minat || 'Tidak Diketahui'}
-                                </span>
-                            `).join('') :
+                                        <span class="badge bg-info me-1">
+                                            ${m.nama_minat || 'Tidak Diketahui'}
+                                        </span>
+                                    `).join('') :
                             '<span class="text-muted">Tidak ada minat</span>';
 
                         document.getElementById('detailMahasiswaModalLabel').innerText = `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
 
                         document.getElementById('detailMahasiswaBody').innerHTML = `
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
-                                    <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
-                                    <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
-                                    <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
-                                    <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
-                                    <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
-                                    <p><strong>Skills:</strong></p>
-                                    <div>${skills}</div>
-                                    <p class="mt-2"><strong>Minat:</strong></p>
-                                    <div>${minat}</div>
-                                </div>
-                            </div>
-                            <hr>
-                        `;
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Nama:</strong> ${mahasiswa.name || '-'}</p>
+                                            <p><strong>Email:</strong> ${mahasiswa.email || '-'}</p>
+                                            <p><strong>NIM:</strong> ${mahasiswa.nim || '-'}</p>
+                                            <p><strong>Kelas:</strong> ${mahasiswa.nama_kelas || '-'}</p>
+                                            <p><strong>Status:</strong> ${mahasiswa.status_magang || 'Belum Magang'}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Alamat:</strong> ${mahasiswa.alamat || '-'}</p>
+                                            <p><strong>IPK:</strong> ${mahasiswa.ipk || '-'}</p>
+                                            <p><strong>Skills:</strong></p>
+                                            <div>${skills}</div>
+                                            <p class="mt-2"><strong>Minat:</strong></p>
+                                            <div>${minat}</div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                `;
 
                         const modal = new bootstrap.Modal(document.getElementById('detailMahasiswaModal'));
                         modal.show();
@@ -941,7 +939,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat detail mahasiswa', 'error');
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     Swal.close();
                     console.error('Error:', error);
                     let errorMessage = 'Terjadi kesalahan saat memuat detail mahasiswa';
@@ -958,7 +956,7 @@
 
         function editMahasiswa(id) {
             api.get(`/mahasiswa/${id}`)
-                .then(function(response) {
+                .then(function (response) {
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
                         document.getElementById('edit_id_mahasiswa').value = mahasiswa.id_mahasiswa;
@@ -985,7 +983,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat data mahasiswa', 'error');
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat memuat data mahasiswa', 'error');
                 });
@@ -1120,17 +1118,17 @@
             Swal.fire({
                 title: 'Menyiapkan Export PDF...',
                 html: `
-                    <div class="text-center">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                        <p class="mb-2"><strong>Memproses data mahasiswa...</strong></p>
-                        <div class="progress mt-3">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                                 role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                <p class="mb-2"><strong>Memproses data mahasiswa...</strong></p>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">PDF akan terunduh otomatis setelah selesai</small>
                             </div>
-                        </div>
-                        <small class="text-muted mt-2 d-block">PDF akan terunduh otomatis setelah selesai</small>
-                    </div>
-                `,
+                        `,
                 allowOutsideClick: false,
                 showConfirmButton: false
             });
@@ -1146,114 +1144,114 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
-            .then(response => {
-                Swal.update({
-                    html: `
-                        <div class="text-center">
-                            <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-                            <p class="mb-2"><strong>Mengunduh file...</strong></p>
-                            <div class="progress mt-3">
-                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
-                                     role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+                .then(response => {
+                    Swal.update({
+                        html: `
+                                <div class="text-center">
+                                    <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mb-2"><strong>Mengunduh file...</strong></p>
+                                    <div class="progress mt-3">
+                                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    `
-                });
-
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                    }).catch(() => {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                            `
                     });
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                Swal.close();
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
 
-                const now = new Date();
-                const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
-                const filename = `data_mahasiswa_${timestamp}.pdf`;
-
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-
-                Swal.fire({
-                    title: 'Export Berhasil!',
-                    html: `
-                        <div class="text-center">
-                            <i class="fas fa-file-pdf text-danger mb-3" style="font-size: 3.5rem;"></i>
-                            <h5 class="text-success mb-2">PDF Berhasil Diunduh!</h5>
-                            <p class="mb-2"><strong>File:</strong> ${filename}</p>
-                            <p class="mb-0"><strong>Lokasi:</strong> Folder Download Anda</p>
-                            <hr class="my-3">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Total ${blob.size > 1024 ? Math.round(blob.size / 1024) + ' KB' : blob.size + ' bytes'} data diekspor
-                            </small>
-                        </div>
-                    `,
-                    icon: 'success',
-                    timer: 4000,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#28a745'
-                });
-            })
-            .catch(error => {
-                Swal.close();
-                console.error('Export PDF error:', error);
-
-                let errorMessage = 'Gagal mengeksport PDF';
-                let errorDetail = '';
-
-                if (error.message.includes('404')) {
-                    errorMessage = 'Route export tidak ditemukan';
-                    errorDetail = 'Route /api/export/pdf tidak tersedia';
-                } else if (error.message.includes('500')) {
-                    errorMessage = 'Terjadi kesalahan server';
-                    errorDetail = 'Coba lagi dalam beberapa saat';
-                } else if (error.message.includes('403')) {
-                    errorMessage = 'Akses ditolak';
-                    errorDetail = 'Anda tidak memiliki izin untuk export';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-
-                Swal.fire({
-                    title: 'Export Gagal',
-                    html: `
-                        <div class="text-center">
-                            <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
-                            <h5 class="text-danger mb-2">${errorMessage}</h5>
-                            ${errorDetail ? `<p class="text-muted mb-3">${errorDetail}</p>` : ''}
-                            <hr class="my-3">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Debug: Periksa route ${window.location.origin}/api/export/pdf
-                            </small>
-                        </div>
-                    `,
-                    icon: 'error',
-                    confirmButtonText: 'Coba Lagi',
-                    showCancelButton: true,
-                    cancelButtonText: 'Tutup',
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        exportPDF();
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                        }).catch(() => {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        });
                     }
+                    return response.blob();
+                })
+                .then(blob => {
+                    Swal.close();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+
+                    const now = new Date();
+                    const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
+                    const filename = `data_mahasiswa_${timestamp}.pdf`;
+
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    Swal.fire({
+                        title: 'Export Berhasil!',
+                        html: `
+                                <div class="text-center">
+                                    <i class="fas fa-file-pdf text-danger mb-3" style="font-size: 3.5rem;"></i>
+                                    <h5 class="text-success mb-2">PDF Berhasil Diunduh!</h5>
+                                    <p class="mb-2"><strong>File:</strong> ${filename}</p>
+                                    <p class="mb-0"><strong>Lokasi:</strong> Folder Download Anda</p>
+                                    <hr class="my-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Total ${blob.size > 1024 ? Math.round(blob.size / 1024) + ' KB' : blob.size + ' bytes'} data diekspor
+                                    </small>
+                                </div>
+                            `,
+                        icon: 'success',
+                        timer: 4000,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745'
+                    });
+                })
+                .catch(error => {
+                    Swal.close();
+                    console.error('Export PDF error:', error);
+
+                    let errorMessage = 'Gagal mengeksport PDF';
+                    let errorDetail = '';
+
+                    if (error.message.includes('404')) {
+                        errorMessage = 'Route export tidak ditemukan';
+                        errorDetail = 'Route /api/export/pdf tidak tersedia';
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'Terjadi kesalahan server';
+                        errorDetail = 'Coba lagi dalam beberapa saat';
+                    } else if (error.message.includes('403')) {
+                        errorMessage = 'Akses ditolak';
+                        errorDetail = 'Anda tidak memiliki izin untuk export';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    Swal.fire({
+                        title: 'Export Gagal',
+                        html: `
+                                <div class="text-center">
+                                    <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                                    <h5 class="text-danger mb-2">${errorMessage}</h5>
+                                    ${errorDetail ? `<p class="text-muted mb-3">${errorDetail}</p>` : ''}
+                                    <hr class="my-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Debug: Periksa route ${window.location.origin}/api/export/pdf
+                                    </small>
+                                </div>
+                            `,
+                        icon: 'error',
+                        confirmButtonText: 'Coba Lagi',
+                        showCancelButton: true,
+                        cancelButtonText: 'Tutup',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            exportPDF();
+                        }
+                    });
                 });
-            });
         }
     </script>
 @endpush
