@@ -155,6 +155,10 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
         Route::get('/', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'index']);
         Route::get('/filter-options', [App\Http\Controllers\API\Mahasiswa\EvaluasiController::class, 'getFilterOptions']);
     });
+
+    // Magang completion routes
+    Route::get('/magang/check-completion', [MahasiswaController::class, 'checkMagangCompletion']);
+    Route::post('/magang/submit-final-evaluation', [MahasiswaController::class, 'submitFinalEvaluation']);
 });
 
 // =========================================================
@@ -294,5 +298,10 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function 
     Route::get('dosen/profile/skills', [DosenProfile::class, 'getSkills']);
     Route::post('dosen/profile/skills', [DosenProfile::class, 'updateSkills']);
     Route::post('/dosen/profile/update', [DosenProfile::class, 'update'])->name('dosen.profile.update');
-    Route::get('/periode-list', [DosenMaha::class, 'getPeriodeList']);
+    Route::get('/periode-list', [DosenMaha::class, 'getPeriodeList']); 
+    Route::get('/dosen/magang/{magangId}/evaluation-status', [DosenMaha::class, 'checkEvaluationStatus']);
+    Route::get('/mahasiswa/{id}/info', [DosenMaha::class, 'getMahasiswaInfo']);
+    Route::get('/mahasiswa/{id}/logbook', [DosenMaha::class, 'getMahasiswaLogbook']);
+    Route::get('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'getMahasiswaEvaluasi']);
+    Route::post('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'storeMahasiswaEvaluasi']);
 });

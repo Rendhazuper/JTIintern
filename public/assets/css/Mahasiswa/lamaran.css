@@ -29,7 +29,7 @@ body.g-sidenav-show .main-content {
     body.g-sidenav-show .main-content {
         margin-left: 0;
     }
-    
+
     .container-fluid {
         padding-top: 2rem; /* ✅ KONSISTEN: sama dengan logaktivitas */
     }
@@ -114,7 +114,12 @@ body.g-sidenav-show .main-content {
 .skeleton-timeline-dot,
 .skeleton-timeline-content,
 .skeleton-status-card {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border-radius: 6px !important;
@@ -129,7 +134,12 @@ body.g-sidenav-show .main-content {
 .skeleton-text-xs {
     height: 12px !important;
     border-radius: 4px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -142,7 +152,12 @@ body.g-sidenav-show .main-content {
 .skeleton-text-sm {
     height: 14px !important;
     border-radius: 4px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -155,7 +170,12 @@ body.g-sidenav-show .main-content {
 .skeleton-text-md {
     height: 16px !important;
     border-radius: 5px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -168,7 +188,12 @@ body.g-sidenav-show .main-content {
 .skeleton-text-lg {
     height: 20px !important;
     border-radius: 5px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -181,7 +206,12 @@ body.g-sidenav-show .main-content {
 .skeleton-text-xl {
     height: 28px !important;
     border-radius: 6px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -258,7 +288,12 @@ body.g-sidenav-show .main-content {
     width: 40px !important;
     height: 40px !important;
     border-radius: 10px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -272,7 +307,12 @@ body.g-sidenav-show .main-content {
     width: 40px !important;
     height: 40px !important;
     border-radius: 50% !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -288,7 +328,12 @@ body.g-sidenav-show .main-content {
     height: 80px !important;
     border-radius: 20px !important;
     margin: 0 auto !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -303,7 +348,12 @@ body.g-sidenav-show .main-content {
     height: 44px !important;
     width: 140px !important;
     border-radius: 8px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -317,7 +367,12 @@ body.g-sidenav-show .main-content {
     height: 44px !important;
     width: 120px !important;
     border-radius: 8px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: 1px solid #e0e0e0 !important;
@@ -332,7 +387,12 @@ body.g-sidenav-show .main-content {
     height: 8px !important;
     width: 100% !important;
     border-radius: 4px !important;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 100% !important;
     animation: skeleton-loading 2s infinite !important;
     border: none !important;
@@ -364,7 +424,12 @@ body.g-sidenav-show .main-content {
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(180deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        180deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 100% 200% !important;
     animation: skeleton-loading 2s infinite !important;
 }
@@ -382,7 +447,12 @@ body.g-sidenav-show .main-content {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    background: linear-gradient(
+        45deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    ) !important;
     background-size: 200% 200% !important;
     animation: skeleton-loading 2s infinite !important;
     z-index: 2;
@@ -562,9 +632,15 @@ body.g-sidenav-show .main-content {
    MAGANG ACTIVE STATE ANIMATIONS
    ================================ */
 @keyframes success-glow {
-    0% { box-shadow: 0 0 5px rgba(45, 206, 137, 0.5); }
-    50% { box-shadow: 0 0 20px rgba(45, 206, 137, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(45, 206, 137, 0.5); }
+    0% {
+        box-shadow: 0 0 5px rgba(45, 206, 137, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(45, 206, 137, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(45, 206, 137, 0.5);
+    }
 }
 
 @keyframes icon-bounce-in {
@@ -604,7 +680,8 @@ body.g-sidenav-show .main-content {
 }
 
 .magang-active-icon {
-    animation: success-glow 3s infinite, icon-bounce-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+    animation: success-glow 3s infinite,
+        icon-bounce-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
 }
 
 .magang-active-state h5 {
@@ -844,7 +921,7 @@ body.g-sidenav-show .main-content {
         min-height: 100px !important;
         padding: 1rem 1.25rem !important;
     }
-    
+
     .skeleton-search-box {
         width: 200px !important;
     }
@@ -861,17 +938,17 @@ body.g-sidenav-show .main-content {
         margin-left: 0;
         margin-right: 0;
     }
-    
+
     .stats-row > [class*="col-"] {
         padding-left: 0;
         padding-right: 0;
     }
-    
+
     .stats-row .card {
         margin-bottom: 1rem;
         height: auto;
     }
-    
+
     .stats-row .card-body {
         min-height: 90px !important;
         padding: 1rem !important;
@@ -883,42 +960,42 @@ body.g-sidenav-show .main-content {
         min-height: 80px !important;
         padding: 0.875rem 1rem !important;
     }
-    
+
     .numbers h4,
     .numbers h5 {
         font-size: 1.5rem;
     }
-    
+
     .icon-shape {
         width: 40px;
         height: 40px;
     }
-    
+
     .skeleton-text-xl {
         width: 240px !important;
         height: 24px !important;
     }
-    
+
     .skeleton-icon-large {
         width: 60px !important;
         height: 60px !important;
     }
-    
+
     .skeleton-button-primary,
     .skeleton-button-outline {
         height: 34px !important;
     }
-    
+
     .magang-active-state {
         padding: 1.5rem;
     }
-    
+
     .magang-active-state .d-flex {
         flex-direction: column;
         gap: 0.75rem;
         align-items: center;
     }
-    
+
     .magang-active-state .btn {
         width: 160px;
     }
@@ -929,34 +1006,34 @@ body.g-sidenav-show .main-content {
         min-height: 70px !important;
         padding: 0.75rem !important;
     }
-    
+
     .numbers p {
         font-size: 0.75rem;
     }
-    
+
     .numbers h4,
     .numbers h5 {
         font-size: 1.25rem;
     }
-    
+
     .skeleton-text-xl {
         width: 200px !important;
         height: 20px !important;
     }
-    
+
     .skeleton-icon-large {
         width: 50px !important;
         height: 50px !important;
     }
-    
+
     .skeleton-button-primary {
         width: 120px !important;
     }
-    
+
     .skeleton-button-outline {
         width: 100px !important;
     }
-    
+
     .magang-active-state {
         padding: 1rem;
     }
@@ -986,11 +1063,11 @@ body.g-sidenav-show .main-content {
         animation: none !important;
         background: #f1f5f9 !important;
     }
-    
+
     .skeleton-enhanced::after {
         animation: none !important;
     }
-    
+
     .real-content,
     .skeleton-loader {
         transition: none !important;
@@ -1044,7 +1121,12 @@ body.g-sidenav-show .main-content {
     .skeleton-timeline-dot,
     .skeleton-timeline-content,
     .skeleton-status-card {
-        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%) !important;
+        background: linear-gradient(
+            90deg,
+            #374151 25%,
+            #4b5563 50%,
+            #374151 75%
+        ) !important;
         background-size: 200% 100% !important;
     }
 }
@@ -1103,7 +1185,7 @@ body.g-sidenav-show .main-content {
 }
 
 .info-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
 }
 
@@ -1165,7 +1247,7 @@ body.g-sidenav-show .main-content {
 
 #refreshLamaranBtn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 #refreshLamaranBtn:disabled {
@@ -1192,8 +1274,12 @@ body.g-sidenav-show .main-content {
 }
 
 @keyframes fa-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ✅ ENHANCED toast animations */
@@ -1226,7 +1312,7 @@ body.g-sidenav-show .main-content {
 .lamaran-row:hover {
     background-color: #f8f9fa !important;
     transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* ✅ Responsive improvements */
@@ -1236,9 +1322,88 @@ body.g-sidenav-show .main-content {
         gap: 0.5rem;
         align-items: stretch;
     }
-    
+
     .filter-container select,
     #refreshLamaranBtn {
         width: 100%;
     }
+}
+
+/* Completion Modal Styles */
+.completion-modal-content {
+    text-align: left;
+}
+
+.completion-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.completion-modal-content .form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.completion-modal-content .alert-info {
+    background-color: #e7f3ff;
+    border-color: #b8daff;
+    color: #004085;
+}
+
+.completion-modal-content .input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+
+/* Progress bar completion effect */
+.progress-bar[style*="width: 100%"] {
+    background: linear-gradient(45deg, #28a745, #20c997, #28a745) !important;
+    animation: progressComplete 0.5s ease-in-out;
+}
+
+@keyframes progressComplete {
+    0% {
+        transform: scaleX(0.95);
+    }
+    50% {
+        transform: scaleX(1.02);
+    }
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+/* File input styling */
+.completion-modal-content input[type="file"] {
+    border: 2px dashed #ced4da;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.completion-modal-content input[type="file"]:hover {
+    border-color: #28a745;
+    background-color: #e8f5e8;
+}
+
+.completion-modal-content input[type="file"]:focus {
+    border-color: #28a745;
+    background-color: #e8f5e8;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }

@@ -3,7 +3,7 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Mahasiswa Bimbingan'])
 
-    <div class="container-fluid py-4">
+    <div class="container-fluid py-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a href="{{ route('dosen.request.bimbingan') }}" class="btn btn-primary"
                 style="background: #5988FF; border: none;">
@@ -40,9 +40,10 @@
         <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-4">
             <p class="text-sm mb-0 pagination-info" style="font-family: 'Open Sans', sans-serif;">
-                Memuat data...
+                <span class="skeleton"
+                    style="height: 14px; width: 120px; border-radius: 4px; display: inline-block;"></span>
             </p>
-            <nav>
+            <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0">
                     <!-- Will be populated by JavaScript -->
                 </ul>
@@ -50,6 +51,7 @@
         </div>
     </div>
 
+    {{-- ✅ Include modals --}}
     @include('pages.dosen.modals.logAktivitas')
     @include('pages.dosen.modals.evaluasi')
 @endsection
@@ -60,14 +62,13 @@
 
 @push('js')
     <script>
-        // Initialize the dosen_id from the server-side value or use Auth facade directly
+        // Initialize the dosen_id from the server-side value
         @if (Auth::user()->role === 'dosen' && Auth::user()->dosen)
             const dosen_id = {{ Auth::user()->dosen->id_dosen ?? 'null' }};
         @else
             const dosen_id = null;
         @endif
 
-        // Rest of your JavaScript code remains mostly unchanged
         let filterState = {
             search: '',
             status: '',
@@ -75,7 +76,6 @@
             periode: ''
         };
 
-        // Add debounce function that was missing
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -86,51 +86,37 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             if (dosen_id) {
+                showSkeletonLoading();
+                showFiltersSkeleton();
+
                 loadMahasiswaData(filterState);
-                loadPerusahaanOptions();
-                loadPeriodeOptions(); // Add this line
+
+                loadPeriodeOptions().then(() => {
+                    hideFiltersSkeleton();
+                });
             } else {
                 showErrorState('Tidak dapat menentukan ID dosen Anda. Silakan muat ulang halaman.');
             }
 
-            // Setup event listeners (same as before)
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', debounce(function(e) {
                     filterState.search = this.value.trim();
+                    filterState.page = 1; // Reset to first page when searching
                     loadMahasiswaData(filterState);
                 }, 500));
             }
 
-            // Setup event filter status
-            const statusFilter = document.getElementById('statusFilter');
-            if (statusFilter) {
-                statusFilter.addEventListener('change', function(e) {
-                    filterState.status = this.value;
-                    loadMahasiswaData(filterState);
-                });
-            }
-
-            // Update perusahaan filter event listener
-            const perusahaanFilter = document.getElementById('perusahaanFilter');
-            if (perusahaanFilter) {
-                perusahaanFilter.addEventListener('change', function(e) {
-                    filterState.perusahaan = this.value;
-                    loadMahasiswaData(filterState);
-                });
-            }
-
-            // Setup event filter periode
             const periodeFilter = document.getElementById('periodeFilter');
             if (periodeFilter) {
                 periodeFilter.addEventListener('change', function(e) {
                     filterState.periode = this.value;
+                    filterState.page = 1; // Reset to first page when filtering
                     loadMahasiswaData(filterState);
                 });
             }
         });
 
-        // Helper function to show error state - FIXED VERSION
         function showErrorState(message, isSystemError = false) {
             const cardsContainer = document.getElementById('mahasiswa-cards');
 
@@ -140,23 +126,23 @@
             }
 
             cardsContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body text-center py-5">
-                            <div class="mb-3">
-                                <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                            </div>
-                            <h5 class="text-danger">${message}</h5>
-                            ${isSystemError ? `
-                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                        ` : ''}
-                            <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
-                                <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                            </button>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 40px;"></i>
                         </div>
+                        <h5 class="text-danger">${message}</h5>
+                        ${isSystemError ? `
+                                                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                                        ` : ''}
+                        <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                        </button>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
         }
 
         const api = axios.create({
@@ -169,6 +155,94 @@
             withCredentials: true
         });
 
+        function showSkeletonLoading() {
+            const cardsContainer = document.getElementById('mahasiswa-cards');
+
+            if (!cardsContainer) {
+                console.error('Cards container not found');
+                return;
+            }
+
+            // Generate 6 skeleton cards
+            let skeletonHTML = '';
+            for (let i = 0; i < 6; i++) {
+                skeletonHTML += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="skeleton-card">
+                            <!-- Status Badge Skeleton -->
+                            <div style="height: 29px; display: flex; align-items: center;">
+                                <div class="skeleton skeleton-status"></div>
+                            </div>
+                            
+                            <!-- Main Content Skeleton -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-grow: 1;">
+                                <!-- Left Side - Student Info -->
+                                <div style="width: 50%; display: flex; flex-direction: column; gap: 8px;">
+                                    <div class="skeleton skeleton-name"></div>
+                                    <div class="skeleton skeleton-nim"></div>
+                                    <div class="skeleton skeleton-class"></div>
+                                </div>
+                                
+                                <!-- Right Side - Company Info -->
+                                <div style="width: 45%; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                                    <div class="skeleton skeleton-company"></div>
+                                    <div class="skeleton skeleton-position"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Divider Skeleton -->
+                            <div class="skeleton skeleton-divider"></div>
+                            
+                            <!-- Buttons Skeleton -->
+                            <div style="display: flex; justify-content: space-between; gap: 10px; padding-top: 5px;">
+                                <div class="skeleton skeleton-button"></div>
+                                <div class="skeleton skeleton-button"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            cardsContainer.innerHTML = skeletonHTML;
+
+            // Update pagination info
+            const paginationInfo = document.querySelector('.pagination-info');
+            if (paginationInfo) {
+                paginationInfo.innerHTML =
+                    '<span class="skeleton" style="height: 14px; width: 120px; border-radius: 4px; display: inline-block;"></span>';
+            }
+        }
+
+        function showFiltersSkeleton() {
+            const searchInput = document.getElementById('searchInput');
+            const periodeFilter = document.getElementById('periodeFilter');
+
+            if (searchInput) {
+                searchInput.disabled = true;
+                searchInput.placeholder = 'Memuat...';
+            }
+
+            if (periodeFilter) {
+                periodeFilter.disabled = true;
+                periodeFilter.innerHTML = '<option>Memuat periode...</option>';
+            }
+        }
+
+        function hideFiltersSkeleton() {
+            const searchInput = document.getElementById('searchInput');
+            const periodeFilter = document.getElementById('periodeFilter');
+
+            if (searchInput) {
+                searchInput.disabled = false;
+                searchInput.placeholder = 'Cari Mahasiswa';
+            }
+
+            if (periodeFilter) {
+                periodeFilter.disabled = false;
+            }
+        }
+
+        // ✅ UPDATE: Modified loadMahasiswaData function
         function loadMahasiswaData(filters = {}) {
             const cardsContainer = document.getElementById('mahasiswa-cards');
 
@@ -177,19 +251,8 @@
                 return;
             }
 
-            // Show loading state
-            cardsContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body text-center py-5">
-                            <div class="spinner-border text-primary mb-3" role="status"></div>
-                            <div class="text-primary fw-semibold">Memuat Data Mahasiswa...</div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            showSkeletonLoading();
 
-            // Get current page from filters or default to 1
             const currentPage = filters.page || 1;
 
             api.get(`/dosen/${dosen_id}/mahasiswa-bimbingan`, {
@@ -202,119 +265,231 @@
                     }
                 })
                 .then(function(response) {
-                    if (response.data.success) {
-                        const mahasiswa = response.data.data;
-                        const meta = response.data.meta;
+                    setTimeout(() => {
+                        if (response.data.success) {
+                            const mahasiswa = response.data.data;
+                            const meta = response.data.meta;
 
-                        if (mahasiswa.length === 0) {
-                            showEmptyState(filters);
-                            return;
+                            console.log('Pagination meta:', meta);
+
+                            if (mahasiswa.length === 0) {
+                                showEmptyState(filters);
+                                updatePaginationInfo({
+                                    total: 0,
+                                    from: 0,
+                                    to: 0,
+                                    last_page: 1
+                                }, 1);
+                                return;
+                            }
+
+                            const skeletonCards = cardsContainer.querySelectorAll('.skeleton-card');
+                            skeletonCards.forEach(card => {
+                                card.classList.add('skeleton-fade-out');
+                            });
+
+                            setTimeout(() => {
+                                cardsContainer.innerHTML = '';
+                                loadRealContent(mahasiswa, cardsContainer);
+                                updatePaginationInfo(meta, currentPage);
+                            }, 300);
+
+                        } else {
+                            showErrorState('Gagal memuat data mahasiswa', true);
+                            updatePaginationInfo({
+                                total: 0,
+                                from: 0,
+                                to: 0,
+                                last_page: 1
+                            }, 1);
                         }
-
-                        cardsContainer.innerHTML = '';
-                        mahasiswa.forEach((item, index) => {
-                            const card = document.createElement('div');
-                            card.className = 'col-md-6 col-lg-4 mb-3';
-
-                            // Card content remains the same
-                            // ... your existing card HTML ...
-                            const jobTitle = item.judul_lowongan || 'Belum ada posisi';
-
-                            card.innerHTML = `
-                                <div data-property-1="Aktif" style="width: 100%; height: 100%; padding: 10px 20px; background: white; border-radius: 5px; outline: 1px #E8EDF5 solid; display: flex; flex-direction: column; gap: 20px;">
-                                    <!-- Status Badge -->
-                                    <div data-property-1="Status" style="height: 29px; display: inline-flex; align-items: center; gap: 10px;">
-                                        <div data-property-1="Default" style="padding: 5px 40px; ${getStatusStyles(item.status)}">
-                                            <div style="${getStatusTextStyles(item.status)}">${item.status || 'Belum Magang'}</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Mahasiswa Info -->
-                                    <div style="align-self: stretch; display: inline-flex; justify-content: space-between; align-items: center;">
-                                        <div style="width: 50%; flex-direction: column; display: inline-flex; gap: 8px;">
-                                            <div style="align-self: stretch; color: #2D2D2D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 600;">${item.name}</div>
-                                            <div style="align-self: stretch; color: #7D7D7D; font-size: 12px; font-family: 'Open Sans', sans-serif; font-weight: 600;">${item.nim}</div>
-                                        </div>
-                                        <div style="width: 50%; flex-direction: column; display: inline-flex; gap: 5px; align-items: flex-end;">
-                                            <div style="color: #2D2D2D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 600;">
-                                                ${item.nama_perusahaan || 'Belum ada perusahaan'}
-                                            </div>
-                                            <div style="color: #7D7D7D; font-size: 12px; font-family: 'Open Sans', sans-serif; font-weight: 600;">
-                                                ${jobTitle}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Divider -->
-                                    <div style="align-self: stretch; height: 0px; outline: 1px #E8EDF5 solid;"></div>
-                                    
-                                    <!-- Action Buttons -->
-                                    <div style="align-self: stretch; display: inline-flex; justify-content: space-between; align-items: flex-start;">
-                                        <button onclick="logAktivitas('${item.id_mahasiswa}')" class="btn btn-primary btn-sm" style="padding: 5px 10px; background: #5988FF; border-radius: 5px; border: none; display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-clipboard-list" style="font-size: 14px;"></i>
-                                            <span style="color: white; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Log Aktivitas</span>
-                                        </button>
-                                        
-                                        ${item.status && item.status.toLowerCase() === 'selesai' ? `
-                                                                        <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}')" class="btn btn-sm" style="padding: 5px 15px; background: white; border-radius: 5px; border: 1px solid #7D7D7D; display: flex; align-items: center; gap: 12px;">
-                                                                            <i class="fas fa-star" style="color: #7D7D7D; font-size: 14px;"></i>
-                                                                            <span style="color: #7D7D7D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
-                                                                        </button>
-                                                                    ` : `
-                                                                        <button disabled class="btn btn-sm" style="padding: 5px 15px; background: #939393; border-radius: 5px; border: none; display: flex; align-items: center; gap: 12px;">
-                                                                            <i class="fas fa-star" style="color: #D0CFCF; font-size: 14px;"></i>
-                                                                            <span style="color: #D0CFCF; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 700; line-height: 28px;">Evaluasi</span>
-                                                                        </button>
-                                                                    `}
-                                    </div>
-                                </div>
-                            `;
-                            cardsContainer.appendChild(card);
-                        });
-
-                        // Update pagination UI
-                        updatePaginationInfo(meta);
-                        updatePaginationLinks(meta);
-                    } else {
-                        showErrorState('Gagal memuat data: ' + (response.data.message ||
-                            'Terjadi kesalahan yang tidak diketahui'));
-                    }
+                    }, 800);
                 })
                 .catch(function(error) {
-                    console.error('Error fetching mahasiswa data:', error);
-                    showErrorState('Gagal memuat data mahasiswa. Coba lagi nanti.', true);
+                    console.error('Error:', error);
+                    setTimeout(() => {
+                        showErrorState('Terjadi kesalahan saat memuat data', true);
+                        updatePaginationInfo({
+                            total: 0,
+                            from: 0,
+                            to: 0,
+                            last_page: 1
+                        }, 1);
+                    }, 800);
                 });
         }
 
-        // Helper function to get status badge styles
-        function getStatusStyles(status) {
-            if (!status) return 'background: #f5f5f5; border-radius: 10px; outline: 1px #aaaaaa solid;';
+        // ✅ ADD: Separate function for loading real content
+        async function loadRealContent(mahasiswa, cardsContainer) {
+            for (const [index, item] of mahasiswa.entries()) {
+                const card = document.createElement('div');
+                card.className = 'col-md-6 col-lg-4 mb-3';
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
 
-            switch (status.toLowerCase()) {
-                case 'aktif':
-                    return 'background: #CAFFCC; border-radius: 10px; outline: 1px #57C45A solid;';
-                case 'selesai':
-                    return 'background: #ffdcc3; border-radius: 10px; outline: 1px #fd6900 solid;';
-                default:
-                    return 'background: #f5f5f5; border-radius: 10px; outline: 1px #aaaaaa solid;';
+                const jobTitle = item.judul_lowongan || 'Belum ada posisi';
+
+                // Check evaluation status untuk mahasiswa yang selesai magang
+                let needsEvaluation = false;
+                let hasEvaluation = false;
+
+                if (item.status && item.status.toLowerCase() === 'selesai' && item.id_magang) {
+                    needsEvaluation = await checkEvaluationStatus(item.id_magang);
+                    hasEvaluation = !needsEvaluation;
+                }
+
+                const cardStyles = needsEvaluation ?
+                    'border: 2px solid #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);' :
+                    '';
+
+                card.innerHTML = `
+                    <div class="mahasiswa-card" style="width: 100%; height: 100%; padding: 20px; background: white; border-radius: 5px; outline: 1px #E8EDF5 solid; display: flex; flex-direction: column; gap: 15px; position: relative; ${cardStyles}">
+                        
+                        ${needsEvaluation ? `
+                                                                        <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ff6b6b, #ff5252); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); z-index: 10; animation: pulse 2s infinite;">
+                                                                            <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                                                            Perlu Evaluasi
+                                                                        </div>
+                                                                    ` : ''}
+
+                        <!-- Status Badge -->
+                        <div data-property-1="Status" style="height: 29px; display: inline-flex; align-items: center; gap: 10px;">
+                            <div data-property-1="Default" style="padding: 5px 40px; ${getStatusStyles(item.status)}">
+                                <div style="${getStatusTextStyles(item.status)}">${item.status || 'Belum Magang'}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mahasiswa Info -->
+                        <div style="align-self: stretch; display: flex; justify-content: space-between; align-items: center; flex-grow: 1;">
+                            <div style="width: 50%; flex-direction: column; display: flex; gap: 8px;">
+                                <div style="color: #2D2D2D; font-size: 14px; font-family: 'Open Sans', sans-serif; font-weight: 600;">${item.name}</div>
+                                <div style="color: #7D7D7D; font-size: 12px; font-family: 'Open Sans', sans-serif; font-weight: 500;">${item.nim}</div>
+                                <div style="color: #7D7D7D; font-size: 11px; font-family: 'Open Sans', sans-serif; font-weight: 400;">${item.nama_kelas}</div>
+                            </div>
+                            <div style="width: 50%; flex-direction: column; display: flex; gap: 5px; align-items: flex-end;">
+                                <div style="color: #2D2D2D; font-size: 13px; font-family: 'Open Sans', sans-serif; font-weight: 600; text-align: right;">
+                                    ${item.nama_perusahaan || 'Belum ada perusahaan'}
+                                </div>
+                                <div style="color: #7D7D7D; font-size: 11px; font-family: 'Open Sans', sans-serif; font-weight: 500; text-align: right;">
+                                    ${jobTitle}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Divider -->
+                        <div style="height: 1px; background: linear-gradient(90deg, transparent, #E8EDF5, transparent); margin: 5px 0;"></div>
+                        
+                        <!-- Action Buttons Container -->
+                        <div class="action-buttons" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 5px;">
+                            <button onclick="logAktivitas('${item.id_mahasiswa}')" class="btn btn-primary" style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, #5988FF, #4c7bef); border-radius: 6px; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: all 0.3s ease;">
+                                <i class="fas fa-clipboard-list" style="font-size: 12px;"></i>
+                                <span style="color: white;">Log Aktivitas</span>
+                            </button>
+                            
+                            ${item.status && item.status.toLowerCase() === 'selesai' ? `
+                                                                            ${needsEvaluation ? `
+                                    <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}', '${item.id_magang || ''}')" class="btn btn-warning" style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, #ff6b6b, #ff5252); border-radius: 6px; border: 1.5px solid #ff6b6b; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: all 0.3s ease;">
+                            <i class="fas fa-star" style="color: white; font-size: 12px;"></i>
+                            <span style="color: white;">Evaluasi Sekarang</span>
+                        </button>
+                    ` : `
+                        <div class="evaluation-completed" style="flex: 1; padding: 8px 12px; background: #d4edda; border-radius: 6px; border: 1.5px solid #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600;">
+                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 12px;"></i>
+                            <span style="color: #28a745;">Sudah Dinilai</span>
+                        </div>
+                    `}
+                                                            ` : `
+                                                                <button disabled class="btn" style="flex: 1; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border: 1.5px solid #e9ecef; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; opacity: 0.6; cursor: not-allowed;">
+                                                                    <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
+                                                                    <span style="color: #adb5bd;">Evaluasi</span>
+                                                                </button>
+                                                            `}
+            </div>
+        </div>
+    `;
+
+                cardsContainer.appendChild(card);
+
+                // ✅ ADD: Staggered animation for each card
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100); // 100ms delay between each card
             }
         }
 
-        // Helper function to get status text styles
-        function getStatusTextStyles(status) {
-            if (!status) return 'color: #aaaaaa; font-size: 13px; font-family: Open Sans, sans-serif; font-weight: 700;';
+        // ✅ UPDATE: Modified DOMContentLoaded event
+        document.addEventListener('DOMContentLoaded', function() {
+            if (dosen_id) {
+                showSkeletonLoading();
+                showFiltersSkeleton();
 
-            switch (status.toLowerCase()) {
-                case 'aktif':
-                    return 'color: #57C45A; font-size: 13px; font-family: Open Sans, sans-serif; font-weight: 700;';
-                case 'selesai':
-                    return 'color: #fd6900; font-size: 13px; font-family: Open Sans, sans-serif; font-weight: 700;';
-                default:
-                    return 'color: #aaaaaa; font-size: 13px; font-family: Open Sans, sans-serif; font-weight: 700;';
+                loadMahasiswaData(filterState);
+
+                loadPeriodeOptions().then(() => {
+                    hideFiltersSkeleton();
+                });
+            } else {
+                showErrorState('Tidak dapat menentukan ID dosen Anda. Silakan muat ulang halaman.');
             }
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function(e) {
+                    filterState.search = this.value.trim();
+                    filterState.page = 1; // Reset to first page when searching
+                    loadMahasiswaData(filterState);
+                }, 500));
+            }
+
+            const periodeFilter = document.getElementById('periodeFilter');
+            if (periodeFilter) {
+                periodeFilter.addEventListener('change', function(e) {
+                    filterState.periode = this.value;
+                    filterState.page = 1; // Reset to first page when filtering
+                    loadMahasiswaData(filterState);
+                });
+            }
+        });
+
+        // ✅ UPDATE: Modified loadPeriodeOptions to return Promise
+        function loadPeriodeOptions() {
+            const periodeFilter = document.getElementById('periodeFilter');
+
+            if (!periodeFilter) {
+                console.error('Periode filter not found');
+                return Promise.resolve();
+            }
+
+            periodeFilter.innerHTML = `<option value="">Memuat periode...</option>`;
+
+            // ✅ GANTI: Gunakan route yang sudah ada
+            return api.get('/periode-list') // ❌ HAPUS: `/dosen/${dosen_id}/periode-options`
+                .then(function(response) {
+                    if (response.data.success) {
+                        const options = response.data.data;
+
+                        // ✅ SESUAIKAN: Format response untuk dropdown
+                        const formattedOptions = options.map(option => ({
+                            value: option.periode_id,
+                            label: option.waktu
+                        }));
+
+                        periodeFilter.innerHTML = `
+                            <option value="">Semua Periode</option>
+                            ${formattedOptions.map(option => `<option value="${option.value}">${option.label}</option>`).join('')}
+                        `;
+                    } else {
+                        periodeFilter.innerHTML = `<option value="">Gagal memuat periode</option>`;
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error loading periode options:', error);
+                    periodeFilter.innerHTML = `<option value="">Terjadi kesalahan</option>`;
+                });
         }
 
-        // Helper functions remain the same
         function showEmptyState(filters) {
             const cardsContainer = document.getElementById('mahasiswa-cards');
 
@@ -323,159 +498,51 @@
                 return;
             }
 
-            let message = 'Tidak ada data mahasiswa';
-
-            if (filters.search) {
-                message = `Tidak ada hasil untuk pencarian "${filters.search}"`;
-            } else if (filters.status || filters.perusahaan || filters.periode) {
-                message = 'Tidak ada data yang sesuai dengan filter yang dipilih';
-            }
-
             cardsContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body text-center py-5">
-                            <div class="empty-state-icon mb-3">
-                                <i class="fas fa-search text-muted opacity-25" style="font-size: 70px;"></i>
-                            </div>
-                            <h5 class="fw-semibold">${message}</h5>
-                            ${filters.search || filters.status || filters.perusahaan || filters.periode ? `
-                                                                                <button class="btn btn-sm btn-outline-secondary mt-3" onclick="resetFilters()">
-                                                                                    <i class="fas fa-times me-1"></i>Reset Filter
-                                                                                </button>
-                                                                            ` : ''}
-                        </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-folder-open" style="font-size: 50px; color: #adb5bd;"></i>
+                        <h5 class="mt-3" style="color: #2D2D2D;">Tidak ada data mahasiswa yang ditemukan</h5>
+                        <p class="text-muted mb-4">Coba ubah pencarian atau filter Anda</p>
+                        <button class="btn btn-primary" onclick="window.location.reload()" style="background: #5988FF; border: none;">
+                            <i class="fas fa-sync-alt me-2"></i>Segarkan Halaman
+                        </button>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
         }
 
-        // Helper function to add hover effects
-        function addRowHoverEffects() {
-            const rows = document.querySelectorAll('#mahasiswa-table-body tr');
-            rows.forEach(row => {
-                row.addEventListener('mouseenter', () => {
-                    const buttons = row.querySelectorAll('.action-buttons .btn');
-                    buttons.forEach(btn => {
-                        btn.classList.add('shadow-sm');
-                    });
-                });
+        async function checkEvaluationStatus(id_magang) {
+            try {
 
-                row.addEventListener('mouseleave', () => {
-                    const buttons = row.querySelectorAll('.action-buttons .btn');
-                    buttons.forEach(btn => {
-                        btn.classList.remove('shadow-sm');
-                    });
-                });
-            });
-        }
-
-        // Helper function to add pagination if needed
-        function addPaginationIfNeeded(responseData) {
-            const paginationContainer = document.getElementById('pagination-container');
-            if (!paginationContainer) return;
-
-            // Clear existing pagination
-            paginationContainer.innerHTML = '';
-
-            // Check if we have pagination data
-            if (responseData.meta && responseData.meta.last_page > 1) {
-                const currentPage = responseData.meta.current_page;
-                const lastPage = responseData.meta.last_page;
-
-                let paginationHtml = `
-                                                                                        <nav aria-label="Page navigation">
-                                                                                            <ul class="pagination pagination-sm justify-content-center my-3">
-                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                    <a class="page-link" href="#" onclick="changePage(1)">
-                                                                                                        <i class="fas fa-angle-double-left"></i>
-                                                                                                    </a>
-                                                                                                </li>
-                                                                                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                                                                                                        <i class="fas fa-angle-left"></i>
-                                                                                                    </a>
-                                                                                                </li>
-                                                                                    `;
-
-                // Generate page numbers
-                for (let i = Math.max(1, currentPage - 2); i <= Math.min(lastPage, currentPage + 2); i++) {
-                    paginationHtml += `
-                                                                                            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                                                                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                                                                            </li>
-                                                                                        `;
+                if (!id_magang) {
+                    console.warn('ID Magang tidak tersedia');
+                    return false;
                 }
 
-                paginationHtml += `
-                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                                                                                                        <i class="fas fa-angle-right"></i>
-                                                                                                    </a>
-                                                                                                </li>
-                                                                                                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                                                                                                    <a class="page-link" href="#" onclick="changePage(${lastPage})">
-                                                                                                        <i class="fas fa-angle-double-right"></i>
-                                                                                                    </a>
-                                                                                                </li>
-                                                                                            </ul>
-                                                                                        </nav>
-                                                                                    `;
+                const response = await api.get(`/dosen/magang/${id_magang}/evaluation-status`);
 
-                paginationContainer.innerHTML = paginationHtml;
+                if (response.data.success) {
+                    console.log(`Magang ${id_magang}: has_evaluation = ${response.data.has_evaluation}`);
+                    return !response.data.has_evaluation;
+                } else {
+                    console.warn('Failed to check evaluation status:', response.data.message);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error checking evaluation status:', error);
+                return false;
             }
         }
 
-        // Function to handle page navigation
-        function changePage(page) {
-            // Update current page in filter state
-            filterState = {
-                ...filterState,
-                page: page
-            };
+        function evaluasiMahasiswa(id_mahasiswa, id_magang = '') {
+            if (!id_magang) {
+                Swal.fire('Error', 'ID Magang tidak ditemukan', 'error');
+                return;
+            }
 
-            // Load data for the new page
-            loadMahasiswaData(filterState);
-
-            // Scroll to top of container
-            window.scrollTo({
-                top: document.querySelector('.container-fluid').offsetTop - 20,
-                behavior: 'smooth'
-            });
-        }
-
-        function logAktivitas(id_mahasiswa) {
-            Swal.fire({
-                title: 'Loading...',
-                text: 'Mengambil log aktivitas mahasiswa',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            api.get(`/mahasiswa/${id_mahasiswa}/log-aktivitas`)
-                .then(function(response) {
-                    Swal.close();
-                    if (response.data.success) {
-                        // Handle log aktivitas view/modal
-                        // You'll need to create a modal for displaying logs
-                        const modal = new bootstrap.Modal(document.getElementById('logAktivitasModal'));
-                        document.getElementById('logAktivitasBody').innerHTML = generateLogAktivitasHTML(response.data
-                            .data);
-                        modal.show();
-                    } else {
-                        Swal.fire('Gagal', 'Gagal memuat log aktivitas', 'error');
-                    }
-                })
-                .catch(function(error) {
-                    Swal.close();
-                    console.error('Error:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat memuat log aktivitas', 'error');
-                });
-        }
-
-        function evaluasiMahasiswa(id_mahasiswa) {
             Swal.fire({
                 title: 'Loading...',
                 text: 'Memuat form evaluasi',
@@ -485,176 +552,175 @@
                 }
             });
 
-            api.get(`/mahasiswa/${id_mahasiswa}/evaluasi`)
+            api.get(`/mahasiswa/${id_mahasiswa}/evaluasi?magang_id=${id_magang}`)
                 .then(function(response) {
                     Swal.close();
                     if (response.data.success) {
-                        // Handle evaluasi view/modal
-                        // You'll need to create a modal for evaluation form
                         const modal = new bootstrap.Modal(document.getElementById('evaluasiModal'));
                         document.getElementById('evaluasiBody').innerHTML = generateEvaluasiHTML(response.data.data);
                         modal.show();
                     } else {
-                        Swal.fire('Gagal', 'Gagal memuat form evaluasi', 'error');
+                        Swal.fire('Gagal', response.data.message || 'Gagal memuat form evaluasi', 'error');
                     }
                 })
                 .catch(function(error) {
                     Swal.close();
                     console.error('Error:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat memuat form evaluasi', 'error');
+                    const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat memuat form evaluasi';
+                    Swal.fire('Error', errorMessage, 'error');
                 });
         }
 
-        // Add function to load perusahaan options
-        function loadPerusahaanOptions() {
-            api.get('/perusahaan-list')
-                .then(function(response) {
-                    if (response.data.success) {
-                        const perusahaanFilter = document.getElementById('perusahaanFilter');
-                        if (perusahaanFilter) {
-                            perusahaanFilter.innerHTML = '<option value="">Semua Perusahaan</option>';
-                            response.data.data.forEach(function(perusahaan) {
-                                perusahaanFilter.innerHTML += `
-                            <option value="${perusahaan.perusahaan_id}">
-                                ${perusahaan.nama_perusahaan}
-                            </option>
-                        `;
-                            });
-                        }
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Gagal memuat data perusahaan:', error);
-                });
+        function generateEvaluasiHTML(data) {
+            return `
+        <form id="evaluasiForm">
+            <div class="mb-3">
+                <label class="form-label">Nilai Akhir</label>
+                <input type="number" class="form-control" id="nilai_akhir" name="nilai_akhir" 
+                       min="0" max="100" value="${data.nilai_akhir || ''}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Catatan Evaluasi</label>
+                <textarea class="form-control" id="catatan_evaluasi" name="catatan_evaluasi" 
+                          rows="4" required>${data.catatan_evaluasi || ''}</textarea>
+            </div>
+            <input type="hidden" id="id_mahasiswa" name="id_mahasiswa" value="${data.id_mahasiswa}">
+            <input type="hidden" id="magang_id" name="magang_id" value="${data.id_magang}">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="submitEvaluasi()">
+                    ${data.is_existing ? 'Update Evaluasi' : 'Simpan Evaluasi'}
+                </button>
+            </div>
+        </form>
+    `;
+        }
+        // Add missing helper functions
+        function getStatusStyles(status) {
+            if (!status) return 'background: #f8f9fa; border-radius: 3px;';
+
+            switch (status.toLowerCase()) {
+                case 'aktif':
+                    return 'background: rgba(87, 196, 90, 0.1); border-radius: 3px;';
+                case 'selesai':
+                    return 'background: rgba(253, 105, 0, 0.1); border-radius: 3px;';
+                default:
+                    return 'background: #f8f9fa; border-radius: 3px;';
+            }
         }
 
-        // Add function to load periode options
-        function loadPeriodeOptions() {
-            api.get('/periode-list')
-                .then(function(response) {
-                    if (response.data.success) {
-                        const periodeFilter = document.getElementById('periodeFilter');
-                        if (periodeFilter) {
-                            periodeFilter.innerHTML = '<option value="">Semua Periode</option>';
-                            response.data.data.forEach(function(periode) {
-                                periodeFilter.innerHTML += `
-                            <option value="${periode.periode_id}">
-                                ${periode.waktu}
-                            </option>
-                        `;
-                            });
-                        }
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Gagal memuat data periode:', error);
-                });
+        function getStatusTextStyles(status) {
+            if (!status) return 'color: #aaaaaa; font-size: 13px; font-family: "Open Sans", sans-serif; font-weight: 700;';
+
+            switch (status.toLowerCase()) {
+                case 'aktif':
+                    return 'color: #57C45A; font-size: 13px; font-family: "Open Sans", sans-serif; font-weight: 700;';
+                case 'selesai':
+                    return 'color: #fd6900; font-size: 13px; font-family: "Open Sans", sans-serif; font-weight: 700;';
+                default:
+                    return 'color: #aaaaaa; font-size: 13px; font-family: "Open Sans", sans-serif; font-weight: 700;';
+            }
         }
 
-        // Add reset filters function
-        function resetFilters() {
-            // Reset all filters
-            filterState = {
-                search: '',
-                status: '',
-                perusahaan: '',
-                periode: '' // Add this line
-            };
-
-            // Reset form inputs
-            document.getElementById('searchInput').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('perusahaanFilter').value = '';
-            document.getElementById('periodeFilter').value = ''; // Add this line
-
-            // Reload data
-            loadMahasiswaData(filterState);
-        }
-
-        // Add these new functions to update pagination UI
-        function updatePaginationInfo(meta) {
+        function updatePaginationInfo(meta, currentPage) {
             const paginationInfo = document.querySelector('.pagination-info');
-            if (paginationInfo) {
-                paginationInfo.innerHTML = `
-            Menampilkan <span class="fw-bold">${meta.from}-${meta.to}</span> dari <span class="fw-bold">${meta.total}</span> Mahasiswa
-        `;
-            }
-        }
-
-        function updatePaginationLinks(meta) {
             const paginationContainer = document.querySelector('.pagination');
-            if (!paginationContainer) return;
 
-            // Clear existing pagination
-            paginationContainer.innerHTML = '';
-
-            // Previous page button
-            const prevLi = document.createElement('li');
-            prevLi.className = `page-item ${meta.current_page === 1 ? 'disabled' : ''}`;
-            prevLi.innerHTML = `
-        <a class="page-link" href="#" ${meta.current_page === 1 ? '' : `onclick="changePage(${meta.current_page - 1}); return false;"`}>
-            <i class="fas fa-chevron-left"></i>
-        </a>
-    `;
-            paginationContainer.appendChild(prevLi);
-
-            // Create page number buttons
-            // Show at most 5 pages, centered around current page
-            const startPage = Math.max(1, meta.current_page - 2);
-            const endPage = Math.min(meta.last_page, startPage + 4);
-
-            for (let i = startPage; i <= endPage; i++) {
-                const pageLi = document.createElement('li');
-                pageLi.className = `page-item ${i === meta.current_page ? 'active' : ''}`;
-                pageLi.innerHTML = `
-            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
-        `;
-                paginationContainer.appendChild(pageLi);
+            if (paginationInfo) {
+                if (meta.total > 0) {
+                    paginationInfo.innerHTML = `Menampilkan ${meta.from} sampai ${meta.to} dari ${meta.total} mahasiswa`;
+                } else {
+                    paginationInfo.innerHTML = 'Tidak ada data mahasiswa';
+                }
             }
 
-            // Show ellipsis if needed
-            if (meta.last_page > endPage) {
-                const ellipsisLi = document.createElement('li');
-                ellipsisLi.className = 'page-item disabled';
-                ellipsisLi.innerHTML = `<a class="page-link" href="#">...</a>`;
-                paginationContainer.appendChild(ellipsisLi);
+            if (paginationContainer && meta.last_page > 1) {
+                let paginationHTML = '';
 
-                // Show last page
-                const lastLi = document.createElement('li');
-                lastLi.className = 'page-item';
-                lastLi.innerHTML = `
-            <a class="page-link" href="#" onclick="changePage(${meta.last_page}); return false;">${meta.last_page}</a>
-        `;
-                paginationContainer.appendChild(lastLi);
+                // Previous button
+                if (currentPage > 1) {
+                    paginationHTML += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    `;
+                } else {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    `;
+                }
+
+                // Page numbers
+                for (let i = 1; i <= meta.last_page; i++) {
+                    if (i === currentPage) {
+                        paginationHTML += `
+                            <li class="page-item active">
+                                <span class="page-link">${i}</span>
+                            </li>
+                        `;
+                    } else {
+                        paginationHTML += `
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                            </li>
+                        `;
+                    }
+                }
+
+                // Next button
+                if (currentPage < meta.last_page) {
+                    paginationHTML += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    `;
+                } else {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    `;
+                }
+
+                paginationContainer.innerHTML = paginationHTML;
+            } else if (paginationContainer) {
+                paginationContainer.innerHTML = '';
             }
-
-            // Next page button
-            const nextLi = document.createElement('li');
-            nextLi.className = `page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`;
-            nextLi.innerHTML = `
-        <a class="page-link" href="#" ${meta.current_page === meta.last_page ? '' : `onclick="changePage(${meta.current_page + 1}); return false;"`}>
-            <i class="fas fa-chevron-right"></i>
-        </a>
-    `;
-            paginationContainer.appendChild(nextLi);
         }
 
-        // Update the change page function
         function changePage(page) {
-            // Update current page in filter state
-            filterState = {
-                ...filterState,
-                page: page
-            };
-
-            // Load data for the new page
+            filterState.page = page;
             loadMahasiswaData(filterState);
-
-            // Scroll to top of container
-            window.scrollTo({
-                top: document.querySelector('.container-fluid').offsetTop - 20,
-                behavior: 'smooth'
-            });
         }
+        // ✅ TAMBAH: Function untuk handle debug
+        function debugModal() {
+            console.log('🐛 Testing modal functionality...');
+
+            // Test bootstrap modal
+            try {
+                const testModal = new bootstrap.Modal(document.getElementById('logAktivitasModal'));
+                console.log('✅ Bootstrap modal initialized successfully');
+                testModal.show();
+                setTimeout(() => testModal.hide(), 2000);
+            } catch (error) {
+                console.error('❌ Bootstrap modal error:', error);
+            }
+        }
+
+        // ✅ TAMBAH: Debugging untuk script loading
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM Content Loaded');
+            console.log('📋 Checking if logAktivitas function exists:', typeof logAktivitas);
+            console.log('🎯 Checking if modal exists:', document.getElementById('logAktivitasModal') ? 'Yes' :
+                'No');
+
+            // ... existing DOMContentLoaded code ...
+        });
     </script>
 @endpush

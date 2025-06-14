@@ -110,7 +110,7 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->group(functi
     Route::get('/lamaran', [ViewController::class, 'lamaran'])->name('mahasiswa.lamaran');
     Route::get('/logaktivitas', [ViewController::class, 'log'])->name('mahasiswa.logaktivitas');
     Route::get('/evaluasi', [ViewController::class, 'evaluasi'])->name('mahasiswa.evaluasi');
-    Route::get('/mahasiswa/profile', [ViewController::class, 'profile'])->name('mahasiswa.profile');
+    Route::get('/profile', [ViewController::class, 'profile'])->name('mahasiswa.profile');
     Route::get('/notifications', function () {
         return view('mahasiswa.notifications');
     })->name('notifications');

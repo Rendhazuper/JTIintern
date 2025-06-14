@@ -84,28 +84,6 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="minat" class="form-label">Minat</label>
-                            <select id="minat" name="minat[]" class="form-select" multiple size="4" required>
-                                <!-- Options will be loaded via JS -->
-                            </select>
-                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
-                                dari satu</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="skills" class="form-label">Skills</label>
-                            <select id="skills" name="skills[]" class="form-select" multiple size="4">
-                                <!-- Options will be loaded via JS -->
-                            </select>
-                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
-                                dari satu</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0"
-                                value="6">
-                            <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
-                        </div>
-                        <div class="mb-3">
                             <label for="alamat" class="form-label">Alamat</label>
                             <input type="text" id="alamat" name="alamat" class="form-control" required>
                         </div>
@@ -116,8 +94,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="ipk"
-                                name="ipk" class="form-control" required>
+                            <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk"
+                                class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -170,28 +148,6 @@
                                 <option value="">Pilih Kelas</option>
                                 <!-- Option kelas akan diisi via JS -->
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_skills" class="form-label">Skills</label>
-                            <select id="edit_skills" name="skills[]" class="form-select" multiple size="4">
-                                <!-- Options will be loaded via JS -->
-                            </select>
-                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
-                                dari satu</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control"
-                                min="0" value="6">
-                            <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_minat" class="form-label">Minat</label>
-                            <select id="edit_minat" name="minat[]" class="form-select" multiple size="4">
-                                <!-- Options will be loaded via JS -->
-                            </select>
-                            <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
-                                dari satu</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_alamat" class="form-label">Alamat</label>
@@ -336,7 +292,8 @@
                         const kelasFilter = document.getElementById('kelasFilter');
                         kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
                         response.data.data.forEach(function(kelas) {
-                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                            kelasFilter.innerHTML +=
+                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -352,7 +309,8 @@
                         const select = document.getElementById('id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
                         response.data.data.forEach(function(kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                            select.innerHTML +=
+                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -368,7 +326,8 @@
                         const select = document.getElementById('edit_id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
                         response.data.data.forEach(function(kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
+                            select.innerHTML +=
+                                `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
@@ -392,9 +351,12 @@
             `;
 
             setTimeout(() => {
-                api.get('/mahasiswa', { params: filters })
+                api.get('/mahasiswa', {
+                        params: filters
+                    })
                     .then(function(response) {
-                        if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
+                        if (response.data && (response.data.success === true || Array.isArray(response.data
+                                .data))) {
                             tableBody.innerHTML = '';
                             const mahasiswaData = (response.data.data || []);
 
@@ -407,7 +369,8 @@
                                 mahasiswaData.forEach((mahasiswa, index) => {
                                     const tr = document.createElement('tr');
                                     tr.style.opacity = '0';
-                                    tr.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
+                                    tr.style.animation =
+                                        `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
                                     tr.innerHTML = createMahasiswaRow(mahasiswa);
                                     tableBody.appendChild(tr);
                                 });
@@ -505,10 +468,14 @@
             function getStatusClass(status) {
                 if (!status) return 'belum';
                 switch (status) {
-                    case 'Sedang Magang': return 'magang';
-                    case 'Selesai Magang': return 'selesai';
-                    case 'Menunggu Konfirmasi': return 'menunggu';
-                    default: return 'belum';
+                    case 'Sedang Magang':
+                        return 'magang';
+                    case 'Selesai Magang':
+                        return 'selesai';
+                    case 'Menunggu Konfirmasi':
+                        return 'menunggu';
+                    default:
+                        return 'belum';
                 }
             }
 
@@ -532,10 +499,10 @@
                                         <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
                                     </button>
                                     ${filters && (filters.kelas || filters.prodi) ? `
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                            <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                        </button>
-                                    ` : ''}
+                                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                                                    <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                                                </button>
+                                                            ` : ''}
                                 </div>
                             </div>
                         </td>
@@ -553,8 +520,8 @@
                                 </div>
                                 <h5 class="text-danger">${message}</h5>
                                 ${isSystemError ? `
-                                    <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                ` : ''}
+                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                        ` : ''}
                                 <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
                                     <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                                 </button>
@@ -658,7 +625,8 @@
                                 Swal.fire('Berhasil!', 'Permintaan berhasil diaktifkan kembali', 'success');
                                 loadMahasiswaData(filterState);
                             } else {
-                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan permintaan', 'error');
+                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan permintaan',
+                                    'error');
                             }
                         })
                         .catch(error => {
@@ -673,7 +641,7 @@
             api.get('/kelas')
                 .then(function(response) {
                     let kelas = [];
-                    
+
                     if (response.data.success && response.data.data) {
                         kelas = response.data.data;
                     } else if (Array.isArray(response.data)) {
@@ -683,12 +651,17 @@
                     const contohKelas = kelas.length > 0 ? kelas[0].nama_kelas || 'TI-3A' : 'TI-3A';
 
                     let csvContent = "nama,nim,alamat,ipk,nama_kelas,email\n";
-                    csvContent += `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
-                    csvContent += `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
+                    csvContent +=
+                        `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
+                    csvContent +=
+                        `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
                     csvContent += `Budi Santoso,2341720003,Jl. Veteran No. 789 Surabaya,3.25,${contohKelas},\n`;
-                    csvContent += `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
+                    csvContent +=
+                        `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
 
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const blob = new Blob([csvContent], {
+                        type: 'text/csv;charset=utf-8;'
+                    });
                     const link = document.createElement("a");
                     const url = URL.createObjectURL(blob);
                     link.setAttribute("href", url);
@@ -729,21 +702,21 @@
             });
 
             axios.post('/api/import', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                timeout: 60000
-            })
-            .then(response => {
-                Swal.close();
-                if (response.data.success) {
-                    let message = response.data.message;
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    timeout: 60000
+                })
+                .then(response => {
+                    Swal.close();
+                    if (response.data.success) {
+                        let message = response.data.message;
 
-                    if (response.data.errors && response.data.errors.length > 0) {
-                        Swal.fire({
-                            title: 'Import Sebagian Berhasil',
-                            html: `
+                        if (response.data.errors && response.data.errors.length > 0) {
+                            Swal.fire({
+                                title: 'Import Sebagian Berhasil',
+                                html: `
                                 ${message}<br><br>
                                 <div class="alert alert-warning">
                                     <strong>Beberapa data tidak dapat diimpor:</strong>
@@ -753,30 +726,30 @@
                                     </ul>
                                 </div>
                             `,
-                            icon: 'warning',
-                            confirmButtonText: 'OK'
-                        });
-                    } else {
-                        Swal.fire('Berhasil', message, 'success');
-                    }
+                                icon: 'warning',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            Swal.fire('Berhasil', message, 'success');
+                        }
 
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
-                    modal.hide();
-                    document.getElementById('formImportCSV').reset();
-                    loadMahasiswaData(filterState);
-                } else {
-                    Swal.fire('Gagal', response.data.message, 'error');
-                }
-            })
-            .catch(error => {
-                Swal.close();
-                console.error('Import error:', error);
-                let message = 'Terjadi kesalahan saat mengimpor data';
-                if (error.response && error.response.data && error.response.data.message) {
-                    message = error.response.data.message;
-                }
-                Swal.fire('Error', message, 'error');
-            });
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalImportCSV'));
+                        modal.hide();
+                        document.getElementById('formImportCSV').reset();
+                        loadMahasiswaData(filterState);
+                    } else {
+                        Swal.fire('Gagal', response.data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.close();
+                    console.error('Import error:', error);
+                    let message = 'Terjadi kesalahan saat mengimpor data';
+                    if (error.response && error.response.data && error.response.data.message) {
+                        message = error.response.data.message;
+                    }
+                    Swal.fire('Error', message, 'error');
+                });
         }
 
         // Other functions remain the same...
@@ -787,7 +760,8 @@
                         const select = document.getElementById('minat');
                         select.innerHTML = '';
                         response.data.forEach(function(minat) {
-                            select.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                            select.innerHTML +=
+                                `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
                         });
                     }
                 })
@@ -817,7 +791,11 @@
         }
 
         function resetFilters() {
-            filterState = { prodi: '', kelas: '', search: '' };
+            filterState = {
+                prodi: '',
+                kelas: '',
+                search: ''
+            };
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) kelasFilter.value = '';
             const searchInput = document.getElementById('searchInput');
@@ -828,7 +806,10 @@
         }
 
         function changePage(page) {
-            const paginatedFilter = { ...filterState, page };
+            const paginatedFilter = {
+                ...filterState,
+                page
+            };
             loadMahasiswaData(paginatedFilter);
             document.querySelector('.card').scrollIntoView({
                 behavior: 'smooth',
@@ -912,7 +893,8 @@
                             `).join('') :
                             '<span class="text-muted">Tidak ada minat</span>';
 
-                        document.getElementById('detailMahasiswaModalLabel').innerText = `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
+                        document.getElementById('detailMahasiswaModalLabel').innerText =
+                            `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
 
                         document.getElementById('detailMahasiswaBody').innerHTML = `
                             <div class="row">
@@ -967,7 +949,8 @@
                         document.getElementById('edit_nim').value = mahasiswa.nim;
                         document.getElementById('edit_ipk').value = mahasiswa.ipk;
 
-                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 && mahasiswa.skills[0].lama_skill) {
+                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 && mahasiswa.skills[0]
+                            .lama_skill) {
                             document.getElementById('edit_lama_skill').value = mahasiswa.skills[0].lama_skill;
                         }
 
@@ -1053,7 +1036,8 @@
                                 Swal.fire('Terhapus!', 'Data mahasiswa berhasil dihapus.', 'success');
                                 loadMahasiswaData();
                             } else {
-                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa', 'error');
+                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa',
+                                    'error');
                             }
                         })
                         .catch(err => {
@@ -1069,13 +1053,6 @@
             const form = event.target;
             const nim = form.nim.value;
 
-            const minatSelect = document.getElementById('minat');
-            const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
-
-            const skillsSelect = document.getElementById('skills');
-            const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
-            const lamaSkill = document.getElementById('lama_skill').value;
-
             const data = {
                 name: form.name.value,
                 email: nim + '@student.com',
@@ -1084,9 +1061,7 @@
                 id_kelas: form.id_kelas.value,
                 alamat: form.alamat.value,
                 ipk: form.ipk.value,
-                minat: selectedMinat,
-                skills: selectedSkills,
-                lama_skill: lamaSkill
+
             };
 
             api.post('/mahasiswa', data)
@@ -1140,15 +1115,15 @@
             if (filterState.search) params.append('search', filterState.search);
 
             fetch(`/api/export/pdf?${params.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/pdf',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => {
-                Swal.update({
-                    html: `
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/pdf',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    Swal.update({
+                        html: `
                         <div class="text-center">
                             <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
                             <p class="mb-2"><strong>Mengunduh file...</strong></p>
@@ -1159,36 +1134,36 @@
                             </div>
                         </div>
                     `
-                });
-
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                    }).catch(() => {
-                        throw new Error(`HTTP error! status: ${response.status}`);
                     });
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                Swal.close();
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
 
-                const now = new Date();
-                const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
-                const filename = `data_mahasiswa_${timestamp}.pdf`;
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                        }).catch(() => {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        });
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    Swal.close();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
 
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
+                    const now = new Date();
+                    const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
+                    const filename = `data_mahasiswa_${timestamp}.pdf`;
 
-                Swal.fire({
-                    title: 'Export Berhasil!',
-                    html: `
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    Swal.fire({
+                        title: 'Export Berhasil!',
+                        html: `
                         <div class="text-center">
                             <i class="fas fa-file-pdf text-danger mb-3" style="font-size: 3.5rem;"></i>
                             <h5 class="text-success mb-2">PDF Berhasil Diunduh!</h5>
@@ -1201,36 +1176,36 @@
                             </small>
                         </div>
                     `,
-                    icon: 'success',
-                    timer: 4000,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#28a745'
-                });
-            })
-            .catch(error => {
-                Swal.close();
-                console.error('Export PDF error:', error);
+                        icon: 'success',
+                        timer: 4000,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#28a745'
+                    });
+                })
+                .catch(error => {
+                    Swal.close();
+                    console.error('Export PDF error:', error);
 
-                let errorMessage = 'Gagal mengeksport PDF';
-                let errorDetail = '';
+                    let errorMessage = 'Gagal mengeksport PDF';
+                    let errorDetail = '';
 
-                if (error.message.includes('404')) {
-                    errorMessage = 'Route export tidak ditemukan';
-                    errorDetail = 'Route /api/export/pdf tidak tersedia';
-                } else if (error.message.includes('500')) {
-                    errorMessage = 'Terjadi kesalahan server';
-                    errorDetail = 'Coba lagi dalam beberapa saat';
-                } else if (error.message.includes('403')) {
-                    errorMessage = 'Akses ditolak';
-                    errorDetail = 'Anda tidak memiliki izin untuk export';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
+                    if (error.message.includes('404')) {
+                        errorMessage = 'Route export tidak ditemukan';
+                        errorDetail = 'Route /api/export/pdf tidak tersedia';
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'Terjadi kesalahan server';
+                        errorDetail = 'Coba lagi dalam beberapa saat';
+                    } else if (error.message.includes('403')) {
+                        errorMessage = 'Akses ditolak';
+                        errorDetail = 'Anda tidak memiliki izin untuk export';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
 
-                Swal.fire({
-                    title: 'Export Gagal',
-                    html: `
+                    Swal.fire({
+                        title: 'Export Gagal',
+                        html: `
                         <div class="text-center">
                             <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
                             <h5 class="text-danger mb-2">${errorMessage}</h5>
@@ -1242,18 +1217,18 @@
                             </small>
                         </div>
                     `,
-                    icon: 'error',
-                    confirmButtonText: 'Coba Lagi',
-                    showCancelButton: true,
-                    cancelButtonText: 'Tutup',
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        exportPDF();
-                    }
+                        icon: 'error',
+                        confirmButtonText: 'Coba Lagi',
+                        showCancelButton: true,
+                        cancelButtonText: 'Tutup',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            exportPDF();
+                        }
+                    });
                 });
-            });
         }
     </script>
 @endpush

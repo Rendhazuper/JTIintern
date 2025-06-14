@@ -1,0 +1,9 @@
+/* Tambahkan di sidenav.css */
+#sidenav-main .ps__rail-y,
+#sidenav-main .ps__thumb-y {
+    display: none !important;
+}
+
+#sidenav-main {
+    overflow-y: auto !important;
+}
