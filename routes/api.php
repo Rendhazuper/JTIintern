@@ -250,10 +250,9 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     // Minat Management
     Route::get('/minat', [App\Http\Controllers\MinatController::class, 'getMinat']);
     Route::post('/minat', [App\Http\Controllers\MinatController::class, 'store']);
-    Route::get('/minat/{id}', [App\Http\Controllers\MinatController::class, 'show']);
+    Route::get('/minat/{id}', [App\Http\Controllers\MinatController::class, 'show']); // ✅ TAMBAH INI
     Route::put('/minat/{id}', [App\Http\Controllers\MinatController::class, 'update']);
     Route::delete('/minat/{id}', [App\Http\Controllers\MinatController::class, 'destroy']);
-
     // Evaluasi
     Route::get('/evaluasi', [EvaluasiController::class, 'index']);
 

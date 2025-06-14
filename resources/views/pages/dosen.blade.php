@@ -188,18 +188,18 @@
             // Tampilkan loading state
             const tableBody = document.getElementById('dosen-table-body');
             tableBody.innerHTML = `
-                                                                                            <tr>
-                                                                            <td colspan="4" class="text-center">
-                                                                                <div class="py-5">
-                                                                                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-                                                                                    <div class="mt-3">
-                                                                                        <h6 class="text-primary mb-1">Memuat data dosen</h6>
-                                                                                        <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    `;
+                                                                                                                            <tr>
+                                                                                                            <td colspan="4" class="text-center">
+                                                                                                                <div class="py-5">
+                                                                                                                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                                                                                                    <div class="mt-3">
+                                                                                                                        <h6 class="text-primary mb-1">Memuat data dosen</h6>
+                                                                                                                        <p class="text-xs text-secondary">Mohon tunggu sebentar...</p>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    `;
 
             // Fetch data dari API
             axios.get('/api/dosen')
@@ -219,34 +219,34 @@
                                 row.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
 
                                 row.innerHTML = `
-                                                                                                                   <td>
-                                                                                <div class="d-flex">
-                                                                                    <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
-                                                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
-                                                                                    </div>
-                                                                                    <div class="d-flex flex-column justify-content-center">
-                                                                                        <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
-                                                                                        <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td>
-                                                                                <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
-                                                                            </td>
-                                                                        <td class="text-end">
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-info me-1" onclick="viewDosen('${dosen.id_dosen}')" title="Detail Dosen">
-                            <i class="fas fa-eye me-1"></i>Detail
-                        </button>
-                        <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
-                            <i class="fas fa-trash me-1"></i>Hapus
-                        </button>
-                    </div>
-                </td>
-                                                                        `;
+                                                                                                                                                   <td>
+                                                                                                                <div class="d-flex">
+                                                                                                                    <div class="avatar avatar-sm bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
+                                                                                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
+                                                                                                                    </div>
+                                                                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                                                                        <h6 class="mb-0 text-sm">${dosen.nama_dosen || '-'}</h6>
+                                                                                                                        <p class="text-xs text-secondary mb-0">${dosen.email || '-'}</p>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                <span class="text-sm font-weight-normal">${dosen.nip || '-'}</span>
+                                                                                                            </td>
+                                                                                                        <td class="text-end">
+                                                    <div class="action-buttons">
+                                                        <button class="btn btn-sm btn-info me-1" onclick="viewDosen('${dosen.id_dosen}')" title="Detail Dosen">
+                                                            <i class="fas fa-eye me-1"></i>Detail
+                                                        </button>
+                                                        <button class="btn btn-sm btn-primary me-1" onclick="editDosen('${dosen.id_dosen}')" title="Edit Dosen">
+                                                            <i class="fas fa-edit me-1"></i>Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger" onclick="hapusDosen('${dosen.id_dosen}')" title="Hapus Dosen">
+                                                            <i class="fas fa-trash me-1"></i>Hapus
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                                                                        `;
                                 tableBody.appendChild(row);
                             });
 
@@ -255,11 +255,11 @@
                                 const style = document.createElement('style');
                                 style.id = 'fade-in-animation';
                                 style.textContent = `
-                                                                                                                @keyframes fadeIn {
-                                                                                                                    from { opacity: 0; transform: translateY(10px); }
-                                                                                                                    to { opacity: 1; transform: translateY(0); }
-                                                                                                                }
-                                                                                                            `;
+                                                                                                                                                @keyframes fadeIn {
+                                                                                                                                                    from { opacity: 0; transform: translateY(10px); }
+                                                                                                                                                    to { opacity: 1; transform: translateY(0); }
+                                                                                                                                                }
+                                                                                                                                            `;
                                 document.head.appendChild(style);
                             }
 
@@ -317,11 +317,16 @@
         function loadMinatOptions() {
             axios.get('/api/minat')
                 .then(function (response) {
+                    console.log('Minat response:', response.data); // Debug
                     const minatSelect = document.getElementById('minat');
                     minatSelect.innerHTML = '';
-                    response.data.forEach(function (minat) {
-                        minatSelect.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
-                    });
+                    if (response.data && Array.isArray(response.data.data)) {
+                        response.data.data.forEach(function (minat) {
+                            minatSelect.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                        });
+                    } else {
+                        minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
+                    }
                 })
                 .catch(function (error) {
                     console.error('Error loading minat:', error);
@@ -334,10 +339,15 @@
                 .then(function (response) {
                     const minatSelect = document.getElementById('edit_minat');
                     minatSelect.innerHTML = '';
-                    response.data.forEach(function (minat) {
-                        const isSelected = selectedMinat.includes(minat.minat_id) ? 'selected' : '';
-                        minatSelect.innerHTML += `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
-                    });
+                    // Gunakan response.data.data, bukan response.data
+                    if (response.data && Array.isArray(response.data.data)) {
+                        response.data.data.forEach(function (minat) {
+                            const isSelected = selectedMinat.includes(minat.minat_id) ? 'selected' : '';
+                            minatSelect.innerHTML += `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
+                        });
+                    } else {
+                        minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
+                    }
                 })
                 .catch(function (error) {
                     console.error('Error loading minat:', error);
@@ -347,41 +357,41 @@
         // Helper function untuk menampilkan empty state
         function showEmptyState(tableBody) {
             tableBody.innerHTML = `
-                                                                        <tr>
-                                                                            <td colspan="4">
-                                                                                <div class="empty-state">
-                                                                                    <div class="empty-state-icon">
-                                                                                        <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
-                                                                                    </div>
-                                                                                    <h6 class="text-muted">Tidak ada data dosen</h6>
-                                                                                    <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
-                                                                                    <button class="btn btn-sm btn-success" onclick="tambahDosen()">
-                                                                                        <i class="fas fa-plus me-1"></i>Tambah Dosen
-                                                                                    </button>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    `;
+                                                                                                        <tr>
+                                                                                                            <td colspan="4">
+                                                                                                                <div class="empty-state">
+                                                                                                                    <div class="empty-state-icon">
+                                                                                                                        <i class="fas fa-user-graduate" style="font-size: 3.5rem;"></i>
+                                                                                                                    </div>
+                                                                                                                    <h6 class="text-muted">Tidak ada data dosen</h6>
+                                                                                                                    <p class="text-sm text-secondary mb-3">Belum ada dosen yang tersedia. Silakan tambahkan dosen baru.</p>
+                                                                                                                    <button class="btn btn-sm btn-success" onclick="tambahDosen()">
+                                                                                                                        <i class="fas fa-plus me-1"></i>Tambah Dosen
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    `;
         }
 
         // Helper function untuk menampilkan error state
         function showErrorState(tableBody) {
             tableBody.innerHTML = `
-                                                                    <tr>
-                                                                        <td colspan="4">
-                                                                            <div class="error-state">
-                                                                                <div class="error-state-icon">
-                                                                                    <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
-                                                                                </div>
-                                                                                <h6 class="text-danger">Gagal memuat data</h6>
-                                                                                <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
-                                                                                <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
-                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                </button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                `;
+                                                                                                    <tr>
+                                                                                                        <td colspan="4">
+                                                                                                            <div class="error-state">
+                                                                                                                <div class="error-state-icon">
+                                                                                                                    <i class="fas fa-exclamation-circle" style="font-size: 3.5rem;"></i>
+                                                                                                                </div>
+                                                                                                                <h6 class="text-danger">Gagal memuat data</h6>
+                                                                                                                <p class="text-sm mb-3">Terjadi kesalahan saat memuat data dosen. Silakan coba lagi nanti.</p>
+                                                                                                                <button class="btn btn-sm btn-primary" onclick="loadDosenData()">
+                                                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
+                                                                                                                </button>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                `;
         }
 
         function tambahDosen() {
@@ -567,40 +577,40 @@
                         Swal.fire({
                             title: `Detail Dosen: ${dosen.nama_dosen || 'Tidak Diketahui'}`,
                             html: `
-                                    <div class="text-start">
-                                        <div class="row mb-3">
-                                            <div class="col-12 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-lg bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
-                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
-                                                    </div>
-                                                    <div>
-                                                        <h5 class="mb-0">${dosen.nama_dosen || '-'}</h5>
-                                                        <p class="text-muted mb-0">${dosen.email || '-'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                                    <div class="text-start">
+                                                                        <div class="row mb-3">
+                                                                            <div class="col-12 mb-3">
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <div class="avatar avatar-lg bg-gradient-primary rounded-circle text-white me-3 d-flex align-items-center justify-content-center">
+                                                                                        ${dosen.nama_dosen.charAt(0).toUpperCase() || '?'}
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <h5 class="mb-0">${dosen.nama_dosen || '-'}</h5>
+                                                                                        <p class="text-muted mb-0">${dosen.email || '-'}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
 
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label class="fw-bold d-block">NIP:</label>
-                                                    <span>${dosen.nip || '-'}</span>
-                                                </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label class="fw-bold d-block">Skills:</label>
-                                                    <div class="mt-1">${skillsHtml}</div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="fw-bold d-block">Minat:</label>
-                                                    <div class="mt-1">${minatHtml}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `,
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                <div class="mb-3">
+                                                                                    <label class="fw-bold d-block">NIP:</label>
+                                                                                    <span>${dosen.nip || '-'}</span>
+                                                                                </div>
+                                                                            <div class="col-md-6">
+                                                                                <div class="mb-3">
+                                                                                    <label class="fw-bold d-block">Skills:</label>
+                                                                                    <div class="mt-1">${skillsHtml}</div>
+                                                                                </div>
+                                                                                <div class="mb-3">
+                                                                                    <label class="fw-bold d-block">Minat:</label>
+                                                                                    <div class="mt-1">${minatHtml}</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                `,
                             width: '600px',
                             confirmButtonText: 'Tutup',
                             confirmButtonColor: '#5e72e4',
@@ -616,40 +626,38 @@
                 });
         }
 
-        // Add this function after your existing JavaScript code
-
         function importCSV() {
             Swal.fire({
                 title: 'Import Data Dosen',
                 html: `
-                                                                <div class="alert alert-info mb-3">
-                                                                    <i class="fas fa-info-circle me-2"></i>
-                                                                    <strong>Format CSV:</strong> File CSV harus memiliki kolom berikut:
-                                                                    <ul class="mb-0 mt-1 text-start">
-                                                                        <li><strong>nama_dosen</strong> (wajib)</li>
-                                                                        <li><strong>nip</strong> (wajib)</li>
-                                                                        <li><strong>email</strong> (opsional - akan digenerate otomatis jika kosong)</li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
-                                                                        <i class="fas fa-download me-1"></i>Download Template
-                                                                    </button>
-                                                                    <div class="custom-file">
-                                                                        <input type="file" class="form-control" id="csvFile" accept=".csv">
-                                                                    </div>
-                                                                    <div class="form-text text-muted">
-                                                                        <i class="bi bi-info-circle me-1"></i>
-                                                                        Tips: Pastikan file CSV menggunakan koma (,) sebagai pemisah.
-                                                                    </div>
-                                                                </div>
-                                                                <div class="alert alert-warning small mb-0">
-                                                                    <strong>Catatan Penting:</strong>
-                                                                    <ul class="mb-0 mt-1 text-start">
-                                                                        <li>Setiap dosen akan otomatis dibuatkan akun dengan password acak</li>
-                                                                    </ul>
-                                                                </div>
-                                                            `,
+                                                                                                <div class="alert alert-info mb-3">
+                                                                                                    <i class="fas fa-info-circle me-2"></i>
+                                                                                                    <strong>Format CSV:</strong> File CSV harus memiliki kolom berikut:
+                                                                                                    <ul class="mb-0 mt-1 text-start">
+                                                                                                        <li><strong>nama_dosen</strong> (wajib)</li>
+                                                                                                        <li><strong>nip</strong> (wajib)</li>
+                                                                                                        <li><strong>email</strong> (opsional - akan digenerate otomatis jika kosong)</li>
+                                                                                                    </ul>
+                                                                                                </div>
+                                                                                                <div class="mb-3">
+                                                                                                    <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="downloadTemplate()">
+                                                                                                        <i class="fas fa-download me-1"></i>Download Template
+                                                                                                    </button>
+                                                                                                    <div class="custom-file">
+                                                                                                        <input type="file" class="form-control" id="csvFile" accept=".csv">
+                                                                                                    </div>
+                                                                                                    <div class="form-text text-muted">
+                                                                                                        <i class="bi bi-info-circle me-1"></i>
+                                                                                                        Tips: Pastikan file CSV menggunakan koma (,) sebagai pemisah.
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="alert alert-warning small mb-0">
+                                                                                                    <strong>Catatan Penting:</strong>
+                                                                                                    <ul class="mb-0 mt-1 text-start">
+                                                                                                        <li>Setiap dosen akan otomatis dibuatkan akun dengan password acak</li>
+                                                                                                    </ul>
+                                                                                                </div>
+                                                                                            `,
                 showCancelButton: true,
                 confirmButtonText: 'Import',
                 cancelButtonText: 'Batal',
@@ -693,14 +701,14 @@
                         Swal.fire({
                             title: 'Import Sebagian Berhasil',
                             html: `
-                                                                            <p>${result.value.message}</p>
-                                                                            <div class="alert alert-warning">
-                                                                                <strong>Beberapa data tidak dapat diimpor:</strong>
-                                                                                <ul class="mb-0 mt-1">
-                                                                                    ${errorList}
-                                                                                </ul>
-                                                                            </div>
-                                                                        `,
+                                                                                                            <p>${result.value.message}</p>
+                                                                                                            <div class="alert alert-warning">
+                                                                                                                <strong>Beberapa data tidak dapat diimpor:</strong>
+                                                                                                                <ul class="mb-0 mt-1">
+                                                                                                                    ${errorList}
+                                                                                                                </ul>
+                                                                                                            </div>
+                                                                                                        `,
                             icon: 'warning'
                         });
                     } else {
@@ -734,7 +742,7 @@
                             'nama_dosen',  // This will go into m_user.name
                             'nip',         // This will go into m_dosen.nip
                             'email',       // This will go into m_user.email
-                    // This will be converted to wilayah_id for m_dosen.wilayah_id
+                            // This will be converted to wilayah_id for m_dosen.wilayah_id
                             'password'     // Optional - will be auto-generated if not provided
                         ];
 
@@ -796,35 +804,35 @@
                             icon: 'success',
                             title: 'Template CSV Berhasil Diunduh',
                             html: `
-                                                                        <p>Template berhasil diunduh. Silakan isi dengan data dosen Anda.</p>
+                                                                                                        <p>Template berhasil diunduh. Silakan isi dengan data dosen Anda.</p>
 
-                                                                        <div class="alert alert-info mt-3">
-                                                                            <strong>Penjelasan Kolom:</strong>
-                                                                            <ul class="text-start mb-0 mt-2">
-                                                                                <li><strong>nama_dosen</strong>: Nama lengkap dosen (wajib)</li>
-                                                                                <li><strong>nip</strong>: Nomor Induk Pegawai (wajib)</li>
-                                                                                <li><strong>email</strong>: Alamat email untuk login (opsional, akan digenerate otomatis jika kosong)</li>
-                                                                                <li><strong>wilayah</strong>: Nama wilayah atau ID wilayah (wajib)</li>
-                                                                                <li><strong>password</strong>: Password untuk login (opsional, akan digenerate otomatis jika kosong)</li>
-                                                                            </ul>
-                                                                        </div>
+                                                                                                        <div class="alert alert-info mt-3">
+                                                                                                            <strong>Penjelasan Kolom:</strong>
+                                                                                                            <ul class="text-start mb-0 mt-2">
+                                                                                                                <li><strong>nama_dosen</strong>: Nama lengkap dosen (wajib)</li>
+                                                                                                                <li><strong>nip</strong>: Nomor Induk Pegawai (wajib)</li>
+                                                                                                                <li><strong>email</strong>: Alamat email untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                                                                                                <li><strong>wilayah</strong>: Nama wilayah atau ID wilayah (wajib)</li>
+                                                                                                                <li><strong>password</strong>: Password untuk login (opsional, akan digenerate otomatis jika kosong)</li>
+                                                                                                            </ul>
+                                                                                                        </div>
 
-                                                                        <p class="mb-2 mt-3"><strong>Referensi Wilayah:</strong></p>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-sm table-bordered">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th>Nama Wilayah</th>
-                                                                                        <th>ID Wilayah</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    ${wilayahRows}
-                                                                                    ${wilayah.length > 5 ? '<tr><td colspan="2" class="text-center">Dan lainnya...</td></tr>' : ''}
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                    `,
+                                                                                                        <p class="mb-2 mt-3"><strong>Referensi Wilayah:</strong></p>
+                                                                                                        <div class="table-responsive">
+                                                                                                            <table class="table table-sm table-bordered">
+                                                                                                                <thead>
+                                                                                                                    <tr>
+                                                                                                                        <th>Nama Wilayah</th>
+                                                                                                                        <th>ID Wilayah</th>
+                                                                                                                    </tr>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                    ${wilayahRows}
+                                                                                                                    ${wilayah.length > 5 ? '<tr><td colspan="2" class="text-center">Dan lainnya...</td></tr>' : ''}
+                                                                                                                </tbody>
+                                                                                                            </table>
+                                                                                                        </div>
+                                                                                                    `,
                             confirmButtonText: 'Mengerti',
                             width: '600px'
                         });
