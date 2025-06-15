@@ -85,7 +85,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="minat" class="form-label">Minat</label>
-                            <select id="minat" name="minat[]" class="form-select" multiple size="4" required>
+                            <select id="minat" name="minat[]" class="form-select" multiple size="4" >
                                 <!-- Options will be loaded via JS -->
                             </select>
                             <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih
@@ -100,11 +100,6 @@
                                 dari satu</small>
                         </div>
                         <div class="mb-3">
-                            <label for="lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="lama_skill" name="lama_skill" class="form-control" min="0" value="6">
-                            <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
-                        </div>
-                        <div class="mb-3">
                             <label for="alamat" class="form-label">Alamat</label>
                             <input type="text" id="alamat" name="alamat" class="form-control" required>
                         </div>
@@ -115,7 +110,7 @@
                         <div class="mb-3">
                             <label for="ipk" class="form-label">IPK</label>
                             <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk" class="form-control"
-                                required>
+                                >
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1067,12 +1062,6 @@
             const form = event.target;
             const nim = form.nim.value;
 
-            const minatSelect = document.getElementById('minat');
-            const selectedMinat = Array.from(minatSelect.selectedOptions).map(option => option.value);
-
-            const skillsSelect = document.getElementById('skills');
-            const selectedSkills = Array.from(skillsSelect.selectedOptions).map(option => option.value);
-            const lamaSkill = document.getElementById('lama_skill').value;
 
             const data = {
                 name: form.name.value,
@@ -1081,10 +1070,6 @@
                 nim: nim,
                 id_kelas: form.id_kelas.value,
                 alamat: form.alamat.value,
-                ipk: form.ipk.value,
-                minat: selectedMinat,
-                skills: selectedSkills,
-                lama_skill: lamaSkill
             };
 
             api.post('/mahasiswa', data)

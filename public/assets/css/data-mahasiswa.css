@@ -122,3 +122,10 @@ select[multiple] option:checked {
     color: #3b7ddd;
     font-weight: 500;
 }
+
+.td-deskripsi {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -181,7 +181,7 @@
                                         <h6 class="mb-0 text-sm">${escapeHtml(item.nama_minat)}</h6>
                                     </td>
                                     <td>
-                                        <p class="text-xs text-secondary mb-0">${escapeHtml(item.deskripsi || '-')}</p>
+                                        <p class="td-deskripsi">${escapeHtml(item.deskripsi || '-')}</p>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-info btn-sm mb-0 me-1" onclick="editMinat(${item.minat_id}, '${escapeHtml(item.nama_minat)}', '${escapeHtml(item.deskripsi || '')}')">
