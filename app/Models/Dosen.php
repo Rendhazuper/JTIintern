@@ -55,4 +55,23 @@ class Dosen extends Model
     {
         return $this->belongsToMany(Minat::class, 't_minat_dosen', 'dosen_id', 'minat_id');
     }
+
+    // Relasi ke Wilayah
+    public function wilayah()
+    {
+        return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
+    }
+
+    // Mengambil wilayah melalui relasi perusahaan
+    public function wilayahPerusahaan()
+    {
+        return $this->hasManyThrough(
+            Wilayah::class,
+            Perusahaan::class,
+            'wilayah_id', // Kunci asing di tabel m_perusahaan
+            'wilayah_id', // Kunci asing di tabel m_wilayah
+            'id_dosen',   // Kunci lokal di tabel m_dosen
+            'wilayah_id'  // Kunci lokal di tabel m_wilayah
+        );
+    }
 }

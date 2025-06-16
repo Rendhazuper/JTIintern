@@ -26,24 +26,24 @@
                                     <span class="input-group-text"><i class="fas fa-search"></i></span>
                                     <input type="text" class="form-control" id="searchDosen"
                                         placeholder="Nama dosen atau NIP">
-                                    <button class="btn btn-sm btn-outline-secondary border-0" type="button" id="clearSearch"
-                                        style="display:none;">
+                                    <button class="btn btn-sm btn-outline-secondary border-0" type="button"
+                                        id="clearSearch" style="display:none;">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
                             <!-- Remove or comment out wilayah filter section
-                            <div class="col-md-6">
-                                <label class="form-label d-flex align-items-center">
-                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                    <span>Filter Wilayah</span>
-                                </label>
-                                <select class="form-select" id="wilayahFilter">
-                                    <option value="">Semua Wilayah</option>
-                                    <!-- Will be populated dynamically 
-                                </select>
-                            </div>
-                            -->
+                                            <div class="col-md-6">
+                                                <label class="form-label d-flex align-items-center">
+                                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                                    <span>Filter Wilayah</span>
+                                                </label>
+                                                <select class="form-select" id="wilayahFilter">
+                                                    <option value="">Semua Wilayah</option>
+                                                    <!-- Will be populated dynamically
+                                                </select>
+                                            </div>
+                                            -->
                         </div>
 
                         <!-- Update table class and structure -->
@@ -179,7 +179,7 @@
         const itemsPerPage = 10;
 
         // Add clear search button functionality
-        document.getElementById('searchDosen').addEventListener('input', function () {
+        document.getElementById('searchDosen').addEventListener('input', function() {
             const clearBtn = document.getElementById('clearSearch');
             if (this.value) {
                 clearBtn.style.display = 'block';
@@ -188,7 +188,7 @@
             }
         });
 
-        document.getElementById('clearSearch').addEventListener('click', function () {
+        document.getElementById('clearSearch').addEventListener('click', function() {
             document.getElementById('searchDosen').value = '';
             searchTerm = '';
             applyFilters();
@@ -196,19 +196,19 @@
         });
 
         // Add hover effects for buttons
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Initial load
             loadPlottingData();
 
             // Add event delegation for tooltip behavior
-            document.body.addEventListener('mouseover', function (e) {
+            document.body.addEventListener('mouseover', function(e) {
                 if (e.target.closest('[data-tooltip]')) {
                     const tooltip = e.target.closest('[data-tooltip]');
                     tooltip.classList.add('tooltip-active');
                 }
             });
 
-            document.body.addEventListener('mouseout', function (e) {
+            document.body.addEventListener('mouseout', function(e) {
                 if (e.target.closest('[data-tooltip]')) {
                     const tooltip = e.target.closest('[data-tooltip]');
                     tooltip.classList.remove('tooltip-active');
@@ -237,12 +237,12 @@
 
             // Use existing endpoint instead of new one
             fetch('/api/dosen/with-perusahaan?t=' + new Date().getTime(), {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store, no-cache',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                }
-            })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-store, no-cache',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('API response status: ' + response.status);
@@ -263,7 +263,8 @@
                 })
                 .catch(error => {
                     console.error('Error loading plotting data:', error);
-                    document.getElementById('plotting-table-body').innerHTML = `
+                    document.getElementById('plotting-table-body').innerHTML =
+                        `
                                                                                                                             <tr>
                                                                                                                                 <td colspan="5" class="text-center text-danger">
                                                                                                                                     Gagal memuat data: ${error.message}
@@ -281,7 +282,7 @@
         // 2. Update the loadWilayahData function
         function loadWilayahData() {
             console.log('Fetching wilayah data...');
-            
+
             // Skip this function entirely since wilayahFilter no longer exists
             if (!elementExists('wilayahFilter')) {
                 console.log('wilayahFilter element does not exist, skipping wilayah data load');
@@ -335,7 +336,7 @@
                 console.log('wilayahFilter element does not exist, skipping fallback data');
                 return;
             }
-            
+
             // Rest of the function (will never execute if the element doesn't exist)
             const wilayahFilter = document.getElementById('wilayahFilter');
             if (wilayahFilter.options.length <= 1) {
@@ -355,7 +356,7 @@
                 const userName = typeof dosen.name === 'string' ? dosen.name : '';
                 const nipValue = typeof dosen.nip === 'string' ? dosen.nip : '';
 
-                return !searchTerm || 
+                return !searchTerm ||
                     userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     nipValue.toLowerCase().includes(searchTerm.toLowerCase());
             });
@@ -471,7 +472,7 @@
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = Math.min(startIndex + itemsPerPage, filteredDosen.length);
 
-            document.getElementById('showingCount').textContent = 
+            document.getElementById('showingCount').textContent =
                 filteredDosen.length > 0 ? `${startIndex + 1}-${endIndex}` : '0-0';
             document.getElementById('totalCount').textContent = filteredDosen.length;
 
@@ -501,14 +502,14 @@
                 }
 
                 // Badge for student count with appropriate color
-                const bimbinganBadge = bimbinganCount > 0
-                    ? `<span class="badge rounded-pill bg-primary badge-count" data-tooltip="${bimbinganCount} mahasiswa bimbingan">${bimbinganCount}</span>`
-                    : `<span class="badge rounded-pill bg-light text-dark badge-count" data-tooltip="Belum ada mahasiswa bimbingan">0</span>`;
+                const bimbinganBadge = bimbinganCount > 0 ?
+                    `<span class="badge rounded-pill bg-primary badge-count" data-tooltip="${bimbinganCount} mahasiswa bimbingan">${bimbinganCount}</span>` :
+                    `<span class="badge rounded-pill bg-light text-dark badge-count" data-tooltip="Belum ada mahasiswa bimbingan">0</span>`;
 
                 // Format skills with a better visual style
-                const skillsList = dosen.skills && dosen.skills.length > 0
-                    ? dosen.skills.map(s => `<span class="badge-skill">${s.skill.nama_skill}</span>`).join('')
-                    : '<span class="text-muted fst-italic">Belum ada</span>';
+                const skillsList = dosen.skills && dosen.skills.length > 0 ?
+                    dosen.skills.map(s => `<span class="badge-skill">${s.skill.nama_skill}</span>`).join('') :
+                    '<span class="text-muted fst-italic">Belum ada</span>';
 
                 // Create row with improved styling - FIXED NAME ACCESS and REMOVED WILAYAH COLUMN
                 const row = document.createElement('tr');
@@ -565,7 +566,8 @@
             // Previous button
             const prevLi = document.createElement('li');
             prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-            prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous">
+            prevLi.innerHTML =
+                `<a class="page-link" href="#" aria-label="Previous">
                                                                                                                                                                                                                                                                     <span aria-hidden="true">&laquo;</span>
                                                                                                                                                                                                                                                                 </a>`;
             prevLi.addEventListener('click', (e) => {
@@ -603,7 +605,8 @@
             // Next button
             const nextLi = document.createElement('li');
             nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-            nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next">
+            nextLi.innerHTML =
+                `<a class="page-link" href="#" aria-label="Next">
                                                                                                                                                                                                                                                                     <span aria-hidden="true">&raquo;</span>
                                                                                                                                                                                                                                                                 </a>`;
             nextLi.addEventListener('click', (e) => {
@@ -624,7 +627,7 @@
             const dosenCheckboxes = document.querySelectorAll('.dosen-checkbox');
 
             if (selectAllCheckbox) {
-                selectAllCheckbox.addEventListener('change', function () {
+                selectAllCheckbox.addEventListener('change', function() {
                     dosenCheckboxes.forEach(checkbox => {
                         checkbox.checked = this.checked;
                     });
@@ -633,7 +636,7 @@
 
             // Check if all checkboxes are checked
             dosenCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function () {
+                checkbox.addEventListener('change', function() {
                     if (selectAllCheckbox) {
                         const allChecked = Array.from(dosenCheckboxes).every(c => c.checked);
                         const anyChecked = Array.from(dosenCheckboxes).some(c => c.checked);
@@ -646,7 +649,7 @@
         }
 
         // Filter dosen by name or NIP
-        document.getElementById('searchDosen').addEventListener('input', function () {
+        document.getElementById('searchDosen').addEventListener('input', function() {
             searchTerm = this.value.toLowerCase().trim(); // Only update the searchTerm variable
             applyFilters(); // Let applyFilters handle the actual filtering
         });
@@ -676,81 +679,81 @@
 
             // Fetch available mahasiswa with AJAX - ADD CSRF AND HEADERS
             fetch('/api/magang/available', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-                    'Cache-Control': 'no-store, no-cache'
-                },
-                credentials: 'same-origin' // Penting untuk mengirim cookies otentikasi
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Close loading dialog
-                Swal.close();
-
-                if (data.success) {
-                    // Show modal with data
-                    const mahasiswaSelect = document.getElementById('mahasiswaSelect');
-                    mahasiswaSelect.innerHTML = '';
-
-                    if (data.data.length === 0) {
-                        mahasiswaSelect.innerHTML = '<option disabled>Tidak ada mahasiswa yang tersedia</option>';
-                        document.getElementById('saveAssignBtn').disabled = true;
-
-                        // Show modal with warning
-                        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                        modal.show();
-
-                        // Show notification about no available students
-                        Swal.fire({
-                            title: 'Perhatian',
-                            text: 'Tidak ada mahasiswa yang tersedia untuk ditugaskan',
-                            icon: 'info'
-                        });
-                    } else {
-                        document.getElementById('saveAssignBtn').disabled = false;
-
-                        data.data.forEach(item => {
-                            const option = document.createElement('option');
-                            option.value = item.id_magang; // This is actually id_lamaran with alias
-
-                            // Handle potential null values with fallbacks
-                            const mahasiswaName = item.name || 'Tidak diketahui';
-                            const perusahaanName = item.nama_perusahaan || 'Tidak diketahui';
-
-                            option.textContent = `${mahasiswaName} - ${perusahaanName}`;
-                            mahasiswaSelect.appendChild(option);
-                        });
-
-                        // Show the modal after populating data
-                        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                        modal.show();
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                        'Cache-Control': 'no-store, no-cache'
+                    },
+                    credentials: 'same-origin' // Penting untuk mengirim cookies otentikasi
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                } else {
+                    return response.json();
+                })
+                .then(data => {
+                    // Close loading dialog
+                    Swal.close();
+
+                    if (data.success) {
+                        // Show modal with data
+                        const mahasiswaSelect = document.getElementById('mahasiswaSelect');
+                        mahasiswaSelect.innerHTML = '';
+
+                        if (data.data.length === 0) {
+                            mahasiswaSelect.innerHTML = '<option disabled>Tidak ada mahasiswa yang tersedia</option>';
+                            document.getElementById('saveAssignBtn').disabled = true;
+
+                            // Show modal with warning
+                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+                            modal.show();
+
+                            // Show notification about no available students
+                            Swal.fire({
+                                title: 'Perhatian',
+                                text: 'Tidak ada mahasiswa yang tersedia untuk ditugaskan',
+                                icon: 'info'
+                            });
+                        } else {
+                            document.getElementById('saveAssignBtn').disabled = false;
+
+                            data.data.forEach(item => {
+                                const option = document.createElement('option');
+                                option.value = item.id_magang; // This is actually id_lamaran with alias
+
+                                // Handle potential null values with fallbacks
+                                const mahasiswaName = item.name || 'Tidak diketahui';
+                                const perusahaanName = item.nama_perusahaan || 'Tidak diketahui';
+
+                                option.textContent = `${mahasiswaName} - ${perusahaanName}`;
+                                mahasiswaSelect.appendChild(option);
+                            });
+
+                            // Show the modal after populating data
+                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+                            modal.show();
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: `Gagal memuat data mahasiswa: ${data.message || 'Unknown error'}`,
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching available magang:', error);
                     Swal.fire({
-                        title: 'Gagal!',
-                        text: `Gagal memuat data mahasiswa: ${data.message || 'Unknown error'}`,
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat memuat data mahasiswa: ' + error.message,
                         icon: 'error'
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching available magang:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Terjadi kesalahan saat memuat data mahasiswa: ' + error.message,
-                    icon: 'error'
                 });
-            });
         }
 
-        document.getElementById('saveAssignBtn').addEventListener('click', function () {
+        document.getElementById('saveAssignBtn').addEventListener('click', function() {
             const dosenId = document.getElementById('selectedDosenId').value;
             const mahasiswaSelect = document.getElementById('mahasiswaSelect');
             const selectedMahasiswaIds = Array.from(mahasiswaSelect.selectedOptions).map(opt => opt.value);
@@ -770,52 +773,53 @@
 
             // AJAX request - notice this endpoint should handle t_lamaran IDs (aliased as magang_ids)
             fetch(`/api/dosen/${dosenId}/assign-mahasiswa`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    magang_ids: selectedMahasiswaIds // These are actually t_lamaran.id_lamaran values
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        magang_ids: selectedMahasiswaIds // These are actually t_lamaran.id_lamaran values
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal first
-                    bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal first
+                        bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
 
-                    // Show success message
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Penugasan berhasil disimpan',
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
+                        // Show success message
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Penugasan berhasil disimpan',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
 
-                    // Reload data with AJAX instead of page refresh
-                    loadPlottingData();
-                } else {
+                        // Reload data with AJAX instead of page refresh
+                        loadPlottingData();
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Terjadi kesalahan tidak diketahui',
+                            icon: 'error'
+                        });
+                        this.disabled = false;
+                        this.textContent = 'Simpan';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving assignments:', error);
                     Swal.fire({
-                        title: 'Gagal!',
-                        text: data.message || 'Terjadi kesalahan tidak diketahui',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat menyimpan penugasan: ' + error.message,
                         icon: 'error'
                     });
                     this.disabled = false;
                     this.textContent = 'Simpan';
-                }
-            })
-            .catch(error => {
-                console.error('Error saving assignments:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Terjadi kesalahan saat menyimpan penugasan: ' + error.message,
-                    icon: 'error'
                 });
-                this.disabled = false;
-                this.textContent = 'Simpan';
-            });
         });
 
         // Remove assignments for dosen
@@ -835,17 +839,19 @@
                     const resetButtons = document.querySelectorAll(`.btn-outline-danger[onclick*="${dosenId}"]`);
                     resetButtons.forEach(btn => {
                         btn.disabled = true;
-                        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resetting...`;
+                        btn.innerHTML =
+                            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resetting...`;
                     });
 
                     // AJAX request to remove assignments
                     fetch(`/api/dosen/${dosenId}/assignments`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            }
+                        })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
@@ -891,7 +897,7 @@
             });
         }
 
-        document.getElementById('autoPlotBtn').addEventListener('click', function () {
+        document.getElementById('autoPlotBtn').addEventListener('click', function() {
             Swal.fire({
                 title: 'Konfirmasi Plotting Otomatis',
                 text: 'Apakah Anda yakin ingin melakukan plotting otomatis dengan metode SAW? Ini akan mengganti semua plotting manual yang ada.',
@@ -905,7 +911,8 @@
                 if (result.isConfirmed) {
                     // Show loading state
                     this.disabled = true;
-                    this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+                    this.innerHTML =
+                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
 
                     // Show progress with SweetAlert
                     let timerInterval;
@@ -920,12 +927,13 @@
 
                     // AJAX request
                     fetch('/api/plotting/auto', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        })
                         .then(response => response.json())
                         .then(data => {
                             // Reset button state
@@ -970,7 +978,8 @@
 
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'Terjadi kesalahan saat melakukan plotting otomatis: ' + error.message,
+                                text: 'Terjadi kesalahan saat melakukan plotting otomatis: ' +
+                                    error.message,
                                 icon: 'error'
                             });
                         });
@@ -979,7 +988,7 @@
         });
 
         // Show matrix visualization
-        document.getElementById('showMatrixBtn').addEventListener('click', function () {
+        document.getElementById('showMatrixBtn').addEventListener('click', function() {
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('matrixModal'));
             modal.show();
@@ -1029,12 +1038,12 @@
         function loadMatrixDataFromAPI() {
             const timestamp = new Date().getTime();
             fetch(`/api/plotting/matrix-decision?_=${timestamp}`, {
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Server responded with status: ${response.status}`);
@@ -1120,7 +1129,7 @@
                                             </h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row g-4">
+                                            <div class="row g-12">
                                                 <!-- Minat Criterion -->
                                                 <div class="col-md-4">
                                                     <div class="card border-0 shadow-sm h-100">
@@ -1208,7 +1217,7 @@
                                         </div>
                                     </div>
                                 `;
-            container.insertAdjacentHTML('beforeend', weightsCard);
+                container.insertAdjacentHTML('beforeend', weightsCard);
             }
 
             // Check if matrixData is valid
@@ -1385,12 +1394,12 @@
 
                         <!-- Assign button for top match -->
       ${isTopMatch ? `
-        <div class="text-center mt-3">
-            <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
-                <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
-            </button>
-        </div>
-    ` : ''}
+                        <div class="text-center mt-3">
+                            <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
+                                <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
+                            </button>
+                        </div>
+                    ` : ''}
                     </div>
                 `;
                 });
@@ -1632,15 +1641,15 @@
 
             // Use the existing API endpoint with CORRECTED PARAMETER NAME
             fetch(`/api/magang/assign-dosen/${lamaranId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    dosen_id: dosenId
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        dosen_id: dosenId
+                    })
                 })
-            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

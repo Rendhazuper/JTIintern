@@ -75,33 +75,40 @@ class AutomationDaemon extends Command
                     $this->line("[{$now->format('Y-m-d H:i:s')}] 🔍 Checking for expired magang... (Run #{$runCount})");
                 }
                 
-                // ✅ RUN: Automation
+                // ✅ RUN: Automation completion
                 $result = $service->autoCompleteExpired();
+                
+                // ✅ NEW: Check expired magang need evaluation
+                $evaluationResult = $service->checkExpiredNeedEvaluation();
                 
                 if ($result['success']) {
                     if ($result['completed'] > 0) {
-                        // ✅ LOG: Hanya jika ada completion
                         $message = "✅ Automation completed {$result['completed']} magang";
                         if (!$isQuiet) $this->info($message);
                         
                         Log::info('🎯 Automation successful completion', [
                             'completed' => $result['completed'],
                             'failed' => $result['failed'],
+                            'evaluation_reminders' => $evaluationResult['notifications_sent'] ?? 0,
+                            'expired_need_evaluation' => $evaluationResult['expired_need_evaluation_count'] ?? 0,
                             'run_count' => $runCount,
-                            'interval' => $interval,
-                            'next_run' => now()->addSeconds($interval)->toDateTimeString()
+                            'interval' => $interval
                         ]);
                     } else {
-                        // ✅ LOG: Setiap 6 run (30 menit) jika tidak ada yang completed
+                        // ✅ LOG: Include evaluation check result
                         if ($runCount % 6 === 0) {
-                            if (!$isQuiet) $this->line("ℹ️  No expired magang found (Run #{$runCount})");
+                            if (!$isQuiet) {
+                                $this->line("ℹ️  No expired magang found (Run #{$runCount})");
+                                if ($evaluationResult['success'] && $evaluationResult['expired_need_evaluation_count'] > 0) {
+                                    $this->line("📝 {$evaluationResult['expired_need_evaluation_count']} expired magang need evaluation reminder");
+                                }
+                            }
                             
                             Log::info('📊 Automation periodic status', [
                                 'status' => 'no_expired_magang',
+                                'evaluation_check' => $evaluationResult,
                                 'run_count' => $runCount,
-                                'interval' => $interval,
-                                'last_check' => $now->toDateTimeString(),
-                                'next_major_log' => $runCount + 6
+                                'interval' => $interval
                             ]);
                         }
                     }

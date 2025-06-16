@@ -517,12 +517,12 @@
                                         </div>
                                         <div class="document-actions">
                                             ${doc.file_url ? `
-                                                    <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-download me-1"></i>Download
-                                                    </a>
-                                                ` : `
-                                                    <span class="text-muted small">File tidak tersedia</span>
-                                                `}
+                                                        <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download me-1"></i>Download
+                                                        </a>
+                                                    ` : `
+                                                        <span class="text-muted small">File tidak tersedia</span>
+                                                    `}
                                         </div>
                                     </div>
                                 </div>
@@ -715,37 +715,37 @@
                         </div>
                         <div class="action-buttons">
                             ${(data.auth || '').toLowerCase() === 'menunggu' ? `
-                                    <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                        <i class="fas fa-times me-1"></i>Tolak
-                                    </button>
-                                    <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                        <i class="fas fa-check me-1"></i>Terima
-                                    </button>
-                                ` : (data.auth || '').toLowerCase() === 'ditolak' ? `
-                                    <span class="text-muted">
-                                        <i class="fas fa-times-circle me-1"></i>Permintaan telah ditolak
-                                        ${data.tanggal_ditolak ? ` pada ${data.tanggal_ditolak}` : ''}
-                                    </span>
-                                ` : `
-                                    <span class="text-success">
-                                        <i class="fas fa-check-circle me-1"></i>Permintaan telah diterima
-                                    </span>
-                                `}
+                                        <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                            <i class="fas fa-times me-1"></i>Tolak
+                                        </button>
+                                        <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                            <i class="fas fa-check me-1"></i>Terima
+                                        </button>
+                                    ` : (data.auth || '').toLowerCase() === 'ditolak' ? `
+                                        <span class="text-muted">
+                                            <i class="fas fa-times-circle me-1"></i>Permintaan telah ditolak
+                                            ${data.tanggal_ditolak ? ` pada ${data.tanggal_ditolak}` : ''}
+                                        </span>
+                                    ` : `
+                                        <span class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>Permintaan telah diterima
+                                        </span>
+                                    `}
                         </div>
                     </div>
                 </div>
 
                 ${data.catatan ? `
-                        <div class="mt-3 pt-3 border-top">
-                            <h6 class="text-uppercase text-muted mb-2">
-                                <i class="fas fa-comment me-2"></i>Catatan Penolakan
-                            </h6>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-comment me-2"></i>
-                                ${data.catatan}
+                            <div class="mt-3 pt-3 border-top">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <i class="fas fa-comment me-2"></i>Catatan Penolakan
+                                </h6>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-comment me-2"></i>
+                                    ${data.catatan}
+                                </div>
                             </div>
-                        </div>
-                    ` : ''}
+                        ` : ''}
             `;
                     } else {
                         detailModalBody.innerHTML = `

@@ -4,12 +4,7 @@
     @include('layouts.navbars.auth.topnav', ['title' => 'Mahasiswa Bimbingan'])
 
     <div class="container-fluid py-0">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ route('dosen.request.bimbingan') }}" class="btn btn-primary"
-                style="background: #5988FF; border: none;">
-                <i class="fas fa-plus me-2"></i>Request Bimbingan
-            </a>
-        </div>
+
 
         <!-- Search and Filter Section -->
         <div class="mb-4">
@@ -19,8 +14,8 @@
                         <span class="input-group-text border-end-0 bg-white">
                             <i class="fas fa-search text-muted"></i>
                         </span>
-                        <input type="text" id="searchInput" class="form-control border-start-0"
-                            placeholder="Cari Mahasiswa" style="font-family: 'Open Sans', sans-serif;">
+                        <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari Mahasiswa"
+                            style="font-family: 'Open Sans', sans-serif;">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -134,8 +129,8 @@
                         </div>
                         <h5 class="text-danger">${message}</h5>
                         ${isSystemError ? `
-                                                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                                                        ` : ''}
+                                                                                                                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                                                            ` : ''}
                         <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
                             <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                         </button>
@@ -332,25 +327,56 @@
                 // Check evaluation status untuk mahasiswa yang selesai magang
                 let needsEvaluation = false;
                 let hasEvaluation = false;
+                let needsDosenEvaluation = false;
+                let evaluationGrade = null;
 
                 if (item.status && item.status.toLowerCase() === 'selesai' && item.id_magang) {
-                    needsEvaluation = await checkEvaluationStatus(item.id_magang);
-                    hasEvaluation = !needsEvaluation;
+                    const evalStatus = await checkEvaluationStatus(item.id_magang);
+                    
+                    // Check if there's an evaluation but dosen needs to input their part
+                    needsDosenEvaluation = evalStatus.needs_dosen_evaluation || false;
+                    hasEvaluation = evalStatus.has_evaluation && !needsDosenEvaluation;
+                    needsEvaluation = !hasEvaluation && !needsDosenEvaluation;
+                    
+                    // Get the grade if evaluation is complete
+                    if (hasEvaluation && evalStatus.grade) {
+                        evaluationGrade = evalStatus.grade;
+                    }
                 }
 
-                const cardStyles = needsEvaluation ?
-                    'border: 2px solid #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);' :
-                    '';
+                // Determine card style based on evaluation status
+                let cardStyles = '';
+                if (needsEvaluation) {
+                    cardStyles = 'border: 2px solid #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);';
+                } else if (needsDosenEvaluation) {
+                    cardStyles = 'border: 2px solid #ffc107; box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);';
+                } else if (hasEvaluation) {
+                    cardStyles = 'border: 2px solid #28a745; box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);';
+                }
 
                 card.innerHTML = `
                     <div class="mahasiswa-card" style="width: 100%; height: 100%; padding: 20px; background: white; border-radius: 5px; outline: 1px #E8EDF5 solid; display: flex; flex-direction: column; gap: 15px; position: relative; ${cardStyles}">
                         
                         ${needsEvaluation ? `
-                                                                        <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ff6b6b, #ff5252); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); z-index: 10; animation: pulse 2s infinite;">
-                                                                            <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
-                                                                            Perlu Evaluasi
-                                                                        </div>
-                                                                    ` : ''}
+                            <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ff6b6b, #ff5252); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); z-index: 10; animation: pulse 2s infinite;">
+                                <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                Perlu Evaluasi
+                            </div>
+                        ` : ''}
+
+                        ${needsDosenEvaluation ? `
+                            <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); z-index: 10; animation: pulse 2s infinite;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
+                                Perlu Evaluasi Dosen
+                            </div>
+                        ` : ''}
+
+                        ${hasEvaluation && evaluationGrade ? `
+                            <div class="evaluation-grade" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); z-index: 10;">
+                                <i class="fas fa-trophy" style="margin-right: 4px;"></i>
+                                Grade: ${evaluationGrade}
+                            </div>
+                        ` : ''}
 
                         <!-- Status Badge -->
                         <div data-property-1="Status" style="height: 29px; display: inline-flex; align-items: center; gap: 10px;">
@@ -387,26 +413,29 @@
                             </button>
                             
                             ${item.status && item.status.toLowerCase() === 'selesai' ? `
-                                                                            ${needsEvaluation ? `
-                                    <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}', '${item.id_magang || ''}')" class="btn btn-warning" style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, #ff6b6b, #ff5252); border-radius: 6px; border: 1.5px solid #ff6b6b; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: all 0.3s ease;">
-                            <i class="fas fa-star" style="color: white; font-size: 12px;"></i>
-                            <span style="color: white;">Evaluasi Sekarang</span>
-                        </button>
-                    ` : `
-                        <div class="evaluation-completed" style="flex: 1; padding: 8px 12px; background: #d4edda; border-radius: 6px; border: 1.5px solid #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600;">
-                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 12px;"></i>
-                            <span style="color: #28a745;">Sudah Dinilai</span>
+                                ${needsEvaluation || needsDosenEvaluation ? `
+                                    <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}', '${item.id_magang || ''}')" class="btn ${needsDosenEvaluation ? 'btn-warning' : 'btn-danger'}" 
+                                            style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, ${needsDosenEvaluation ? '#ffc107, #ff9800' : '#ff6b6b, #ff5252'}); 
+                                            border-radius: 6px; border: 1.5px solid ${needsDosenEvaluation ? '#ffc107' : '#ff6b6b'}; 
+                                            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: all 0.3s ease;">
+                                        <i class="fas fa-star" style="color: white; font-size: 12px;"></i>
+                                        <span style="color: white;">${needsDosenEvaluation ? 'Evaluasi Sekarang' : 'Beri Evaluasi'}</span>
+                                    </button>
+                                ` : `
+                                    <div class="evaluation-completed" style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, #d4edda, #c3e6cb); border-radius: 6px; border: 1.5px solid #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600;">
+                                        <i class="fas fa-check-circle" style="color: #28a745; font-size: 12px;"></i>
+                                        <span style="color: #28a745;">Grade: ${evaluationGrade || 'Selesai'}</span>
+                                    </div>
+                                `}
+                            ` : `
+                                <button disabled class="btn" style="flex: 1; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border: 1.5px solid #e9ecef; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; opacity: 0.6; cursor: not-allowed;">
+                                    <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
+                                    <span style="color: #adb5bd;">Evaluasi</span>
+                                </button>
+                            `}
                         </div>
-                    `}
-                                                            ` : `
-                                                                <button disabled class="btn" style="flex: 1; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border: 1.5px solid #e9ecef; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; opacity: 0.6; cursor: not-allowed;">
-                                                                    <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
-                                                                    <span style="color: #adb5bd;">Evaluasi</span>
-                                                                </button>
-                                                            `}
-            </div>
-        </div>
-    `;
+                    </div>
+                `;
 
                 cardsContainer.appendChild(card);
 
@@ -516,24 +545,39 @@
 
         async function checkEvaluationStatus(id_magang) {
             try {
-
                 if (!id_magang) {
                     console.warn('ID Magang tidak tersedia');
-                    return false;
+                    return { 
+                        has_evaluation: false,
+                        needs_dosen_evaluation: false,
+                        grade: null
+                    };
                 }
 
                 const response = await api.get(`/dosen/magang/${id_magang}/evaluation-status`);
 
                 if (response.data.success) {
-                    console.log(`Magang ${id_magang}: has_evaluation = ${response.data.has_evaluation}`);
-                    return !response.data.has_evaluation;
+                    console.log(`Magang ${id_magang}: has_evaluation = ${response.data.has_evaluation}, needs_dosen_evaluation = ${response.data.needs_dosen_evaluation}, grade = ${response.data.grade || 'N/A'}`);
+                    return {
+                        has_evaluation: response.data.has_evaluation,
+                        needs_dosen_evaluation: response.data.needs_dosen_evaluation,
+                        grade: response.data.grade || null
+                    };
                 } else {
                     console.warn('Failed to check evaluation status:', response.data.message);
-                    return false;
+                    return { 
+                        has_evaluation: false,
+                        needs_dosen_evaluation: false,
+                        grade: null
+                    };
                 }
             } catch (error) {
                 console.error('Error checking evaluation status:', error);
-                return false;
+                return { 
+                    has_evaluation: false,
+                    needs_dosen_evaluation: false,
+                    grade: null
+                };
             }
         }
 
@@ -575,14 +619,14 @@
             return `
         <form id="evaluasiForm">
             <div class="mb-3">
-                <label class="form-label">Nilai Akhir</label>
-                <input type="number" class="form-control" id="nilai_akhir" name="nilai_akhir" 
-                       min="0" max="100" value="${data.nilai_akhir || ''}" required>
+                <label class="form-label">Nilai Dosen</label>
+                <input type="number" class="form-control" id="nilai_dosen" name="nilai_dosen" 
+                       min="0" max="100" value="${data.nilai_dosen || ''}" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Catatan Evaluasi</label>
-                <textarea class="form-control" id="catatan_evaluasi" name="catatan_evaluasi" 
-                          rows="4" required>${data.catatan_evaluasi || ''}</textarea>
+                <textarea class="form-control" id="catatan_dosen" name="catatan_dosen" 
+                          rows="4" required>${data.catatan_dosen || ''}</textarea>
             </div>
             <input type="hidden" id="id_mahasiswa" name="id_mahasiswa" value="${data.id_mahasiswa}">
             <input type="hidden" id="magang_id" name="magang_id" value="${data.id_magang}">

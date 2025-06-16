@@ -23,33 +23,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // ✅ FIX: Support both local AND production
+        // ✅ SIMPLE: Support both local AND production tanpa business hours check
         if (!app()->runningInConsole()) {
-            $this->startAutomationByEnvironment();
+            $this->startAutomationSimple();
         }
     }
 
-    private function startAutomationByEnvironment()
+    private function startAutomationSimple()
     {
         try {
             $environment = config('app.env');
             $isDebugMode = $environment === 'local';
             
-            Log::info('🔧 AppServiceProvider checking environment', [
-                'environment' => $environment,
-                'is_debug_mode' => $isDebugMode,
-                'console_check' => app()->runningInConsole()
-            ]);
-            
-            // ✅ PRODUCTION: Business hours check
-            if (!$isDebugMode && $this->isBusinessHours()) {
-                Log::info('🚫 Skipping automation - business hours active');
-                return;
-            }
+            // ✅ REMOVE: Business hours check yang bikin hang
+            // No business hours check - automation bisa jalan 24/7
             
             // ✅ CHECK: Daemon already running
             if (AutomationDaemon::isDaemonRunning()) {
-                Log::debug('✅ Automation daemon already running - skipping start');
                 return;
             }
             
@@ -58,10 +48,6 @@ class AppServiceProvider extends ServiceProvider
             $lastAttempt = Cache::get('automation_start_attempt');
             
             if ($lastAttempt && now()->diffInMinutes(Carbon::parse($lastAttempt)) < $rateLimitMinutes) {
-                Log::debug('⏳ Automation start rate limited', [
-                    'minutes_since_last' => now()->diffInMinutes(Carbon::parse($lastAttempt)),
-                    'rate_limit' => $rateLimitMinutes
-                ]);
                 return;
             }
             
@@ -91,18 +77,5 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
             Log::error('💥 Error starting automation: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * ✅ PRODUCTION: Business hours check
-     */
-    private function isBusinessHours(): bool
-    {
-        $now = Carbon::now();
-        $hour = $now->hour;
-        $isWeekday = $now->isWeekday();
-        
-        // Business hours: 8AM - 5PM on weekdays
-        return $isWeekday && $hour >= 8 && $hour < 17;
     }
 }

@@ -1,5 +1,3 @@
-<!-- filepath: d:\laragon\www\JTIintern\resources\views\pages\mahasiswa\dashboard.blade.php -->
-
 @extends('layouts.app', ['class' => 'bg-gray-100'])
 
 @section('content')

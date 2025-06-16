@@ -20,58 +20,69 @@ class SimpleAutomationService
     public function autoCompleteExpired()
     {
         try {
-            // ✅ FIX: Define isDebugMode di dalam method
             $isDebugMode = config('app.env') === 'local';
             
-            // ✅ PRODUCTION: Ubah cache key untuk interval lebih lama
-            // DEBUG: per menit (Y-m-d-H-i) | PRODUCTION: per jam (Y-m-d-H)
-            $cacheKey = 'automation_last_check_' . now()->format($isDebugMode ? 'Y-m-d-H-i' : 'Y-m-d-H');
-            
-            // ✅ PRODUCTION: Cache lebih lama untuk menghindari duplicate
-            // DEBUG: 240 detik (4 menit) | PRODUCTION: 3600 detik (1 jam)
-            if (cache()->has($cacheKey)) {
-                Log::info('🕐 Automation skipped - already checked recently');
-                
-                return [
-                    'success' => true, 
-                    'skipped' => true, 
-                    'completed' => 0,
-                    'failed' => 0,
-                    'reason' => 'already_checked',
-                    'timestamp' => now()->toDateTimeString()
-                ];
+            // ✅ FORCE CHECK: Skip cache untuk testing
+            if ($isDebugMode) {
+                // Force check tanpa cache
+                Log::info('🔧 DEBUG MODE: Skipping cache check');
+            } else {
+                // Production cache logic
+                $cacheKey = 'automation_last_check_' . now()->format('Y-m-d-H-i'); // Add minutes
+                $cacheDuration = $isDebugMode ? 240 : 1800; // 30 minutes instead of 2 hours
+
+                if (!$isDebugMode) {
+                    $lastCheck = cache()->get($cacheKey);
+                    if ($lastCheck && now()->diffInMinutes(Carbon::parse($lastCheck)) < 30) {
+                        Log::info('🕐 Automation skipped - checked less than 30 minutes ago');
+                        return [
+                            'success' => true,
+                            'completed' => 0,
+                            'failed' => 0,
+                            'skipped_reason' => 'cache_hit'
+                        ];
+                    }
+                }
             }
             
             $today = Carbon::now()->toDateString();
+            
+            // ✅ CHECK: Dengan data yang benar
             $hasExpired = DB::table('m_magang')
                 ->where('status', 'aktif')
                 ->whereNotNull('tgl_selesai')
                 ->where('tgl_selesai', '<=', $today)
-                ->limit(1)
                 ->exists();
             
+            Log::info('🔍 Checking for expired magang', [
+                'today' => $today,
+                'has_expired' => $hasExpired,
+                'debug_mode' => $isDebugMode
+            ]);
+            
             if (!$hasExpired) {
-                // ✅ PRODUCTION: Cache negative result lebih lama
-                // DEBUG: 240 detik | PRODUCTION: 7200 detik (2 jam)
                 $cacheDuration = $isDebugMode ? 240 : 7200;
-                cache()->put($cacheKey, now()->toDateTimeString(), $cacheDuration);
+                if (!$isDebugMode) {
+                    cache()->put('automation_last_check_' . now()->format('Y-m-d-H'), now()->toDateTimeString(), $cacheDuration);
+                }
                 Log::info('🔍 No expired candidates - cached result');
                 
                 return [
-                    'success' => true, 
+                    'success' => true,
                     'completed' => 0,
                     'failed' => 0,
-                    'cached' => true,
-                    'message' => 'No expired magang found',
-                    'timestamp' => now()->toDateTimeString()
+                    'skipped_reason' => 'no_expired'
                 ];
             }
             
+            // ✅ PROCESS: Expired magang
             $result = $this->processExpiredMagang();
-            // ✅ PRODUCTION: Cache successful result untuk 1 jam
-            // DEBUG: 120 detik | PRODUCTION: 3600 detik
-            $successCacheDuration = $isDebugMode ? 120 : 3600;
-            cache()->put($cacheKey, now()->toDateTimeString(), $successCacheDuration);
+            
+            // ✅ CACHE: Success result
+            if (!$isDebugMode) {
+                $successCacheDuration = 3600;
+                cache()->put('automation_last_check_' . now()->format('Y-m-d-H'), now()->toDateTimeString(), $successCacheDuration);
+            }
             
             return $result;
             
@@ -95,23 +106,29 @@ class SimpleAutomationService
         $failed = 0;
         
         try {
-            // ✅ FIX: Define isDebugMode di dalam method
             $isDebugMode = config('app.env') === 'local';
-            
-            // ✅ PRODUCTION: Ubah batch size untuk handling lebih banyak data
-            // DEBUG: 3 records per batch | PRODUCTION: 20 records per batch
             $batchSize = $isDebugMode ? 3 : 20;
             
+            // ✅ GET: Expired magang dengan join untuk data lengkap
             $expiredMagang = DB::table('m_magang as m')
                 ->leftJoin('m_mahasiswa as mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
                 ->leftJoin('m_user as u', 'mhs.id_user', '=', 'u.id_user')
+                ->leftJoin('m_lowongan as low', 'm.id_lowongan', '=', 'low.id_lowongan')
+                ->leftJoin('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
                 ->where('m.status', 'aktif')
                 ->whereNotNull('m.tgl_selesai')
                 ->where('m.tgl_selesai', '<=', $today)
                 ->limit($batchSize)
-                ->get(['m.*']); // ✅ FIX: Ambil hanya kolom dari m_magang
+                ->select([
+                    'm.*',
+                    'u.id_user',
+                    'u.name as nama_mahasiswa',
+                    'low.judul_lowongan',
+                    'p.nama_perusahaan'
+                ])
+                ->get();
             
-            Log::info('🎯 Processing batch', [
+            Log::info('🎯 Processing expired magang batch', [
                 'count' => $expiredMagang->count(),
                 'target_date' => $today,
                 'batch_size' => $batchSize,
@@ -120,60 +137,31 @@ class SimpleAutomationService
             
             foreach ($expiredMagang as $magang) {
                 try {
-                    Log::info("🔄 Attempting to update magang", [
-                        'id_magang' => $magang->id_magang,
-                        'current_status' => $magang->status,
-                        'tgl_selesai' => $magang->tgl_selesai
-                    ]);
+                    $result = $this->completeSingleMagang($magang);
                     
-                    DB::beginTransaction();
-                    
-                    $updateData = [
-                        'status' => 'selesai',
-                        'updated_at' => now()->format('Y-m-d H:i:s')
-                    ];
-                    
-                    $updated = DB::table('m_magang')
-                        ->where('id_magang', $magang->id_magang)
-                        ->where('status', 'aktif')
-                        ->update($updateData);
-                    
-                    if ($updated) {
-                        try {
-                            DB::table('m_magang')
-                                ->where('id_magang', $magang->id_magang)
-                                ->update([
-                                    'completed_at' => now()->format('Y-m-d H:i:s'),
-                                    'completed_by' => 'system',
-                                    'catatan_penyelesaian' => 'Auto-completed by system - magang period expired'
-                                ]);
-                        } catch (\Exception $e) {
-                            Log::warning("⚠️ Completion fields update failed for ID: {$magang->id_magang}", [
-                                'error' => $e->getMessage()
-                            ]);
-                        }
-                        
-                        DB::commit();
+                    if ($result['success']) {
                         $completed++;
-                        
-                        Log::info("✅ Successfully completed magang ID: {$magang->id_magang}");
-                        
+                        Log::info('✅ Magang completed successfully', [
+                            'id_magang' => $magang->id_magang,
+                            'mahasiswa' => $magang->nama_mahasiswa,
+                            'perusahaan' => $magang->nama_perusahaan
+                        ]);
                     } else {
-                        DB::rollback();
                         $failed++;
-                        Log::warning("⚠️ No rows updated for magang ID: {$magang->id_magang}");
+                        Log::error('❌ Failed to complete magang', [
+                            'id_magang' => $magang->id_magang,
+                            'error' => $result['error'] ?? 'Unknown error'
+                        ]);
                     }
                     
                 } catch (\Exception $e) {
-                    DB::rollback();
                     $failed++;
-                    Log::error("❌ Failed to update magang ID: {$magang->id_magang}", [
+                    Log::error('💥 Exception completing magang', [
+                        'id_magang' => $magang->id_magang,
                         'error' => $e->getMessage()
                     ]);
                 }
                 
-                // ✅ PRODUCTION: Delay antar record untuk menghindari database overload
-                // DEBUG: 50000 microseconds (0.05s) | PRODUCTION: 100000 microseconds (0.1s)
                 $delay = $isDebugMode ? 50000 : 100000;
                 usleep($delay);
             }
@@ -867,5 +855,126 @@ class SimpleAutomationService
             'missing_keys' => $missing,
             'available_keys' => array_keys($result)
         ];
+    }
+
+    /**
+     * ✅ CHECK: Magang yang expired dan perlu evaluasi (HANYA yang sudah expired)
+     */
+    public function checkExpiredNeedEvaluation()
+    {
+        try {
+            $today = Carbon::now()->toDateString();
+            $isDebugMode = config('app.env') === 'local';
+            
+            // ✅ SIMPLE: Hanya check yang sudah expired (tidak prediksi 7 hari)
+            $expiredNeedEvaluation = DB::table('m_magang as m')
+                ->leftJoin('m_mahasiswa as mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
+                ->leftJoin('m_user as u', 'mhs.id_user', '=', 'u.id_user')
+                ->leftJoin('m_lowongan as low', 'm.id_lowongan', '=', 'low.id_lowongan')
+                ->leftJoin('m_perusahaan as p', 'low.perusahaan_id', '=', 'p.perusahaan_id')
+                ->where('m.status', 'aktif')
+                ->whereNotNull('m.tgl_selesai')
+                ->where('m.tgl_selesai', '<', $today) // ✅ HANYA yang sudah expired
+                ->whereNotExists(function($query) {
+                    $query->select(DB::raw(1))
+                          ->from('t_evaluasi')
+                          ->whereRaw('t_evaluasi.id_magang = m.id_magang');
+                })
+                ->select([
+                    'm.id_magang',
+                    'm.id_mahasiswa', 
+                    'm.tgl_selesai',
+                    'u.id_user',
+                    'u.name as nama_mahasiswa',
+                    'p.nama_perusahaan',
+                    'low.judul_lowongan'
+                ])
+                ->get();
+
+            Log::info('🔍 Checking expired magang need evaluation', [
+                'found_count' => $expiredNeedEvaluation->count(),
+                'target_date' => $today
+            ]);
+
+            // ✅ SEND: Notification untuk mahasiswa yang magangnya sudah expired
+            $notificationsSent = 0;
+            foreach ($expiredNeedEvaluation as $magang) {
+                try {
+                    $daysExpired = Carbon::parse($magang->tgl_selesai)->diffInDays(Carbon::now());
+                    $this->sendEvaluationReminderNotification($magang, $daysExpired);
+                    $notificationsSent++;
+                } catch (\Exception $e) {
+                    Log::warning('Failed to send evaluation reminder: ' . $e->getMessage());
+                }
+            }
+
+            return [
+                'success' => true,
+                'expired_need_evaluation_count' => $expiredNeedEvaluation->count(),
+                'notifications_sent' => $notificationsSent,
+                'details' => $expiredNeedEvaluation
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error checking expired need evaluation: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * ✅ SEND: Evaluation reminder notification (simplified)
+     */
+    private function sendEvaluationReminderNotification($magang, $daysExpired)
+    {
+        try {
+            $perusahaan = $magang->nama_perusahaan ?? 'Perusahaan';
+            $endDate = Carbon::parse($magang->tgl_selesai)->format('d M Y');
+            
+            $title = 'Input Nilai Magang Diperlukan! 📝';
+            $message = "Magang Anda di {$perusahaan} telah selesai pada {$endDate} ({$daysExpired} hari yang lalu). Silakan input nilai dari pengawas lapangan untuk menyelesaikan proses magang.";
+
+            $notificationData = [
+                'id_user' => $magang->id_user,
+                'judul' => $title,
+                'pesan' => $message,
+                'kategori' => 'evaluasi_magang',
+                'jenis' => 'urgent',
+                'is_important' => true,
+                'is_read' => false,
+                'data_terkait' => json_encode([
+                    'id_magang' => $magang->id_magang,
+                    'action_required' => 'input_nilai_magang',
+                    'type' => 'expired',
+                    'end_date' => $magang->tgl_selesai,
+                    'days_expired' => $daysExpired
+                ]),
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // ✅ SEND: To notification table
+            $notificationTables = ['m_notifikasi', 't_notifikasi', 'notifications'];
+            
+            foreach ($notificationTables as $tableName) {
+                try {
+                    $tableExists = DB::select("SHOW TABLES LIKE '{$tableName}'");
+                    if (!empty($tableExists)) {
+                        DB::table($tableName)->insert($notificationData);
+                        Log::info("📝 Evaluation reminder sent to {$tableName}", [
+                            'user_id' => $magang->id_user,
+                            'days_expired' => $daysExpired
+                        ]);
+                        break;
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to send evaluation reminder: ' . $e->getMessage());
+        }
     }
 }

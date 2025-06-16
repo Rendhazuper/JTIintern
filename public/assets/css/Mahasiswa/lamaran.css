@@ -1407,3 +1407,120 @@ body.g-sidenav-show .main-content {
     background-color: #e8f5e8;
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
+
+/* ✅ ADD: Styling untuk magang card yang sudah disesuaikan */
+
+/* Company Info Styling */
+.company-info .company-logo {
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.company-info .company-logo:hover {
+    border-color: #007bff;
+    transform: scale(1.05);
+}
+
+/* Progress Section */
+.progress-section .progress {
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.progress-section .progress-bar {
+    border-radius: 10px;
+    transition: width 0.8s ease;
+}
+
+/* Info Details */
+.info-details .info-item {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.info-details .info-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+/* Supervisor Card */
+.supervisor-card {
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.supervisor-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0,123,255,0.1);
+}
+
+/* Action Buttons */
+.action-buttons .btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Evaluasi Section */
+.evaluasi-section .alert {
+    border-radius: 12px;
+}
+
+.evaluasi-section .card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.evaluasi-section .form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.evaluasi-section .form-control:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.25);
+}
+
+/* Animation untuk card appearance */
+#real-magang {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .company-info .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .company-info .company-logo {
+        margin-bottom: 15px;
+    }
+    
+    .info-details .col-md-6 {
+        margin-bottom: 10px;
+    }
+    
+    .action-buttons .btn {
+        margin-bottom: 8px;
+    }
+}

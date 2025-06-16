@@ -16,7 +16,7 @@
                             <label class="form-label small text-muted">Perusahaan</label>
                             <select id="perusahaanFilter" class="form-select">
                                 <option value="">Semua Perusahaan</option>
-                                @foreach($perusahaan as $p)
+                                @foreach ($perusahaan as $p)
                                     <option value="{{ $p->perusahaan_id }}">{{ $p->nama_perusahaan }}</option>
                                 @endforeach
                             </select>
@@ -25,7 +25,7 @@
                             <label class="form-label small text-muted">Skill</label>
                             <select id="skillFilter" class="form-select">
                                 <option value="">Semua Skill</option>
-                                @foreach($skills as $s)
+                                @foreach ($skills as $s)
                                     <option value="{{ $s->skill_id }}">{{ $s->nama }}</option>
                                 @endforeach
                             </select>
@@ -42,7 +42,7 @@
                 <!-- Lowongan Cards Container -->
                 <div class="row" id="lowonganContainer">
                     <!-- Initial Skeleton Loading Cards -->
-                    @for($i = 1; $i <= 6; $i++)
+                    @for ($i = 1; $i <= 6; $i++)
                         <div class="col-md-4 mb-4 skeleton-card-wrapper" id="skeleton-card-{{ $i }}">
                             <div class="lowongan-skeleton-card">
                                 <div class="skeleton-card-header">
@@ -230,7 +230,8 @@
                                 <div class="col-md-6">
                                     <ul class="list-unstyled">
                                         <li><i class="fas fa-check text-success me-2"></i>Format: PDF, DOC, DOCX</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Ukuran maksimal: 5MB per file</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Ukuran maksimal: 5MB per file
+                                        </li>
                                         <li><i class="fas fa-check text-success me-2"></i>Minimal 1 dokumen wajib</li>
                                     </ul>
                                 </div>
@@ -323,7 +324,8 @@
 
         api.interceptors.response.use(
             response => {
-                console.log('📥 API Response:', response.config.url, response.status, 'Success:', response.data?.success);
+                console.log('📥 API Response:', response.config.url, response.status, 'Success:', response.data
+                    ?.success);
                 return response;
             },
             error => {
@@ -369,7 +371,10 @@
                     activeMagangLowonganId = response.data.active_internship ?
                         response.data.active_internship.id_lowongan : null;
 
-                    console.log('✅ Active internship status loaded:', { hasActiveMagang, activeMagangLowonganId });
+                    console.log('✅ Active internship status loaded:', {
+                        hasActiveMagang,
+                        activeMagangLowonganId
+                    });
 
                     if (hasActiveMagang) {
                         console.log('📢 User has active internship');
@@ -384,6 +389,7 @@
         async function loadUserApplications() {
             try {
                 console.log('📋 Loading user applications...');
+                // Ganti endpoint yang salah dengan endpoint yang benar
                 const response = await api.get('/mahasiswa/applications/user');
 
                 if (response.data.success) {
@@ -409,7 +415,9 @@
 
             try {
                 // Load data
-                const response = await api.get('/mahasiswa/lowongan', { params: filters });
+                const response = await api.get('/mahasiswa/lowongan', {
+                    params: filters
+                });
 
                 // Delay untuk menunjukkan skeleton loading effect
                 const delay = isInitialLoad ? 2000 : 1500;
@@ -492,6 +500,46 @@
                     `;
 
             return wrapper;
+        }
+
+        function createLowonganCard(lowongan, index) {
+            // ...existing code...
+
+            // Dapatkan status aplikasi langsung dari card data jika ada
+            // Ini jika API mengembalikan status aplikasi bersama data lowongan
+            const applicationStatus = lowongan.application_status || null;
+            let applied = hasApplied(lowongan.id_lowongan);
+            let status = getApplicationStatus(lowongan.id_lowongan);
+
+            // Prioritaskan data dari API jika ada
+            if (applicationStatus) {
+                applied = true;
+                status = applicationStatus.status;
+            }
+
+            let statusBadge = '';
+
+            if (applied) {
+                if (status === 'diterima') {
+                    statusBadge = `<span class="badge-status badge-accepted">
+                        <i class="bi bi-check-circle-fill me-1"></i> Diterima
+                    </span>`;
+                } else if (status === 'ditolak') {
+                    statusBadge = `<span class="badge-status badge-rejected">
+                        <i class="bi bi-x-circle-fill me-1"></i> Ditolak
+                    </span>`;
+                } else {
+                    statusBadge = `<span class="badge-status badge-waiting">
+                        <i class="bi bi-hourglass-split me-1"></i> Menunggu
+                    </span>`;
+                }
+            } else if (hasActiveMagang && lowongan.id_lowongan == activeMagangLowonganId) {
+                statusBadge = `<span class="badge-status badge-active-magang">
+                    <i class="bi bi-briefcase-fill me-1"></i> Magang Aktif
+                </span>`;
+            }
+
+            // ...rest of the function...
         }
 
         function renderLowonganCards(lowonganData) {
@@ -589,7 +637,8 @@
             // ✅ FIXED: Logo handling yang benar
             let logoHTML;
             if (perusahaan.logo_url && perusahaan.logo_url !== null && perusahaan.logo_url !== '') {
-                logoHTML = `<img src="${perusahaan.logo_url}" 
+                logoHTML =
+                    `<img src="${perusahaan.logo_url}" 
                                    alt="Logo ${perusahaan.nama_perusahaan || 'Perusahaan'}"
                                    class="company-logo"
                                    onerror="handleCompanyLogoError(this, '${perusahaan.nama_perusahaan || 'Perusahaan'}')">`;
@@ -659,7 +708,8 @@
 
             const placeholder = document.createElement('div');
             placeholder.className = 'company-logo-placeholder';
-            placeholder.innerHTML = `<i class="bi bi-building" style="font-size: 1.5rem; color: #dc3545;" title="Logo ${companyName} tidak dapat dimuat"></i>`;
+            placeholder.innerHTML =
+                `<i class="bi bi-building" style="font-size: 1.5rem; color: #dc3545;" title="Logo ${companyName} tidak dapat dimuat"></i>`;
 
             img.parentNode.replaceChild(placeholder, img);
         }
@@ -669,7 +719,7 @@
             container.innerHTML = `
                         <div class="col-12 text-center py-5 empty-state">
                             <div class="empty-icon mb-3">
-                                <i class="bi bi-search" style="font-size: 3rem; color: #6c757d;"></i>
+                                <i class="bi bi-search" style="font-size: 3rem, color: #6c757d;"></i>
                             </div>
                             <h6 class="mb-2">Tidak ada lowongan yang sesuai</h6>
                             <p class="text-muted">Coba ubah filter pencarian Anda</p>
@@ -711,7 +761,10 @@
                         if (response.data.success) {
                             hideModalSkeleton();
                             renderDetailLowongan(response.data.data, id);
-                            setupApplyButton(id);
+
+                            // Gunakan application_status langsung dari response
+                            const applicationStatus = response.data.data.application_status;
+                            setupApplyButton(id, applicationStatus);
                         } else {
                             showModalError(response.data.message || 'Terjadi kesalahan');
                         }
@@ -782,7 +835,8 @@
             // Logo handling untuk modal
             let modalLogoHTML;
             if (perusahaan.logo_url && perusahaan.logo_url !== null && perusahaan.logo_url !== '') {
-                modalLogoHTML = `<img src="${perusahaan.logo_url}" 
+                modalLogoHTML =
+                    `<img src="${perusahaan.logo_url}" 
                                        alt="${perusahaan.nama_perusahaan || 'Perusahaan'}" 
                                        class="company-hero-logo"
                                        onerror="handleModalLogoError(this, '${perusahaan.nama_perusahaan || 'Perusahaan'}')">`;
@@ -929,35 +983,54 @@
             img.parentNode.replaceChild(placeholder, img);
         }
 
-        function setupApplyButton(id) {
-            const applied = hasApplied(id);
+        function setupApplyButton(id, applicationStatus = null) {
             const btnApply = document.getElementById('btnApplyLowongan');
+
+            // Default check dari global data jika applicationStatus tidak disediakan
+            let isUserApplied = hasApplied(id);
+            let applicationCurrentStatus = getApplicationStatus(id);
+
+            // Jika applicationStatus disediakan dari response, gunakan itu
+            if (applicationStatus) {
+                isUserApplied = true;
+                applicationCurrentStatus = applicationStatus.status;
+                console.log('🔍 Using direct application status:', applicationCurrentStatus);
+            }
 
             if (hasActiveMagang) {
                 btnApply.disabled = true;
                 btnApply.classList.remove('btn-primary', 'btn-apply');
                 btnApply.classList.add('btn-outline-secondary');
                 btnApply.innerHTML = '<i class="bi bi-info-circle me-2"></i>Anda memiliki magang aktif';
-            } else if (applied) {
-                const status = getApplicationStatus(id);
+            } else if (isUserApplied) { // Gunakan isUserApplied, bukan hasApplied
                 btnApply.disabled = true;
                 btnApply.classList.remove('btn-primary', 'btn-apply');
                 btnApply.classList.add('btn-outline-secondary');
 
-                if (status === 'diterima') {
+                if (applicationCurrentStatus === 'diterima') {
                     btnApply.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Diterima';
-                } else if (status === 'ditolak') {
+                } else if (applicationCurrentStatus === 'ditolak') {
                     btnApply.innerHTML = '<i class="bi bi-x-circle-fill me-2"></i>Ditolak';
                 } else {
                     btnApply.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Menunggu Konfirmasi';
                 }
             } else {
+                // Jika belum melamar, aktifkan tombol
                 btnApply.disabled = false;
                 btnApply.classList.add('btn-primary', 'btn-apply');
                 btnApply.classList.remove('btn-outline-secondary');
                 btnApply.innerHTML = '<i class="bi bi-send-fill me-2"></i>Ajukan Lamaran';
                 btnApply.onclick = () => showUploadDocumentModal(id);
             }
+
+            // Debug log untuk membantu troubleshooting
+            console.log('🔧 Button setup for lowongan:', id, {
+                isUserApplied,
+                applicationCurrentStatus,
+                hasActiveMagang,
+                buttonDisabled: btnApply.disabled,
+                buttonText: btnApply.innerHTML
+            });
         }
 
         // ✅ NEW: Filter functionality
@@ -967,7 +1040,7 @@
             const skillFilter = document.getElementById('skillFilter');
 
             if (applyFilterBtn) {
-                applyFilterBtn.addEventListener('click', function () {
+                applyFilterBtn.addEventListener('click', function() {
                     const filters = {
                         perusahaan_id: perusahaanFilter.value,
                         skill_id: skillFilter.value
@@ -988,7 +1061,7 @@
                 // Load dependencies in parallel
                 await Promise.all([
                     loadActiveMagangStatus(),
-                    loadUserApplications()
+                    loadUserApplications() // ✅ Pastikan ini dipanggil
                 ]);
 
                 // Load lowongan data
@@ -1010,13 +1083,49 @@
         let uploadedDocuments = [];
         let documentCounter = 0;
 
-        function showUploadDocumentModal(lowonganId) {
+        async function confirmApplicationStatus(lowonganId) {
+            try {
+                console.log('🔎 Verifying application status before proceeding...');
+                const response = await api.get(`/mahasiswa/lowongan/${lowonganId}/application-status`);
+
+                if (response.data.success && response.data.has_applied) {
+                    // User sudah melamar, update UI
+                    Swal.fire({
+                        title: 'Sudah Melamar',
+                        text: 'Anda sudah melamar untuk lowongan ini',
+                        icon: 'info'
+                    });
+
+                    // Reload data lamaran dan update UI
+                    await loadUserApplications();
+                    setupApplyButton(lowonganId, response.data.application_data);
+                    return false;
+                }
+
+                // User belum melamar, lanjutkan
+                return true;
+            } catch (error) {
+                console.error('❌ Error verifying application status:', error);
+                return true; // Lanjutkan untuk berjaga-jaga
+            }
+        }
+
+        async function showUploadDocumentModal(lowonganId) {
+            // Verifikasi status aplikasi terlebih dahulu
+            const canProceed = await confirmApplicationStatus(lowonganId);
+            if (!canProceed) return;
+
+            // Lanjutkan dengan modal upload
             currentLowonganId = lowonganId;
             resetDocumentForm();
             addDocumentItem();
 
             const uploadModal = new bootstrap.Modal(document.getElementById('uploadDocumentModal'));
-            uploadModal.show()
+            uploadModal.show();
+
+            // Close detail modal
+            const detailModal = bootstrap.Modal.getInstance(document.getElementById('lowonganDetailModal'));
+            if (detailModal) detailModal.hide();
         }
 
         function applyDirectly(lowonganId) {
@@ -1329,7 +1438,11 @@
                         dt.items.add(files[0]);
                         fileInput.files = dt.files;
 
-                        handleFileSelect({ target: { files: files } }, documentId);
+                        handleFileSelect({
+                            target: {
+                                files: files
+                            }
+                        }, documentId);
                     }
                 }
             });
@@ -1441,32 +1554,48 @@
 
                 // Prepare form data
                 const formData = new FormData();
+
+                // PENTING: Tambahkan lowongan_id ke FormData
                 formData.append('lowongan_id', currentLowonganId);
 
-                let fileIndex = 0;
+                // Debug: Log lowongan_id
+                console.log('Adding lowongan_id to request:', currentLowonganId);
+
+                let documentIndex = 0;
                 for (const item of documentItems) {
                     const file = item.fileData;
                     const typeSelect = item.querySelector('select');
                     const type = typeSelect ? typeSelect.value : 'Lainnya';
-                    const description = `Dokumen ${type} untuk lamaran`;
 
-                    formData.append(`documents[${fileIndex}][file]`, file);
-                    formData.append(`documents[${fileIndex}][type]`, type);
-                    formData.append(`documents[${fileIndex}][description]`, description);
-                    fileIndex++;
+                    if (!file) {
+                        throw new Error('File tidak ditemukan untuk dokumen #' + (documentIndex + 1));
+                    }
 
-                    updateUploadProgress(20 + (fileIndex * 15), `Mempersiapkan ${file.name}...`);
+                    // Tambahkan file dan metadata ke FormData dengan format yang benar
+                    formData.append(`documents[${documentIndex}][file]`, file);
+                    formData.append(`documents[${documentIndex}][type]`, type);
+                    formData.append(`documents[${documentIndex}][description]`, `Dokumen ${type} untuk lamaran`);
+
+                    documentIndex++;
+                    updateUploadProgress(20 + (documentIndex * 15), `Mempersiapkan ${file.name}...`);
+                }
+
+                // Debug: Log semua data yang akan dikirim
+                console.log('Form data contents:');
+                for (const pair of formData.entries()) {
+                    console.log(pair[0], pair[1]);
                 }
 
                 updateUploadProgress(60, 'Mengirim dokumen ke server...');
 
-                // Send to server
+                // Kirim ke server
                 const response = await api.post('/mahasiswa/apply-with-documents', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     },
                     onUploadProgress: (progressEvent) => {
-                        const percentage = Math.round((progressEvent.loaded * 40) / progressEvent.total) + 60;
+                        const percentage = Math.round((progressEvent.loaded * 40) / progressEvent.total) +
+                            60;
                         updateUploadProgress(percentage, 'Mengupload dokumen...');
                     }
                 });
@@ -1496,7 +1625,6 @@
 
                     // Reload lowongan data
                     setTimeout(() => loadLowongan(), 3000);
-
                 } else {
                     throw new Error(response.data.message || 'Gagal mengirim lamaran');
                 }
@@ -1505,13 +1633,24 @@
                 console.error('❌ Error submitting application:', error);
 
                 let errorMessage = 'Terjadi kesalahan saat mengirim lamaran';
-                if (error.response && error.response.data && error.response.data.message) {
+
+                // Handle validation errors
+                if (error.response?.data?.errors) {
+                    const errors = error.response.data.errors;
+                    errorMessage = '<div class="text-start">Validasi gagal:<br>';
+                    for (const field in errors) {
+                        errorMessage += `• ${errors[field].join('<br>• ')}<br>`;
+                    }
+                    errorMessage += '</div>';
+                } else if (error.response?.data?.message) {
                     errorMessage = error.response.data.message;
+                } else if (error.message) {
+                    errorMessage = error.message;
                 }
 
                 Swal.fire({
                     title: 'Gagal!',
-                    text: errorMessage,
+                    html: errorMessage,
                     icon: 'error'
                 });
 
@@ -1573,7 +1712,7 @@
             }
 
             // Document type change validation
-            document.addEventListener('change', function (e) {
+            document.addEventListener('change', function(e) {
                 if (e.target.matches('select[id^="docType-"]')) {
                     validateForm();
                 }
@@ -1583,7 +1722,7 @@
         }
 
         // ✅ DEBUG: START PAGE INITIALIZATION WHEN DOM IS READY
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 DOM Content Loaded, starting initialization...');
 
             // Initialize page
@@ -1594,6 +1733,5 @@
                 setupDocumentUploadListeners();
             }, 1000);
         });
-
     </script>
 @endpush

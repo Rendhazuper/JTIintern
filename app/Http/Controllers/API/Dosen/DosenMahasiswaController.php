@@ -177,9 +177,9 @@ class DosenMahasiswaController extends Controller
             }
 
             // Check if evaluation exists for this magang
-            $evaluationExists = DB::table('t_evaluasi')
+            $evaluation = DB::table('t_evaluasi')
                 ->where('id_magang', $magangId)
-                ->exists();
+                ->first();
 
             // Also verify that this magang belongs to this dosen
             $magangBelongsToDosen = DB::table('m_magang')
@@ -194,9 +194,24 @@ class DosenMahasiswaController extends Controller
                 ], 403);
             }
 
+            // If evaluation exists BUT nilai_dosen is NULL, dosen needs to evaluate
+            $needsDosenEvaluation = false;
+            $grade = null;
+            
+            if ($evaluation) {
+                $needsDosenEvaluation = is_null($evaluation->nilai_dosen) || is_null($evaluation->catatan_dosen);
+                
+                // If evaluation is complete (both nilai_dosen and nilai_perusahaan exist), return the grade
+                if (!$needsDosenEvaluation && !is_null($evaluation->nilai_perusahaan)) {
+                    $grade = $evaluation->grade;
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'has_evaluation' => $evaluationExists,
+                'has_evaluation' => $evaluation ? true : false,
+                'needs_dosen_evaluation' => $needsDosenEvaluation,
+                'grade' => $grade,
                 'magang_id' => $magangId
             ]);
 
@@ -451,9 +466,14 @@ class DosenMahasiswaController extends Controller
             $evaluasiData = [
                 'id_mahasiswa' => $id_mahasiswa,
                 'id_magang' => $magang_id,
-                'nilai_akhir' => $existingEvaluasi->nilai_akhir ?? '',
-                'catatan_evaluasi' => $existingEvaluasi->catatan_evaluasi ?? '',
-                'is_existing' => $existingEvaluasi ? true : false
+                'nilai_akhir' => $existingEvaluasi->nilai_dosen ?? '',
+                'catatan_evaluasi' => $existingEvaluasi->catatan_dosen ?? '',
+                'nilai_perusahaan' => $existingEvaluasi->nilai_perusahaan ?? null,
+                'file_penilaian_perusahaan' => $existingEvaluasi->file_penilaian_perusahaan ?? null,
+                'is_existing' => $existingEvaluasi ? true : false,
+                'needs_dosen_input' => $existingEvaluasi ? 
+                    (is_null($existingEvaluasi->nilai_dosen) || is_null($existingEvaluasi->catatan_dosen)) : 
+                    false
             ];
 
             return response()->json([
@@ -486,8 +506,8 @@ class DosenMahasiswaController extends Controller
 
             // Validate request
             $request->validate([
-                'nilai_akhir' => 'required|numeric|min:0|max:100',
-                'catatan_evaluasi' => 'required|string'
+                'nilai_dosen' => 'required|numeric|min:0|max:100',
+                'catatan_dosen' => 'required|string'
             ]);
 
             $magang_id = $request->get('magang_id');
@@ -520,26 +540,38 @@ class DosenMahasiswaController extends Controller
                 ->where('id_magang', $magang_id)
                 ->first();
 
-            $evaluasiData = [
-                'id_magang' => $magang_id,
-                'id_mahasiswa' => $id_mahasiswa,
-                'id_dosen' => $dosen->id_dosen,
-                'nilai_akhir' => $request->nilai_akhir,
-                'catatan_evaluasi' => $request->catatan_evaluasi,
-                'updated_at' => now()
-            ];
+            // Calculate final grade: nilai_akhir = ½ (nilai_perusahaan + nilai_dosen)
+            $nilai_dosen = (float)$request->nilai_dosen;
+            $nilai_perusahaan = $existingEvaluasi ? (float)$existingEvaluasi->nilai_perusahaan : 0;
+            $nilai_akhir = ($nilai_perusahaan + $nilai_dosen) / 2;
+
+            // Determine letter grade based on nilai_akhir
+            $grade = $this->calculateGrade($nilai_akhir);
 
             if ($existingEvaluasi) {
                 // Update existing evaluation
                 DB::table('t_evaluasi')
                     ->where('id_evaluasi', $existingEvaluasi->id_evaluasi)
-                    ->update($evaluasiData);
+                    ->update([
+                        'nilai_dosen' => $nilai_dosen,
+                        'catatan_dosen' => $request->catatan_dosen,
+                        'nilai_akhir' => $nilai_akhir,
+                        'grade' => $grade,
+                        'updated_at' => now()
+                    ]);
                 
                 $message = 'Evaluasi berhasil diperbarui';
             } else {
-                // Create new evaluation
-                $evaluasiData['created_at'] = now();
-                DB::table('t_evaluasi')->insert($evaluasiData);
+                // Create new evaluation if it doesn't exist yet
+                DB::table('t_evaluasi')->insert([
+                    'id_magang' => $magang_id,
+                    'nilai_dosen' => $nilai_dosen,
+                    'catatan_dosen' => $request->catatan_evaluasi,
+                    'nilai_akhir' => $nilai_akhir,
+                    'grade' => $grade,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
                 
                 $message = 'Evaluasi berhasil disimpan';
             }
@@ -548,7 +580,13 @@ class DosenMahasiswaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $message
+                'message' => $message,
+                'data' => [
+                    'nilai_dosen' => $nilai_dosen,
+                    'nilai_perusahaan' => $nilai_perusahaan,
+                    'nilai_akhir' => $nilai_akhir,
+                    'grade' => $grade
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -558,6 +596,31 @@ class DosenMahasiswaController extends Controller
                 'success' => false,
                 'message' => 'Gagal menyimpan evaluasi: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Calculate letter grade based on final score
+     * 
+     * @param float $nilai_akhir
+     * @return string
+     */
+    private function calculateGrade($nilai_akhir)
+    {
+        if ($nilai_akhir >= 81 && $nilai_akhir <= 100) {
+            return 'A'; // Sangat Baik
+        } elseif ($nilai_akhir >= 74 && $nilai_akhir < 81) {
+            return 'B+'; // Lebih dari Baik
+        } elseif ($nilai_akhir >= 66 && $nilai_akhir < 74) {
+            return 'B'; // Baik
+        } elseif ($nilai_akhir >= 61 && $nilai_akhir < 66) {
+            return 'C+'; // Lebih dari Cukup
+        } elseif ($nilai_akhir >= 51 && $nilai_akhir < 61) {
+            return 'C'; // Cukup
+        } elseif ($nilai_akhir >= 40 && $nilai_akhir <= 50) {
+            return 'D'; // Kurang
+        } else {
+            return 'E'; // Default for scores below 40
         }
     }
 }

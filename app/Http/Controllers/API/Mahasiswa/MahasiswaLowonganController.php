@@ -233,6 +233,32 @@ class MahasiswaLowonganController extends Controller
                 'telp' => $lowongan->contact_person
             ];
 
+            // Get current user's application status if authenticated
+            $applicationStatus = null;
+            if (Auth::check()) {
+                $user = Auth::user();
+                $mahasiswa = DB::table('m_mahasiswa')
+                    ->where('id_user', $user->id_user)
+                    ->first();
+
+                if ($mahasiswa) {
+                    $lamaran = DB::table('t_lamaran')
+                        ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                        ->where('id_lowongan', $id)
+                        ->select('id_lamaran', 'auth as status', 'tanggal_lamaran')
+                        ->first();
+
+                    if ($lamaran) {
+                        $applicationStatus = [
+                            'id_lamaran' => $lamaran->id_lamaran,
+                            'status' => $lamaran->status,
+                            'tanggal_lamaran' => $lamaran->tanggal_lamaran,
+                            'can_cancel' => $lamaran->status === 'menunggu'
+                        ];
+                    }
+                }
+            }
+
             // Format data untuk response
             $result = [
                 'id_lowongan' => $lowongan->id_lowongan,
@@ -249,7 +275,8 @@ class MahasiswaLowonganController extends Controller
                 'periode' => [
                     'periode_id' => $lowongan->periode_id,
                     'waktu' => $lowongan->waktu
-                ]
+                ],
+                'application_status' => $applicationStatus // Tambahkan status lamaran
             ];
 
             return response()->json([
@@ -653,9 +680,9 @@ class MahasiswaLowonganController extends Controller
             $request->validate([
                 'lowongan_id' => 'required|exists:m_lowongan,id_lowongan',
                 'documents' => 'required|array|min:1|max:5',
-                'documents.*.file' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB
-                'documents.*.type' => 'required|string',
-                'documents.*.description' => 'nullable|string'
+                'documents.*.file' => 'required|file|mimes:pdf,doc,docx|max:5120',
+                'documents.*.type' => 'required|string|max:255',
+                'documents.*.description' => 'nullable|string|max:1000'
             ]);
 
             // Get mahasiswa data
@@ -815,6 +842,57 @@ class MahasiswaLowonganController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengirim lamaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if user has applied to a specific internship position
+     * 
+     * @param int $lowongan_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkApplicationStatus($lowongan_id)
+    {
+        try {
+            $user = Auth::user();
+            
+            // Get mahasiswa data
+            $mahasiswa = DB::table('m_mahasiswa')
+                ->where('id_user', $user->id_user)
+                ->first();
+
+            if (!$mahasiswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data mahasiswa tidak ditemukan'
+                ], 404);
+            }
+
+            // Check if already applied
+            $lamaran = DB::table('t_lamaran')
+                ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
+                ->where('id_lowongan', $lowongan_id)
+                ->select('id_lamaran', 'auth as status', 'tanggal_lamaran')
+                ->first();
+            
+            $hasApplied = !is_null($lamaran);
+            
+            return response()->json([
+                'success' => true,
+                'has_applied' => $hasApplied,
+                'application_data' => $hasApplied ? [
+                    'id_lamaran' => $lamaran->id_lamaran,
+                    'status' => $lamaran->status,
+                    'tanggal_lamaran' => $lamaran->tanggal_lamaran,
+                    'can_cancel' => $lamaran->status === 'menunggu' // Hanya bisa dibatalkan jika status masih menunggu
+                ] : null
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error checking application status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memeriksa status lamaran: ' . $e->getMessage()
             ], 500);
         }
     }

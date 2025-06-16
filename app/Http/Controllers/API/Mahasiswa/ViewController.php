@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ViewController extends Controller
 {
@@ -551,40 +552,40 @@ class ViewController extends Controller
                     ->first();
 
                 if ($mahasiswaData) {
-                    // ✅ PERBAIKAN: Query magang aktif tanpa hardcoded date
+                    // ✅ FIX: Include both 'aktif' and 'selesai' status
                     $magangAktif = DB::table('m_magang')
                         ->join('m_lowongan', 'm_magang.id_lowongan', '=', 'm_lowongan.id_lowongan')
                         ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
                         ->leftJoin('m_wilayah', 'm_perusahaan.wilayah_id', '=', 'm_wilayah.wilayah_id')
                         ->leftJoin('m_dosen', 'm_magang.id_dosen', '=', 'm_dosen.id_dosen')
                         ->leftJoin('m_user as user_dosen', 'm_dosen.user_id', '=', 'user_dosen.id_user')
-                        ->select(
+                        ->leftJoin('t_evaluasi', 'm_magang.id_magang', '=', 't_evaluasi.id_magang') // Add this join to check for evaluation records
+                        ->where('m_magang.id_mahasiswa', $mahasiswaData->id_mahasiswa)
+                        ->whereIn('m_magang.status', ['aktif', 'selesai']) // Include both statuses
+                        ->whereNull('t_evaluasi.id_evaluasi') // Add this where condition to exclude records with evaluations
+                        ->select([
                             'm_magang.*',
                             'm_lowongan.judul_lowongan',
                             'm_lowongan.deskripsi',
                             'm_perusahaan.nama_perusahaan',
-                            'm_perusahaan.logo as logo_perusahaan',
+                            'm_perusahaan.logo',
                             'm_perusahaan.alamat_perusahaan',
                             'm_wilayah.nama_kota',
                             'user_dosen.name as nama_pembimbing',
                             'm_dosen.nip as nip_pembimbing'
-                            // ✅ HAPUS: Hardcoded dates
-                            // DB::raw('DATE_SUB(NOW(), INTERVAL 30 DAY) as tanggal_mulai'),
-                            // DB::raw('DATE_ADD(NOW(), INTERVAL 60 DAY) as tanggal_selesai')
-                        )
-                        ->where('m_magang.id_mahasiswa', $mahasiswaData->id_mahasiswa)
-                        ->where('m_magang.status', 'aktif')
+                        ])
+                        ->orderByRaw("FIELD(m_magang.status, 'aktif', 'selesai')") // ✅ Priority: aktif first, then selesai
                         ->first();
 
                     Log::info('Magang aktif data for lamaran page:', [
                         'mahasiswa_id' => $mahasiswaData->id_mahasiswa,
                         'magang_data' => $magangAktif,
+                        'status' => $magangAktif->status ?? 'NOT_FOUND',
                         'tgl_mulai' => $magangAktif->tgl_mulai ?? 'NULL',
                         'tgl_selesai' => $magangAktif->tgl_selesai ?? 'NULL'
                     ]);
 
                     if ($magangAktif) {
-                        // ✅ PERBAIKAN: Hitung progress menggunakan kolom database yang sebenarnya
                         if ($magangAktif->tgl_mulai && $magangAktif->tgl_selesai) {
                             $tanggalMulai = \Carbon\Carbon::parse($magangAktif->tgl_mulai);
                             $tanggalSelesai = \Carbon\Carbon::parse($magangAktif->tgl_selesai);
@@ -593,64 +594,79 @@ class ViewController extends Controller
                             $totalDurasi = $tanggalMulai->diffInDays($tanggalSelesai);
 
                             if ($hariIni->isBefore($tanggalMulai)) {
-                                // Belum mulai
-                                $lewat = 0;
-                                $sisaHari = $tanggalMulai->diffInDays($hariIni);
                                 $progress = 0;
+                                $sisaHari = $tanggalMulai->diffInDays($hariIni);
+                                $isExpired = false;
                                 $statusText = 'Akan dimulai dalam ' . $sisaHari . ' hari';
                             } elseif ($hariIni->isAfter($tanggalSelesai)) {
-                                // Sudah selesai
-                                $lewat = $totalDurasi;
-                                $sisaHari = 0;
                                 $progress = 100;
+                                $sisaHari = 0;
+                                $isExpired = true;
                                 $statusText = 'Magang telah selesai';
                             } else {
-                                // Sedang berlangsung
                                 $lewat = $tanggalMulai->diffInDays($hariIni);
                                 $sisaHari = $hariIni->diffInDays($tanggalSelesai);
                                 $progress = $totalDurasi > 0 ? ($lewat / $totalDurasi) * 100 : 0;
+                                $isExpired = false;
                                 $statusText = 'Sedang berlangsung';
                             }
-
-                            $magangInfo = [
-                                'data' => $magangAktif,
-                                'totalDurasi' => $totalDurasi,
-                                'lewat' => $lewat,
-                                'sisaHari' => $sisaHari,
-                                'progress' => round($progress),
-                                'status_text' => $statusText,
-                                'tgl_mulai_formatted' => $tanggalMulai->format('d M Y'),
-                                'tgl_selesai_formatted' => $tanggalSelesai->format('d M Y')
-                            ];
-
-                            Log::info('Progress calculated for lamaran page:', [
-                                'tgl_mulai' => $tanggalMulai->format('Y-m-d'),
-                                'tgl_selesai' => $tanggalSelesai->format('Y-m-d'),
-                                'total_durasi' => $totalDurasi,
-                                'lewat' => $lewat,
-                                'sisa_hari' => $sisaHari,
-                                'progress' => $progress
-                            ]);
                         } else {
-                            // ✅ FALLBACK: Jika tanggal tidak ada
-                            $magangInfo = [
-                                'data' => $magangAktif,
-                                'totalDurasi' => 0,
-                                'lewat' => 0,
-                                'sisaHari' => 0,
-                                'progress' => 0,
-                                'status_text' => 'Jadwal magang belum ditentukan',
-                                'tgl_mulai_formatted' => 'Belum ditentukan',
-                                'tgl_selesai_formatted' => 'Belum ditentukan',
-                                'message' => 'Jadwal magang belum ditentukan oleh admin'
-                            ];
-
-                            Log::warning('Magang active but no dates set in lamaran page:', [
-                                'magang_id' => $magangAktif->id_magang,
-                                'tgl_mulai' => $magangAktif->tgl_mulai,
-                                'tgl_selesai' => $magangAktif->tgl_selesai
-                            ]);
+                            // Fallback calculation
+                            $progress = 0;
+                            $sisaHari = 0;
+                            $isExpired = false;
+                            $statusText = 'Jadwal magang belum ditentukan';
                         }
+
+                        // ✅ FIX: Check status database override
+                        if ($magangAktif->status === 'selesai') {
+                            $isExpired = true;
+                            $progress = 100;
+                            $statusText = 'Magang telah selesai';
+                        }
+
+                        // ✅ GENERATE: Logo URL
+                        $logoUrl = null;
+                        if ($magangAktif->logo && !empty($magangAktif->logo)) {
+                            if (strpos($magangAktif->logo, 'http') === 0) {
+                                $logoUrl = $magangAktif->logo;
+                            } else if (strpos($magangAktif->logo, 'storage/') === 0) {
+                                $logoUrl = asset($magangAktif->logo);
+                            } else {
+                                $logoUrl = asset('storage/' . $magangAktif->logo);
+                            }
+                        }
+
+                        $magangInfo = [
+                            'id_magang' => $magangAktif->id_magang,
+                            'id_mahasiswa' => $magangAktif->id_mahasiswa,
+                            'judul_lowongan' => $magangAktif->judul_lowongan,
+                            'nama_perusahaan' => $magangAktif->nama_perusahaan,
+                            'logo_perusahaan' => $magangAktif->logo,
+                            'logo_url' => $logoUrl,
+                            'nama_pembimbing' => $magangAktif->nama_pembimbing,
+                            'nip_pembimbing' => $magangAktif->nip_pembimbing,
+                            'status' => $magangAktif->status,
+                            'tgl_mulai' => $magangAktif->tgl_mulai,
+                            'tgl_selesai' => $magangAktif->tgl_selesai,
+                            'tgl_mulai_formatted' => $magangAktif->tgl_mulai ? \Carbon\Carbon::parse($magangAktif->tgl_mulai)->format('d M Y') : 'Belum ditentukan',
+                            'tgl_selesai_formatted' => $magangAktif->tgl_selesai ? \Carbon\Carbon::parse($magangAktif->tgl_selesai)->format('d M Y') : 'Belum ditentukan',
+                            'progress' => round($progress),
+                            'sisa_hari' => $sisaHari,
+                            'total_durasi' => $totalDurasi,
+                            'is_expired' => $isExpired,
+                            'status_text' => $statusText,
+                            'is_active' => $magangAktif->status === 'aktif', // ✅ FIX: Only true if actually active
+                            'needs_evaluation' => $isExpired && $magangAktif->status === 'selesai' // ✅ ADD: Flag for evaluation
+                        ];
+
+                        Log::info('✅ Magang info loaded for lamaran page:', [
+                            'id_magang' => $magangAktif->id_magang,
+                            'status' => $magangAktif->status,
+                            'is_expired' => $isExpired,
+                            'progress' => $progress,
+                            'needs_evaluation' => $magangInfo['needs_evaluation']
+                        ]);
                     }
 
                     // 2. Get lamaran history from t_lamaran
@@ -879,4 +895,10 @@ class ViewController extends Controller
             ]);
         }
     }
+    /**
+     * Show the lamaran (applications) view for mahasiswa
+     *
+     * @return \Illuminate\View\View
+     */
+  
 }

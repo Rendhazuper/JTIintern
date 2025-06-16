@@ -22,6 +22,7 @@ use App\Http\Controllers\API\Dosen\dashboardController as DosenDash;
 use App\Http\Controllers\API\Dosen\DosenProfileController;
 use App\Http\Controllers\API\Dosen\ProfileController as DosenProfile;
 use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\EvaluasiMagangController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,9 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::get('/active-internship', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkActiveInternship']);
     Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
     Route::post('/apply-with-documents', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyWithDocuments']);
+     Route::get('lowongan/{lowongan_id}/application-status', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkApplicationStatus']);
+      Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
+
 
     // Profile management routes
     Route::prefix('profile')->group(function () {
@@ -104,10 +108,13 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
 
     // ✅ CLEANED: Lamaran routes (menggabungkan duplikasi)
     Route::prefix('lamaran')->group(function () {
-        Route::get('/', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-        Route::get('/reload', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
-        Route::get('/{id}/detail', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getDetailLamaran']); // ✅ NEW
-        Route::delete('/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+        Route::get('/data', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+        Route::get('/reload', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
+        Route::post('/submit', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'submitLamaran']);
+        Route::delete('/{id}', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+        Route::get('/{id}/detail', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getDetailLamaran']);
+        Route::get('check/{id}', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'checkStatus']);
+        
     });
 
     // ✅ FIXED: Logbook routes menggunakan controller yang benar
@@ -136,19 +143,12 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     });
 
 
-    // Route untuk lamaran
-    Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
-    Route::get('/applications', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getApplications']);
-    Route::delete('/cancel-application/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'cancelApplication']);
-    Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
-
-    Route::get('/lamaran/reload', [App\Http\Controllers\API\Mahasiswa\ViewController::class, 'lamaran']);
-    Route::get('/lamaran', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-    Route::delete('/lamaran/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
-
-
-    Route::get('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'index']);
-    Route::post('/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'store']);
+     Route::prefix('lamaran')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
+        Route::get('/reload', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
+        Route::get('/{id}/detail', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getDetailLamaran']); // ✅ NEW
+        Route::delete('/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
+    }); 
 
     // Evaluasi routes
     Route::prefix('evaluasi')->group(function () {
@@ -159,6 +159,15 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     // Magang completion routes
     Route::get('/magang/check-completion', [MahasiswaController::class, 'checkMagangCompletion']);
     Route::post('/magang/submit-final-evaluation', [MahasiswaController::class, 'submitFinalEvaluation']);
+    // ✅ TAMBAH: Evaluasi Magang Routes
+    Route::prefix('evaluasi-magang')->group(function () {
+        Route::get('/check/{idMagang}', [App\Http\Controllers\EvaluasiMagangController::class, 'checkNeedEvaluation']);
+        Route::post('/submit', [App\Http\Controllers\EvaluasiMagangController::class, 'submitEvaluasi']);
+        Route::get('/status/{idMagang}', [App\Http\Controllers\EvaluasiMagangController::class, 'getEvaluasiStatus']);
+    });
+
+    // ✅ TAMBAH: Batch status check route
+    Route::post('/lamaran/batch-status', [\App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'batchCheckStatus']);
 });
 
 // =========================================================
@@ -303,4 +312,14 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function 
     Route::get('/mahasiswa/{id}/logbook', [DosenMaha::class, 'getMahasiswaLogbook']);
     Route::get('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'getMahasiswaEvaluasi']);
     Route::post('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'storeMahasiswaEvaluasi']);
+});
+
+// ✅ TAMBAH: Routes di section umum (bukan di prefix mahasiswa)
+Route::middleware(['web', 'auth'])->group(function () {
+    // ✅ EVALUASI MAGANG: Routes global (tidak dalam prefix mahasiswa)
+    Route::prefix('evaluasi-magang')->group(function () {
+        Route::get('/check/{idMagang}', [\App\Http\Controllers\EvaluasiMagangController::class, 'checkNeedEvaluation']);
+        Route::post('/submit', [\App\Http\Controllers\EvaluasiMagangController::class, 'submitEvaluasi']);
+        Route::get('/status/{idMagang}', [\App\Http\Controllers\EvaluasiMagangController::class, 'getEvaluasiStatus']);
+    });
 });
