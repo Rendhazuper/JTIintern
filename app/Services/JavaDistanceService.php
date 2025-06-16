@@ -24,17 +24,17 @@ class JavaDistanceService
                 'method' => 'direct'
             ];
         }
-        
+
         $cacheKey = "java_distance_{$fromWilayahId}_{$toWilayahId}";
-        
+
         return Cache::remember($cacheKey, 60 * 24 * 30, function () use ($fromWilayahId, $toWilayahId) {
-            
+
             // Try distance matrix first
             $distance = DB::table('m_distance_matrix')
                 ->where('from_wilayah_id', $fromWilayahId)
                 ->where('to_wilayah_id', $toWilayahId)
                 ->first();
-            
+
             if ($distance) {
                 return [
                     'distance_km' => $distance->distance_km,
@@ -45,12 +45,12 @@ class JavaDistanceService
                     'method' => $distance->calculation_method
                 ];
             }
-            
+
             // If not found, calculate from coordinates
             return $this->calculateFromCoordinates($fromWilayahId, $toWilayahId);
         });
     }
-    
+
     /**
      * Calculate distance from coordinates
      */
@@ -61,30 +61,32 @@ class JavaDistanceService
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->first();
-            
+
         $toCity = DB::table('m_wilayah')
             ->where('wilayah_id', $toWilayahId)
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->first();
-        
+
         if (!$fromCity || !$toCity) {
             return $this->getFallbackDistance();
         }
-        
+
         // Calculate Haversine distance
         $distance = $this->haversineDistance(
-            $fromCity->latitude, $fromCity->longitude,
-            $toCity->latitude, $toCity->longitude
+            $fromCity->latitude,
+            $fromCity->longitude,
+            $toCity->latitude,
+            $toCity->longitude
         );
-        
+
         $score = $this->distanceToScore($distance);
         $category = $this->scoreToCategory($score);
         $duration = $this->estimateDuration($distance);
-        
+
         // Save for future use
         $this->saveToMatrix($fromWilayahId, $toWilayahId, $distance, $duration, $score, $category);
-        
+
         return [
             'distance_km' => round($distance, 2),
             'duration_minutes' => $duration,
@@ -94,49 +96,49 @@ class JavaDistanceService
             'method' => 'haversine'
         ];
     }
-    
+
     /**
      * Calculate Haversine distance between two coordinates
      */
     private function haversineDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // Earth radius in kilometers
-        
+
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
-        
-        $a = sin($dLat/2) * sin($dLat/2) + 
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * 
-             sin($dLon/2) * sin($dLon/2);
-             
-        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-        
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
         return $earthRadius * $c;
     }
-    
+
     /**
      * Convert distance to score (1-3 scale)
      */
     private function distanceToScore($distance)
     {
-        if ($distance <= 30) return 1; // Sangat dekat
-        if ($distance <= 100) return 2; // Sedang
-        return 3; // Jauh
+        if ($distance <= 1) return 3; // Sangat dekat
+        if ($distance <= 3) return 2; // Sedang
+        return 1; // Jauh
     }
-    
+
     /**
      * Convert score to category
      */
     private function scoreToCategory($score)
     {
-        return match($score) {
+        return match ($score) {
             1 => 'Sangat Dekat',
             2 => 'Sedang',
             3 => 'Jauh',
             default => 'Tidak Diketahui'
         };
     }
-    
+
     /**
      * Estimate duration based on distance
      */
@@ -151,7 +153,7 @@ class JavaDistanceService
             return round($distance * 1.1); // Mostly highway - faster
         }
     }
-    
+
     /**
      * Get fallback distance when coordinates not available
      */
@@ -166,7 +168,7 @@ class JavaDistanceService
             'method' => 'estimated'
         ];
     }
-    
+
     /**
      * Save calculated distance to matrix for future use
      */
@@ -178,7 +180,7 @@ class JavaDistanceService
                 ->where('from_wilayah_id', $fromId)
                 ->where('to_wilayah_id', $toId)
                 ->exists();
-                
+
             if (!$exists) {
                 DB::table('m_distance_matrix')->insert([
                     'from_wilayah_id' => $fromId,
@@ -196,17 +198,17 @@ class JavaDistanceService
             Log::warning("Failed to save distance matrix: " . $e->getMessage());
         }
     }
-    
+
     /**
      * Get distance for SPK calculation with enhanced scoring
      */
     public function getDistanceForSPK($fromWilayahId, $toWilayahId)
     {
         $distance = $this->getDistance($fromWilayahId, $toWilayahId);
-        
+
         // Enhanced SPK scoring based on Java Island context
         $criterionValue = $this->calculateSPKCriterionValue($distance);
-        
+
         return [
             'criterion_value' => $criterionValue,
             'distance_data' => $distance,
@@ -218,22 +220,22 @@ class JavaDistanceService
             'accessibility_score' => $this->getAccessibilityScore($distance)
         ];
     }
-    
+
     /**
      * Calculate SPK criterion value with Java-specific logic
      */
     private function calculateSPKCriterionValue($distance)
     {
-        $baseScore = match($distance['score']) {
+        $baseScore = match ($distance['score']) {
             1 => 3, // Dekat = nilai tinggi (terbaik untuk cost criterion)
             2 => 2, // Sedang = nilai menengah
             3 => 1, // Jauh = nilai rendah (terburuk untuk cost criterion)
             default => 2
         };
-        
+
         return $baseScore;
     }
-    
+
     /**
      * Get transport analysis for Java Island
      */
@@ -242,7 +244,7 @@ class JavaDistanceService
         $transportOptions = [];
         $primaryMode = '';
         $difficulty = 'Easy';
-        
+
         switch ($distance['score']) {
             case 1: // ≤30km
                 $transportOptions = [
@@ -254,7 +256,7 @@ class JavaDistanceService
                 $primaryMode = 'Motor/Mobil pribadi';
                 $difficulty = 'Sangat Mudah';
                 break;
-                
+
             case 2: // 31-100km
                 $transportOptions = [
                     'Motor pribadi' => ['cost' => 35000, 'time' => $distance['duration_minutes']],
@@ -266,7 +268,7 @@ class JavaDistanceService
                 $primaryMode = 'Bus/Travel/Kereta';
                 $difficulty = 'Mudah';
                 break;
-                
+
             case 3: // >100km
                 $transportOptions = [
                     'Mobil pribadi' => ['cost' => 100000, 'time' => $distance['duration_minutes']],
@@ -278,7 +280,7 @@ class JavaDistanceService
                 $difficulty = 'Memerlukan Perencanaan';
                 break;
         }
-        
+
         return [
             'options' => $transportOptions,
             'recommended_mode' => $primaryMode,
@@ -287,7 +289,7 @@ class JavaDistanceService
             'weekly_commute_feasible' => $distance['score'] <= 3
         ];
     }
-    
+
     /**
      * Get cost analysis
      */
@@ -296,7 +298,7 @@ class JavaDistanceService
         $dailyCost = 0;
         $monthlyCost = 0;
         $recommendedBudget = '';
-        
+
         switch ($distance['score']) {
             case 1:
                 $dailyCost = 20000;
@@ -314,7 +316,7 @@ class JavaDistanceService
                 $recommendedBudget = 'Rp 1,500,000 - 2,000,000/bulan (dengan akomodasi)';
                 break;
         }
-        
+
         return [
             'daily_cost_estimate' => $dailyCost,
             'monthly_cost_estimate' => $monthlyCost,
@@ -323,25 +325,25 @@ class JavaDistanceService
             'financial_feasibility' => $this->getFinancialFeasibility($monthlyCost)
         ];
     }
-    
+
     /**
      * Get accessibility score based on Java infrastructure
      */
     private function getAccessibilityScore($distance)
     {
-        $baseScore = match($distance['score']) {
+        $baseScore = match ($distance['score']) {
             1 => 90,
             2 => 70,
             3 => 50,
             default => 30
         };
-        
+
         // Java Island infrastructure bonus
         $infraBonus = 10;
-        
+
         return min(100, $baseScore + $infraBonus);
     }
-    
+
     private function getInterpretation($score)
     {
         switch ($score) {
@@ -355,24 +357,24 @@ class JavaDistanceService
                 return 'Perlu evaluasi lokasi lebih detail';
         }
     }
-    
+
     private function getRecommendation($score)
     {
-        return match($score) {
+        return match ($score) {
             1 => 'Sangat direkomendasikan - optimal untuk commuting harian',
             2 => 'Direkomendasikan - manfaatkan transportasi umum Jawa yang baik',
             3 => 'Pertimbangkan jika sesuai passion dan ada bantuan akomodasi',
             default => 'Perlu analisis cost-benefit lebih detail'
         };
     }
-    
+
     private function getCostCategory($monthlyCost)
     {
         if ($monthlyCost <= 500000) return 'Ekonomis';
         if ($monthlyCost <= 1200000) return 'Menengah';
         return 'Premium';
     }
-    
+
     private function getFinancialFeasibility($monthlyCost)
     {
         // Based on typical student budget
@@ -381,18 +383,18 @@ class JavaDistanceService
         if ($monthlyCost <= 1500000) return 'Perlu Pertimbangan';
         return 'Perlu Bantuan/Beasiswa';
     }
-    
+
     /**
      * Get comprehensive city analysis for student location
      */
     public function getStudentLocationAnalysis($studentWilayahId)
     {
         $studentCity = DB::table('m_wilayah')->where('wilayah_id', $studentWilayahId)->first();
-        
+
         if (!$studentCity) {
             return ['error' => 'Student location not found'];
         }
-        
+
         $distances = DB::table('m_distance_matrix as dm')
             ->join('m_wilayah as w', 'dm.to_wilayah_id', '=', 'w.wilayah_id')
             ->where('dm.from_wilayah_id', $studentWilayahId)
@@ -405,7 +407,7 @@ class JavaDistanceService
             ->orderBy('dm.score')
             ->orderBy('dm.distance_km')
             ->get();
-        
+
         $analysis = [
             'student_location' => [
                 'city' => $studentCity->nama_kota,
@@ -422,7 +424,7 @@ class JavaDistanceService
                 'less_accessible' => $distances->where('score', 3)->count(),
                 'average_distance' => round($distances->avg('distance_km'), 2)
             ],
-            'top_recommendations' => $distances->take(10)->map(function($item) {
+            'top_recommendations' => $distances->take(10)->map(function ($item) {
                 return [
                     'wilayah_id' => $item->to_wilayah_id,
                     'nama_kota' => $item->nama_kota,
@@ -434,7 +436,7 @@ class JavaDistanceService
                 ];
             })
         ];
-        
+
         return $analysis;
     }
 }

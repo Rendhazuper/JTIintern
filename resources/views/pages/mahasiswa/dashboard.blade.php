@@ -2914,7 +2914,12 @@ function renderDetailedSPKAnalysis(analysis) {
                 <div class="criteria-grid">
                     ${Object.entries(scores).map(([criterion, data]) => {
                         const score = data.score || 0;
-                        const percentage = data.percentage || (score / 3 * 100);
+let percentage;
+if (criterion === 'wilayah') {
+    percentage = data.percentage || ((4 - score) / 3 * 100); // cost criterion
+} else {
+    percentage = data.percentage || (score / 3 * 100); // benefit criterion
+}
                         const category = data.category || 'No category';
                         const matchCount = data.match_count;
                         const totalRequired = data.total_required;

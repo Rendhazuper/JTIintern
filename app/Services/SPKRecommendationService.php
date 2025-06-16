@@ -215,13 +215,16 @@ class SPKRecommendationService
                 $allScores['ipk'][] = is_array($scores['ipk']) ? $scores['ipk']['score'] : $scores['ipk'];
             }
 
-            // Find max values for normalization (benefit criteria)
+            // Find max values for benefit criteria, min for cost (wilayah)
             $maxValues = [
                 'minat' => max($allScores['minat']),
                 'skill' => max($allScores['skill']),
-                'wilayah' => min($allScores['wilayah']), // Cost criterion (lower is better)
+                'wilayah' => max($allScores['wilayah']), // for reference
                 'kuota' => max($allScores['kuota']),
                 'ipk' => max($allScores['ipk'])
+            ];
+            $minValues = [
+                'wilayah' => min($allScores['wilayah'])
             ];
 
             foreach ($alternatives as $alternative) {
@@ -238,7 +241,8 @@ class SPKRecommendationService
                 $normalizedScores = [
                     'minat' => $maxValues['minat'] > 0 ? $minatScore / $maxValues['minat'] : 0,
                     'skill' => $maxValues['skill'] > 0 ? $skillScore / $maxValues['skill'] : 0,
-                    'wilayah' => $wilayahScore > 0 ? $maxValues['wilayah'] / $wilayahScore : 0, // Cost criterion
+                    // Wilayah: cost criterion, gunakan min/max yang benar
+                    'wilayah' => $wilayahScore > 0 ? $minValues['wilayah'] / $wilayahScore : 0,
                     'kuota' => $maxValues['kuota'] > 0 ? $kuotaScore / $maxValues['kuota'] : 0,
                     'ipk' => $maxValues['ipk'] > 0 ? $ipkScore / $maxValues['ipk'] : 0
                 ];
@@ -293,7 +297,8 @@ class SPKRecommendationService
                 'ranking' => $sawRanking,
                 'method' => 'SAW',
                 'weights' => $weights,
-                'max_values' => $maxValues
+                'max_values' => $maxValues,
+                'min_values' => $minValues
             ];
         } catch (\Exception $e) {
             Log::error('💥 Error in SAW method', [
@@ -540,9 +545,15 @@ class SPKRecommendationService
     private function calculateInterestScore($mahasiswa, $opportunity)
     {
         try {
-            // ✅ CHECK TABLE EXISTENCE
+            // 🔍 DEBUG: Log semua informasi mahasiswa
+            Log::info('🎯 MINAT DEBUG - Mahasiswa Object', [
+                'mahasiswa_full' => (array) $mahasiswa,
+                'id_mahasiswa' => $mahasiswa->id_mahasiswa ?? 'NOT_SET',
+                'id_user' => $mahasiswa->id_user ?? 'NOT_SET',
+                'opportunity_id' => $opportunity->id_lowongan ?? 'NOT_SET'
+            ]);
+
             if (!Schema::hasTable('t_minat_mahasiswa')) {
-                Log::info('📋 No interest system - using default score');
                 return [
                     'score' => 2,
                     'percentage' => 60,
@@ -552,47 +563,61 @@ class SPKRecommendationService
                 ];
             }
 
-            // ✅ GET STUDENT INTERESTS
+            // 🔍 Query minat mahasiswa
+            $mahasiswaId = $mahasiswa->id_mahasiswa ?? $mahasiswa->id ?? 0;
+
+            Log::info('🎯 MINAT DEBUG - Query Mahasiswa', [
+                'mahasiswa_id_used' => $mahasiswaId,
+                'sql_equivalent' => "SELECT minat_id FROM t_minat_mahasiswa WHERE mahasiswa_id = {$mahasiswaId}"
+            ]);
+
             $studentInterests = DB::table('t_minat_mahasiswa')
-                ->where('mahasiswa_id', $mahasiswa->id_mahasiswa ?? $mahasiswa->id ?? 0)
+                ->where('mahasiswa_id', $mahasiswaId)
                 ->pluck('minat_id')
                 ->toArray();
 
-            Log::info('👤 Student interests', [
-                'user_id' => $mahasiswa->id_user ?? $mahasiswa->id ?? 0,
-                'interests' => $studentInterests
+            Log::info('🎯 MINAT DEBUG - Student Result', [
+                'mahasiswa_id' => $mahasiswaId,
+                'student_interests' => $studentInterests,
+                'count' => count($studentInterests),
+                'data_types' => array_map('gettype', $studentInterests)
             ]);
 
-            // ✅ GET REQUIRED INTERESTS
-            $requiredInterests = [];
-            if (Schema::hasTable('t_minat_lowongan')) {
-                $requiredInterests = DB::table('t_minat_lowongan')
-                    ->where('id_lowongan', $opportunity->id_lowongan)
-                    ->pluck('minat_id')
-                    ->toArray();
-            }
+            // 🔍 Query minat lowongan
+            $lowonganId = $opportunity->id_lowongan;
 
-            Log::info('🏢 Required interests', [
-                'lowongan_id' => $opportunity->id_lowongan,
-                'required' => $requiredInterests
+            Log::info('🎯 MINAT DEBUG - Query Lowongan', [
+                'lowongan_id_used' => $lowonganId,
+                'sql_equivalent' => "SELECT minat_id FROM t_minat_lowongan WHERE id_lowongan = {$lowonganId}"
             ]);
 
-            if (empty($requiredInterests)) {
-                return [
-                    'score' => 2,
-                    'percentage' => 65,
-                    'match_count' => 0,
-                    'total_required' => 0,
-                    'category' => 'No Specific Interest Required'
-                ];
-            }
+            $requiredInterests = DB::table('t_minat_lowongan')
+                ->where('id_lowongan', $lowonganId)
+                ->pluck('minat_id')
+                ->toArray();
 
+            Log::info('🎯 MINAT DEBUG - Lowongan Result', [
+                'lowongan_id' => $lowonganId,
+                'required_interests' => $requiredInterests,
+                'count' => count($requiredInterests),
+                'data_types' => array_map('gettype', $requiredInterests)
+            ]);
+
+            // 🔍 Cek intersect
             $matchCount = count(array_intersect($studentInterests, $requiredInterests));
+            $intersection = array_intersect($studentInterests, $requiredInterests);
             $totalRequired = count($requiredInterests);
+
+            Log::info('🎯 MINAT DEBUG - Intersection', [
+                'student_interests' => $studentInterests,
+                'required_interests' => $requiredInterests,
+                'intersection' => $intersection,
+                'match_count' => $matchCount
+            ]);
+
+            // Scoring logic
             $matchPercentage = $totalRequired > 0 ? ($matchCount / $totalRequired) * 100 : 0;
 
-            // Scoring logic (1-3 scale)
-            $score = 1;
             if ($matchPercentage >= 80) {
                 $score = 3;
                 $category = 'Excellent Match';
@@ -600,22 +625,25 @@ class SPKRecommendationService
                 $score = 2;
                 $category = 'Good Match';
             } else {
+                $score = 1;
                 $category = 'Limited Match';
             }
 
             $result = [
                 'score' => $score,
-                'percentage' => round($matchPercentage, 2),
+                'percentage' => $matchCount > 0 ? (($matchCount / max(count($requiredInterests), 1)) * 100) : 0,
                 'match_count' => $matchCount,
-                'total_required' => $totalRequired,
+                'total_required' => count($requiredInterests),
                 'category' => $category
             ];
 
-            Log::info('💝 Interest score calculated', $result);
+            Log::info('🎯 MINAT DEBUG - Final Result', $result);
+
             return $result;
         } catch (\Exception $e) {
-            Log::error('💥 Error calculating interest score', [
-                'error' => $e->getMessage()
+            Log::error('💥 MINAT DEBUG - Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return [
                 'score' => 2,
@@ -715,7 +743,6 @@ class SPKRecommendationService
     {
         try {
             if (!isset($mahasiswa->wilayah_id) || !$mahasiswa->wilayah_id) {
-                Log::info('📍 No student location - using default score');
                 return [
                     'score' => 2,
                     'distance_km' => null,
@@ -728,7 +755,6 @@ class SPKRecommendationService
                 ->value('wilayah_id');
 
             if (!$companyWilayah) {
-                Log::info('🏢 No company location - using default score');
                 return [
                     'score' => 2,
                     'distance_km' => null,
@@ -736,11 +762,10 @@ class SPKRecommendationService
                 ];
             }
 
-            // Same city = best score
+            // Same city = best score (sangat dekat)
             if ($mahasiswa->wilayah_id == $companyWilayah) {
-                Log::info('🏠 Same city - excellent score');
                 return [
-                    'score' => 3,
+                    'score' => 1, // 1 = sangat dekat (sesuai database)
                     'distance_km' => 0,
                     'duration_minutes' => 0,
                     'category' => 'Same City'
@@ -755,16 +780,16 @@ class SPKRecommendationService
 
             $distanceKm = $distanceData['distance_km'] ?? 75;
 
-            // Score based on distance
-            $score = 1;
-            $category = 'Far Distance';
-
-            if ($distanceKm <= 50) {
-                $score = 3;
-                $category = 'Very Close';
-            } elseif ($distanceKm <= 150) {
+            // Skor sesuai database: 1 = sangat dekat, 2 = sedang, 3 = sangat jauh
+            if ($distanceKm <= 30) {
+                $score = 1;
+                $category = 'Sangat Dekat';
+            } elseif ($distanceKm <= 100) {
                 $score = 2;
-                $category = 'Moderate Distance';
+                $category = 'Sedang';
+            } else {
+                $score = 3;
+                $category = 'Sangat Jauh';
             }
 
             $result = [
@@ -775,12 +800,8 @@ class SPKRecommendationService
                 'calculation_method' => $distanceData['method'] ?? 'estimated'
             ];
 
-            Log::info('📍 Distance score calculated', $result);
             return $result;
         } catch (\Exception $e) {
-            Log::error('💥 Error calculating distance score', [
-                'error' => $e->getMessage()
-            ]);
             return [
                 'score' => 2,
                 'distance_km' => 75,
@@ -1015,11 +1036,11 @@ class SPKRecommendationService
     private function getCriteriaWeights()
     {
         return [
-            'minat' => 0.25,
+            'minat' => 0.20,
             'skill' => 0.25,
-            'wilayah' => 0.20,
-            'kuota' => 0.15,
-            'ipk' => 0.15
+            'wilayah' => 0.15,
+            'kuota' => 0.20,
+            'ipk' => 0.20
         ];
     }
 

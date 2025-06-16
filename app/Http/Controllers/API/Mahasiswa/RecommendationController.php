@@ -658,7 +658,7 @@ class RecommendationController extends Controller
             }
 
             $studentInterests = DB::table('t_minat_mahasiswa')
-                ->where('mahasiswa_id', $mahasiswa->id_user)
+                ->where('mahasiswa_id', $mahasiswa->id_mahasiswa ?? $mahasiswa->id ?? 0)
                 ->pluck('minat_id')
                 ->toArray();
 
@@ -706,10 +706,10 @@ class RecommendationController extends Controller
                 'logo_perusahaan'  => $item['logo_perusahaan'] ?? '',
                 'lokasi'           => $item['lokasi'] ?? '',
                 'appraisal_score'  => $item['as_score'] ?? 0,
-                'skill_match'      => $item['raw_data']['skill_match_percentage'] ?? 0,
-                'location_match'   => ($item['criteria_scores']['wilayah']['score'] ?? 2) / 3 * 100,
+                'skill_match' => ($item['criteria_scores']['skill']['score'] ?? 2) / 3 * 100,
+                'location_match' => (4 - ($item['criteria_scores']['wilayah']['score'] ?? 2)) / 3 * 100,
                 'ipk_match'        => ($item['criteria_scores']['ipk']['score'] ?? 2) / 3 * 100,
-                'interest_match'   => ($item['criteria_scores']['minat']['score'] ?? 2) / 3 * 100,
+                'interest_match' => ($item['criteria_scores']['minat']['score'] ?? 2) / 3 * 100,
                 'quota_score'      => ($item['criteria_scores']['kuota']['score'] ?? 2) / 3 * 100,
                 'rank'             => $item['rank'] ?? null,
             ];
@@ -1153,8 +1153,8 @@ class RecommendationController extends Controller
                 'logo_perusahaan'  => $item['logo_perusahaan'] ?? '',
                 'lokasi'           => $item['lokasi'] ?? '',
                 'appraisal_score'  => $item['saw_score'] ?? $item['as_score'] ?? 0,
-                'skill_match'      => $item['raw_data']['skill_match_percentage'] ?? 0,
-                'location_match'   => ($item['criteria_scores']['wilayah']['score'] ?? 2) / 3 * 100,
+                'skill_match' => $item['raw_data']['skill_match_percentage'] ?? (($item['criteria_scores']['skill']['score'] ?? 2) / 3 * 100),
+                'location_match'   => (min(3, max(1, 4 - ($item['criteria_scores']['wilayah']['score'] ?? 2))) / 3) * 100,
                 'ipk_match'        => ($item['criteria_scores']['ipk']['score'] ?? 2) / 3 * 100,
                 'interest_match'   => ($item['criteria_scores']['minat']['score'] ?? 2) / 3 * 100,
                 'quota_score'      => ($item['criteria_scores']['kuota']['score'] ?? 2) / 3 * 100,
@@ -1323,7 +1323,7 @@ class RecommendationController extends Controller
 
                 if (Schema::hasTable('t_minat_mahasiswa')) {
                     $studentInterestsCount = DB::table('t_minat_mahasiswa')
-                        ->where('mahasiswa_id', $user->id_user)
+                        ->where('mahasiswa_id', $mahasiswa->id_mahasiswa)
                         ->count();
                 }
             } catch (\Exception $e) {
@@ -1477,6 +1477,4 @@ class RecommendationController extends Controller
             ], 500);
         }
     }
-
-    
 }
