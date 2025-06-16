@@ -101,11 +101,13 @@
                                 <p class="text-sm mb-0">Menampilkan 1-4 dari 10 Mahasiswa</p>
                                 <nav>
                                     <ul class="pagination mb-0">
-                                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="#"><i
+                                                    class="fas fa-angle-left"></i></a></li>
                                         <li class="page-item active"><a class="page-link" href="#">1</a></li>
                                         <li class="page-item"><a class="page-link" href="#">2</a></li>
                                         <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="#"><i
+                                                    class="fas fa-angle-right"></i></a></li>
                                     </ul>
                                 </nav>
                             </div>
@@ -118,7 +120,6 @@
 @endsection
 
 @push('css')
-    
 @endpush
 
 @push('js')
@@ -186,11 +187,11 @@
                                         Log Aktivitas
                                     </button>
                                     ${mhs.status.toLowerCase() === 'selesai' ? `
-                                                    <button class="btn btn-outline-secondary btn-sm px-3" 
-                                                        onclick="evaluasiMahasiswa('${mhs.id_mahasiswa}')">
-                                                        Evaluasi
-                                                    </button>
-                                                ` : ''}
+                                                                    <button class="btn btn-outline-secondary btn-sm px-3" 
+                                                                        onclick="evaluasiMahasiswa('${mhs.id_mahasiswa}')">
+                                                                        Evaluasi
+                                                                    </button>
+                                                                ` : ''}
                                 </div>
                             </td>
                         </tr>

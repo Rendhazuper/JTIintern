@@ -21,7 +21,8 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" id="perusahaanDropdown"
                             aria-labelledby="dropdownPerusahaan">
-                            <li><a class="dropdown-item active" href="#" data-perusahaan-id="all">Semua Perusahaan</a></li>
+                            <li><a class="dropdown-item active" href="#" data-perusahaan-id="all">Semua Perusahaan</a>
+                            </li>
                             <!-- Daftar perusahaan akan dimuat di sini secara dinamis -->
                         </ul>
                     </div>
@@ -65,12 +66,12 @@
         function loadPermintaanData() {
             showLoadingState(); // Tampilkan state loading sebelum memuat data
             fetch('/api/magang', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -273,7 +274,7 @@
                 a.dataset.perusahaanName = perusahaan;
                 a.textContent = perusahaan;
 
-                a.addEventListener('click', function (e) {
+                a.addEventListener('click', function(e) {
                     e.preventDefault();
 
                     // Perbarui teks pada tombol dropdown
@@ -296,7 +297,7 @@
             // Tambahkan event listener untuk opsi "Semua Perusahaan"
             const allOption = dropdownMenu.querySelector('[data-perusahaan-id="all"]');
             if (allOption) {
-                allOption.addEventListener('click', function (e) {
+                allOption.addEventListener('click', function(e) {
                     e.preventDefault();
 
                     // Reset teks tombol dropdown
@@ -349,7 +350,7 @@
         }
 
         // Tambahkan event listener setelah DOM di-load
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Load data permintaan
             loadPermintaanData();
 
@@ -408,22 +409,23 @@
 
             // Ambil data detail
             fetch(`/api/magang/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(response => {
-                if (response.success) {
-                    const data = response.data;
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.success) {
+                        const data = response.data;
 
-                    // Perbaiki title modal
-                    document.querySelector('#detailModal .modal-title').innerText = `Detail Permintaan - ${data.lowongan?.judul_lowongan || 'Lowongan'}`;
+                        // Perbaiki title modal
+                        document.querySelector('#detailModal .modal-title').innerText =
+                            `Detail Permintaan - ${data.lowongan?.judul_lowongan || 'Lowongan'}`;
 
-                    // ✅ UPDATE: Bagian periode info dengan data yang benar
-                    const periodeInfo = data.lowongan?.periode ? `
+                        // ✅ UPDATE: Bagian periode info dengan data yang benar
+                        const periodeInfo = data.lowongan?.periode ? `
     <div>
         <label class="text-muted small">Periode Magang</label>
         <p class="mb-0">${data.lowongan.periode.waktu}</p>
@@ -438,59 +440,63 @@
     </div>
 `;
 
-                    // ✅ UPDATE: Skills dengan lama pengalaman
-                    let skillsHTML = '';
-                    if (data.mahasiswa?.skills && Array.isArray(data.mahasiswa.skills) && data.mahasiswa.skills.length > 0) {
-                        skillsHTML = data.mahasiswa.skills.map(skill =>
-        `<span class="badge bg-primary text-white me-1 mb-1" title="Pengalaman: ${skill.lama_skill}">
+                        // ✅ UPDATE: Skills dengan lama pengalaman
+                        let skillsHTML = '';
+                        if (data.mahasiswa?.skills && Array.isArray(data.mahasiswa.skills) && data.mahasiswa.skills
+                            .length > 0) {
+                            skillsHTML = data.mahasiswa.skills.map(skill =>
+                                `<span class="badge bg-primary text-white me-1 mb-1" title="Pengalaman: ${skill.lama_skill}">
             ${skill.nama_skill}
         </span>`
-    ).join('');
-                    } else {
-                        skillsHTML = '<span class="text-muted small">Belum ada skill yang ditambahkan</span>';
-                    }
+                            ).join('');
+                        } else {
+                            skillsHTML = '<span class="text-muted small">Belum ada skill yang ditambahkan</span>';
+                        }
 
-                    // ✅ UPDATE: Minat mahasiswa
-                    let minatHTML = '';
-                    if (data.mahasiswa?.minat && Array.isArray(data.mahasiswa.minat) && data.mahasiswa.minat.length > 0) {
-                        minatHTML = data.mahasiswa.minat.map(minat =>
-        `<span class="badge bg-info text-white me-1 mb-1">${minat}</span>`
-    ).join('');
-                    } else {
-                        minatHTML = '<span class="text-muted small">Belum ada minat yang dipilih</span>';
-                    }
+                        // ✅ UPDATE: Minat mahasiswa
+                        let minatHTML = '';
+                        if (data.mahasiswa?.minat && Array.isArray(data.mahasiswa.minat) && data.mahasiswa.minat
+                            .length > 0) {
+                            minatHTML = data.mahasiswa.minat.map(minat =>
+                                `<span class="badge bg-info text-white me-1 mb-1">${minat}</span>`
+                            ).join('');
+                        } else {
+                            minatHTML = '<span class="text-muted small">Belum ada minat yang dipilih</span>';
+                        }
 
-                    // ✅ UPDATE: Skills yang dibutuhkan lowongan
-                    let skillsRequiredHTML = '';
-                    if (data.lowongan?.skills_required && Array.isArray(data.lowongan.skills_required) && data.lowongan.skills_required.length > 0) {
-                        skillsRequiredHTML = data.lowongan.skills_required.map(skill =>
-        `<span class="badge bg-warning text-dark me-1 mb-1">${skill}</span>`
-    ).join('');
-                    } else {
-                        skillsRequiredHTML = '<span class="text-muted small">Tidak ada skill khusus yang dibutuhkan</span>';
-                    }
+                        // ✅ UPDATE: Skills yang dibutuhkan lowongan
+                        let skillsRequiredHTML = '';
+                        if (data.lowongan?.skills_required && Array.isArray(data.lowongan.skills_required) && data
+                            .lowongan.skills_required.length > 0) {
+                            skillsRequiredHTML = data.lowongan.skills_required.map(skill =>
+                                `<span class="badge bg-warning text-dark me-1 mb-1">${skill}</span>`
+                            ).join('');
+                        } else {
+                            skillsRequiredHTML =
+                                '<span class="text-muted small">Tidak ada skill khusus yang dibutuhkan</span>';
+                        }
 
-                    // ✅ SAFE CHECK: Dokumen dengan fallback
-                    let dokumenHTML = '';
-                    if (data.dokumen && Array.isArray(data.dokumen) && data.dokumen.length > 0) {
-                        dokumenHTML = data.dokumen.map(doc => {
-                            // Tentukan icon berdasarkan tipe file
-                            let icon = 'fas fa-file';
-                            const fileType = (doc.file_type || '').toLowerCase();
-                            
-                            if (fileType.includes('cv')) {
-                                icon = 'fas fa-file-alt text-primary';
-                            } else if (fileType.includes('surat')) {
-                                icon = 'fas fa-file-pdf text-danger';
-                            } else if (fileType.includes('transkrip')) {
-                                icon = 'fas fa-file-excel text-success';
-                            } else if (fileType.includes('sertifikat')) {
-                                icon = 'fas fa-certificate text-warning';
-                            } else if (fileType.includes('portofolio')) {
-                                icon = 'fas fa-folder text-info';
-                            }
+                        // ✅ SAFE CHECK: Dokumen dengan fallback
+                        let dokumenHTML = '';
+                        if (data.dokumen && Array.isArray(data.dokumen) && data.dokumen.length > 0) {
+                            dokumenHTML = data.dokumen.map(doc => {
+                                // Tentukan icon berdasarkan tipe file
+                                let icon = 'fas fa-file';
+                                const fileType = (doc.file_type || '').toLowerCase();
 
-                            return `
+                                if (fileType.includes('cv')) {
+                                    icon = 'fas fa-file-alt text-primary';
+                                } else if (fileType.includes('surat')) {
+                                    icon = 'fas fa-file-pdf text-danger';
+                                } else if (fileType.includes('transkrip')) {
+                                    icon = 'fas fa-file-excel text-success';
+                                } else if (fileType.includes('sertifikat')) {
+                                    icon = 'fas fa-certificate text-warning';
+                                } else if (fileType.includes('portofolio')) {
+                                    icon = 'fas fa-folder text-info';
+                                }
+
+                                return `
                                 <div class="document-item border rounded p-3 mb-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="document-info flex-grow-1">
@@ -511,38 +517,52 @@
                                         </div>
                                         <div class="document-actions">
                                             ${doc.file_url ? `
-                                                <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-download me-1"></i>Download
-                                                </a>
-                                            ` : `
-                                                <span class="text-muted small">File tidak tersedia</span>
-                                            `}
+                                                    <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-download me-1"></i>Download
+                                                    </a>
+                                                ` : `
+                                                    <span class="text-muted small">File tidak tersedia</span>
+                                                `}
                                         </div>
                                     </div>
                                 </div>
                             `;
-                        }).join('');
-                    } else {
-                        dokumenHTML = `
+                            }).join('');
+                        } else {
+                            dokumenHTML = `
                             <div class="text-center py-3">
                                 <i class="fas fa-file-excel text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
                                 <p class="text-muted mb-0">Belum ada dokumen yang diupload</p>
                             </div>
                         `;
-                    }
+                        }
 
-                    // ✅ SAFE CHECK: Dosen pembimbing dengan fallback yang aman
-                    let dosenHTML = '';
-                    if (data.dosen_pembimbing && typeof data.dosen_pembimbing === 'object') {
-                        if (data.dosen_pembimbing.assigned === true || data.dosen_pembimbing.assigned === 'true') {
-                            dosenHTML = `
+                        // ✅ SAFE CHECK: Dosen pembimbing dengan fallback yang aman
+                        let dosenHTML = '';
+                        if (data.dosen_pembimbing && typeof data.dosen_pembimbing === 'object') {
+                            if (data.dosen_pembimbing.assigned === true || data.dosen_pembimbing.assigned === 'true') {
+                                dosenHTML = `
                         <div class="alert alert-info">
                             <i class="fas fa-user-graduate me-2"></i>
                             <strong>Dosen Pembimbing:</strong> ${data.dosen_pembimbing.nama || 'Nama tidak tersedia'} 
                             <span class="text-muted">(NIP: ${data.dosen_pembimbing.nip || 'NIP tidak tersedia'})</span>
                         </div>
                     `;
+                            } else {
+                                dosenHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Belum ada dosen pembimbing yang ditugaskan</strong>
+                            <div class="mt-2">
+                                <a href="/plotting" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-user-plus me-1"></i>Assign Dosen Pembimbing
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                            }
                         } else {
+                            // Fallback jika data.dosen_pembimbing tidak ada atau null
                             dosenHTML = `
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -555,23 +575,9 @@
                         </div>
                     `;
                         }
-                    } else {
-                        // Fallback jika data.dosen_pembimbing tidak ada atau null
-                        dosenHTML = `
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Belum ada dosen pembimbing yang ditugaskan</strong>
-                            <div class="mt-2">
-                                <a href="/plotting" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user-plus me-1"></i>Assign Dosen Pembimbing
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    }
 
-                    // ✅ ENHANCED: Konten detail yang lengkap dengan safe checks
-                    detailModalBody.innerHTML = `
+                        // ✅ ENHANCED: Konten detail yang lengkap dengan safe checks
+                        detailModalBody.innerHTML = `
                 <div class="p-2 mb-3 rounded-3" style="background-color: rgba(89, 136, 255, 0.05);">
                     <div class="d-flex align-items-center mb-3">
                         <div class="avatar avatar-md bg-gradient-primary rounded-circle p-2 me-3">
@@ -709,49 +715,49 @@
                         </div>
                         <div class="action-buttons">
                             ${(data.auth || '').toLowerCase() === 'menunggu' ? `
-                                <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                    <i class="fas fa-times me-1"></i>Tolak
-                                </button>
-                                <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
-                                    <i class="fas fa-check me-1"></i>Terima
-                                </button>
-                            ` : (data.auth || '').toLowerCase() === 'ditolak' ? `
-                                <span class="text-muted">
-                                    <i class="fas fa-times-circle me-1"></i>Permintaan telah ditolak
-                                    ${data.tanggal_ditolak ? ` pada ${data.tanggal_ditolak}` : ''}
-                                </span>
-                            ` : `
-                                <span class="text-success">
-                                    <i class="fas fa-check-circle me-1"></i>Permintaan telah diterima
-                                </span>
-                            `}
+                                    <button class="btn btn-sm btn-danger me-2" onclick="rejectRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                        <i class="fas fa-times me-1"></i>Tolak
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="acceptRequest(${data.id}); bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();">
+                                        <i class="fas fa-check me-1"></i>Terima
+                                    </button>
+                                ` : (data.auth || '').toLowerCase() === 'ditolak' ? `
+                                    <span class="text-muted">
+                                        <i class="fas fa-times-circle me-1"></i>Permintaan telah ditolak
+                                        ${data.tanggal_ditolak ? ` pada ${data.tanggal_ditolak}` : ''}
+                                    </span>
+                                ` : `
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>Permintaan telah diterima
+                                    </span>
+                                `}
                         </div>
                     </div>
                 </div>
 
                 ${data.catatan ? `
-                    <div class="mt-3 pt-3 border-top">
-                        <h6 class="text-uppercase text-muted mb-2">
-                            <i class="fas fa-comment me-2"></i>Catatan Penolakan
-                        </h6>
-                        <div class="alert alert-warning">
-                            <i class="fas fa-comment me-2"></i>
-                            ${data.catatan}
+                        <div class="mt-3 pt-3 border-top">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                <i class="fas fa-comment me-2"></i>Catatan Penolakan
+                            </h6>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-comment me-2"></i>
+                                ${data.catatan}
+                            </div>
                         </div>
-                    </div>
-                ` : ''}
+                    ` : ''}
             `;
-                } else {
-                    detailModalBody.innerHTML = `
+                    } else {
+                        detailModalBody.innerHTML = `
                 <div class="alert alert-danger">
                     Gagal memuat detail: ${response.message || 'Terjadi kesalahan.'}
                 </div>
             `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                detailModalBody.innerHTML = `
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    detailModalBody.innerHTML = `
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 Gagal memuat detail permintaan magang. 
@@ -763,18 +769,18 @@
                 </div>
             </div>
         `;
-            });
+                });
         }
 
         function acceptRequest(id) {
             // First, check if this magang has an assigned dosen
             fetch(`/api/magang/${id}/check-dosen`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
                 .then(response => response.json())
                 .then(response => {
                     if (response.has_dosen) {
@@ -900,18 +906,23 @@
                     document.getElementById('tgl_mulai').min = formatDate(today);
 
                     // ✅ EVENT LISTENER: Update tanggal selesai otomatis ketika tanggal mulai berubah
-                    document.getElementById('tgl_mulai').addEventListener('change', function () {
+                    document.getElementById('tgl_mulai').addEventListener('change', function() {
                         const selectedStart = new Date(this.value);
                         const autoEnd = new Date(selectedStart);
                         autoEnd.setMonth(selectedStart.getMonth() + 3);
 
                         document.getElementById('tgl_selesai').value = formatDate(autoEnd);
-                        document.getElementById('tgl_selesai').min = formatDate(new Date(selectedStart.getTime() + 24 * 60 * 60 * 1000)); // Min = start + 1 day
+                        document.getElementById('tgl_selesai').min = formatDate(new Date(selectedStart
+                            .getTime() + 24 * 60 * 60 * 1000)); // Min = start + 1 day
                     });
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const { tgl_mulai, tgl_selesai, durasi_hari } = result.value;
+                    const {
+                        tgl_mulai,
+                        tgl_selesai,
+                        durasi_hari
+                    } = result.value;
 
                     // ✅ KONFIRMASI AKHIR dengan info durasi
                     Swal.fire({
@@ -983,45 +994,45 @@
             });
 
             fetch(`/api/magang/${id}/accept`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    status: 'aktif',
-                    tgl_mulai: tglMulai,
-                    tgl_selesai: tglSelesai
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        status: 'aktif',
+                        tgl_mulai: tglMulai,
+                        tgl_selesai: tglSelesai
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(response => {
-                console.log('Respons dari server:', response);
-                if (response.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        html: `
+                .then(response => response.json())
+                .then(response => {
+                    console.log('Respons dari server:', response);
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            html: `
                             <div class="text-start">
                                 <p class="mb-3">✅ Permintaan magang telah diterima</p>
                                 <p class="mb-3">📅 Jadwal magang telah ditetapkan</p>
                                 <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
                             </div>
                         `,
-                        icon: 'success',
-                        timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        loadPermintaanData(); // Refresh data
-                    });
-                } else {
-                    Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-            });
+                            icon: 'success',
+                            timer: 3000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            loadPermintaanData(); // Refresh data
+                        });
+                    } else {
+                        Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menerima permintaan.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+                });
         }
 
         // ✅ PERBAIKAN: Function rejectRequest - ubah status tanpa menghapus data
@@ -1065,7 +1076,9 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const { catatan_penolakan } = result.value;
+                    const {
+                        catatan_penolakan
+                    } = result.value;
 
                     // Tampilkan loading
                     Swal.fire({
@@ -1079,18 +1092,20 @@
 
                     // ✅ PERBAIKAN: Kirim request untuk update status, bukan delete
                     fetch(`/api/magang/${id}/reject`, {
-                        method: 'PUT', // ✅ UBAH: Gunakan PUT untuk update, bukan POST
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            auth: 'ditolak', // ✅ UBAH: Set status menjadi ditolak
-                            catatan: catatan_penolakan,
-                            tanggal_ditolak: new Date().toISOString().split('T')[0] // ✅ TAMBAH: Tanggal penolakan
+                            method: 'PUT', // ✅ UBAH: Gunakan PUT untuk update, bukan POST
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            },
+                            body: JSON.stringify({
+                                auth: 'ditolak', // ✅ UBAH: Set status menjadi ditolak
+                                catatan: catatan_penolakan,
+                                tanggal_ditolak: new Date().toISOString().split('T')[
+                                    0] // ✅ TAMBAH: Tanggal penolakan
+                            })
                         })
-                    })
                         .then(response => response.json())
                         .then(response => {
                             console.log('Respons dari server:', response);
@@ -1111,7 +1126,8 @@
                                     loadPermintaanData(); // Refresh data untuk menampilkan status baru
                                 });
                             } else {
-                                Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat menolak permintaan.', 'error');
+                                Swal.fire('Gagal!', response.message ||
+                                    'Terjadi kesalahan saat menolak permintaan.', 'error');
                             }
                         })
                         .catch(error => {
@@ -1158,44 +1174,46 @@
                     });
 
                     fetch(`/api/magang/${id}/reactivate`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            auth: 'menunggu',
-                            catatan: null, // Reset catatan penolakan
-                            tanggal_reaktivasi: new Date().toISOString().split('T')[0]
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            },
+                            body: JSON.stringify({
+                                auth: 'menunggu',
+                                catatan: null, // Reset catatan penolakan
+                                tanggal_reaktivasi: new Date().toISOString().split('T')[0]
+                            })
                         })
-                    })
-                    .then(response => response.json())
-                    .then(response => {
-                        console.log('Respons dari server:', response);
-                        if (response.success) {
-                            Swal.fire({
-                                title: 'Berhasil Diaktifkan!',
-                                html: `
+                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Respons dari server:', response);
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil Diaktifkan!',
+                                    html: `
                                     <div class="text-start">
                                         <p class="mb-3">✅ Status permintaan telah diubah menjadi "Menunggu"</p>
                                         <p class="mb-0">📨 Notifikasi telah dikirim ke mahasiswa</p>
                                     </div>
                                 `,
-                                icon: 'success',
-                                timer: 3000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                loadPermintaanData(); // Refresh data
-                            });
-                        } else {
-                            Swal.fire('Gagal!', response.message || 'Terjadi kesalahan saat mengaktifkan permintaan.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
-                    });
+                                    icon: 'success',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    loadPermintaanData(); // Refresh data
+                                });
+                            } else {
+                                Swal.fire('Gagal!', response.message ||
+                                    'Terjadi kesalahan saat mengaktifkan permintaan.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+                        });
                 }
             });
         }

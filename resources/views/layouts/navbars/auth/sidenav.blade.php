@@ -1,8 +1,3 @@
-{{-- Add this in the head section or with other CSS includes --}}
-@push('css')
-    <link href="{{ asset('assets/css/sidenav.css') }}" rel="stylesheet" />
-@endpush
-
 <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4"
     id="sidenav-main">
     <div class="sidenav-header">
@@ -69,7 +64,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{  str_contains(request()->url(), 'lowongan') == true ? 'active' : '' }}"
+                    <a class="nav-link {{ str_contains(request()->url(), 'lowongan') == true ? 'active' : '' }}"
                         href="{{ route('page', ['page' => 'lowongan']) }}">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -84,8 +79,8 @@
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Dosen</h6>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ str_contains(request()->url(), 'dosen') == true ? 'active' : ''  }}"
-                        href="{{ route('page', ['page' => 'dosen'])  }}">
+                    <a class="nav-link {{ str_contains(request()->url(), 'dosen') == true ? 'active' : '' }}"
+                        href="{{ route('page', ['page' => 'dosen']) }}">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="bi bi-file-person text-sm opacity-10 text-purple"></i>
@@ -94,7 +89,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{  str_contains(request()->url(), 'evaluasi') == true ? 'active' : '' }}"
+                    <a class="nav-link {{ str_contains(request()->url(), 'evaluasi') == true ? 'active' : '' }}"
                         href="{{ route('page', ['page' => 'evaluasi']) }}">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -150,7 +145,7 @@
                 </li>
 
                 {{-- Superadmin Only Section --}}
-                @if(Auth::check() && Auth::user()->role === 'superadmin')
+                @if (Auth::check() && Auth::user()->role === 'superadmin')
                     <li class="nav-item mt-3">
                         <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Superadmin</h6>
                     </li>
@@ -169,7 +164,7 @@
 
         <!-- Logout button -->
         <div class="sidenav-footer">
-            <form method="POST" action="{{ route('logout') }}" class="mx-3 mb-3">
+            <form method="POST" action="{{ route('logout') }}" class="mx-3 mt-5">
                 @csrf
                 <button type="submit" class="btn btn-danger btn-sm w-100">
                     Log out
@@ -178,4 +173,9 @@
         </div>
     </div>
 </aside>
+
 </div>
+
+@push('css')
+    <link href="{{ asset('assets/css/sidenav.css') }}" rel="stylesheet" />
+@endpush

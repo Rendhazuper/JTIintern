@@ -10,24 +10,37 @@ use Illuminate\Support\Facades\Log;
 
 class AutomationDaemon extends Command
 {
-    // ✅ FIX: Hapus --quiet dari signature (sudah ada di Laravel)
-    protected $signature = 'automation:daemon {--interval=300} {--auto-start}';
+    // ✅ FIX: Remove config dependency
+    protected $signature = 'automation:daemon {--interval=120} {--auto-start}';
     protected $description = 'Run automation daemon that checks periodically';
 
     private $running = true;
 
+    // ✅ FIX: Remove config dari constructor
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     public function handle()
     {
-        $interval = (int) $this->option('interval');
-        $isQuiet = $this->option('auto-start'); // ✅ CHANGED: Hanya pakai auto-start
+        // ✅ FIX: Get interval dari option atau default environment-based
+        $isDebugMode = config('app.env') === 'local';
+        $defaultInterval = $isDebugMode ? 120 : 3600;
         
-        // ✅ VALIDATION: Minimum interval 60 detik untuk mencegah spam
-        if ($interval < 60) {
-            $interval = 300; // Default 5 menit
+        $interval = $this->option('interval') ? (int) $this->option('interval') : $defaultInterval;
+        $isQuiet = $this->option('auto-start');
+        
+        // ✅ VALIDATION: Simple validation
+        if ($interval < 10) {
+            $interval = $defaultInterval;
             if (!$isQuiet) {
-                $this->warn("⚠️  Interval minimum 60 detik. Set ke {$interval} detik");
+                $this->warn("⚠️  Invalid interval. Using environment default: {$interval}s");
             }
         }
+        
+        // ✅ REGISTER: Cleanup on exit
+        register_shutdown_function([$this, 'cleanup']);
         
         // ✅ LOG: Start daemon info
         $startMessage = "🤖 Automation Daemon Started - Interval: {$interval}s";
@@ -133,10 +146,13 @@ class AutomationDaemon extends Command
                 ]);
                 
                 if (!$isQuiet) $this->line("⏳ Waiting 60 seconds before retry...");
-                sleep(60);
+                sleep(1);
             }
         }
 
+        // ✅ CLEANUP: On normal exit
+        $this->cleanup();
+        
         $stopMessage = "🛑 Automation Daemon stopped gracefully";
         if (!$isQuiet) {
             $this->newLine();
@@ -152,6 +168,20 @@ class AutomationDaemon extends Command
         ]);
     }
 
+    // ✅ NEW: Cleanup method
+    public function cleanup()
+    {
+        try {
+            $lockFile = storage_path('automation.lock');
+            if (file_exists($lockFile)) {
+                unlink($lockFile);
+                Log::info('🧹 Cleanup: Removed lock file');
+            }
+        } catch (\Exception $e) {
+            Log::warning('⚠️ Cleanup error: ' . $e->getMessage());
+        }
+    }
+
     /**
      * ✅ HANDLE: Graceful shutdown signals
      */
@@ -161,43 +191,45 @@ class AutomationDaemon extends Command
             $this->newLine();
             $this->warn("🔔 Received shutdown signal: {$signal}");
         }
+        
         $this->running = false;
+        $this->cleanup();
     }
 
     /**
      * ✅ AUTO START: Static method untuk dipanggil dari AppServiceProvider
      */
-    public static function autoStart($interval = 300)
+    public static function autoStart($interval = 120)
     {
         try {
             $lockFile = storage_path('automation.lock');
             
-            // ✅ CHECK: Already running
             if (file_exists($lockFile)) {
                 $lockContent = file_get_contents($lockFile);
                 $lockData = json_decode($lockContent, true);
                 
                 if ($lockData && isset($lockData['pid']) && self::isProcessRunning($lockData['pid'])) {
-                    // ✅ LOG: Sudah running, tidak perlu start lagi
                     return false;
                 }
                 
-                // Remove stale lock file
                 unlink($lockFile);
             }
             
-            // ✅ VALIDATION: Minimum interval
-            if ($interval < 60) {
-                $interval = 300;
-            }
+            // ✅ REMOVE: Interval validation untuk debug
+            // Langsung terima interval yang diberikan
             
             // ✅ START: Background process
             $command = self::getBuildCommand($interval);
             
+            Log::info('🎯 Starting daemon with command', [
+                'command' => $command,
+                'interval' => $interval
+            ]);
+            
             if (PHP_OS_FAMILY === 'Windows') {
                 // Windows: Start in background
                 pclose(popen($command, 'r'));
-                $pid = 'unknown'; // Windows doesn't easily return PID
+                $pid = 'unknown';
             } else {
                 // Unix: Start in background and save PID
                 $pid = exec($command . ' & echo $!');

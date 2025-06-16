@@ -100,17 +100,21 @@
                                 dari satu</small>
                         </div>
                         <div class="mb-3">
+
                             <label for="alamat" class="form-label">Alamat</label>
                             <input type="text" id="alamat" name="alamat" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label for="nim" class="form-label">NIM</label>
-                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15" required>
+                            <input type="text" id="nim" name="nim" class="form-control" maxlength="15"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="ipk" class="form-label">IPK</label>
+
                             <input type="number" step="0.01" min="0" max="4" id="ipk" name="ipk" class="form-control"
                                 >
+
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -174,8 +178,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_lama_skill" class="form-label">Lama Skill (Bulan)</label>
-                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control" min="0"
-                                value="6">
+                            <input type="number" id="edit_lama_skill" name="lama_skill" class="form-control"
+                                min="0" value="6">
                             <small class="form-text text-muted">Durasi menguasai skill dalam bulan</small>
                         </div>
                         <div class="mb-3">
@@ -192,12 +196,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_nim" class="form-label">NIM</label>
-                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15" required>
+                            <input type="text" id="edit_nim" name="nim" class="form-control" maxlength="15"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="edit_ipk" class="form-label">IPK</label>
-                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk" name="ipk" class="form-control"
-                                required>
+                            <input type="number" step="0.01" min="0" max="4" id="edit_ipk"
+                                name="ipk" class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -210,7 +215,8 @@
     </div>
 
     <!-- Modal Import CSV -->
-    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel" aria-hidden="true">
+    <div class="modal fade" id="modalImportCSV" tabindex="-1" aria-labelledby="modalImportCSVLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <form id="formImportCSV" enctype="multipart/form-data" onsubmit="submitImportCSV(event)">
                 <div class="modal-content">
@@ -229,7 +235,8 @@
                                 <i class="fas fa-download me-1"></i>Download Template
                             </button>
                             <label for="csvFile" class="form-label">Pilih File CSV</label>
-                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv" required>
+                            <input type="file" id="csvFile" name="csv_file" class="form-control" accept=".csv"
+                                required>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="headerRow" name="headerRow" checked>
@@ -260,7 +267,7 @@
     <script>
         function debounce(func, wait) {
             let timeout;
-            return function (...args) {
+            return function(...args) {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(this, args), wait);
             };
@@ -272,13 +279,13 @@
             search: ''
         };
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             loadKelasFilterOptions();
             loadMahasiswaData(filterState);
 
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) {
-                kelasFilter.addEventListener('change', function (e) {
+                kelasFilter.addEventListener('change', function(e) {
                     filterState.kelas = e.target.value;
                     loadMahasiswaData(filterState);
                 });
@@ -288,7 +295,7 @@
             const clearSearch = document.getElementById('clearSearch');
 
             if (searchInput) {
-                searchInput.addEventListener('input', debounce(function (e) {
+                searchInput.addEventListener('input', debounce(function(e) {
                     if (clearSearch) {
                         clearSearch.style.display = this.value.length > 0 ? 'block' : 'none';
                     }
@@ -298,7 +305,7 @@
             }
 
             if (clearSearch) {
-                clearSearch.addEventListener('click', function () {
+                clearSearch.addEventListener('click', function() {
                     if (searchInput) {
                         searchInput.value = '';
                         filterState.search = '';
@@ -321,48 +328,51 @@
 
         function loadKelasFilterOptions() {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const kelasFilter = document.getElementById('kelasFilter');
                         kelasFilter.innerHTML = '<option value="">Semua Kelas</option>';
-                        response.data.data.forEach(function (kelas) {
-                            kelasFilter.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                        response.data.data.forEach(function(kelas) {
+                            kelasFilter.innerHTML +=
+                                `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadKelasOptions() {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-                        response.data.data.forEach(function (kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
+                        response.data.data.forEach(function(kelas) {
+                            select.innerHTML +=
+                            `<option value="${kelas.id_kelas}">${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
 
         function loadEditKelasOptions(selectedIdKelas = '') {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_id_kelas');
                         select.innerHTML = '<option value="">Pilih Kelas</option>';
-                        response.data.data.forEach(function (kelas) {
-                            select.innerHTML += `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
+                        response.data.data.forEach(function(kelas) {
+                            select.innerHTML +=
+                                `<option value="${kelas.id_kelas}" ${kelas.id_kelas == selectedIdKelas ? 'selected' : ''}>${kelas.nama_kelas}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data kelas:', error);
                 });
         }
@@ -382,9 +392,12 @@
                     `;
 
             setTimeout(() => {
-                api.get('/mahasiswa', { params: filters })
-                    .then(function (response) {
-                        if (response.data && (response.data.success === true || Array.isArray(response.data.data))) {
+                api.get('/mahasiswa', {
+                        params: filters
+                    })
+                    .then(function(response) {
+                        if (response.data && (response.data.success === true || Array.isArray(response.data
+                                .data))) {
                             tableBody.innerHTML = '';
                             const mahasiswaData = (response.data.data || []);
 
@@ -397,7 +410,8 @@
                                 mahasiswaData.forEach((mahasiswa, index) => {
                                     const tr = document.createElement('tr');
                                     tr.style.opacity = '0';
-                                    tr.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
+                                    tr.style.animation =
+                                        `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
                                     tr.innerHTML = createMahasiswaRow(mahasiswa);
                                     tableBody.appendChild(tr);
                                 });
@@ -426,7 +440,7 @@
                             showErrorState('Gagal memuat data mahasiswa.');
                         }
                     })
-                    .catch(function (error) {
+                    .catch(function(error) {
                         console.error('API Error:', error);
                         let errorMessage = 'Gagal memuat data mahasiswa';
 
@@ -495,10 +509,14 @@
             function getStatusClass(status) {
                 if (!status) return 'belum';
                 switch (status) {
-                    case 'Sedang Magang': return 'magang';
-                    case 'Selesai Magang': return 'selesai';
-                    case 'Menunggu Konfirmasi': return 'menunggu';
-                    default: return 'belum';
+                    case 'Sedang Magang':
+                        return 'magang';
+                    case 'Selesai Magang':
+                        return 'selesai';
+                    case 'Menunggu Konfirmasi':
+                        return 'menunggu';
+                    default:
+                        return 'belum';
                 }
             }
 
@@ -522,10 +540,10 @@
                                                 <i class="fas fa-plus me-1"></i>Tambah Mahasiswa
                                             </button>
                                             ${filters && (filters.kelas || filters.prodi) ? `
-                                                <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
-                                                    <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
-                                                </button>
-                                            ` : ''}
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                                                        <i class="fas fa-filter-circle-xmark me-1"></i>Reset Filter
+                                                    </button>
+                                                ` : ''}
                                         </div>
                                     </div>
                                 </td>
@@ -543,8 +561,8 @@
                                         </div>
                                         <h5 class="text-danger">${message}</h5>
                                         ${isSystemError ? `
-                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                        ` : ''}
+                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                            ` : ''}
                                         <button class="btn btn-sm btn-primary mt-2" onclick="loadMahasiswaData(filterState)">
                                             <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                                         </button>
@@ -648,7 +666,8 @@
                                 Swal.fire('Berhasil!', 'Permintaan berhasil diaktifkan kembali', 'success');
                                 loadMahasiswaData(filterState);
                             } else {
-                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan permintaan', 'error');
+                                Swal.fire('Gagal', response.data.message || 'Gagal mengaktifkan permintaan',
+                                    'error');
                             }
                         })
                         .catch(error => {
@@ -661,7 +680,7 @@
 
         function downloadTemplate() {
             api.get('/kelas')
-                .then(function (response) {
+                .then(function(response) {
                     let kelas = [];
 
                     if (response.data.success && response.data.data) {
@@ -673,12 +692,17 @@
                     const contohKelas = kelas.length > 0 ? kelas[0].nama_kelas || 'TI-3A' : 'TI-3A';
 
                     let csvContent = "nama,nim,alamat,ipk,nama_kelas,email\n";
-                    csvContent += `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
-                    csvContent += `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
+                    csvContent +=
+                        `Muhammad Ahmad,2341720001,Jl. Contoh No. 123 Malang,3.50,${contohKelas},2341720001@student.polinema.ac.id\n`;
+                    csvContent +=
+                        `Siti Nurhaliza,2341720002,Jl. Merdeka No. 456 Blitar,3.75,${contohKelas},2341720002@student.polinema.ac.id\n`;
                     csvContent += `Budi Santoso,2341720003,Jl. Veteran No. 789 Surabaya,3.25,${contohKelas},\n`;
-                    csvContent += `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
+                    csvContent +=
+                        `Dewi Lestari,2341720004,Jl. Pahlawan No. 321 Malang,,${contohKelas},dewi@gmail.com\n`;
 
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const blob = new Blob([csvContent], {
+                        type: 'text/csv;charset=utf-8;'
+                    });
                     const link = document.createElement("a");
                     const url = URL.createObjectURL(blob);
                     link.setAttribute("href", url);
@@ -690,7 +714,7 @@
 
                     Swal.fire('Berhasil!', 'Template CSV berhasil didownload', 'success');
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat membuat template CSV', 'error');
                 });
@@ -719,12 +743,12 @@
             });
 
             axios.post('/api/import', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                timeout: 60000
-            })
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    timeout: 60000
+                })
                 .then(response => {
                     Swal.close();
                     if (response.data.success) {
@@ -772,45 +796,51 @@
         // Other functions remain the same...
         function loadMinatOptions() {
             axios.get('/api/minat')
-                .then(function (response) {
+                .then(function(response) {
                     console.log('Minat response:', response.data); // Debug
                     const minatSelect = document.getElementById('minat');
                     minatSelect.innerHTML = '';
                     if (response.data && Array.isArray(response.data.data)) {
-                        response.data.data.forEach(function (minat) {
-                            minatSelect.innerHTML += `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
+                        response.data.data.forEach(function(minat) {
+                            minatSelect.innerHTML +=
+                                `<option value="${minat.minat_id}">${minat.nama_minat}</option>`;
                         });
                     } else {
                         minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error loading minat:', error);
                 });
         }
 
         function loadEditMinatOptions(selectedMinat = []) {
             axios.get('/api/minat')
-                .then(function (response) {
+                .then(function(response) {
                     const minatSelect = document.getElementById('edit_minat');
                     minatSelect.innerHTML = '';
                     // Gunakan response.data.data, bukan response.data
                     if (response.data && Array.isArray(response.data.data)) {
-                        response.data.data.forEach(function (minat) {
+                        response.data.data.forEach(function(minat) {
                             const isSelected = selectedMinat.includes(minat.minat_id) ? 'selected' : '';
-                            minatSelect.innerHTML += `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
+                            minatSelect.innerHTML +=
+                                `<option value="${minat.minat_id}" ${isSelected}>${minat.nama_minat}</option>`;
                         });
                     } else {
                         minatSelect.innerHTML = '<option disabled>Tidak ada data minat</option>';
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error loading minat:', error);
                 });
         }
 
         function resetFilters() {
-            filterState = { prodi: '', kelas: '', search: '' };
+            filterState = {
+                prodi: '',
+                kelas: '',
+                search: ''
+            };
             const kelasFilter = document.getElementById('kelasFilter');
             if (kelasFilter) kelasFilter.value = '';
             const searchInput = document.getElementById('searchInput');
@@ -821,7 +851,10 @@
         }
 
         function changePage(page) {
-            const paginatedFilter = { ...filterState, page };
+            const paginatedFilter = {
+                ...filterState,
+                page
+            };
             loadMahasiswaData(paginatedFilter);
             document.querySelector('.card').scrollIntoView({
                 behavior: 'smooth',
@@ -840,27 +873,27 @@
 
         function loadSkillsOptions() {
             api.get('/skills')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function (skill) {
+                        response.data.data.forEach(function(skill) {
                             select.innerHTML += `<option value="${skill.skill_id}">${skill.nama}</option>`;
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
 
         function loadEditSkillsOptions(selectedSkillIds = []) {
             api.get('/skills')
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const select = document.getElementById('edit_skills');
                         select.innerHTML = '';
-                        response.data.data.forEach(function (skill) {
+                        response.data.data.forEach(function(skill) {
                             const isSelected = selectedSkillIds.includes(skill.skill_id);
                             select.innerHTML += `
                                         <option value="${skill.skill_id}" ${isSelected ? 'selected' : ''}>
@@ -869,7 +902,7 @@
                         });
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Gagal memuat data skills:', error);
                 });
         }
@@ -883,7 +916,7 @@
             });
 
             api.get(`/mahasiswa/${id}`)
-                .then(function (response) {
+                .then(function(response) {
                     Swal.close();
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
@@ -905,7 +938,8 @@
                                     `).join('') :
                             '<span class="text-muted">Tidak ada minat</span>';
 
-                        document.getElementById('detailMahasiswaModalLabel').innerText = `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
+                        document.getElementById('detailMahasiswaModalLabel').innerText =
+                            `Detail Mahasiswa - ${mahasiswa.name || 'Tidak Diketahui'}`;
 
                         document.getElementById('detailMahasiswaBody').innerHTML = `
                                     <div class="row">
@@ -934,7 +968,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat detail mahasiswa', 'error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     Swal.close();
                     console.error('Error:', error);
                     let errorMessage = 'Terjadi kesalahan saat memuat detail mahasiswa';
@@ -951,7 +985,7 @@
 
         function editMahasiswa(id) {
             api.get(`/mahasiswa/${id}`)
-                .then(function (response) {
+                .then(function(response) {
                     if (response.data.success) {
                         const mahasiswa = response.data.data;
                         document.getElementById('edit_id_mahasiswa').value = mahasiswa.id_mahasiswa;
@@ -960,7 +994,8 @@
                         document.getElementById('edit_nim').value = mahasiswa.nim;
                         document.getElementById('edit_ipk').value = mahasiswa.ipk;
 
-                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 && mahasiswa.skills[0].lama_skill) {
+                        if (Array.isArray(mahasiswa.skills) && mahasiswa.skills.length > 0 && mahasiswa.skills[0]
+                            .lama_skill) {
                             document.getElementById('edit_lama_skill').value = mahasiswa.skills[0].lama_skill;
                         }
 
@@ -978,7 +1013,7 @@
                         Swal.fire('Gagal', response.data.message || 'Gagal memuat data mahasiswa', 'error');
                     }
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error:', error);
                     Swal.fire('Error', 'Terjadi kesalahan saat memuat data mahasiswa', 'error');
                 });
@@ -1046,7 +1081,8 @@
                                 Swal.fire('Terhapus!', 'Data mahasiswa berhasil dihapus.', 'success');
                                 loadMahasiswaData();
                             } else {
-                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa', 'error');
+                                Swal.fire('Gagal', res.data.message || 'Gagal menghapus data mahasiswa',
+                                    'error');
                             }
                         })
                         .catch(err => {
@@ -1070,6 +1106,7 @@
                 nim: nim,
                 id_kelas: form.id_kelas.value,
                 alamat: form.alamat.value,
+
             };
 
             api.post('/mahasiswa', data)
@@ -1123,12 +1160,12 @@
             if (filterState.search) params.append('search', filterState.search);
 
             fetch(`/api/export/pdf?${params.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/pdf',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/pdf',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
                 .then(response => {
                     Swal.update({
                         html: `

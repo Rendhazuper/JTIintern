@@ -11,9 +11,29 @@ use Illuminate\Support\Facades\Log;
 class EvaluasiController extends Controller
 {
     /**
+     * Mendapatkan struktur tabel untuk debugging
+     */
+    public function getTableStructure()
+    {
+        try {
+            $columns = DB::select("DESCRIBE t_evaluasi");
+            
+            return response()->json([
+                'success' => true,
+                'columns' => $columns
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Mendapatkan semua data evaluasi dengan join ke tabel terkait
      */
-    public function index()
+     public function index()
     {
         try {
             Log::info('Fetching evaluations data...');
@@ -27,11 +47,16 @@ class EvaluasiController extends Controller
                 ->leftJoin('m_perusahaan AS p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
                 ->leftJoin('m_user AS u_mhs', 'mhs.id_user', '=', 'u_mhs.id_user')
                 ->leftJoin('m_user AS u_dsn', 'd.user_id', '=', 'u_dsn.id_user')
-                ->select(
+                ->select([
                     'e.id_evaluasi',
                     'e.id_magang',
-                    'e.nilai',
-                    'e.eval',
+                    'e.nilai_akhir AS nilai',
+                    'e.catatan_dosen AS eval',
+                    'e.grade',
+                    'e.nilai_perusahaan',
+                    'e.nilai_dosen',
+                    'e.status_evaluasi',
+                    'e.tanggal_evaluasi_dosen',
                     'e.created_at',
                     'e.updated_at',
                     'u_mhs.name AS nama_mahasiswa',
@@ -40,7 +65,7 @@ class EvaluasiController extends Controller
                     'd.id_dosen',
                     'p.nama_perusahaan',
                     'p.perusahaan_id'
-                )
+                ])
                 ->orderBy('e.created_at', 'desc')
                 ->get();
             
@@ -55,6 +80,7 @@ class EvaluasiController extends Controller
         } catch (\Exception $e) {
             // Log error untuk debug
             Log::error('Error fetching evaluations: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
