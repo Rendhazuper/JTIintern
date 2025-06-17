@@ -159,7 +159,7 @@
 }
 
 .magang-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -800,11 +800,13 @@
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.2) 20%,
-            rgba(255, 255, 255, 0.5) 60%,
-            rgba(255, 255, 255, 0));
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
     animation: shimmer 2s infinite;
     z-index: 1;
 }
@@ -817,7 +819,7 @@
 
 /* ✅ Blue accent bar */
 .magang-skeleton-card::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -869,11 +871,13 @@
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.3) 20%,
-            rgba(255, 255, 255, 0.6) 60%,
-            rgba(255, 255, 255, 0));
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.6) 60%,
+        rgba(255, 255, 255, 0)
+    );
     animation: shimmer 2s infinite;
 }
 
@@ -890,7 +894,7 @@
 }
 
 .skeleton-progress-bar::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -954,11 +958,13 @@
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.2) 20%,
-            rgba(255, 255, 255, 0.5) 60%,
-            rgba(255, 255, 255, 0));
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
     animation: shimmer 2s infinite;
 }
 
@@ -1008,7 +1014,7 @@
 }
 
 .skeleton-progress-bar-small::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -1242,7 +1248,6 @@
    ACCESSIBILITY & PERFORMANCE
    ================================ */
 @media (prefers-reduced-motion: reduce) {
-
     .skeleton-text,
     .skeleton-icon,
     .skeleton-welcome-icon,
@@ -1301,11 +1306,13 @@
     bottom: 0;
     left: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.2) 20%,
-            rgba(255, 255, 255, 0.5) 60%,
-            rgba(255, 255, 255, 0));
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
     animation: shimmer 2s infinite;
 }
 
@@ -1362,7 +1369,11 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: conic-gradient(var(--score-color) 0deg, var(--score-color) calc(var(--score) * 3.6deg), #e9ecef calc(var(--score) * 3.6deg));
+    background: conic-gradient(
+        var(--score-color) 0deg,
+        var(--score-color) calc(var(--score) * 3.6deg),
+        #e9ecef calc(var(--score) * 3.6deg)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1415,7 +1426,7 @@
 
 /* SPK Summary Modern Styles */
 .spk-summary-modern {
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Header Card dengan Gradient */
@@ -1583,7 +1594,7 @@
 }
 
 .spk-metric-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -1692,7 +1703,7 @@
 }
 
 .pulse-dot::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 12px;
     height: 12px;
@@ -1732,7 +1743,7 @@
 }
 
 .criteria-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -1832,13 +1843,18 @@
 }
 
 .progress-fill::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 60%
+    );
     animation: shimmer 2s infinite;
 }
 
@@ -1923,13 +1939,18 @@
 }
 
 .criteria-fill-animated::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
     animation: progress-shine 2s ease-in-out infinite;
 }
 
@@ -1949,7 +1970,7 @@
 
 /* ===== SPK DETAIL ANALYSIS MODERN STYLES ===== */
 .spk-detailed-analysis {
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     max-height: 80vh;
     overflow-y: auto;
 }
@@ -2044,7 +2065,7 @@
 }
 
 .summary-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;

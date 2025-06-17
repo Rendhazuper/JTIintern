@@ -66,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group(function () {
     // Lowongan routes
     Route::get('/lowongan', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'index']);
+     Route::get('/lowongan/active-period', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getActivePeriod']);
     Route::get('/lowongan/{id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'show']);
     Route::get('/active-internship', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkActiveInternship']);
     Route::post('/apply/{lowongan_id}', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyLowongan']);
@@ -144,9 +145,6 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
 
 
      Route::prefix('lamaran')->group(function () {
-        Route::get('/', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getLamaranMahasiswa']);
-        Route::get('/reload', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'reloadLamaranData']);
-        Route::get('/{id}/detail', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'getDetailLamaran']); // ✅ NEW
         Route::delete('/{id}/cancel', [App\Http\Controllers\API\Mahasiswa\MahasiswaLamaranController::class, 'cancelLamaran']);
     }); 
 

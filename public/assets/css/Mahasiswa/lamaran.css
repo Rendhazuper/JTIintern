@@ -14,9 +14,16 @@
 }
 
 .container-fluid {
-    max-width: 1200px;
+    max-width: 1400px !important; /* ✅ SAMA: Dengan lowongan.css */
     margin: 0 auto;
-    padding-top: 2rem; /* ✅ SAMA PERSIS dengan logaktivitas.css */
+    padding-left: 1.5rem !important; /* ✅ STANDAR: Bootstrap default */
+    padding-right: 1.5rem !important; /* ✅ STANDAR: Bootstrap default */
+    padding-top: 2rem !important;
+}
+
+.container-fluid.px-10 {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
 }
 
 /* ✅ TAMBAH: Consistent body layout seperti logaktivitas */
@@ -1454,7 +1461,7 @@ body.g-sidenav-show .main-content {
 
 .supervisor-card:hover {
     border-color: #007bff;
-    box-shadow: 0 4px 8px rgba(0,123,255,0.1);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
 }
 
 /* Action Buttons */
@@ -1465,7 +1472,7 @@ body.g-sidenav-show .main-content {
 
 .action-buttons .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Evaluasi Section */
@@ -1486,7 +1493,7 @@ body.g-sidenav-show .main-content {
 
 .evaluasi-section .form-control:focus {
     border-color: #ffc107;
-    box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.25);
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
 }
 
 /* Animation untuk card appearance */
@@ -1511,15 +1518,15 @@ body.g-sidenav-show .main-content {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .company-info .company-logo {
         margin-bottom: 15px;
     }
-    
+
     .info-details .col-md-6 {
         margin-bottom: 10px;
     }
-    
+
     .action-buttons .btn {
         margin-bottom: 8px;
     }

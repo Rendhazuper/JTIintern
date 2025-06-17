@@ -32,7 +32,7 @@
                                 <div>
                                     <h4 class="mb-2">
                                         Selamat Datang,
-                                        @if(isset($userData) && $userData)
+                                        @if (isset($userData) && $userData)
                                             {{ $userData->name ?? 'Mahasiswa' }}
                                         @else
                                             Mahasiswa
@@ -43,10 +43,10 @@
                                         terbaik!</p>
                                 </div>
                                 <div class="ms-auto">
-                                    @if(isset($activePeriod) && $activePeriod)
+                                    @if (isset($activePeriod) && $activePeriod)
                                         <span class="badge bg-primary px-3 py-2">
                                             <i class="fas fa-calendar-alt me-1"></i>
-                                            {{ $activePeriod->waktu ?? $activePeriod->nama_periode ?? 'Periode Aktif' }}
+                                            {{ $activePeriod->waktu ?? ($activePeriod->nama_periode ?? 'Periode Aktif') }}
                                         </span>
                                     @else
                                         <span class="badge bg-warning px-3 py-2">
@@ -63,7 +63,7 @@
         </div>
 
         <!-- Profile Completion Card - dengan skeleton jika perlu -->
-        @if(isset($profileCompletion) && !$profileCompletion['is_complete'])
+        @if (isset($profileCompletion) && !$profileCompletion['is_complete'])
             <div class="row mb-4">
                 <div class="col-12">
                     <!-- ✅ TAMBAH: Profile skeleton (opsional, bisa langsung show) -->
@@ -97,10 +97,12 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center">
-                                <button type="button" class="btn btn-complete-now me-2" onclick="showProfileCompletionModal()">
+                                <button type="button" class="btn btn-complete-now me-2"
+                                    onclick="showProfileCompletionModal()">
                                     <i class="fas fa-user-edit me-1"></i>Lengkapi Sekarang
                                 </button>
-                                <button type="button" class="btn-close-card" onclick="hideProfileCard()" aria-label="Close">
+                                <button type="button" class="btn-close-card" onclick="hideProfileCard()"
+                                    aria-label="Close">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -180,13 +182,13 @@
 
                         <!-- Real Magang Content (Hidden Initially) -->
                         <div id="magang-content" class="real-magang d-none">
-                            @if(isset($magangInfo) && $magangInfo)
+                            @if (isset($magangInfo) && $magangInfo)
                                 <!-- MAGANG AKTIF CARD -->
                                 <div class="magang-card">
                                     <div class="magang-header">
                                         <div class="company-info">
                                             <div class="company-logo">
-                                                @if(isset($magangInfo['data']->logo_perusahaan) && $magangInfo['data']->logo_perusahaan)
+                                                @if (isset($magangInfo['data']->logo_perusahaan) && $magangInfo['data']->logo_perusahaan)
                                                     <img src="{{ asset('storage/' . $magangInfo['data']->logo_perusahaan) }}"
                                                         alt="Logo {{ $magangInfo['data']->nama_perusahaan }}">
                                                 @else
@@ -196,12 +198,13 @@
                                                 @endif
                                             </div>
                                             <div class="position-info">
-                                                <h5 class="mb-1">{{ $magangInfo['data']->judul_lowongan ?? 'Posisi Magang' }}
+                                                <h5 class="mb-1">
+                                                    {{ $magangInfo['data']->judul_lowongan ?? 'Posisi Magang' }}
                                                 </h5>
                                                 <p class="company-name">
                                                     {{ $magangInfo['data']->nama_perusahaan ?? 'Nama Perusahaan' }}
                                                 </p>
-                                                @if(isset($magangInfo['data']->nama_kota) && $magangInfo['data']->nama_kota)
+                                                @if (isset($magangInfo['data']->nama_kota) && $magangInfo['data']->nama_kota)
                                                     <small class="text-muted">
                                                         <i class="fas fa-map-marker-alt me-1"></i>
                                                         {{ $magangInfo['data']->nama_kota }}
@@ -219,7 +222,7 @@
                                         <div class="progress-header">
                                             <span class="label">
                                                 Progress Magang
-                                                @if(isset($magangInfo['status_text']))
+                                                @if (isset($magangInfo['status_text']))
                                                     <small class="text-muted">({{ $magangInfo['status_text'] }})</small>
                                                 @endif
                                             </span>
@@ -232,7 +235,7 @@
                                         <div class="date-info">
                                             <div class="date">
                                                 <span class="label">
-                                                    @if(($magangInfo['status_progress'] ?? '') === 'belum_mulai')
+                                                    @if (($magangInfo['status_progress'] ?? '') === 'belum_mulai')
                                                         MULAI DALAM
                                                     @else
                                                         HARI LEWAT
@@ -252,13 +255,13 @@
                                             </div>
                                         </div>
 
-                                        @if(isset($magangInfo['tgl_mulai_formatted']) && isset($magangInfo['tgl_selesai_formatted']))
+                                        @if (isset($magangInfo['tgl_mulai_formatted']) && isset($magangInfo['tgl_selesai_formatted']))
                                             <div class="date-range-info mt-3">
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar-alt me-1"></i>
                                                     {{ $magangInfo['tgl_mulai_formatted'] }} -
                                                     {{ $magangInfo['tgl_selesai_formatted'] }}
-                                                    @if(isset($magangInfo['totalDurasi']))
+                                                    @if (isset($magangInfo['totalDurasi']))
                                                         ({{ $magangInfo['totalDurasi'] }} hari)
                                                     @endif
                                                 </small>
@@ -266,7 +269,7 @@
                                         @endif
                                     </div>
 
-                                    @if(isset($magangInfo['data']->nama_pembimbing) && $magangInfo['data']->nama_pembimbing)
+                                    @if (isset($magangInfo['data']->nama_pembimbing) && $magangInfo['data']->nama_pembimbing)
                                         <div class="details-container">
                                             <div class="detail-item">
                                                 <div class="detail-icon">
@@ -317,7 +320,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0">3 Rekomendasi Tempat Magang</h6>
-                                <p class="text-sm mb-0">Rekomendasi sesuai dengan prefensi wilayah, skill, minat, kuota, dan
+                                <p class="text-sm mb-0">Rekomendasi sesuai dengan prefensi wilayah, skill, minat, kuota,
+                                    dan
                                     IPK Anda berdasarkan perhitungan EDAS</p>
                             </div>
                         </div>
@@ -326,7 +330,7 @@
                         <!-- ✅ PERBAIKI: Skeleton Loading for Recommendations -->
                         <div id="recommendations-skeleton" class="recommendations-skeleton">
                             <div class="row">
-                                @for($i = 1; $i <= 6; $i++)
+                                @for ($i = 1; $i <= 6; $i++)
                                     <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
                                         <div class="recommendation-skeleton-card skeleton-enhanced">
                                             <div class="p-3">
@@ -412,7 +416,8 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="switchSPKMethod('edas')">EDAS
                                         (Recommended)</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="switchSPKMethod('saw')">SAW (Alternative)</a>
+                                <li><a class="dropdown-item" href="#" onclick="switchSPKMethod('saw')">SAW
+                                        (Alternative)</a>
                                 </li>
                             </ul>
                         </div>
@@ -463,22 +468,22 @@
 
         // ✅ API INTERCEPTORS
         api.interceptors.request.use(
-            function (config) {
+            function(config) {
                 console.log(`📡 API Request: ${config.method?.toUpperCase()} ${config.url}`);
                 return config;
             },
-            function (error) {
+            function(error) {
                 console.error('❌ Request Error:', error);
                 return Promise.reject(error);
             }
         );
 
         api.interceptors.response.use(
-            function (response) {
+            function(response) {
                 console.log(`✅ API Response: ${response.status} ${response.config.url}`);
                 return response;
             },
-            function (error) {
+            function(error) {
                 console.error('💥 API Error:', {
                     status: error.response?.status,
                     statusText: error.response?.statusText,
@@ -506,7 +511,7 @@
         );
 
         // ✅ MAIN INITIALIZATION
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 === DASHBOARD INITIALIZATION START ===');
 
             try {
@@ -541,11 +546,11 @@
         // ✅ EVENT LISTENERS INITIALIZATION
         function initializeEventListeners() {
             // Add any global event listeners here
-            window.addEventListener('error', function (e) {
+            window.addEventListener('error', function(e) {
                 console.error('💥 Global JavaScript Error:', e.error);
             });
 
-            window.addEventListener('unhandledrejection', function (e) {
+            window.addEventListener('unhandledrejection', function(e) {
                 console.error('💥 Unhandled Promise Rejection:', e.reason);
             });
         }
@@ -572,30 +577,34 @@
             const missingItems = profileCompletion.missing || [];
             const details = profileCompletion.details || {};
 
+            // Build the missing items HTML safely outside the template literal
+            let missingItemsHtml = '';
+            missingItems.forEach((item, idx) => {
+                const detail = details[item] || {};
+                missingItemsHtml += `
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="${detail.icon || 'fas fa-exclamation-triangle'} me-2 text-warning"></i>
+                        <strong>${detail.label || item}</strong>
+                    </div>
+                    <small class="text-muted">${detail.description || ''}</small>
+                    ${idx !== missingItems.length - 1 ? '<hr class="my-2">' : ''}
+                `;
+            });
+
             Swal.fire({
                 title: '📋 Lengkapi Profil Anda',
                 html: `
-                                                                                                <div class="text-start">
-                                                                                                    <p class="mb-3">Profil Anda belum lengkap. Data yang masih perlu dilengkapi:</p>
-                                                                                                    <div class="alert alert-warning">
-                                                                                                        ${missingItems.map(item => {
-                    const detail = details[item] || {};
-                    return `
-                                                                                                                <div class="d-flex align-items-center mb-2">
-                                                                                                                    <i class="${detail.icon || 'fas fa-exclamation-triangle'} me-2 text-warning"></i>
-                                                                                                                    <strong>${detail.label || item}</strong>
-                                                                                                                </div>
-                                                                                                                <small class="text-muted">${detail.description || ''}</small>
-                                                                                                                ${item !== missingItems[missingItems.length - 1] ? '<hr class="my-2">' : ''}
-                                                                                                            `;
-                }).join('')}
-                                                                                                    </div>
-                                                                                                    <p class="text-muted small">
-                                                                                                        <i class="fas fa-info-circle me-1"></i>
-                                                                                                        Profil yang lengkap akan membantu sistem memberikan rekomendasi lowongan yang lebih akurat.
-                                                                                                    </p>
-                                                                                                </div>
-                                                                                            `,
+                    <div class="text-start">
+                        <p class="mb-3">Profil Anda belum lengkap. Data yang masih perlu dilengkapi:</p>
+                        <div class="alert alert-warning">
+                            ${missingItemsHtml}
+                        </div>
+                        <p class="text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Profil yang lengkap akan membantu sistem memberikan rekomendasi lowongan yang lebih akurat.
+                        </p>
+                    </div>
+                `,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fas fa-user-edit me-1"></i>Lengkapi Sekarang',
@@ -1167,52 +1176,62 @@
                                                                                         `;
         }
 
-     function renderSPKSummary(container, data) {
-    const recommendations = data.data || [];
-    const totalRecommendations = recommendations.length;
-    const topScore = recommendations[0]?.appraisal_score || 0;
-    const method = currentSPKMethod.toUpperCase();
+        function renderSPKSummary(container, data) {
+            const recommendations = data.data || [];
+            const totalRecommendations = recommendations.length;
+            const topScore = recommendations[0]?.appraisal_score || 0;
+            const method = currentSPKMethod.toUpperCase();
 
-    // ✅ DYNAMIC: Method-specific configuration dengan perbedaan jelas
-    const methodConfig = getSPKMethodConfig(currentSPKMethod);
+            // ✅ DYNAMIC: Method-specific configuration dengan perbedaan jelas
+            const methodConfig = getSPKMethodConfig(currentSPKMethod);
 
-    // ✅ BEDA: Calculate average scores dengan metode yang berbeda
-    let avgSkillMatch, avgLocationMatch, avgInterestMatch, avgIPKMatch, avgQuotaScore;
-    
-    if (currentSPKMethod === 'saw') {
-        // ✅ SAW: Perhitungan rata-rata dengan bobot SAW
-        avgSkillMatch = recommendations.reduce((sum, item) => sum + (item.skill_match || 0), 0) / totalRecommendations || 0;
-        avgLocationMatch = recommendations.reduce((sum, item) => sum + (item.location_match || 0), 0) / totalRecommendations || 0;
-        avgInterestMatch = recommendations.reduce((sum, item) => sum + (item.interest_match || 0), 0) / totalRecommendations || 0;
-        avgIPKMatch = recommendations.reduce((sum, item) => sum + (item.ipk_match || 0), 0) / totalRecommendations || 0;
-        avgQuotaScore = recommendations.reduce((sum, item) => sum + (item.quota_score || 0), 0) / totalRecommendations || 0;
-        
-        // ✅ SAW: Tampilkan info weighted calculation
-        console.log('📊 SAW Averages:', {
-            skill: avgSkillMatch,
-            location: avgLocationMatch,
-            interest: avgInterestMatch,
-            ipk: avgIPKMatch,
-            quota: avgQuotaScore
-        });
-    } else {
-        // ✅ EDAS: Perhitungan rata-rata standar
-        avgSkillMatch = recommendations.reduce((sum, item) => sum + (item.skill_match || 0), 0) / totalRecommendations || 0;
-        avgLocationMatch = recommendations.reduce((sum, item) => sum + (item.location_match || 0), 0) / totalRecommendations || 0;
-        avgInterestMatch = recommendations.reduce((sum, item) => sum + (item.interest_match || 0), 0) / totalRecommendations || 0;
-        avgIPKMatch = recommendations.reduce((sum, item) => sum + (item.ipk_match || 0), 0) / totalRecommendations || 0;
-        avgQuotaScore = recommendations.reduce((sum, item) => sum + (item.quota_score || 0), 0) / totalRecommendations || 0;
-        
-        console.log('📊 EDAS Averages:', {
-            skill: avgSkillMatch,
-            location: avgLocationMatch,
-            interest: avgInterestMatch,
-            ipk: avgIPKMatch,
-            quota: avgQuotaScore
-        });
-    }
+            // ✅ BEDA: Calculate average scores dengan metode yang berbeda
+            let avgSkillMatch, avgLocationMatch, avgInterestMatch, avgIPKMatch, avgQuotaScore;
 
-    container.innerHTML = `
+            if (currentSPKMethod === 'saw') {
+                // ✅ SAW: Perhitungan rata-rata dengan bobot SAW
+                avgSkillMatch = recommendations.reduce((sum, item) => sum + (item.skill_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgLocationMatch = recommendations.reduce((sum, item) => sum + (item.location_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgInterestMatch = recommendations.reduce((sum, item) => sum + (item.interest_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgIPKMatch = recommendations.reduce((sum, item) => sum + (item.ipk_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgQuotaScore = recommendations.reduce((sum, item) => sum + (item.quota_score || 0), 0) /
+                    totalRecommendations || 0;
+
+                // ✅ SAW: Tampilkan info weighted calculation
+                console.log('📊 SAW Averages:', {
+                    skill: avgSkillMatch,
+                    location: avgLocationMatch,
+                    interest: avgInterestMatch,
+                    ipk: avgIPKMatch,
+                    quota: avgQuotaScore
+                });
+            } else {
+                // ✅ EDAS: Perhitungan rata-rata standar
+                avgSkillMatch = recommendations.reduce((sum, item) => sum + (item.skill_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgLocationMatch = recommendations.reduce((sum, item) => sum + (item.location_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgInterestMatch = recommendations.reduce((sum, item) => sum + (item.interest_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgIPKMatch = recommendations.reduce((sum, item) => sum + (item.ipk_match || 0), 0) /
+                    totalRecommendations || 0;
+                avgQuotaScore = recommendations.reduce((sum, item) => sum + (item.quota_score || 0), 0) /
+                    totalRecommendations || 0;
+
+                console.log('📊 EDAS Averages:', {
+                    skill: avgSkillMatch,
+                    location: avgLocationMatch,
+                    interest: avgInterestMatch,
+                    ipk: avgIPKMatch,
+                    quota: avgQuotaScore
+                });
+            }
+
+            container.innerHTML = `
         <div class="spk-summary-modern">
             <!-- ✅ DYNAMIC Header dengan method-specific content yang berbeda -->
             <div class="spk-header-card position-relative overflow-hidden mb-4">
@@ -1401,19 +1420,19 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         ${methodConfig.features.left.map(feature => `
-                                            <div class="feature-item mb-2">
-                                                <i class="fas fa-check-circle text-success me-2"></i>
-                                                <span class="small">${feature}</span>
-                                            </div>
-                                        `).join('')}
+                                                            <div class="feature-item mb-2">
+                                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                                <span class="small">${feature}</span>
+                                                            </div>
+                                                        `).join('')}
                                     </div>
                                     <div class="col-md-6">
                                         ${methodConfig.features.right.map(feature => `
-                                            <div class="feature-item mb-2">
-                                                <i class="fas fa-check-circle text-success me-2"></i>
-                                                <span class="small">${feature}</span>
-                                            </div>
-                                        `).join('')}
+                                                            <div class="feature-item mb-2">
+                                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                                <span class="small">${feature}</span>
+                                                            </div>
+                                                        `).join('')}
                                     </div>
                                 </div>
                             </div>
@@ -1438,176 +1457,176 @@
         </div>
     `;
 
-    // ✅ ANIMATE: Method-specific animation timing
-    setTimeout(() => {
-        const metricValues = container.querySelectorAll('.metric-value[data-target]');
-        metricValues.forEach((element, index) => {
+            // ✅ ANIMATE: Method-specific animation timing
             setTimeout(() => {
-                animateMetricCounter(element);
-            }, index * (methodConfig.animationDelay || 200));
-        });
+                const metricValues = container.querySelectorAll('.metric-value[data-target]');
+                metricValues.forEach((element, index) => {
+                    setTimeout(() => {
+                        animateMetricCounter(element);
+                    }, index * (methodConfig.animationDelay || 200));
+                });
 
-        const criteriaFills = container.querySelectorAll('.criteria-fill-animated[data-width]');
-        criteriaFills.forEach((bar, index) => {
-            setTimeout(() => {
-                const targetWidth = bar.getAttribute('data-width') || 0;
-                bar.style.width = targetWidth + '%';
-            }, (index * 300) + 1000);
-        });
-    }, 500);
-}
-
-function getSPKMethodConfig(method) {
-    const configs = {
-        edas: {
-            emoji: '🎯',
-            icon: 'fas fa-brain',
-            description: 'Evaluation based on Distance from Average Solution',
-            shortDesc: 'Distance Analysis',
-            calcType: 'Average-based',
-            specificInfo: 'Menggunakan jarak dari solusi rata-rata untuk ranking',
-            criteriaIcon: '📊',
-            criteriaDescription: 'Analisis kesesuaian berdasarkan 5 kriteria utama',
-            criteriaNote: 'Evaluasi objektif dengan pertimbangan jarak optimal',
-            headerGradient: 'gradient-edas',
-            badgeClass: 'badge-edas',
-            methodIcon: 'fas fa-calculator',
-            methodologyIcon: 'fas fa-microscope',
-            methodologyColor: 'text-primary',
-            methodologyEmoji: '🔬',
-            methodologyDescription: 'EDAS menghitung jarak setiap alternatif dari solusi rata-rata. Kriteria: Skill, Lokasi, Minat, IPK, Kuota',
-            avgIcon: 'fas fa-balance-scale',
-            avgLabel: 'Distance-based calculation',
-            topScoreLabel: 'Closest to optimal solution',
-            progressRing: 'ring-edas',
-            statusIndicator: 'indicator-edas',
-            animationDelay: 200,
-            primaryColor: 'primary',
-            hintColor: 'primary',
-            comparisonHint: 'EDAS cocok untuk analisis objektif dengan evaluasi menyeluruh',
-            metricClasses: {
-                primary: 'metric-primary metric-edas-primary',
-                warning: 'metric-warning metric-edas-warning',
-                info: 'metric-info metric-edas-info',
-                success: 'metric-success metric-edas-success'
-            },
-            features: {
-                left: [
-                    'Distance-based calculation',
-                    'Objective decision making',
-                    'Balanced criteria evaluation'
-                ],
-                right: [
-                    'Average solution reference',
-                    'Consistent ranking system',
-                    'Multi-dimensional analysis'
-                ]
-            }
-        },
-        saw: {
-            emoji: '⚖️',
-            icon: 'fas fa-weight-balanced',
-            description: 'Simple Additive Weighting with preference-based scoring',
-            shortDesc: 'Weighted Sum',
-            calcType: 'Preference-based',
-            specificInfo: 'Menggunakan bobot preferensi untuk perhitungan skor total',
-            criteriaIcon: '📈',
-            criteriaDescription: 'Analisis kesesuaian berdasarkan 5 kriteria utama',
-            criteriaNote: 'Evaluasi berdasarkan bobot preferensi yang dapat disesuaikan',
-            headerGradient: 'gradient-saw',
-            badgeClass: 'badge-saw',
-            methodIcon: 'fas fa-plus-circle',
-            methodologyIcon: 'fas fa-balance-scale-right',
-            methodologyColor: 'text-success',
-            methodologyEmoji: '⚖️',
-            methodologyDescription: 'SAW menggunakan weighted sum dengan normalisasi. Kriteria: Skill, Lokasi, Minat, IPK, Kuota',
-            avgIcon: 'fas fa-plus-circle',
-            avgLabel: 'Weighted sum calculation',
-            topScoreLabel: 'Highest weighted score',
-            progressRing: 'ring-saw',
-            statusIndicator: 'indicator-saw',
-            animationDelay: 150,
-            primaryColor: 'success',
-            hintColor: 'success',
-            comparisonHint: 'SAW ideal untuk evaluasi dengan preferensi bobot tertentu',
-            metricClasses: {
-                primary: 'metric-primary metric-saw-primary',
-                warning: 'metric-warning metric-saw-warning',
-                info: 'metric-info metric-saw-info',
-                success: 'metric-success metric-saw-success'
-            },
-            features: {
-                left: [
-                    'Preference-weighted calculation',
-                    'Flexible weighting system',
-                    'Normalized scoring approach'
-                ],
-                right: [
-                    'Additive value combination',
-                    'Customizable preferences',
-                    'Linear ranking model'
-                ]
-            }
+                const criteriaFills = container.querySelectorAll('.criteria-fill-animated[data-width]');
+                criteriaFills.forEach((bar, index) => {
+                    setTimeout(() => {
+                        const targetWidth = bar.getAttribute('data-width') || 0;
+                        bar.style.width = targetWidth + '%';
+                    }, (index * 300) + 1000);
+                });
+            }, 500);
         }
-    };
 
-    return configs[method] || configs.edas;
-}
+        function getSPKMethodConfig(method) {
+            const configs = {
+                edas: {
+                    emoji: '🎯',
+                    icon: 'fas fa-brain',
+                    description: 'Evaluation based on Distance from Average Solution',
+                    shortDesc: 'Distance Analysis',
+                    calcType: 'Average-based',
+                    specificInfo: 'Menggunakan jarak dari solusi rata-rata untuk ranking',
+                    criteriaIcon: '📊',
+                    criteriaDescription: 'Analisis kesesuaian berdasarkan 5 kriteria utama',
+                    criteriaNote: 'Evaluasi objektif dengan pertimbangan jarak optimal',
+                    headerGradient: 'gradient-edas',
+                    badgeClass: 'badge-edas',
+                    methodIcon: 'fas fa-calculator',
+                    methodologyIcon: 'fas fa-microscope',
+                    methodologyColor: 'text-primary',
+                    methodologyEmoji: '🔬',
+                    methodologyDescription: 'EDAS menghitung jarak setiap alternatif dari solusi rata-rata. Kriteria: Skill, Lokasi, Minat, IPK, Kuota',
+                    avgIcon: 'fas fa-balance-scale',
+                    avgLabel: 'Distance-based calculation',
+                    topScoreLabel: 'Closest to optimal solution',
+                    progressRing: 'ring-edas',
+                    statusIndicator: 'indicator-edas',
+                    animationDelay: 200,
+                    primaryColor: 'primary',
+                    hintColor: 'primary',
+                    comparisonHint: 'EDAS cocok untuk analisis objektif dengan evaluasi menyeluruh',
+                    metricClasses: {
+                        primary: 'metric-primary metric-edas-primary',
+                        warning: 'metric-warning metric-edas-warning',
+                        info: 'metric-info metric-edas-info',
+                        success: 'metric-success metric-edas-success'
+                    },
+                    features: {
+                        left: [
+                            'Distance-based calculation',
+                            'Objective decision making',
+                            'Balanced criteria evaluation'
+                        ],
+                        right: [
+                            'Average solution reference',
+                            'Consistent ranking system',
+                            'Multi-dimensional analysis'
+                        ]
+                    }
+                },
+                saw: {
+                    emoji: '⚖️',
+                    icon: 'fas fa-weight-balanced',
+                    description: 'Simple Additive Weighting with preference-based scoring',
+                    shortDesc: 'Weighted Sum',
+                    calcType: 'Preference-based',
+                    specificInfo: 'Menggunakan bobot preferensi untuk perhitungan skor total',
+                    criteriaIcon: '📈',
+                    criteriaDescription: 'Analisis kesesuaian berdasarkan 5 kriteria utama',
+                    criteriaNote: 'Evaluasi berdasarkan bobot preferensi yang dapat disesuaikan',
+                    headerGradient: 'gradient-saw',
+                    badgeClass: 'badge-saw',
+                    methodIcon: 'fas fa-plus-circle',
+                    methodologyIcon: 'fas fa-balance-scale-right',
+                    methodologyColor: 'text-success',
+                    methodologyEmoji: '⚖️',
+                    methodologyDescription: 'SAW menggunakan weighted sum dengan normalisasi. Kriteria: Skill, Lokasi, Minat, IPK, Kuota',
+                    avgIcon: 'fas fa-plus-circle',
+                    avgLabel: 'Weighted sum calculation',
+                    topScoreLabel: 'Highest weighted score',
+                    progressRing: 'ring-saw',
+                    statusIndicator: 'indicator-saw',
+                    animationDelay: 150,
+                    primaryColor: 'success',
+                    hintColor: 'success',
+                    comparisonHint: 'SAW ideal untuk evaluasi dengan preferensi bobot tertentu',
+                    metricClasses: {
+                        primary: 'metric-primary metric-saw-primary',
+                        warning: 'metric-warning metric-saw-warning',
+                        info: 'metric-info metric-saw-info',
+                        success: 'metric-success metric-saw-success'
+                    },
+                    features: {
+                        left: [
+                            'Preference-weighted calculation',
+                            'Flexible weighting system',
+                            'Normalized scoring approach'
+                        ],
+                        right: [
+                            'Additive value combination',
+                            'Customizable preferences',
+                            'Linear ranking model'
+                        ]
+                    }
+                }
+            };
 
-function renderDynamicCriteriaCards(avgSkillMatch, avgLocationMatch, avgInterestMatch, avgIPKMatch, avgQuotaScore, methodConfig) {
-    // ✅ UNIFIED: Data kriteria yang sama untuk semua metode
-    const criteriaData = [
-        {
-            key: 'skill',
-            name: 'Keahlian',
-            icon: 'fas fa-tools',
-            value: avgSkillMatch,
-            color: 'success',
-            description: getUnifiedCriteriaDescription('skill', avgSkillMatch)
-        },
-        {
-            key: 'location',
-            name: 'Lokasi',
-            icon: 'fas fa-map-marker-alt',
-            value: avgLocationMatch,
-            color: 'primary',
-            description: getUnifiedCriteriaDescription('location', avgLocationMatch)
-        },
-        {
-            key: 'interest',
-            name: 'Minat',
-            icon: 'fas fa-heart',
-            value: avgInterestMatch,
-            color: 'info',
-            description: getUnifiedCriteriaDescription('interest', avgInterestMatch)
-        },
-        {
-            key: 'ipk',
-            name: 'IPK',
-            icon: 'fas fa-graduation-cap',
-            value: avgIPKMatch,
-            color: 'warning',
-            description: getUnifiedCriteriaDescription('ipk', avgIPKMatch)
-        },
-        {
-            key: 'quota',
-            name: 'Kuota',
-            icon: 'fas fa-users',
-            value: avgQuotaScore,
-            color: 'secondary',
-            description: getUnifiedCriteriaDescription('quota', avgQuotaScore)
-        },
-        {
-            key: 'overall',
-            name: 'Overall',
-            icon: 'fas fa-chart-pie',
-            value: (avgSkillMatch + avgLocationMatch + avgInterestMatch + avgIPKMatch + avgQuotaScore) / 5,
-            color: 'dark',
-            description: `Skor gabungan dari semua kriteria analisis SPK`
+            return configs[method] || configs.edas;
         }
-    ];
 
-    return criteriaData.map(criteria => `
+        function renderDynamicCriteriaCards(avgSkillMatch, avgLocationMatch, avgInterestMatch, avgIPKMatch, avgQuotaScore,
+            methodConfig) {
+            // ✅ UNIFIED: Data kriteria yang sama untuk semua metode
+            const criteriaData = [{
+                    key: 'skill',
+                    name: 'Keahlian',
+                    icon: 'fas fa-tools',
+                    value: avgSkillMatch,
+                    color: 'success',
+                    description: getUnifiedCriteriaDescription('skill', avgSkillMatch)
+                },
+                {
+                    key: 'location',
+                    name: 'Lokasi',
+                    icon: 'fas fa-map-marker-alt',
+                    value: avgLocationMatch,
+                    color: 'primary',
+                    description: getUnifiedCriteriaDescription('location', avgLocationMatch)
+                },
+                {
+                    key: 'interest',
+                    name: 'Minat',
+                    icon: 'fas fa-heart',
+                    value: avgInterestMatch,
+                    color: 'info',
+                    description: getUnifiedCriteriaDescription('interest', avgInterestMatch)
+                },
+                {
+                    key: 'ipk',
+                    name: 'IPK',
+                    icon: 'fas fa-graduation-cap',
+                    value: avgIPKMatch,
+                    color: 'warning',
+                    description: getUnifiedCriteriaDescription('ipk', avgIPKMatch)
+                },
+                {
+                    key: 'quota',
+                    name: 'Kuota',
+                    icon: 'fas fa-users',
+                    value: avgQuotaScore,
+                    color: 'secondary',
+                    description: getUnifiedCriteriaDescription('quota', avgQuotaScore)
+                },
+                {
+                    key: 'overall',
+                    name: 'Overall',
+                    icon: 'fas fa-chart-pie',
+                    value: (avgSkillMatch + avgLocationMatch + avgInterestMatch + avgIPKMatch + avgQuotaScore) / 5,
+                    color: 'dark',
+                    description: `Skor gabungan dari semua kriteria analisis SPK`
+                }
+            ];
+
+            return criteriaData.map(criteria => `
         <div class="col-lg-4 col-md-6 mb-3">
             <div class="criteria-card criteria-${criteria.key} criteria-unified">
                 <div class="criteria-icon">
@@ -1635,73 +1654,68 @@ function renderDynamicCriteriaCards(avgSkillMatch, avgLocationMatch, avgInterest
             </div>
         </div>
     `).join('');
-}
+        }
 
-// ✅ TAMBAH: Function untuk deskripsi kriteria yang unified
-function getUnifiedCriteriaDescription(criteriaKey, value) {
-    const descriptions = {
-        skill: value >= 80 ? 'Sangat sesuai dengan kebutuhan posisi' : 
-               value >= 60 ? 'Cukup sesuai dengan kebutuhan posisi' : 
-               'Perlu pengembangan skill untuk posisi ini',
-        
-        location: value >= 80 ? 'Lokasi sangat optimal dan terjangkau' : 
-                  value >= 60 ? 'Lokasi masih dalam jangkauan wajar' : 
-                  'Lokasi cukup jauh, pertimbangkan mobilitas',
-        
-        interest: value >= 80 ? 'Minat sangat selaras dengan bidang ini' : 
-                  value >= 60 ? 'Minat cukup sesuai dengan bidang ini' : 
-                  'Minat kurang selaras, butuh eksplorasi lebih',
-        
-        ipk: value >= 80 ? 'IPK sangat memenuhi persyaratan' : 
-             value >= 60 ? 'IPK memenuhi standar minimum' : 
-             'IPK di bawah standar yang diharapkan',
-        
-        quota: value >= 80 ? 'Banyak posisi tersedia, peluang bagus' : 
-               value >= 60 ? 'Posisi masih tersedia' : 
-               'Posisi terbatas dengan persaingan ketat'
-    };
+        // ✅ TAMBAH: Function untuk deskripsi kriteria yang unified
+        function getUnifiedCriteriaDescription(criteriaKey, value) {
+            const descriptions = {
+                skill: value >= 80 ? 'Sangat sesuai dengan kebutuhan posisi' : value >= 60 ?
+                    'Cukup sesuai dengan kebutuhan posisi' : 'Perlu pengembangan skill untuk posisi ini',
 
-    return descriptions[criteriaKey] || 'Analisis tidak tersedia';
-}
+                location: value >= 80 ? 'Lokasi sangat optimal dan terjangkau' : value >= 60 ?
+                    'Lokasi masih dalam jangkauan wajar' : 'Lokasi cukup jauh, pertimbangkan mobilitas',
 
-function getMethodSpecificAverage(method, avgSkill, avgLocation, avgInterest, avgIPK, avgQuota) {
-    if (method === 'saw') {
-        // ✅ SAW: Weighted average berdasarkan bobot SAW
-        const sawWeights = {
-            interest: 0.25,
-            skill: 0.25,
-            location: 0.20,
-            quota: 0.15,
-            ipk: 0.15
-        };
-        
-        return (avgInterest * sawWeights.interest) +
-               (avgSkill * sawWeights.skill) +
-               (avgLocation * sawWeights.location) +
-               (avgQuota * sawWeights.quota) +
-               (avgIPK * sawWeights.ipk);
-    } else {
-        // ✅ EDAS: Simple average
-        return (avgSkill + avgLocation + avgInterest + avgIPK + avgQuota) / 5;
-    }
-}
+                interest: value >= 80 ? 'Minat sangat selaras dengan bidang ini' : value >= 60 ?
+                    'Minat cukup sesuai dengan bidang ini' : 'Minat kurang selaras, butuh eksplorasi lebih',
 
-// ✅ TAMBAH: Function untuk message perbedaan metode
-function getMethodDifferenceMessage(method) {
-    if (method === 'saw') {
-        return 'Beralih ke SAW: Prioritas pada minat & skill Anda';
-    } else {
-        return 'Beralih ke EDAS: Analisis objektif berbasis jarak optimal';
-    }
-}
+                ipk: value >= 80 ? 'IPK sangat memenuhi persyaratan' : value >= 60 ? 'IPK memenuhi standar minimum' :
+                    'IPK di bawah standar yang diharapkan',
 
-// ✅ TAMBAH: Function untuk compare methods
-function compareMethods() {
-    console.log('🔄 Comparing EDAS vs SAW...');
-    
-    Swal.fire({
-        title: '⚖️ Perbandingan Metode SPK',
-        html: `
+                quota: value >= 80 ? 'Banyak posisi tersedia, peluang bagus' : value >= 60 ? 'Posisi masih tersedia' :
+                    'Posisi terbatas dengan persaingan ketat'
+            };
+
+            return descriptions[criteriaKey] || 'Analisis tidak tersedia';
+        }
+
+        function getMethodSpecificAverage(method, avgSkill, avgLocation, avgInterest, avgIPK, avgQuota) {
+            if (method === 'saw') {
+                // ✅ SAW: Weighted average berdasarkan bobot SAW
+                const sawWeights = {
+                    interest: 0.25,
+                    skill: 0.25,
+                    location: 0.20,
+                    quota: 0.15,
+                    ipk: 0.15
+                };
+
+                return (avgInterest * sawWeights.interest) +
+                    (avgSkill * sawWeights.skill) +
+                    (avgLocation * sawWeights.location) +
+                    (avgQuota * sawWeights.quota) +
+                    (avgIPK * sawWeights.ipk);
+            } else {
+                // ✅ EDAS: Simple average
+                return (avgSkill + avgLocation + avgInterest + avgIPK + avgQuota) / 5;
+            }
+        }
+
+        // ✅ TAMBAH: Function untuk message perbedaan metode
+        function getMethodDifferenceMessage(method) {
+            if (method === 'saw') {
+                return 'Beralih ke SAW: Prioritas pada minat & skill Anda';
+            } else {
+                return 'Beralih ke EDAS: Analisis objektif berbasis jarak optimal';
+            }
+        }
+
+        // ✅ TAMBAH: Function untuk compare methods
+        function compareMethods() {
+            console.log('🔄 Comparing EDAS vs SAW...');
+
+            Swal.fire({
+                title: '⚖️ Perbandingan Metode SPK',
+                html: `
             <div class="method-comparison">
                 <div class="row">
                     <div class="col-md-6">
@@ -1816,47 +1830,42 @@ function compareMethods() {
                 </div>
             </div>
         `,
-        width: 800,
-        showCancelButton: true,
-        confirmButtonText: `Switch to ${currentSPKMethod === 'edas' ? 'SAW' : 'EDAS'}`,
-        cancelButtonText: 'Stay with ' + currentSPKMethod.toUpperCase(),
-        confirmButtonColor: currentSPKMethod === 'edas' ? '#28a745' : '#007bff'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            switchSPKMethod(currentSPKMethod === 'edas' ? 'saw' : 'edas');
+                width: 800,
+                showCancelButton: true,
+                confirmButtonText: `Switch to ${currentSPKMethod === 'edas' ? 'SAW' : 'EDAS'}`,
+                cancelButtonText: 'Stay with ' + currentSPKMethod.toUpperCase(),
+                confirmButtonColor: currentSPKMethod === 'edas' ? '#28a745' : '#007bff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    switchSPKMethod(currentSPKMethod === 'edas' ? 'saw' : 'edas');
+                }
+            });
         }
-    });
-}
 
-// ✅ EXPOSE: Add to global scope
-window.compareMethods = compareMethods;
+        // ✅ EXPOSE: Add to global scope
+        window.compareMethods = compareMethods;
 
-function getMethodSpecificDescription(criteriaKey, methodConfig, value) {
-    // ✅ UNIFIED: Gunakan deskripsi yang sama untuk semua metode
-    const unifiedDescriptions = {
-        skill: value >= 80 ? 'Sangat sesuai dengan kebutuhan posisi' : 
-               value >= 60 ? 'Cukup sesuai dengan kebutuhan posisi' : 
-               'Perlu pengembangan skill untuk posisi ini',
-        
-        location: value >= 80 ? 'Lokasi sangat optimal dan terjangkau' : 
-                  value >= 60 ? 'Lokasi masih dalam jangkauan wajar' : 
-                  'Lokasi cukup jauh, pertimbangkan mobilitas',
-        
-        interest: value >= 80 ? 'Minat sangat selaras dengan bidang ini' : 
-                  value >= 60 ? 'Minat cukup sesuai dengan bidang ini' : 
-                  'Minat kurang selaras, butuh eksplorasi lebih',
-        
-        ipk: value >= 80 ? 'IPK sangat memenuhi persyaratan' : 
-             value >= 60 ? 'IPK memenuhi standar minimum' : 
-             'IPK di bawah standar yang diharapkan',
-        
-        quota: value >= 80 ? 'Banyak posisi tersedia, peluang bagus' : 
-               value >= 60 ? 'Posisi masih tersedia' : 
-               'Posisi terbatas dengan persaingan ketat'
-    };
+        function getMethodSpecificDescription(criteriaKey, methodConfig, value) {
+            // ✅ UNIFIED: Gunakan deskripsi yang sama untuk semua metode
+            const unifiedDescriptions = {
+                skill: value >= 80 ? 'Sangat sesuai dengan kebutuhan posisi' : value >= 60 ?
+                    'Cukup sesuai dengan kebutuhan posisi' : 'Perlu pengembangan skill untuk posisi ini',
 
-    return unifiedDescriptions[criteriaKey] || 'Analisis tidak tersedia';
-}
+                location: value >= 80 ? 'Lokasi sangat optimal dan terjangkau' : value >= 60 ?
+                    'Lokasi masih dalam jangkauan wajar' : 'Lokasi cukup jauh, pertimbangkan mobilitas',
+
+                interest: value >= 80 ? 'Minat sangat selaras dengan bidang ini' : value >= 60 ?
+                    'Minat cukup sesuai dengan bidang ini' : 'Minat kurang selaras, butuh eksplorasi lebih',
+
+                ipk: value >= 80 ? 'IPK sangat memenuhi persyaratan' : value >= 60 ? 'IPK memenuhi standar minimum' :
+                    'IPK di bawah standar yang diharapkan',
+
+                quota: value >= 80 ? 'Banyak posisi tersedia, peluang bagus' : value >= 60 ? 'Posisi masih tersedia' :
+                    'Posisi terbatas dengan persaingan ketat'
+            };
+
+            return unifiedDescriptions[criteriaKey] || 'Analisis tidak tersedia';
+        }
 
         function animateMetricCounter(element) {
             const target = parseInt(element.getAttribute('data-target')) || 0;
@@ -2110,47 +2119,47 @@ function getMethodSpecificDescription(criteriaKey, methodConfig, value) {
         // .
 
         function getSPKRankBadge(rank) {
-    let badgeClass = 'rank-regular';
-    let icon = 'fas fa-hashtag';
-    let medalClass = '';
+            let badgeClass = 'rank-regular';
+            let icon = 'fas fa-hashtag';
+            let medalClass = '';
 
-    if (rank === 1) {
-        badgeClass = 'rank-gold';
-        icon = 'fas fa-trophy';
-        medalClass = 'medal-icon';
-    } else if (rank === 2) {
-        badgeClass = 'rank-silver';
-        icon = 'fas fa-medal';
-        medalClass = 'medal-icon';
-    } else if (rank === 3) {
-        badgeClass = 'rank-bronze'; // ✅ PERBAIKI: Gunakan class yang sudah didefinisikan
-        icon = 'fas fa-award';
-        medalClass = 'medal-icon';
-    }
+            if (rank === 1) {
+                badgeClass = 'rank-gold';
+                icon = 'fas fa-trophy';
+                medalClass = 'medal-icon';
+            } else if (rank === 2) {
+                badgeClass = 'rank-silver';
+                icon = 'fas fa-medal';
+                medalClass = 'medal-icon';
+            } else if (rank === 3) {
+                badgeClass = 'rank-bronze'; // ✅ PERBAIKI: Gunakan class yang sudah didefinisikan
+                icon = 'fas fa-award';
+                medalClass = 'medal-icon';
+            }
 
-    return `
+            return `
         <span class="spk-rank-badge badge ${badgeClass} d-flex align-items-center px-2 py-1" 
               style="font-size: 12px; font-weight: bold;">
             <i class="${icon} ${medalClass} me-1"></i>
             <span>#${rank}</span>
         </span>
     `;
-}
+        }
 
-       function switchSPKMethod(method) {
-    console.log(`🔄 Switching to ${method.toUpperCase()} method`);
+        function switchSPKMethod(method) {
+            console.log(`🔄 Switching to ${method.toUpperCase()} method`);
 
-    currentSPKMethod = method;
+            currentSPKMethod = method;
 
-    const container = document.getElementById('spk-recommendations-grid');
-    const summary = document.getElementById('spk-analysis-summary');
-    
-    if (!container) return;
+            const container = document.getElementById('spk-recommendations-grid');
+            const summary = document.getElementById('spk-analysis-summary');
 
-    container.innerHTML = renderSPKSkeleton();
-    
-    if (summary) {
-        summary.innerHTML = `
+            if (!container) return;
+
+            container.innerHTML = renderSPKSkeleton();
+
+            if (summary) {
+                summary.innerHTML = `
             <div class="text-center py-4">
                 <div class="spinner-border text-primary mb-3" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -2159,75 +2168,75 @@ function getMethodSpecificDescription(criteriaKey, methodConfig, value) {
                 <small class="text-muted">Recalculating with ${method.toUpperCase()} methodology...</small>
             </div>
         `;
-    }
+            }
 
-    // ✅ PERBAIKI: Gunakan endpoint dan logic yang berbeda untuk setiap metode
-    let apiCall;
-    
-    if (method === 'edas') {
-        // EDAS menggunakan endpoint original
-        apiCall = api.get('/mahasiswa/recommendations');
-    } else if (method === 'saw') {
-        // SAW menggunakan endpoint khusus atau simulasi data berbeda
-        apiCall = api.get('/mahasiswa/recommendations/saw')
-            .catch(error => {
-                // ✅ FALLBACK: Jika endpoint SAW belum ada, simulasi data SAW
-                console.warn('SAW endpoint not available, simulating SAW data...');
-                return generateSAWSimulationData();
-            });
-    }
-
-    apiCall
-        .then(response => {
-            console.log(`🔍 ${method.toUpperCase()} Raw Response:`, response.data);
-
-            let processedData;
-            let recommendations = [];
+            // ✅ PERBAIKI: Gunakan endpoint dan logic yang berbeda untuk setiap metode
+            let apiCall;
 
             if (method === 'edas') {
-                // ✅ EDAS: Gunakan data original
-                if (response.data && response.data.success) {
-                    recommendations = response.data.data || [];
-                    processedData = {
-                        data: recommendations,
-                        method: 'EDAS',
-                        methodology: 'distance_based'
-                    };
-                }
+                // EDAS menggunakan endpoint original
+                apiCall = api.get('/mahasiswa/recommendations');
             } else if (method === 'saw') {
-                // ✅ SAW: Proses data dengan perhitungan SAW
-                if (response.data && response.data.success) {
-                    const rawData = response.data.data || response.data.recommendations || [];
-                    recommendations = processSAWData(rawData);
-                    processedData = {
-                        data: recommendations,
-                        method: 'SAW',
-                        methodology: 'weighted_additive'
-                    };
-                } else {
-                    // Gunakan simulasi jika tidak ada data
-                    recommendations = generateSAWRecommendations();
-                    processedData = {
-                        data: recommendations,
-                        method: 'SAW',
-                        methodology: 'weighted_additive'
-                    };
-                }
+                // SAW menggunakan endpoint khusus atau simulasi data berbeda
+                apiCall = api.get('/mahasiswa/recommendations/saw')
+                    .catch(error => {
+                        // ✅ FALLBACK: Jika endpoint SAW belum ada, simulasi data SAW
+                        console.warn('SAW endpoint not available, simulating SAW data...');
+                        return generateSAWSimulationData();
+                    });
             }
 
-            // ✅ UPDATE: Store processed data ke global variable
-            if (method === 'saw') {
-                // ✅ SAW: Simpan data SAW ke global untuk detailed analysis
-                window.currentSAWData = recommendations;
-                console.log('✅ SAW data stored globally:', recommendations.length, 'items');
-            } else {
-                // ✅ EDAS: Update recommendationsData global
-                recommendationsData = recommendations;
-                console.log('✅ EDAS data updated globally:', recommendations.length, 'items');
-            }
+            apiCall
+                .then(response => {
+                    console.log(`🔍 ${method.toUpperCase()} Raw Response:`, response.data);
 
-            if (recommendations.length === 0) {
-                container.innerHTML = `
+                    let processedData;
+                    let recommendations = [];
+
+                    if (method === 'edas') {
+                        // ✅ EDAS: Gunakan data original
+                        if (response.data && response.data.success) {
+                            recommendations = response.data.data || [];
+                            processedData = {
+                                data: recommendations,
+                                method: 'EDAS',
+                                methodology: 'distance_based'
+                            };
+                        }
+                    } else if (method === 'saw') {
+                        // ✅ SAW: Proses data dengan perhitungan SAW
+                        if (response.data && response.data.success) {
+                            const rawData = response.data.data || response.data.recommendations || [];
+                            recommendations = processSAWData(rawData);
+                            processedData = {
+                                data: recommendations,
+                                method: 'SAW',
+                                methodology: 'weighted_additive'
+                            };
+                        } else {
+                            // Gunakan simulasi jika tidak ada data
+                            recommendations = generateSAWRecommendations();
+                            processedData = {
+                                data: recommendations,
+                                method: 'SAW',
+                                methodology: 'weighted_additive'
+                            };
+                        }
+                    }
+
+                    // ✅ UPDATE: Store processed data ke global variable
+                    if (method === 'saw') {
+                        // ✅ SAW: Simpan data SAW ke global untuk detailed analysis
+                        window.currentSAWData = recommendations;
+                        console.log('✅ SAW data stored globally:', recommendations.length, 'items');
+                    } else {
+                        // ✅ EDAS: Update recommendationsData global
+                        recommendationsData = recommendations;
+                        console.log('✅ EDAS data updated globally:', recommendations.length, 'items');
+                    }
+
+                    if (recommendations.length === 0) {
+                        container.innerHTML = `
                     <div class="alert alert-info text-center py-4">
                         <i class="fas fa-info-circle mb-2 fa-2x text-info"></i>
                         <h6 class="mb-2">Tidak Ada Rekomendasi ${method.toUpperCase()}</h6>
@@ -2237,204 +2246,203 @@ function getMethodSpecificDescription(criteriaKey, methodConfig, value) {
                         </button>
                     </div>
                 `;
-                return;
-            }
+                        return;
+                    }
 
-            // ✅ RENDER: Summary dan recommendations dengan data yang sudah diproses
-            if (summary) {
-                renderSPKSummary(summary, processedData);
-            }
+                    // ✅ RENDER: Summary dan recommendations dengan data yang sudah diproses
+                    if (summary) {
+                        renderSPKSummary(summary, processedData);
+                    }
 
-            renderEnhancedRecommendations(container, recommendations);
-            updateMethodBadge(method.toUpperCase());
-            
-            // ✅ TOAST: Beri feedback perbedaan metode
-            const methodDiff = getMethodDifferenceMessage(method);
-            showToast('success', `✅ ${methodDiff}`);
-            
-        })
-        .catch(error => {
-            console.error(`💥 Error switching to ${method}:`, error);
-            renderSPKError(container, `Failed to load ${method.toUpperCase()} analysis: ${error.message}`);
-            
-            if (summary) {
-                summary.innerHTML = `
+                    renderEnhancedRecommendations(container, recommendations);
+                    updateMethodBadge(method.toUpperCase());
+
+                    // ✅ TOAST: Beri feedback perbedaan metode
+                    const methodDiff = getMethodDifferenceMessage(method);
+                    showToast('success', `✅ ${methodDiff}`);
+
+                })
+                .catch(error => {
+                    console.error(`💥 Error switching to ${method}:`, error);
+                    renderSPKError(container, `Failed to load ${method.toUpperCase()} analysis: ${error.message}`);
+
+                    if (summary) {
+                        summary.innerHTML = `
                     <div class="alert alert-danger text-center py-3">
                         <i class="fas fa-exclamation-triangle mb-2"></i>
                         <h6 class="mb-1">Error Loading ${method.toUpperCase()}</h6>
                         <p class="mb-0 small">${error.message}</p>
                     </div>
                 `;
-            }
-        });
-}
-
-function processSAWData(rawData) {
-    console.log('🔄 Processing data with SAW methodology...');
-    
-    if (!Array.isArray(rawData) || rawData.length === 0) {
-        return generateSAWRecommendations();
-    }
-    
-    // ✅ SAW: Bobot kriteria berbeda dari EDAS
-    const sawWeights = {
-        interest_match: 0.25,    // 25% - Minat (prioritas tinggi di SAW)
-        skill_match: 0.25,       // 25% - Skill
-        location_match: 0.20,    // 20% - Lokasi
-        quota_score: 0.15,       // 15% - Kuota
-        ipk_match: 0.15          // 15% - IPK (prioritas rendah di SAW)
-    };
-    
-    return rawData.map((item, index) => {
-        // ✅ SAW: Normalisasi skor (0-1) kemudian weighted sum
-        const normalizedScores = {
-            skill_match: (item.skill_match || 0) / 100,
-            location_match: (item.location_match || 0) / 100,
-            interest_match: (item.interest_match || 0) / 100,
-            ipk_match: (item.ipk_match || 0) / 100,
-            quota_score: (item.quota_score || 0) / 100
-        };
-        
-        // ✅ SAW: Weighted additive calculation
-        const sawScore = (
-            (normalizedScores.interest_match * sawWeights.interest_match) +
-            (normalizedScores.skill_match * sawWeights.skill_match) +
-            (normalizedScores.location_match * sawWeights.location_match) +
-            (normalizedScores.quota_score * sawWeights.quota_score) +
-            (normalizedScores.ipk_match * sawWeights.ipk_match)
-        );
-        
-        // ✅ SAW: Adjust individual criteria scores with SAW methodology
-        const sawAdjustedData = {
-            ...item,
-            // SAW memberikan boost untuk minat dan skill
-            interest_match: Math.min(100, (item.interest_match || 0) * 1.15),
-            skill_match: Math.min(100, (item.skill_match || 0) * 1.10),
-            // SAW sedikit mengurangi pengaruh lokasi
-            location_match: (item.location_match || 0) * 0.95,
-            // SAW mengurangi pengaruh IPK
-            ipk_match: (item.ipk_match || 0) * 0.90,
-            // Kuota tetap sama
-            quota_score: item.quota_score || 0,
-            // ✅ BEDA: SAW score calculation
-            appraisal_score: sawScore,
-            methodology: 'SAW',
-            saw_weights: sawWeights
-        };
-        
-        return sawAdjustedData;
-    }).sort((a, b) => (b.appraisal_score || 0) - (a.appraisal_score || 0)); // Sort by SAW score
-}
-
-// ✅ TAMBAH: Generate simulasi data SAW jika endpoint belum tersedia
-function generateSAWSimulationData() {
-    console.log('🎲 Generating SAW simulation data...');
-    
-    return new Promise((resolve) => {
-        // Simulasi delay API
-        setTimeout(() => {
-            resolve({
-                data: {
-                    success: true,
-                    data: generateSAWRecommendations()
-                }
-            });
-        }, 1000);
-    });
-}
-
-function generateSAWRecommendations() {
-    // ✅ DATA: Simulasi recommendations dengan karakteristik SAW
-    const sawRecommendations = [
-        {
-            id_lowongan: 1,
-            judul_lowongan: "Frontend Developer Intern",
-            nama_perusahaan: "TechCorp Indonesia",
-            lokasi: "Jakarta Selatan",
-            logo_perusahaan: "techcorp-logo.png",
-            // ✅ SAW: Skor yang berbeda dari EDAS
-            skill_match: 92,
-            location_match: 75,
-            interest_match: 95,     // SAW boost minat
-            ipk_match: 72,          // SAW kurangi IPK influence
-            quota_score: 80,
-            appraisal_score: 0.828, // SAW weighted score
-            methodology: 'SAW'
-        },
-        {
-            id_lowongan: 2,
-            judul_lowongan: "UI/UX Designer Intern",
-            nama_perusahaan: "DesignStudio Pro",
-            lokasi: "Bandung",
-            logo_perusahaan: "designstudio-logo.png",
-            skill_match: 88,
-            location_match: 85,
-            interest_match: 90,     // SAW boost minat
-            ipk_match: 68,          // SAW kurangi IPK influence
-            quota_score: 75,
-            appraisal_score: 0.812, // SAW weighted score
-            methodology: 'SAW'
-        },
-        {
-            id_lowongan: 3,
-            judul_lowongan: "Data Analyst Intern",
-            nama_perusahaan: "Analytics Plus",
-            lokasi: "Surabaya",
-            logo_perusahaan: "analytics-logo.png",
-            skill_match: 85,
-            location_match: 70,
-            interest_match: 88,     // SAW boost minat
-            ipk_match: 75,          // SAW kurangi IPK influence
-            quota_score: 85,
-            appraisal_score: 0.796, // SAW weighted score
-            methodology: 'SAW'
-        },
-        {
-            id_lowongan: 4,
-            judul_lowongan: "Mobile App Developer",
-            nama_perusahaan: "MobileFirst",
-            lokasi: "Yogyakarta",
-            logo_perusahaan: "mobilefirst-logo.png",
-            skill_match: 90,
-            location_match: 80,
-            interest_match: 85,
-            ipk_match: 70,
-            quota_score: 70,
-            appraisal_score: 0.784,
-            methodology: 'SAW'
-        },
-        {
-            id_lowongan: 5,
-            judul_lowongan: "Backend Developer Intern",
-            nama_perusahaan: "ServerTech",
-            lokasi: "Malang",
-            logo_perusahaan: "servertech-logo.png",
-            skill_match: 82,
-            location_match: 90,
-            interest_match: 80,
-            ipk_match: 78,
-            quota_score: 65,
-            appraisal_score: 0.773,
-            methodology: 'SAW'
-        },
-        {
-            id_lowongan: 6,
-            judul_lowongan: "Quality Assurance Intern",
-            nama_perusahaan: "TestPro Solutions",
-            lokasi: "Semarang",
-            logo_perusahaan: "testpro-logo.png",
-            skill_match: 78,
-            location_match: 85,
-            interest_match: 82,
-            ipk_match: 74,
-            quota_score: 80,
-            appraisal_score: 0.768,
-            methodology: 'SAW'
+                    }
+                });
         }
-    ];
-    
-    return sawRecommendations;
-}
+
+        function processSAWData(rawData) {
+            console.log('🔄 Processing data with SAW methodology...');
+
+            if (!Array.isArray(rawData) || rawData.length === 0) {
+                return generateSAWRecommendations();
+            }
+
+            // ✅ SAW: Bobot kriteria berbeda dari EDAS
+            const sawWeights = {
+                interest_match: 0.25, // 25% - Minat (prioritas tinggi di SAW)
+                skill_match: 0.25, // 25% - Skill
+                location_match: 0.20, // 20% - Lokasi
+                quota_score: 0.15, // 15% - Kuota
+                ipk_match: 0.15 // 15% - IPK (prioritas rendah di SAW)
+            };
+
+            return rawData.map((item, index) => {
+                // ✅ SAW: Normalisasi skor (0-1) kemudian weighted sum
+                const normalizedScores = {
+                    skill_match: (item.skill_match || 0) / 100,
+                    location_match: (item.location_match || 0) / 100,
+                    interest_match: (item.interest_match || 0) / 100,
+                    ipk_match: (item.ipk_match || 0) / 100,
+                    quota_score: (item.quota_score || 0) / 100
+                };
+
+                // ✅ SAW: Weighted additive calculation
+                const sawScore = (
+                    (normalizedScores.interest_match * sawWeights.interest_match) +
+                    (normalizedScores.skill_match * sawWeights.skill_match) +
+                    (normalizedScores.location_match * sawWeights.location_match) +
+                    (normalizedScores.quota_score * sawWeights.quota_score) +
+                    (normalizedScores.ipk_match * sawWeights.ipk_match)
+                );
+
+                // ✅ SAW: Adjust individual criteria scores with SAW methodology
+                const sawAdjustedData = {
+                    ...item,
+                    // SAW memberikan boost untuk minat dan skill
+                    interest_match: Math.min(100, (item.interest_match || 0) * 1.15),
+                    skill_match: Math.min(100, (item.skill_match || 0) * 1.10),
+                    // SAW sedikit mengurangi pengaruh lokasi
+                    location_match: (item.location_match || 0) * 0.95,
+                    // SAW mengurangi pengaruh IPK
+                    ipk_match: (item.ipk_match || 0) * 0.90,
+                    // Kuota tetap sama
+                    quota_score: item.quota_score || 0,
+                    // ✅ BEDA: SAW score calculation
+                    appraisal_score: sawScore,
+                    methodology: 'SAW',
+                    saw_weights: sawWeights
+                };
+
+                return sawAdjustedData;
+            }).sort((a, b) => (b.appraisal_score || 0) - (a.appraisal_score || 0)); // Sort by SAW score
+        }
+
+        // ✅ TAMBAH: Generate simulasi data SAW jika endpoint belum tersedia
+        function generateSAWSimulationData() {
+            console.log('🎲 Generating SAW simulation data...');
+
+            return new Promise((resolve) => {
+                // Simulasi delay API
+                setTimeout(() => {
+                    resolve({
+                        data: {
+                            success: true,
+                            data: generateSAWRecommendations()
+                        }
+                    });
+                }, 1000);
+            });
+        }
+
+        function generateSAWRecommendations() {
+            // ✅ DATA: Simulasi recommendations dengan karakteristik SAW
+            const sawRecommendations = [{
+                    id_lowongan: 1,
+                    judul_lowongan: "Frontend Developer Intern",
+                    nama_perusahaan: "TechCorp Indonesia",
+                    lokasi: "Jakarta Selatan",
+                    logo_perusahaan: "techcorp-logo.png",
+                    // ✅ SAW: Skor yang berbeda dari EDAS
+                    skill_match: 92,
+                    location_match: 75,
+                    interest_match: 95, // SAW boost minat
+                    ipk_match: 72, // SAW kurangi IPK influence
+                    quota_score: 80,
+                    appraisal_score: 0.828, // SAW weighted score
+                    methodology: 'SAW'
+                },
+                {
+                    id_lowongan: 2,
+                    judul_lowongan: "UI/UX Designer Intern",
+                    nama_perusahaan: "DesignStudio Pro",
+                    lokasi: "Bandung",
+                    logo_perusahaan: "designstudio-logo.png",
+                    skill_match: 88,
+                    location_match: 85,
+                    interest_match: 90, // SAW boost minat
+                    ipk_match: 68, // SAW kurangi IPK influence
+                    quota_score: 75,
+                    appraisal_score: 0.812, // SAW weighted score
+                    methodology: 'SAW'
+                },
+                {
+                    id_lowongan: 3,
+                    judul_lowongan: "Data Analyst Intern",
+                    nama_perusahaan: "Analytics Plus",
+                    lokasi: "Surabaya",
+                    logo_perusahaan: "analytics-logo.png",
+                    skill_match: 85,
+                    location_match: 70,
+                    interest_match: 88, // SAW boost minat
+                    ipk_match: 75, // SAW kurangi IPK influence
+                    quota_score: 85,
+                    appraisal_score: 0.796, // SAW weighted score
+                    methodology: 'SAW'
+                },
+                {
+                    id_lowongan: 4,
+                    judul_lowongan: "Mobile App Developer",
+                    nama_perusahaan: "MobileFirst",
+                    lokasi: "Yogyakarta",
+                    logo_perusahaan: "mobilefirst-logo.png",
+                    skill_match: 90,
+                    location_match: 80,
+                    interest_match: 85,
+                    ipk_match: 70,
+                    quota_score: 70,
+                    appraisal_score: 0.784,
+                    methodology: 'SAW'
+                },
+                {
+                    id_lowongan: 5,
+                    judul_lowongan: "Backend Developer Intern",
+                    nama_perusahaan: "ServerTech",
+                    lokasi: "Malang",
+                    logo_perusahaan: "servertech-logo.png",
+                    skill_match: 82,
+                    location_match: 90,
+                    interest_match: 80,
+                    ipk_match: 78,
+                    quota_score: 65,
+                    appraisal_score: 0.773,
+                    methodology: 'SAW'
+                },
+                {
+                    id_lowongan: 6,
+                    judul_lowongan: "Quality Assurance Intern",
+                    nama_perusahaan: "TestPro Solutions",
+                    lokasi: "Semarang",
+                    logo_perusahaan: "testpro-logo.png",
+                    skill_match: 78,
+                    location_match: 85,
+                    interest_match: 82,
+                    ipk_match: 74,
+                    quota_score: 80,
+                    appraisal_score: 0.768,
+                    methodology: 'SAW'
+                }
+            ];
+
+            return sawRecommendations;
+        }
 
         function updateMethodBadge(method) {
             const badge = document.querySelector('.dropdown-toggle');
@@ -2443,29 +2451,29 @@ function generateSAWRecommendations() {
             }
         }
 
-       function showSPKAnalysis(lowonganId) {
-    console.log('🔍 Showing SPK analysis for lowongan:', lowonganId);
+        function showSPKAnalysis(lowonganId) {
+            console.log('🔍 Showing SPK analysis for lowongan:', lowonganId);
 
-    // ✅ CARI: Data dari source yang sesuai dengan method aktif
-    let matchingItem = null;
-    
-    if (currentSPKMethod === 'saw' && window.currentSAWData) {
-        // ✅ SAW: Cari dari data SAW global
-        matchingItem = window.currentSAWData.find(item => 
-            item.id_lowongan == lowonganId || item.id == lowonganId
-        );
-        console.log('🎯 Found SAW data:', matchingItem);
-    } else if (currentSPKMethod === 'edas' && recommendationsData) {
-        // ✅ EDAS: Cari dari data EDAS global
-        matchingItem = recommendationsData.find(item => 
-            item.id_lowongan == lowonganId || item.id == lowonganId
-        );
-        console.log('🎯 Found EDAS data:', matchingItem);
-    }
+            // ✅ CARI: Data dari source yang sesuai dengan method aktif
+            let matchingItem = null;
 
-    Swal.fire({
-        title: '🔍 Analisis SPK Detail',
-        html: `
+            if (currentSPKMethod === 'saw' && window.currentSAWData) {
+                // ✅ SAW: Cari dari data SAW global
+                matchingItem = window.currentSAWData.find(item =>
+                    item.id_lowongan == lowonganId || item.id == lowonganId
+                );
+                console.log('🎯 Found SAW data:', matchingItem);
+            } else if (currentSPKMethod === 'edas' && recommendationsData) {
+                // ✅ EDAS: Cari dari data EDAS global
+                matchingItem = recommendationsData.find(item =>
+                    item.id_lowongan == lowonganId || item.id == lowonganId
+                );
+                console.log('🎯 Found EDAS data:', matchingItem);
+            }
+
+            Swal.fire({
+                title: '🔍 Analisis SPK Detail',
+                html: `
             <div class="spk-analysis-modal">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary mb-3" role="status">
@@ -2474,37 +2482,37 @@ function generateSAWRecommendations() {
                     <p class="mb-0">Menganalisis kriteria SPK...</p>
                     <small class="text-muted">Memuat data detail lowongan (${currentSPKMethod.toUpperCase()})</small>
                     ${matchingItem ? `
-                        <div class="mt-2 text-success small">
-                            <i class="fas fa-check-circle me-1"></i>
-                            Data ${currentSPKMethod.toUpperCase()} ditemukan: ${Math.round((matchingItem.appraisal_score || 0) * 100)}%
-                        </div>
-                    ` : `
-                        <div class="mt-2 text-warning small">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
-                            Menggunakan data fallback dari API
-                        </div>
-                    `}
+                                        <div class="mt-2 text-success small">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Data ${currentSPKMethod.toUpperCase()} ditemukan: ${Math.round((matchingItem.appraisal_score || 0) * 100)}%
+                                        </div>
+                                    ` : `
+                                        <div class="mt-2 text-warning small">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Menggunakan data fallback dari API
+                                        </div>
+                                    `}
                 </div>
             </div>
         `,
-        width: 800,
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-            loadDetailedSPKAnalysis(lowonganId, matchingItem);
+                width: 800,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    loadDetailedSPKAnalysis(lowonganId, matchingItem);
+                }
+            });
         }
-    });
-}
 
-       function loadDetailedSPKAnalysis(lowonganId, currentMethodItem = null) {
-    console.log('🔍 Loading detailed SPK analysis for:', lowonganId);
-    console.log('📊 Current method item data:', currentMethodItem);
-    console.log('🧠 Current SPK method:', currentSPKMethod);
-    
-    // Validate lowonganId
-    if (!lowonganId) {
-        console.error('❌ Lowongan ID is required');
-        Swal.getHtmlContainer().innerHTML = `
+        function loadDetailedSPKAnalysis(lowonganId, currentMethodItem = null) {
+            console.log('🔍 Loading detailed SPK analysis for:', lowonganId);
+            console.log('📊 Current method item data:', currentMethodItem);
+            console.log('🧠 Current SPK method:', currentSPKMethod);
+
+            // Validate lowonganId
+            if (!lowonganId) {
+                console.error('❌ Lowongan ID is required');
+                Swal.getHtmlContainer().innerHTML = `
             <div class="text-center text-danger py-4">
                 <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                 <h5 class="mb-2">Error</h5>
@@ -2512,11 +2520,11 @@ function generateSAWRecommendations() {
                 <button class="btn btn-primary btn-sm" onclick="Swal.close()">Tutup</button>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    // Show enhanced loading state
-    Swal.getHtmlContainer().innerHTML = `
+            // Show enhanced loading state
+            Swal.getHtmlContainer().innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
@@ -2529,70 +2537,70 @@ function generateSAWRecommendations() {
             </div>
             <small class="text-muted mt-2 d-block">Menggunakan metode ${currentSPKMethod.toUpperCase()}</small>
             ${currentMethodItem ? `
-                <small class="text-success mt-1 d-block">
-                    <i class="fas fa-check-circle me-1"></i>
-                    Data ${currentSPKMethod.toUpperCase()}: ${Math.round((currentMethodItem.appraisal_score || 0) * 100)}%
-                </small>
-            ` : `
-                <small class="text-warning mt-1 d-block">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    Menggunakan data fallback dari API
-                </small>
-            `}
+                                <small class="text-success mt-1 d-block">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Data ${currentSPKMethod.toUpperCase()}: ${Math.round((currentMethodItem.appraisal_score || 0) * 100)}%
+                                </small>
+                            ` : `
+                                <small class="text-warning mt-1 d-block">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Menggunakan data fallback dari API
+                                </small>
+                            `}
         </div>
     `;
 
-    // Make API call
-    api.get(`/mahasiswa/recommendations/analysis/${lowonganId}`)
-        .then(response => {
-            console.log('✅ Detailed analysis response:', response.data);
-            
-            if (response.data && response.data.success) {
-                const analysis = response.data.data || response.data;
-                
-                // ✅ INJECT: Data dari method yang sedang aktif
-                if (currentMethodItem) {
-                    analysis.current_method_item = currentMethodItem;
-                    analysis.current_method = currentSPKMethod;
-                    
-                    // ✅ OVERRIDE: Gunakan skor dari method yang sedang aktif
-                    analysis.method_specific_score = currentMethodItem.appraisal_score;
-                    
-                    console.log('✅ Injected current method data:', {
-                        method: currentSPKMethod,
-                        item_score: Math.round((currentMethodItem.appraisal_score || 0) * 100),
-                        analysis_score: Math.round((analysis.overall_score || 0) * 100),
-                        will_use: 'item_score'
-                    });
-                } else {
-                    console.warn('⚠️ No current method item found, using analysis score');
-                    analysis.method_specific_score = analysis.overall_score;
-                }
-                
-                renderDetailedSPKAnalysis(analysis);
-                console.log('✅ Detailed SPK analysis rendered successfully');
-                
-            } else {
-                throw new Error(response.data?.message || 'Analysis API returned unsuccessful response');
-            }
-        })
-        .catch(error => {
-            console.error('💥 Error loading detailed SPK analysis:', error);
-            
-            // Enhanced error handling
-            let errorMessage = 'Gagal memuat analisis detail. ';
-            
-            if (error.code === 'ERR_NETWORK') {
-                errorMessage += 'Periksa koneksi internet Anda.';
-            } else if (error.response?.status === 404) {
-                errorMessage += 'Data lowongan tidak ditemukan.';
-            } else if (error.response?.status === 401) {
-                errorMessage += 'Anda perlu login ulang.';
-            } else {
-                errorMessage += error.message || 'Terjadi kesalahan yang tidak diketahui.';
-            }
-            
-            Swal.getHtmlContainer().innerHTML = `
+            // Make API call
+            api.get(`/mahasiswa/recommendations/analysis/${lowonganId}`)
+                .then(response => {
+                    console.log('✅ Detailed analysis response:', response.data);
+
+                    if (response.data && response.data.success) {
+                        const analysis = response.data.data || response.data;
+
+                        // ✅ INJECT: Data dari method yang sedang aktif
+                        if (currentMethodItem) {
+                            analysis.current_method_item = currentMethodItem;
+                            analysis.current_method = currentSPKMethod;
+
+                            // ✅ OVERRIDE: Gunakan skor dari method yang sedang aktif
+                            analysis.method_specific_score = currentMethodItem.appraisal_score;
+
+                            console.log('✅ Injected current method data:', {
+                                method: currentSPKMethod,
+                                item_score: Math.round((currentMethodItem.appraisal_score || 0) * 100),
+                                analysis_score: Math.round((analysis.overall_score || 0) * 100),
+                                will_use: 'item_score'
+                            });
+                        } else {
+                            console.warn('⚠️ No current method item found, using analysis score');
+                            analysis.method_specific_score = analysis.overall_score;
+                        }
+
+                        renderDetailedSPKAnalysis(analysis);
+                        console.log('✅ Detailed SPK analysis rendered successfully');
+
+                    } else {
+                        throw new Error(response.data?.message || 'Analysis API returned unsuccessful response');
+                    }
+                })
+                .catch(error => {
+                    console.error('💥 Error loading detailed SPK analysis:', error);
+
+                    // Enhanced error handling
+                    let errorMessage = 'Gagal memuat analisis detail. ';
+
+                    if (error.code === 'ERR_NETWORK') {
+                        errorMessage += 'Periksa koneksi internet Anda.';
+                    } else if (error.response?.status === 404) {
+                        errorMessage += 'Data lowongan tidak ditemukan.';
+                    } else if (error.response?.status === 401) {
+                        errorMessage += 'Anda perlu login ulang.';
+                    } else {
+                        errorMessage += error.message || 'Terjadi kesalahan yang tidak diketahui.';
+                    }
+
+                    Swal.getHtmlContainer().innerHTML = `
                 <div class="text-center text-danger py-4">
                     <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
                     <h5 class="mb-2 text-dark">Gagal Memuat Analisis</h5>
@@ -2616,61 +2624,61 @@ function generateSAWRecommendations() {
                     </div>
                 </div>
             `;
-        });
-}
-
-function getMahasiswaData() {
-    // ✅ PRIORITAS 1: Cek data dari Laravel Blade (sudah ada di halaman)
-    const authUserName = @json(auth()->user()->name ?? '');
-    const userData = @json($userData ?? null);
-    
-    // ✅ PRIORITAS 2: Ambil dari element HTML yang sudah ada
-    const welcomeElement = document.querySelector('h4');
-    let nameFromWelcome = '';
-    if (welcomeElement && welcomeElement.textContent.includes('Selamat Datang,')) {
-        nameFromWelcome = welcomeElement.textContent.replace('Selamat Datang,', '').replace('👋', '').trim();
-    }
-    
-    // ✅ PRIORITAS 3: Fallback ke local storage jika ada
-    const storedUserData = localStorage.getItem('user_data');
-    let storedName = '';
-    if (storedUserData) {
-        try {
-            const parsedData = JSON.parse(storedUserData);
-            storedName = parsedData.name || '';
-        } catch (e) {
-            console.warn('Failed to parse stored user data');
+                });
         }
-    }
-    
-    // ✅ TENTUKAN: Nama terbaik dari sumber yang tersedia
-    const finalName = authUserName || 
-                     (userData ? userData.name : '') || 
-                     nameFromWelcome || 
-                     storedName || 
-                     'Mahasiswa';
-    
-    console.log('📊 Mahasiswa data sources:', {
-        authUserName,
-        userData: userData?.name,
-        nameFromWelcome,
-        storedName,
-        finalName
-    });
-    
-    return {
-        name: finalName,
-        nim: userData?.nim || 'NIM tidak tersedia',
-        email: userData?.email || authUserName ? @json(auth()->user()->email ?? '') : '',
-        semester: userData?.semester || 0,
-        ipk: userData?.ipk || 0
-    };
-}
 
-// ✅ PERBAIKI: Function renderDetailedSPKAnalysis dengan data mahasiswa yang lebih cerdas
-function renderDetailedSPKAnalysis(analysis) {
-    if (analysis.error) {
-        Swal.getHtmlContainer().innerHTML = `
+        function getMahasiswaData() {
+            // ✅ PRIORITAS 1: Cek data dari Laravel Blade (sudah ada di halaman)
+            const authUserName = @json(auth()->user()->name ?? '');
+            const userData = @json($userData ?? null);
+
+            // ✅ PRIORITAS 2: Ambil dari element HTML yang sudah ada
+            const welcomeElement = document.querySelector('h4');
+            let nameFromWelcome = '';
+            if (welcomeElement && welcomeElement.textContent.includes('Selamat Datang,')) {
+                nameFromWelcome = welcomeElement.textContent.replace('Selamat Datang,', '').replace('👋', '').trim();
+            }
+
+            // ✅ PRIORITAS 3: Fallback ke local storage jika ada
+            const storedUserData = localStorage.getItem('user_data');
+            let storedName = '';
+            if (storedUserData) {
+                try {
+                    const parsedData = JSON.parse(storedUserData);
+                    storedName = parsedData.name || '';
+                } catch (e) {
+                    console.warn('Failed to parse stored user data');
+                }
+            }
+
+            // ✅ TENTUKAN: Nama terbaik dari sumber yang tersedia
+            const finalName = authUserName ||
+                (userData ? userData.name : '') ||
+                nameFromWelcome ||
+                storedName ||
+                'Mahasiswa';
+
+            console.log('📊 Mahasiswa data sources:', {
+                authUserName,
+                userData: userData?.name,
+                nameFromWelcome,
+                storedName,
+                finalName
+            });
+
+            return {
+                name: finalName,
+                nim: userData?.nim || 'NIM tidak tersedia',
+                email: userData?.email || authUserName ? @json(auth()->user()->email ?? '') : '',
+                semester: userData?.semester || 0,
+                ipk: userData?.ipk || 0
+            };
+        }
+
+        // ✅ PERBAIKI: Function renderDetailedSPKAnalysis dengan data mahasiswa yang lebih cerdas
+        function renderDetailedSPKAnalysis(analysis) {
+            if (analysis.error) {
+                Swal.getHtmlContainer().innerHTML = `
             <div class="text-center text-danger py-4">
                 <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                 <h5 class="mb-2">Error Analysis</h5>
@@ -2678,45 +2686,45 @@ function renderDetailedSPKAnalysis(analysis) {
                 <button class="btn btn-primary btn-sm" onclick="Swal.close()">Tutup</button>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    const scores = analysis.detailed_scores || {};
-    const recommendations = analysis.recommendations || [];
-    const opportunity = analysis.opportunity || {};
-    
-    // ✅ FALLBACK: Gunakan data mahasiswa dari frontend jika API tidak mengembalikan data
-    let mahasiswa = analysis.mahasiswa || {};
-    
-    if (!mahasiswa.name || mahasiswa.name === 'Unknown' || mahasiswa.name === 'Nama tidak tersedia') {
-        console.log('⚠️ Mahasiswa data from API is empty/unknown, using frontend fallback');
-        mahasiswa = getMahasiswaData();
-        console.log('✅ Using fallback mahasiswa data:', mahasiswa);
-    }
-    
-    // ✅ PRIORITAS SKOR: Gunakan method_specific_score > current_method_item > analysis.overall_score
-    let finalScore = 0;
-    let scoreSource = '';
-    
-    if (analysis.method_specific_score !== undefined) {
-        finalScore = analysis.method_specific_score;
-        scoreSource = `Method-specific (${currentSPKMethod.toUpperCase()})`;
-    } else if (analysis.current_method_item?.appraisal_score !== undefined) {
-        finalScore = analysis.current_method_item.appraisal_score;
-        scoreSource = `Current method item (${currentSPKMethod.toUpperCase()})`;
-    } else {
-        finalScore = analysis.overall_score || 0;
-        scoreSource = 'Analysis fallback';
-    }
-    
-    console.log('📊 Final score determination:', {
-        method: currentSPKMethod,
-        final_score: Math.round(finalScore * 100),
-        source: scoreSource,
-        mahasiswa_final: mahasiswa // ✅ DEBUG: Cek data mahasiswa final
-    });
+            const scores = analysis.detailed_scores || {};
+            const recommendations = analysis.recommendations || [];
+            const opportunity = analysis.opportunity || {};
 
-    Swal.getHtmlContainer().innerHTML = `
+            // ✅ FALLBACK: Gunakan data mahasiswa dari frontend jika API tidak mengembalikan data
+            let mahasiswa = analysis.mahasiswa || {};
+
+            if (!mahasiswa.name || mahasiswa.name === 'Unknown' || mahasiswa.name === 'Nama tidak tersedia') {
+                console.log('⚠️ Mahasiswa data from API is empty/unknown, using frontend fallback');
+                mahasiswa = getMahasiswaData();
+                console.log('✅ Using fallback mahasiswa data:', mahasiswa);
+            }
+
+            // ✅ PRIORITAS SKOR: Gunakan method_specific_score > current_method_item > analysis.overall_score
+            let finalScore = 0;
+            let scoreSource = '';
+
+            if (analysis.method_specific_score !== undefined) {
+                finalScore = analysis.method_specific_score;
+                scoreSource = `Method-specific (${currentSPKMethod.toUpperCase()})`;
+            } else if (analysis.current_method_item?.appraisal_score !== undefined) {
+                finalScore = analysis.current_method_item.appraisal_score;
+                scoreSource = `Current method item (${currentSPKMethod.toUpperCase()})`;
+            } else {
+                finalScore = analysis.overall_score || 0;
+                scoreSource = 'Analysis fallback';
+            }
+
+            console.log('📊 Final score determination:', {
+                method: currentSPKMethod,
+                final_score: Math.round(finalScore * 100),
+                source: scoreSource,
+                mahasiswa_final: mahasiswa // ✅ DEBUG: Cek data mahasiswa final
+            });
+
+            Swal.getHtmlContainer().innerHTML = `
         <div class="spk-detailed-analysis text-start">
             <!-- Header analysis dengan design modern -->
             <div class="analysis-header-modern mb-4">
@@ -2729,11 +2737,11 @@ function renderDetailedSPKAnalysis(analysis) {
                                     <div class="analysis-company-logo me-3">
                                         ${opportunity.logo ?
                                             `<img src="${getCompanyLogoUrl(opportunity.logo)}" 
-                                                  alt="${opportunity.company}" 
-                                                  style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">` :
+                                                                  alt="${opportunity.company}" 
+                                                                  style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">` :
                                             `<div class="logo-placeholder">
-                                                <i class="fas fa-building fa-2x"></i>
-                                             </div>`
+                                                                <i class="fas fa-building fa-2x"></i>
+                                                             </div>`
                                         }
                                     </div>
                                     <div>
@@ -2784,13 +2792,13 @@ function renderDetailedSPKAnalysis(analysis) {
                                 <!-- ✅ PERBAIKI: Gunakan data mahasiswa yang sudah diperbaiki -->
                                 <div class="summary-value">${mahasiswa.name}</div>
                                 ${mahasiswa.email ? `
-                                    <div class="summary-extra">
-                                        <small class="text-muted">
-                                            <i class="fas fa-envelope me-1"></i>
-                                            ${mahasiswa.email}
-                                        </small>
-                                    </div>
-                                ` : ''}
+                                                    <div class="summary-extra">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-envelope me-1"></i>
+                                                            ${mahasiswa.email}
+                                                        </small>
+                                                    </div>
+                                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -2836,35 +2844,35 @@ function renderDetailedSPKAnalysis(analysis) {
                                 <div class="profile-value fw-bold">${mahasiswa.name}</div>
                             </div>
                             ${mahasiswa.nim && mahasiswa.nim !== 'NIM tidak tersedia' ? `
-                                <div class="profile-item mb-2">
-                                    <div class="profile-label text-muted small">NIM</div>
-                                    <div class="profile-value">${mahasiswa.nim}</div>
-                                </div>
-                            ` : ''}
+                                                <div class="profile-item mb-2">
+                                                    <div class="profile-label text-muted small">NIM</div>
+                                                    <div class="profile-value">${mahasiswa.nim}</div>
+                                                </div>
+                                            ` : ''}
                             ${mahasiswa.email ? `
-                                <div class="profile-item mb-2">
-                                    <div class="profile-label text-muted small">Email</div>
-                                    <div class="profile-value">${mahasiswa.email}</div>
-                                </div>
-                            ` : ''}
+                                                <div class="profile-item mb-2">
+                                                    <div class="profile-label text-muted small">Email</div>
+                                                    <div class="profile-value">${mahasiswa.email}</div>
+                                                </div>
+                                            ` : ''}
                         </div>
                         <div class="col-md-6">
                             ${mahasiswa.semester && mahasiswa.semester > 0 ? `
-                                <div class="profile-item mb-2">
-                                    <div class="profile-label text-muted small">Semester</div>
-                                    <div class="profile-value">${mahasiswa.semester}</div>
-                                </div>
-                            ` : ''}
+                                                <div class="profile-item mb-2">
+                                                    <div class="profile-label text-muted small">Semester</div>
+                                                    <div class="profile-value">${mahasiswa.semester}</div>
+                                                </div>
+                                            ` : ''}
                             ${mahasiswa.ipk && mahasiswa.ipk > 0 ? `
-                                <div class="profile-item mb-2">
-                                    <div class="profile-label text-muted small">IPK</div>
-                                    <div class="profile-value">
-                                        <span class="badge ${getIPKBadgeClass(mahasiswa.ipk)} px-2 py-1">
-                                            ${mahasiswa.ipk}
-                                        </span>
-                                    </div>
-                                </div>
-                            ` : ''}
+                                                <div class="profile-item mb-2">
+                                                    <div class="profile-label text-muted small">IPK</div>
+                                                    <div class="profile-value">
+                                                        <span class="badge ${getIPKBadgeClass(mahasiswa.ipk)} px-2 py-1">
+                                                            ${mahasiswa.ipk}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
                             <div class="profile-item mb-2">
                                 <div class="profile-label text-muted small">Status Data</div>
                                 <div class="profile-value">
@@ -2879,23 +2887,23 @@ function renderDetailedSPKAnalysis(analysis) {
                     
                     <!-- ✅ TAMBAH: Info jika menggunakan fallback data -->
                     ${!analysis.mahasiswa?.name ? `
-                        <div class="alert alert-warning mt-3 mb-0">
-                            <div class="d-flex align-items-start">
-                                <i class="fas fa-info-circle me-2 mt-1"></i>
-                                <div>
-                                    <div class="fw-bold mb-1">Menggunakan Data Fallback</div>
-                                    <div class="small">
-                                        Data mahasiswa diambil dari sesi login karena API tidak mengembalikan data profil. 
-                                        Untuk data yang lebih lengkap, pastikan profil Anda sudah dilengkapi.
-                                    </div>
-                                    <a href="/mahasiswa/profile" class="btn btn-warning btn-sm mt-2">
-                                        <i class="fas fa-user-edit me-1"></i>
-                                        Lengkapi Profil
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    ` : ''}
+                                        <div class="alert alert-warning mt-3 mb-0">
+                                            <div class="d-flex align-items-start">
+                                                <i class="fas fa-info-circle me-2 mt-1"></i>
+                                                <div>
+                                                    <div class="fw-bold mb-1">Menggunakan Data Fallback</div>
+                                                    <div class="small">
+                                                        Data mahasiswa diambil dari sesi login karena API tidak mengembalikan data profil. 
+                                                        Untuk data yang lebih lengkap, pastikan profil Anda sudah dilengkapi.
+                                                    </div>
+                                                    <a href="/mahasiswa/profile" class="btn btn-warning btn-sm mt-2">
+                                                        <i class="fas fa-user-edit me-1"></i>
+                                                        Lengkapi Profil
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                 </div>
             </div>
 
@@ -2922,52 +2930,86 @@ if (criterion === 'wilayah') {
                         const matchCount = data.match_count;
                         const totalRequired = data.total_required;
 
-                        return `
-                            <div class="criteria-detail-card mb-3">
-                                <div class="criteria-card-header">
-                                    <div class="d-flex align-items-center">
-                                        <div class="criteria-detail-icon ${getCriterionIconColorClass(criterion)}">
-                                            <i class="${getCriterionIcon(criterion)}"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="criteria-title">${getCriterionLabel(criterion)}</div>
-                                            <div class="criteria-category">${category}</div>
-                                        </div>
-                                        <div class="criteria-score-badge">
-                                            <span class="badge ${getCriterionBadgeClass(percentage)} fs-6 px-3 py-2">
-                                                ${percentage.toFixed(1)}%
-                                            </span>
-                                            <div class="score-fraction">${score}/3</div>
-                                        </div>
-                                    </div>
-                                </div>
+                        return ` <
+                div class = "criteria-detail-card mb-3" >
+                <
+                div class = "criteria-card-header" >
+                <
+                div class = "d-flex align-items-center" >
+                <
+                div class = "criteria-detail-icon ${getCriterionIconColorClass(criterion)}" >
+                <
+                i class = "${getCriterionIcon(criterion)}" > < /i> < /
+            div > <
+                div class = "flex-grow-1" >
+                <
+                div class = "criteria-title" > $ {
+                    getCriterionLabel(criterion)
+                } < /div> <
+            div class = "criteria-category" > $ {
+                category
+            } < /div> < /
+            div > <
+                div class = "criteria-score-badge" >
+                <
+                span class = "badge ${getCriterionBadgeClass(percentage)} fs-6 px-3 py-2" >
+                $ {
+                    percentage.toFixed(1)
+                } %
+                <
+                /span> <
+            div class = "score-fraction" > $ {
+                score
+            }
+            /3</div >
+            <
+            /div> < /
+            div > <
+                /div>
 
-                                <div class="criteria-card-body">
-                                    <!-- Progress Bar dengan animasi -->
-                                    <div class="criteria-progress-detailed mb-3">
-                                        <div class="progress-track-detailed">
-                                            <div class="progress-fill-detailed ${getCriterionProgressClass(percentage)}" 
-                                                 style="width: ${percentage}%"></div>
-                                        </div>
-                                        <div class="progress-markers">
-                                            <span class="marker" style="left: 33.33%;">1</span>
-                                            <span class="marker" style="left: 66.66%;">2</span>
-                                            <span class="marker" style="left: 100%;">3</span>
-                                        </div>
-                                    </div>
+                <
+                div class = "criteria-card-body" >
+                <
+                !--Progress Bar dengan animasi-- >
+                <
+                div class = "criteria-progress-detailed mb-3" >
+                <
+                div class = "progress-track-detailed" >
+                <
+                div class = "progress-fill-detailed ${getCriterionProgressClass(percentage)}"
+            style = "width: ${percentage}%" > < /div> < /
+            div > <
+                div class = "progress-markers" >
+                <
+                span class = "marker"
+            style = "left: 33.33%;" > 1 < /span> <
+            span class = "marker"
+            style = "left: 66.66%;" > 2 < /span> <
+            span class = "marker"
+            style = "left: 100%;" > 3 < /span> < /
+            div > <
+                /div>
 
-                                    <!-- Detail Information berdasarkan kriteria -->
-                                    <div class="criteria-details">
-                                        ${renderCriterionSpecificDetails(criterion, data, matchCount, totalRequired)}
-                                    </div>
+                <
+                !--Detail Information berdasarkan kriteria-- >
+                <
+                div class = "criteria-details" >
+                $ {
+                    renderCriterionSpecificDetails(criterion, data, matchCount, totalRequired)
+                } <
+                /div>
 
-                                    <!-- Insight & Recommendation untuk kriteria ini -->
-                                    <div class="criteria-insight">
-                                        ${renderCriterionInsight(criterion, percentage, data)}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+                <
+                !--Insight & Recommendation untuk kriteria ini-- >
+                <
+                div class = "criteria-insight" >
+                $ {
+                    renderCriterionInsight(criterion, percentage, data)
+                } <
+                /div> < /
+            div > <
+                /div>
+            `;
                     }).join('')}
                 </div>
             </div>
@@ -3018,73 +3060,73 @@ if (criterion === 'wilayah') {
             </div>
         </div>
     `;
-}
+        }
 
-// ✅ TAMBAH: Function untuk toggle debug info
-function toggleDebugInfo() {
-    const debugInfo = document.getElementById('debug-info');
-    if (debugInfo) {
-        debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
-    }
-}
+        // ✅ TAMBAH: Function untuk toggle debug info
+        function toggleDebugInfo() {
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+                debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+            }
+        }
 
-// ✅ TAMBAH: Function untuk get IPK badge class
-function getIPKBadgeClass(ipk) {
-    if (ipk >= 3.5) return 'bg-success';
-    if (ipk >= 3.0) return 'bg-info';
-    if (ipk >= 2.5) return 'bg-warning text-dark';
-    return 'bg-danger';
-}
+        // ✅ TAMBAH: Function untuk get IPK badge class
+        function getIPKBadgeClass(ipk) {
+            if (ipk >= 3.5) return 'bg-success';
+            if (ipk >= 3.0) return 'bg-info';
+            if (ipk >= 2.5) return 'bg-warning text-dark';
+            return 'bg-danger';
+        }
 
-// ✅ EXPOSE ke global scope
-window.toggleDebugInfo = toggleDebugInfo;
+        // ✅ EXPOSE ke global scope
+        window.toggleDebugInfo = toggleDebugInfo;
 
         function formatScoreValue(score) {
-    if (!score && score !== 0) return 0;
-    
-    // Jika skor sudah dalam bentuk persentase (0-100)
-    if (score > 1) {
-        return Math.round(score);
-    }
-    
-    // Jika skor dalam bentuk desimal (0-1)
-    return Math.round(score * 100);
-}
+            if (!score && score !== 0) return 0;
 
-function getMethodDescription(method) {
-    const descriptions = {
-        'edas': 'Distance Analysis',
-        'saw': 'Weighted Analysis'
-    };
-    return descriptions[method] || 'Analysis';
-}
+            // Jika skor sudah dalam bentuk persentase (0-100)
+            if (score > 1) {
+                return Math.round(score);
+            }
 
-// ✅ PERBAIKI: Function helper agar konsisten dengan appraisal_score format
-function getRecommendationStatus(appraisalScore) {
-    // ✅ KONSISTEN: Gunakan format yang sama dengan komponen lain (0-1 range)
-    const percentage = Math.round((appraisalScore || 0) * 100);
-    if (percentage >= 85) return "Sangat Direkomendasikan";
-    if (percentage >= 70) return "Direkomendasikan";
-    if (percentage >= 50) return "Cukup Sesuai";
-    return "Kurang Sesuai";
-}
+            // Jika skor dalam bentuk desimal (0-1)
+            return Math.round(score * 100);
+        }
 
-function getRecommendationStatusColor(appraisalScore) {
-    // ✅ KONSISTEN: Gunakan format yang sama dengan komponen lain (0-1 range)
-    const percentage = Math.round((appraisalScore || 0) * 100);
-    if (percentage >= 85) return '#28a745'; // Green
-    if (percentage >= 70) return '#17a2b8'; // Blue  
-    if (percentage >= 50) return '#ffc107'; // Yellow
-    return '#dc3545'; // Red
-}
+        function getMethodDescription(method) {
+            const descriptions = {
+                'edas': 'Distance Analysis',
+                'saw': 'Weighted Analysis'
+            };
+            return descriptions[method] || 'Analysis';
+        }
 
-function getMethodDescription(method) {
-    const descriptions = {
-        'edas': 'Distance Analysis',
-        'saw': 'Weighted Analysis'
-    };
-    return descriptions[method] || 'Analysis';
-}
+        // ✅ PERBAIKI: Function helper agar konsisten dengan appraisal_score format
+        function getRecommendationStatus(appraisalScore) {
+            // ✅ KONSISTEN: Gunakan format yang sama dengan komponen lain (0-1 range)
+            const percentage = Math.round((appraisalScore || 0) * 100);
+            if (percentage >= 85) return "Sangat Direkomendasikan";
+            if (percentage >= 70) return "Direkomendasikan";
+            if (percentage >= 50) return "Cukup Sesuai";
+            return "Kurang Sesuai";
+        }
+
+        function getRecommendationStatusColor(appraisalScore) {
+            // ✅ KONSISTEN: Gunakan format yang sama dengan komponen lain (0-1 range)
+            const percentage = Math.round((appraisalScore || 0) * 100);
+            if (percentage >= 85) return '#28a745'; // Green
+            if (percentage >= 70) return '#17a2b8'; // Blue  
+            if (percentage >= 50) return '#ffc107'; // Yellow
+            return '#dc3545'; // Red
+        }
+
+        function getMethodDescription(method) {
+            const descriptions = {
+                'edas': 'Distance Analysis',
+                'saw': 'Weighted Analysis'
+            };
+            return descriptions[method] || 'Analysis';
+        }
 
         function renderCriterionSpecificDetails(criterion, data, matchCount, totalRequired) {
             switch (criterion) {
@@ -3101,29 +3143,29 @@ function getMethodDescription(method) {
                                             </div>
                                         </div>
                                         ${data.matching_interests ? `
-                                            <div class="matching-items mt-2">
-                                                <div class="items-label">Minat yang cocok:</div>
-                                                <div class="items-list">
-                                                    ${data.matching_interests.map(interest =>
-                        `<span class="item-tag tag-success">
+                                                            <div class="matching-items mt-2">
+                                                                <div class="items-label">Minat yang cocok:</div>
+                                                                <div class="items-list">
+                                                                    ${data.matching_interests.map(interest =>
+                                        `<span class="item-tag tag-success">
                                                             <i class="fas fa-check me-1"></i>${interest}
                                                          </span>`
-                    ).join('')}
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                    ).join('')}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                         ${data.missing_interests ? `
-                                            <div class="missing-items mt-2">
-                                                <div class="items-label">Minat yang dibutuhkan:</div>
-                                                <div class="items-list">
-                                                    ${data.missing_interests.map(interest =>
-                        `<span class="item-tag tag-warning">
+                                                            <div class="missing-items mt-2">
+                                                                <div class="items-label">Minat yang dibutuhkan:</div>
+                                                                <div class="items-list">
+                                                                    ${data.missing_interests.map(interest =>
+                                        `<span class="item-tag tag-warning">
                                                             <i class="fas fa-plus me-1"></i>${interest}
                                                          </span>`
-                    ).join('')}
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                    ).join('')}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                     </div>
                                 `;
 
@@ -3140,29 +3182,29 @@ function getMethodDescription(method) {
                                             </div>
                                         </div>
                                         ${data.matching_skills ? `
-                                            <div class="matching-items mt-2">
-                                                <div class="items-label">Skill yang cocok:</div>
-                                                <div class="items-list">
-                                                    ${data.matching_skills.map(skill =>
-                        `<span class="item-tag tag-success">
+                                                            <div class="matching-items mt-2">
+                                                                <div class="items-label">Skill yang cocok:</div>
+                                                                <div class="items-list">
+                                                                    ${data.matching_skills.map(skill =>
+                                        `<span class="item-tag tag-success">
                                                             <i class="fas fa-check me-1"></i>${skill}
                                                          </span>`
-                    ).join('')}
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                    ).join('')}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                         ${data.missing_skills ? `
-                                            <div class="missing-items mt-2">
-                                                <div class="items-label">Skill yang dibutuhkan:</div>
-                                                <div class="items-list">
-                                                    ${data.missing_skills.map(skill =>
-                        `<span class="item-tag tag-warning">
+                                                            <div class="missing-items mt-2">
+                                                                <div class="items-label">Skill yang dibutuhkan:</div>
+                                                                <div class="items-list">
+                                                                    ${data.missing_skills.map(skill =>
+                                        `<span class="item-tag tag-warning">
                                                             <i class="fas fa-plus me-1"></i>${skill}
                                                          </span>`
-                    ).join('')}
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                    ).join('')}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                     </div>
                                 `;
 
@@ -3179,33 +3221,33 @@ function getMethodDescription(method) {
                                             </div>
                                         </div>
                                         ${data.duration_minutes ? `
-                                            <div class="detail-row mt-2">
-                                                <div class="detail-icon">
-                                                    <i class="fas fa-clock text-info"></i>
-                                                </div>
-                                                <div class="detail-content">
-                                                    <div class="detail-label">Estimasi Waktu Tempuh</div>
-                                                    <div class="detail-value">~${Math.round(data.duration_minutes / 60)} jam</div>
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                                            <div class="detail-row mt-2">
+                                                                <div class="detail-icon">
+                                                                    <i class="fas fa-clock text-info"></i>
+                                                                </div>
+                                                                <div class="detail-content">
+                                                                    <div class="detail-label">Estimasi Waktu Tempuh</div>
+                                                                    <div class="detail-value">~${Math.round(data.duration_minutes / 60)} jam</div>
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                         ${data.from_location && data.to_location ? `
-                                            <div class="location-route mt-2">
-                                                <div class="route-info">
-                                                    <div class="route-point route-start">
-                                                        <i class="fas fa-home me-2"></i>
-                                                        <span>${data.from_location}</span>
-                                                    </div>
-                                                    <div class="route-line">
-                                                        <i class="fas fa-arrow-right"></i>
-                                                    </div>
-                                                    <div class="route-point route-end">
-                                                        <i class="fas fa-building me-2"></i>
-                                                        <span>${data.to_location}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                                            <div class="location-route mt-2">
+                                                                <div class="route-info">
+                                                                    <div class="route-point route-start">
+                                                                        <i class="fas fa-home me-2"></i>
+                                                                        <span>${data.from_location}</span>
+                                                                    </div>
+                                                                    <div class="route-line">
+                                                                        <i class="fas fa-arrow-right"></i>
+                                                                    </div>
+                                                                    <div class="route-point route-end">
+                                                                        <i class="fas fa-building me-2"></i>
+                                                                        <span>${data.to_location}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                     </div>
                                 `;
 
@@ -3222,25 +3264,25 @@ function getMethodDescription(method) {
                                             </div>
                                         </div>
                                         ${data.total_quota ? `
-                                            <div class="detail-row mt-2">
-                                                <div class="detail-icon">
-                                                    <i class="fas fa-chart-pie text-info"></i>
-                                                </div>
-                                                <div class="detail-content">
-                                                    <div class="detail-label">Total Kuota</div>
-                                                    <div class="detail-value">${data.total_quota} posisi</div>
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                                            <div class="detail-row mt-2">
+                                                                <div class="detail-icon">
+                                                                    <i class="fas fa-chart-pie text-info"></i>
+                                                                </div>
+                                                                <div class="detail-content">
+                                                                    <div class="detail-label">Total Kuota</div>
+                                                                    <div class="detail-value">${data.total_quota} posisi</div>
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                         ${data.competition_level ? `
-                                            <div class="competition-indicator mt-2">
-                                                <div class="competition-label">Tingkat Persaingan:</div>
-                                                <div class="competition-value ${data.competition_level.toLowerCase()}">
-                                                    ${getCompetitionIcon(data.competition_level)}
-                                                    ${data.competition_level}
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                                            <div class="competition-indicator mt-2">
+                                                                <div class="competition-label">Tingkat Persaingan:</div>
+                                                                <div class="competition-value ${data.competition_level.toLowerCase()}">
+                                                                    ${getCompetitionIcon(data.competition_level)}
+                                                                    ${data.competition_level}
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                     </div>
                                 `;
 
@@ -3257,16 +3299,16 @@ function getMethodDescription(method) {
                                             </div>
                                         </div>
                                         ${data.required_ipk ? `
-                                            <div class="detail-row mt-2">
-                                                <div class="detail-icon">
-                                                    <i class="fas fa-star text-gold"></i>
-                                                </div>
-                                                <div class="detail-content">
-                                                    <div class="detail-label">IPK Minimum</div>
-                                                    <div class="detail-value">${data.required_ipk}</div>
-                                                </div>
-                                            </div>
-                                        ` : ''}
+                                                            <div class="detail-row mt-2">
+                                                                <div class="detail-icon">
+                                                                    <i class="fas fa-star text-gold"></i>
+                                                                </div>
+                                                                <div class="detail-content">
+                                                                    <div class="detail-label">IPK Minimum</div>
+                                                                    <div class="detail-value">${data.required_ipk}</div>
+                                                                </div>
+                                                            </div>
+                                                        ` : ''}
                                         <div class="ipk-comparison mt-2">
                                             <div class="comparison-result ${data.student_ipk >= data.required_ipk ? 'meets-requirement' : 'below-requirement'}">
                                                 <i class="fas ${data.student_ipk >= data.required_ipk ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
@@ -3312,43 +3354,122 @@ function getMethodDescription(method) {
 
         // Helper functions untuk styling dan logic
         // Helper functions untuk styling dan logic
-function getCriterionInsights(criterion, percentage, data) {
-    // ✅ UNIFIED: Insight yang sama untuk semua metode
-    const unifiedInsights = {
-        minat: {
-            high: { message: "Minat Anda sangat selaras dengan bidang ini", suggestion: "Peluang besar untuk berkembang sesuai passion", icon: "fas fa-heart", type: "insight-excellent" },
-            medium: { message: "Minat Anda cukup sesuai dengan bidang ini", suggestion: "Kesempatan baik untuk eksplorasi minat baru", icon: "fas fa-thumbs-up", type: "insight-good" },
-            low: { message: "Minat kurang selaras dengan bidang ini", suggestion: "Pertimbangkan untuk mempelajari bidang ini lebih dalam", icon: "fas fa-question-circle", type: "insight-warning" }
-        },
-        skill: {
-            high: { message: "Skill Anda sangat cocok dengan kebutuhan", suggestion: "Anda siap untuk berkontribusi maksimal", icon: "fas fa-star", type: "insight-excellent" },
-            medium: { message: "Skill dasar Anda sudah sesuai", suggestion: "Tingkatkan skill spesifik yang dibutuhkan", icon: "fas fa-tools", type: "insight-good" },
-            low: { message: "Perlu pengembangan skill tambahan", suggestion: "Fokus belajar skill yang dibutuhkan sebelum apply", icon: "fas fa-exclamation-triangle", type: "insight-warning" }
-        },
-        wilayah: {
-            high: { message: "Lokasi sangat strategis dan terjangkau", suggestion: "Tidak ada kendala mobilitas", icon: "fas fa-map-marker-alt", type: "insight-excellent" },
-            medium: { message: "Lokasi masih dalam jangkauan wajar", suggestion: "Persiapkan transportasi yang memadai", icon: "fas fa-route", type: "insight-good" },
-            low: { message: "Lokasi cukup jauh dari domisili", suggestion: "Pertimbangkan kost atau transportasi harian", icon: "fas fa-car", type: "insight-warning" }
-        },
-        kuota: {
-            high: { message: "Banyak posisi tersedia", suggestion: "Peluang diterima sangat baik", icon: "fas fa-users", type: "insight-excellent" },
-            medium: { message: "Posisi masih tersedia", suggestion: "Segera ajukan lamaran", icon: "fas fa-user-plus", type: "insight-good" },
-            low: { message: "Posisi terbatas dengan persaingan ketat", suggestion: "Persiapkan aplikasi terbaik Anda", icon: "fas fa-user-tie", type: "insight-warning" }
-        },
-        ipk: {
-            high: { message: "IPK Anda sangat memenuhi persyaratan", suggestion: "Keunggulan akademik yang solid", icon: "fas fa-graduation-cap", type: "insight-excellent" },
-            medium: { message: "IPK memenuhi standar minimum", suggestion: "Fokus pada kualitas portofolio lainnya", icon: "fas fa-award", type: "insight-good" },
-            low: { message: "IPK di bawah standar yang diharapkan", suggestion: "Kompensasi dengan skill dan pengalaman", icon: "fas fa-chart-line", type: "insight-warning" }
+        function getCriterionInsights(criterion, percentage, data) {
+            // ✅ UNIFIED: Insight yang sama untuk semua metode
+            const unifiedInsights = {
+                minat: {
+                    high: {
+                        message: "Minat Anda sangat selaras dengan bidang ini",
+                        suggestion: "Peluang besar untuk berkembang sesuai passion",
+                        icon: "fas fa-heart",
+                        type: "insight-excellent"
+                    },
+                    medium: {
+                        message: "Minat Anda cukup sesuai dengan bidang ini",
+                        suggestion: "Kesempatan baik untuk eksplorasi minat baru",
+                        icon: "fas fa-thumbs-up",
+                        type: "insight-good"
+                    },
+                    low: {
+                        message: "Minat kurang selaras dengan bidang ini",
+                        suggestion: "Pertimbangkan untuk mempelajari bidang ini lebih dalam",
+                        icon: "fas fa-question-circle",
+                        type: "insight-warning"
+                    }
+                },
+                skill: {
+                    high: {
+                        message: "Skill Anda sangat cocok dengan kebutuhan",
+                        suggestion: "Anda siap untuk berkontribusi maksimal",
+                        icon: "fas fa-star",
+                        type: "insight-excellent"
+                    },
+                    medium: {
+                        message: "Skill dasar Anda sudah sesuai",
+                        suggestion: "Tingkatkan skill spesifik yang dibutuhkan",
+                        icon: "fas fa-tools",
+                        type: "insight-good"
+                    },
+                    low: {
+                        message: "Perlu pengembangan skill tambahan",
+                        suggestion: "Fokus belajar skill yang dibutuhkan sebelum apply",
+                        icon: "fas fa-exclamation-triangle",
+                        type: "insight-warning"
+                    }
+                },
+                wilayah: {
+                    high: {
+                        message: "Lokasi sangat strategis dan terjangkau",
+                        suggestion: "Tidak ada kendala mobilitas",
+                        icon: "fas fa-map-marker-alt",
+                        type: "insight-excellent"
+                    },
+                    medium: {
+                        message: "Lokasi masih dalam jangkauan wajar",
+                        suggestion: "Persiapkan transportasi yang memadai",
+                        icon: "fas fa-route",
+                        type: "insight-good"
+                    },
+                    low: {
+                        message: "Lokasi cukup jauh dari domisili",
+                        suggestion: "Pertimbangkan kost atau transportasi harian",
+                        icon: "fas fa-car",
+                        type: "insight-warning"
+                    }
+                },
+                kuota: {
+                    high: {
+                        message: "Banyak posisi tersedia",
+                        suggestion: "Peluang diterima sangat baik",
+                        icon: "fas fa-users",
+                        type: "insight-excellent"
+                    },
+                    medium: {
+                        message: "Posisi masih tersedia",
+                        suggestion: "Segera ajukan lamaran",
+                        icon: "fas fa-user-plus",
+                        type: "insight-good"
+                    },
+                    low: {
+                        message: "Posisi terbatas dengan persaingan ketat",
+                        suggestion: "Persiapkan aplikasi terbaik Anda",
+                        icon: "fas fa-user-tie",
+                        type: "insight-warning"
+                    }
+                },
+                ipk: {
+                    high: {
+                        message: "IPK Anda sangat memenuhi persyaratan",
+                        suggestion: "Keunggulan akademik yang solid",
+                        icon: "fas fa-graduation-cap",
+                        type: "insight-excellent"
+                    },
+                    medium: {
+                        message: "IPK memenuhi standar minimum",
+                        suggestion: "Fokus pada kualitas portofolio lainnya",
+                        icon: "fas fa-award",
+                        type: "insight-good"
+                    },
+                    low: {
+                        message: "IPK di bawah standar yang diharapkan",
+                        suggestion: "Kompensasi dengan skill dan pengalaman",
+                        icon: "fas fa-chart-line",
+                        type: "insight-warning"
+                    }
+                }
+            };
+
+            const criterionInsight = unifiedInsights[criterion];
+            if (!criterionInsight) return {
+                message: "Analisis tidak tersedia",
+                icon: "fas fa-info",
+                type: "insight-neutral"
+            };
+
+            if (percentage >= 80) return criterionInsight.high;
+            if (percentage >= 60) return criterionInsight.medium;
+            return criterionInsight.low;
         }
-    };
-
-    const criterionInsight = unifiedInsights[criterion];
-    if (!criterionInsight) return { message: "Analisis tidak tersedia", icon: "fas fa-info", type: "insight-neutral" };
-
-    if (percentage >= 80) return criterionInsight.high;
-    if (percentage >= 60) return criterionInsight.medium;
-    return criterionInsight.low;
-}
 
         function getRecommendationStatus(score) {
             const percentage = (score || 0) * 100;
@@ -3628,7 +3749,7 @@ function getCriterionInsights(criterion, percentage, data) {
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
 
-            toast.addEventListener('hidden.bs.toast', function () {
+            toast.addEventListener('hidden.bs.toast', function() {
                 toast.remove();
             });
         }
@@ -3656,12 +3777,12 @@ function getCriterionInsights(criterion, percentage, data) {
         }
 
         // ✅ GLOBAL ERROR HANDLER
-        window.addEventListener('error', function (e) {
+        window.addEventListener('error', function(e) {
             console.error('💥 Global JavaScript Error:', e.error);
             showToast('error', 'Terjadi kesalahan pada halaman');
         });
 
-        window.addEventListener('unhandledrejection', function (e) {
+        window.addEventListener('unhandledrejection', function(e) {
             console.error('💥 Unhandled Promise Rejection:', e.reason);
             showToast('error', 'Terjadi kesalahan jaringan');
         });

@@ -164,7 +164,7 @@
 
         <!-- Logout button -->
         <div class="sidenav-footer">
-            <form method="POST" action="{{ route('logout') }}" class="mx-3 mt-5">
+            <form method="POST" action="{{ route('logout') }}" class="mx-3">
                 @csrf
                 <button type="submit" class="btn btn-danger btn-sm w-100">
                     Log out
@@ -173,8 +173,6 @@
         </div>
     </div>
 </aside>
-
-</div>
 
 @push('css')
     <link href="{{ asset('assets/css/sidenav.css') }}" rel="stylesheet" />

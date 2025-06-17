@@ -1,8 +1,16 @@
 /* Global styles */
 .container-fluid {
-    padding-top: 2rem;
+    max-width: 1400px !important; /* ✅ SAMA: Dengan lowongan.css */
+    margin: 0 auto;
+    padding-left: 1.5rem !important; /* ✅ STANDAR: Bootstrap default */
+    padding-right: 1.5rem !important; /* ✅ STANDAR: Bootstrap default */
+    padding-top: 2rem !important;
 }
 
+.container-fluid.px-10 {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
 .card {
     border-radius: 12px;
     overflow: hidden;
@@ -978,30 +986,30 @@
         width: 100%;
         text-align: center;
     }
-    
+
     .timeline-image {
         max-width: 100% !important;
         max-height: 250px !important;
     }
-    
+
     .photo-overlay {
         font-size: 20px;
     }
-    
+
     .photo-actions {
         justify-content: center;
     }
-    
+
     .photo-actions .btn {
         font-size: 12px;
         padding: 4px 8px;
     }
-    
+
     .fullscreen-photo {
         max-height: 85vh !important;
         max-width: 95vw !important;
     }
-    
+
     .fullscreen-controls {
         bottom: 20px;
     }
@@ -1029,7 +1037,7 @@
 }
 
 .timeline-photo.loading::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1043,6 +1051,10 @@
 }
 
 @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }

@@ -33,17 +33,17 @@
                                 </div>
                             </div>
                             <!-- Remove or comment out wilayah filter section
-                                            <div class="col-md-6">
-                                                <label class="form-label d-flex align-items-center">
-                                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                                    <span>Filter Wilayah</span>
-                                                </label>
-                                                <select class="form-select" id="wilayahFilter">
-                                                    <option value="">Semua Wilayah</option>
-                                                    <!-- Will be populated dynamically
-                                                </select>
-                                            </div>
-                                            -->
+                                                <div class="col-md-6">
+                                                    <label class="form-label d-flex align-items-center">
+                                                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                                        <span>Filter Wilayah</span>
+                                                    </label>
+                                                    <select class="form-select" id="wilayahFilter">
+                                                        <option value="">Semua Wilayah</option>
+                                                        <!-- Will be populated dynamically
+                                                    </select>
+                                                </div>
+                                                -->
                         </div>
 
                         <!-- Update table class and structure -->
@@ -1394,12 +1394,12 @@
 
                         <!-- Assign button for top match -->
       ${isTopMatch ? `
-                        <div class="text-center mt-3">
-                            <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
-                                <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
-                            </button>
-                        </div>
-                    ` : ''}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
+                                    <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
                 });

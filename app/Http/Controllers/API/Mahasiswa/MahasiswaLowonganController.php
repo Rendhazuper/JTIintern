@@ -31,11 +31,17 @@ class MahasiswaLowonganController extends Controller
                 'skill_id' => $skill_id
             ]);
 
-            // Query dasar
-            $query = DB::table('m_lowongan as l')
-                ->join('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
-                ->join('m_wilayah as w', 'p.wilayah_id', '=', 'w.wilayah_id')
-                ->join('m_periode as pr', 'l.periode_id', '=', 'pr.periode_id');
+                  // Ambil semua periode_id aktif dari t_periode
+        $periodeAktifIds = DB::table('t_periode')->pluck('periode_id')->toArray();
+
+        // Query dasar
+        $query = DB::table('m_lowongan as l')
+            ->join('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
+            ->join('m_wilayah as w', 'p.wilayah_id', '=', 'w.wilayah_id')
+            ->join('m_periode as pr', 'l.periode_id', '=', 'pr.periode_id')
+            // ✅ Tambahkan filter periode aktif
+            ->whereIn('l.periode_id', $periodeAktifIds);
+
 
             // Filter berdasarkan perusahaan jika ada
             if ($perusahaan_id) {
