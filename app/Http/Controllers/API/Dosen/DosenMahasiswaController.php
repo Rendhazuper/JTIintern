@@ -162,7 +162,7 @@ class DosenMahasiswaController extends Controller
         }
     }
 
-    // Add this method to DosenMahasiswaController.php
+    // Update checkEvaluationStatus method
     public function checkEvaluationStatus($magangId)
     {
         try {
@@ -176,12 +176,7 @@ class DosenMahasiswaController extends Controller
                 ], 404);
             }
 
-            // Check if evaluation exists for this magang
-            $evaluation = DB::table('t_evaluasi')
-                ->where('id_magang', $magangId)
-                ->first();
-
-            // Also verify that this magang belongs to this dosen
+            // Check if this magang belongs to this dosen
             $magangBelongsToDosen = DB::table('m_magang')
                 ->where('id_magang', $magangId)
                 ->where('id_dosen', $dosen->id_dosen)
@@ -194,15 +189,20 @@ class DosenMahasiswaController extends Controller
                 ], 403);
             }
 
-            // If evaluation exists BUT nilai_dosen is NULL, dosen needs to evaluate
+            // Check if evaluation exists for this magang
+            $evaluation = DB::table('t_evaluasi')
+                ->where('id_magang', $magangId)
+                ->first();
+
+            // Check if dosen needs to evaluate (nilai_dosen is NULL)
             $needsDosenEvaluation = false;
             $grade = null;
             
             if ($evaluation) {
                 $needsDosenEvaluation = is_null($evaluation->nilai_dosen) || is_null($evaluation->catatan_dosen);
                 
-                // If evaluation is complete (both nilai_dosen and nilai_perusahaan exist), return the grade
-                if (!$needsDosenEvaluation && !is_null($evaluation->nilai_perusahaan)) {
+                // If evaluation is complete, return the grade
+                if (!is_null($evaluation->nilai_dosen) && !is_null($evaluation->nilai_perusahaan)) {
                     $grade = $evaluation->grade;
                 }
             }

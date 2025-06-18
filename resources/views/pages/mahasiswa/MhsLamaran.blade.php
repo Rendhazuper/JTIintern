@@ -1368,49 +1368,49 @@
 
             <!-- Description Section -->
             ${lamaran.deskripsi_lowongan ? `
-                                                                                                                                                                <div class="description-section mb-4">
-                                                                                                                                                                    <h6 class="mb-2"><i class="fas fa-file-alt me-2"></i>Deskripsi Posisi</h6>
-                                                                                                                                                                    <div class="description-content bg-light p-3 rounded">
-                                                                                                                                                                        <p class="mb-0 text-sm">${lamaran.deskripsi_lowongan}</p>
+                                                                                                                                                                    <div class="description-section mb-4">
+                                                                                                                                                                        <h6 class="mb-2"><i class="fas fa-file-alt me-2"></i>Deskripsi Posisi</h6>
+                                                                                                                                                                        <div class="description-content bg-light p-3 rounded">
+                                                                                                                                                                            <p class="mb-0 text-sm">${lamaran.deskripsi_lowongan}</p>
+                                                                                                                                                                        </div>
                                                                                                                                                                     </div>
-                                                                                                                                                                </div>
-                                                                                                                                                            ` : ''}
+                                                                                                                                                                ` : ''}
 
             <!-- Requirements Section -->
             ${lamaran.min_ipk ? `
-                                                                                                                                                                <div class="requirements-section mb-4">
-                                                                                                                                                                    <h6 class="mb-2"><i class="fas fa-check-circle me-2"></i>Persyaratan</h6>
-                                                                                                                                                                    <div class="bg-light p-3 rounded">
-                                                                                                                                                                        <div class="d-flex align-items-center">
-                                                                                                                                                                            <i class="fas fa-graduation-cap text-primary me-2"></i>
-                                                                                                                                                                            <span class="text-sm">Minimal IPK: <strong>${lamaran.min_ipk}</strong></span>
+                                                                                                                                                                    <div class="requirements-section mb-4">
+                                                                                                                                                                        <h6 class="mb-2"><i class="fas fa-check-circle me-2"></i>Persyaratan</h6>
+                                                                                                                                                                        <div class="bg-light p-3 rounded">
+                                                                                                                                                                            <div class="d-flex align-items-center">
+                                                                                                                                                                                <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                                                                                                                                                                <span class="text-sm">Minimal IPK: <strong>${lamaran.min_ipk}</strong></span>
+                                                                                                                                                                            </div>
                                                                                                                                                                         </div>
                                                                                                                                                                     </div>
-                                                                                                                                                                </div>
-                                                                                                                                                            ` : ''}
+                                                                                                                                                                ` : ''}
 
             <!-- Company Info -->
             <div class="company-info-section">
                 <h6 class="mb-2"><i class="fas fa-building me-2"></i>Informasi Perusahaan</h6>
                 <div class="bg-light p-3 rounded">
                     ${lamaran.alamat_perusahaan ? `
-                                                                                                                                                                        <div class="d-flex align-items-start mb-2">
-                                                                                                                                                                            <i class="fas fa-map-marker-alt text-primary me-2 mt-1"></i>
-                                                                                                                                                                            <span class="text-sm">${lamaran.alamat_perusahaan}</span>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    ` : ''}
+                                                                                                                                                                            <div class="d-flex align-items-start mb-2">
+                                                                                                                                                                                <i class="fas fa-map-marker-alt text-primary me-2 mt-1"></i>
+                                                                                                                                                                                <span class="text-sm">${lamaran.alamat_perusahaan}</span>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        ` : ''}
                     ${lamaran.perusahaan_email ? `
-                                                                                                                                                                        <div class="d-flex align-items-center mb-2">
-                                                                                                                                                                            <i class="fas fa-envelope text-primary me-2"></i>
-                                                                                                                                                                            <a href="mailto:${lamaran.perusahaan_email}" class="text-sm text-decoration-none">${lamaran.perusahaan_email}</a>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    ` : ''}
+                                                                                                                                                                            <div class="d-flex align-items-center mb-2">
+                                                                                                                                                                                <i class="fas fa-envelope text-primary me-2"></i>
+                                                                                                                                                                                <a href="mailto:${lamaran.perusahaan_email}" class="text-sm text-decoration-none">${lamaran.perusahaan_email}</a>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        ` : ''}
                     ${lamaran.website ? `
-                                                                                                                                                                        <div class="d-flex align-items-center">
-                                                                                                                                                                            <i class="fas fa-globe text-primary me-2"></i>
-                                                                                                                                                                            <a href="${lamaran.website}" target="_blank" class="text-sm text-decoration-none">${lamaran.website}</a>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    ` : ''}
+                                                                                                                                                                            <div class="d-flex align-items-center">
+                                                                                                                                                                                <i class="fas fa-globe text-primary me-2"></i>
+                                                                                                                                                                                <a href="${lamaran.website}" target="_blank" class="text-sm text-decoration-none">${lamaran.website}</a>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        ` : ''}
                 </div>
             </div>
         </div>
@@ -1581,7 +1581,7 @@
                     const formData = new FormData(form);
 
                     // Send the data using fetch API
-                    fetch('/api/evaluasi/submit', {
+                    fetch('/api/evaluasi-magang/submit', {
                             method: 'POST',
                             body: formData,
                             headers: {
