@@ -31,7 +31,7 @@
                 <li class="nav-item px-2">
                     <a href="{{ route('mahasiswa.lamaran') }}"
                         class="nav-link {{ request()->routeIs('mahasiswa.lamaran') ? 'active' : '' }} fw-medium">
-                        Lamaran Saya
+                        Status Lamaran
                     </a>
                 </li>
                 <li class="nav-item px-2">
@@ -43,7 +43,7 @@
                 <li class="nav-item px-2">
                     <a href="{{ route('mahasiswa.evaluasi') }}"
                         class="nav-link {{ request()->routeIs('mahasiswa.evaluasi') ? 'active' : '' }} fw-medium">
-                        Evaluasi
+                        Riwayat Mangang
                     </a>
                 </li>
             </ul>
@@ -51,54 +51,48 @@
             <div class="d-flex align-items-center gap-3">
                 <!-- ✅ ENHANCED: Modern Notification Bell -->
                 <div class="dropdown position-relative">
-                    <button class="btn p-0 border-0 notification-bell-btn" 
-                            type="button" 
-                            data-bs-toggle="dropdown"
-                            data-bs-auto-close="outside" 
-                            id="notificationDropdown"
-                            aria-label="Notifications"
-                            aria-expanded="false">
+                    <button class="btn p-0 border-0 notification-bell-btn" type="button" data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside" id="notificationDropdown" aria-label="Notifications"
+                        aria-expanded="false">
                         <div class="notification-bell-container">
                             <i class="bi bi-bell notification-bell-icon" aria-hidden="true"></i>
-                            <span class="notification-badge" id="notificationCount" style="display: none;" aria-label="Unread notifications">0</span>
+                            <span class="notification-badge" id="notificationCount" style="display: none;"
+                                aria-label="Unread notifications">0</span>
                         </div>
                     </button>
 
                     <!-- ✅ MODERN: Notification Dropdown -->
-                    <div class="dropdown-menu dropdown-menu-end modern-notification-dropdown" aria-labelledby="notificationDropdown">
+                    <div class="dropdown-menu dropdown-menu-end modern-notification-dropdown"
+                        aria-labelledby="notificationDropdown">
                         <!-- Header -->
                         <div class="notification-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="notification-title">Notifikasi</h6>
-                                    <small class="notification-subtitle" id="notificationSubtitle">Terbaru untuk Anda</small>
+                                    <small class="notification-subtitle" id="notificationSubtitle">Terbaru untuk
+                                        Anda</small>
                                 </div>
                                 <div class="notification-actions">
-                                    <button class="btn-action btn-mark-all" 
-                                            id="markAllRead"
-                                            title="Tandai semua dibaca"
-                                            aria-label="Mark all notifications as read">
+                                    <button class="btn-action btn-mark-all" id="markAllRead" title="Tandai semua dibaca"
+                                        aria-label="Mark all notifications as read">
                                         <i class="bi bi-check2-all" aria-hidden="true"></i>
                                     </button>
                                     <div class="dropdown">
-                                        <button class="btn-action btn-options" 
-                                                data-bs-toggle="dropdown"
-                                                title="Opsi lainnya"
-                                                aria-label="More options"
-                                                aria-expanded="false">
+                                        <button class="btn-action btn-options" data-bs-toggle="dropdown"
+                                            title="Opsi lainnya" aria-label="More options" aria-expanded="false">
                                             <i class="bi bi-three-dots" aria-hidden="true"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end options-menu">
                                             <li>
                                                 <button class="dropdown-item option-item"
-                                                        onclick="notificationSystem.clearRead()">
+                                                    onclick="notificationSystem.clearRead()">
                                                     <i class="bi bi-check-circle text-success" aria-hidden="true"></i>
                                                     <span>Hapus yang Dibaca</span>
                                                 </button>
                                             </li>
                                             <li>
                                                 <button class="dropdown-item option-item"
-                                                        onclick="notificationSystem.clearExpired()">
+                                                    onclick="notificationSystem.clearExpired()">
                                                     <i class="bi bi-clock-history text-warning" aria-hidden="true"></i>
                                                     <span>Hapus Kedaluwarsa</span>
                                                 </button>
@@ -108,7 +102,7 @@
                                             </li>
                                             <li>
                                                 <button class="dropdown-item option-item text-danger"
-                                                        onclick="notificationSystem.clearAll()">
+                                                    onclick="notificationSystem.clearAll()">
                                                     <i class="bi bi-trash" aria-hidden="true"></i>
                                                     <span>Hapus Semua</span>
                                                 </button>
@@ -145,9 +139,8 @@
 
                         <!-- Footer -->
                         <div class="notification-footer">
-                            <button class="btn-refresh" 
-                                    onclick="notificationSystem.loadNotifications()"
-                                    aria-label="Refresh notifications">
+                            <button class="btn-refresh" onclick="notificationSystem.loadNotifications()"
+                                aria-label="Refresh notifications">
                                 <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                                 <span>Refresh</span>
                             </button>
@@ -159,13 +152,9 @@
 
                 <!-- ✅ Profile Dropdown (existing) -->
                 <div class="dropdown">
-                    <button class="btn rounded-circle profile-button" 
-                            type="button" 
-                            data-bs-toggle="dropdown"
-                            data-bs-auto-close="true" 
-                            style="width: 32px; height: 32px; background: #EFF6FF;"
-                            aria-label="User profile menu"
-                            aria-expanded="false">
+                    <button class="btn rounded-circle profile-button" type="button" data-bs-toggle="dropdown"
+                        data-bs-auto-close="true" style="width: 32px; height: 32px; background: #EFF6FF;"
+                        aria-label="User profile menu" aria-expanded="false">
                         <span class="me-2 fw-medium">{{ substr(auth()->user()->name, 0, 1) }}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">

@@ -215,13 +215,13 @@
 
     function getGradeBadgeClass(grade) {
         const classes = {
-            'A' : 'bg-success',
+            'A': 'bg-success',
             'B+': 'bg-info',
-            'B' : 'bg-primary',
+            'B': 'bg-primary',
             'C+': 'bg-warning',
-            'C' : 'bg-orange',
-            'D' : 'bg-danger',
-            'E' : 'bg-secondary'
+            'C': 'bg-orange',
+            'D': 'bg-danger',
+            'E': 'bg-secondary'
         };
         return classes[grade] || 'bg-secondary';
     }

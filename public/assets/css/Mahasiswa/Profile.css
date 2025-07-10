@@ -35,7 +35,7 @@
 .avatar-profile {
     width: 100px;
     height: 100px;
-    background-color: #EFF6FF;
+    background-color: #eff6ff;
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -217,12 +217,15 @@
     min-height: 38px;
 }
 
-.select2-container--default.select2-container--focus .select2-selection--multiple {
+.select2-container--default.select2-container--focus
+    .select2-selection--multiple {
     border-color: #5e72e4;
     box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.15);
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice {
     background-color: rgba(94, 114, 228, 0.1);
     border: 1px solid rgba(94, 114, 228, 0.2);
     border-radius: 4px;
@@ -230,12 +233,15 @@
     padding: 2px 8px;
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice__remove {
     color: #5e72e4;
     margin-right: 5px;
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+.select2-container--default
+    .select2-results__option--highlighted[aria-selected] {
     background-color: #5e72e4;
 }
 
@@ -404,12 +410,24 @@
     animation: shimmer 1.8s infinite;
 }
 
-.skeleton-skill-badge:nth-child(1) { width: 90px; }
-.skeleton-skill-badge:nth-child(2) { width: 70px; }
-.skeleton-skill-badge:nth-child(3) { width: 100px; }
-.skeleton-skill-badge:nth-child(4) { width: 85px; }
-.skeleton-skill-badge:nth-child(5) { width: 75px; }
-.skeleton-skill-badge:nth-child(6) { width: 95px; }
+.skeleton-skill-badge:nth-child(1) {
+    width: 90px;
+}
+.skeleton-skill-badge:nth-child(2) {
+    width: 70px;
+}
+.skeleton-skill-badge:nth-child(3) {
+    width: 100px;
+}
+.skeleton-skill-badge:nth-child(4) {
+    width: 85px;
+}
+.skeleton-skill-badge:nth-child(5) {
+    width: 75px;
+}
+.skeleton-skill-badge:nth-child(6) {
+    width: 95px;
+}
 
 /* ================================
    MINAT SKELETON
@@ -440,10 +458,18 @@
     animation: shimmer 1.8s infinite;
 }
 
-.skeleton-minat-badge:nth-child(1) { width: 140px; }
-.skeleton-minat-badge:nth-child(2) { width: 110px; }
-.skeleton-minat-badge:nth-child(3) { width: 130px; }
-.skeleton-minat-badge:nth-child(4) { width: 100px; }
+.skeleton-minat-badge:nth-child(1) {
+    width: 140px;
+}
+.skeleton-minat-badge:nth-child(2) {
+    width: 110px;
+}
+.skeleton-minat-badge:nth-child(3) {
+    width: 130px;
+}
+.skeleton-minat-badge:nth-child(4) {
+    width: 100px;
+}
 
 /* ================================
    PASSWORD SKELETON
@@ -524,18 +550,40 @@
 }
 
 /* Staggered animation delays */
-.skeleton-form-group:nth-child(1) { animation-delay: 0s; }
-.skeleton-form-group:nth-child(2) { animation-delay: 0.1s; }
-.skeleton-form-group:nth-child(3) { animation-delay: 0.2s; }
-.skeleton-form-group:nth-child(4) { animation-delay: 0.3s; }
-.skeleton-form-group:nth-child(5) { animation-delay: 0.4s; }
+.skeleton-form-group:nth-child(1) {
+    animation-delay: 0s;
+}
+.skeleton-form-group:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.skeleton-form-group:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.skeleton-form-group:nth-child(4) {
+    animation-delay: 0.3s;
+}
+.skeleton-form-group:nth-child(5) {
+    animation-delay: 0.4s;
+}
 
-.skeleton-skill-badge:nth-child(1) { animation-delay: 0s; }
-.skeleton-skill-badge:nth-child(2) { animation-delay: 0.1s; }
-.skeleton-skill-badge:nth-child(3) { animation-delay: 0.2s; }
-.skeleton-skill-badge:nth-child(4) { animation-delay: 0.3s; }
-.skeleton-skill-badge:nth-child(5) { animation-delay: 0.4s; }
-.skeleton-skill-badge:nth-child(6) { animation-delay: 0.5s; }
+.skeleton-skill-badge:nth-child(1) {
+    animation-delay: 0s;
+}
+.skeleton-skill-badge:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.skeleton-skill-badge:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.skeleton-skill-badge:nth-child(4) {
+    animation-delay: 0.3s;
+}
+.skeleton-skill-badge:nth-child(5) {
+    animation-delay: 0.4s;
+}
+.skeleton-skill-badge:nth-child(6) {
+    animation-delay: 0.5s;
+}
 
 /* ================================
    CONTENT TRANSITION ANIMATIONS
@@ -579,8 +627,12 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ================================
@@ -624,49 +676,49 @@
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    
+
     .avatar-container {
         width: 80px;
         height: 80px;
     }
-    
+
     .avatar-profile {
         width: 80px;
         height: 80px;
         font-size: 2rem;
     }
-    
+
     .avatar-edit {
         width: 28px;
         height: 28px;
     }
-    
+
     .card-body,
     .card-header {
         padding: 1rem;
     }
-    
+
     .skeleton-header-content {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
     }
-    
+
     .skeleton-form-row {
         flex-direction: column;
         gap: 0;
     }
-    
+
     .skeleton-skills-content,
     .skeleton-minat-content {
         justify-content: center;
     }
-    
+
     .toggle-password {
         padding: 0.375rem 0.5rem;
         min-width: 40px;
     }
-    
+
     .input-group .form-control,
     .input-group .toggle-password {
         height: 36px;
@@ -679,16 +731,16 @@
         gap: 0.5rem;
         align-items: stretch;
     }
-    
+
     .skeleton-button {
         width: 100%;
     }
-    
+
     .skeleton-skills-content,
     .skeleton-minat-content {
         gap: 0.25rem;
     }
-    
+
     .skeleton-skill-badge,
     .skeleton-minat-badge {
         width: calc(50% - 0.125rem);
@@ -712,12 +764,12 @@
         animation: none;
         background: #f0f0f0;
     }
-    
+
     .skeleton-wrapper,
     .real-content {
         transition: none;
     }
-    
+
     .fade-in,
     .slide-up {
         animation: none;
@@ -754,14 +806,19 @@
     .skeleton-skill-badge,
     .skeleton-minat-badge,
     .skeleton-progress-bar {
-        background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+        background: linear-gradient(
+            90deg,
+            #2a2a2a 25%,
+            #3a3a3a 50%,
+            #2a2a2a 75%
+        );
         background-size: 200% 100%;
     }
-    
+
     .loading-overlay {
         background: rgba(0, 0, 0, 0.9);
     }
-    
+
     .loading-spinner {
         border-color: #3a3a3a;
         border-top-color: #5e72e4;
@@ -784,7 +841,12 @@
     width: 100px;
     height: 100px;
     border-radius: 15px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 75%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 25%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.3) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer-white 1.8s infinite;
 }
@@ -796,13 +858,23 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(90deg, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.4) 25%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.4) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer-white 1.8s infinite;
 }
 
 .skeleton-text-white {
-    background: linear-gradient(90deg, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 75%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 25%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.3) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer-white 1.8s infinite;
     border-radius: 0.375rem;
@@ -932,15 +1004,6 @@
     border-radius: 0.5rem;
 }
 
-.skeleton-requirement-item {
-    height: 14px;
-    width: 85%;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.8s infinite;
-    border-radius: 0.25rem;
-}
-
 /* ================================
    REAL CONTENT STYLING (Missing)
    ================================ */
@@ -1037,4 +1100,137 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ================================
+   CV Upload Styles
+   ================================ */
+.cv-upload-section {
+    border-radius: 0.5rem;
+}
+
+.current-cv {
+    transition: all 0.3s ease;
+}
+
+.current-cv:hover {
+    transform: translateY(-1px);
+}
+
+.cv-dropzone {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.cv-dropzone:hover {
+    border-color: #5e72e4;
+    background-color: #f8f9fa;
+}
+
+.dropzone-box {
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+}
+.dz-success-mark,
+.dz-error-mark {
+    display: none !important;
+}
+
+.dz-message {
+    margin: 0;
+}
+
+.dz-message i {
+    color: #5e72e4;
+    margin-bottom: 0.5rem;
+}
+
+.dz-message p {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.dz-message .fw-bold {
+    font-size: 0.9rem;
+}
+
+/* Compact CV actions */
+.cv-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.cv-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cv-info h6 {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.cv-info p {
+    font-size: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cv-actions {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .cv-actions .btn {
+        width: 100%;
+    }
+
+    .dropzone-box {
+        padding: 0.75rem;
+    }
+}
+
+.cv-input-section {
+    margin-top: 1rem;
+}
+
+.cv-input-section .form-control {
+    border: 2px dashed #dee2e6;
+    padding: 1rem;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.cv-input-section .form-control:hover {
+    border-color: #5e72e4;
+    background-color: #f8f9fa;
+}
+
+.cv-input-section small {
+    color: #6c757d;
+}
+
+/* Add to your CSS */
+#profile-view-mode textarea,
+#profile-view-mode select,
+#profile-view-mode .form-control[readonly] {
+    display: none;
+}
+
+#profile-view-mode .btn-action-group {
+    display: none;
+}
+
+#profile-edit-mode {
+    display: none;
+}
+
+#profile-edit-mode .form-control:focus,
+#profile-edit-mode .form-select:focus {
+    border-color: #5e72e4;
+    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.15);
 }

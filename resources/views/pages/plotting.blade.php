@@ -33,17 +33,17 @@
                                 </div>
                             </div>
                             <!-- Remove or comment out wilayah filter section
-                                                <div class="col-md-6">
-                                                    <label class="form-label d-flex align-items-center">
-                                                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                                        <span>Filter Wilayah</span>
-                                                    </label>
-                                                    <select class="form-select" id="wilayahFilter">
-                                                        <option value="">Semua Wilayah</option>
-                                                        <!-- Will be populated dynamically
-                                                    </select>
-                                                </div>
-                                                -->
+                                                                                                    <div class="col-md-6">
+                                                                                                        <label class="form-label d-flex align-items-center">
+                                                                                                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                                                                                            <span>Filter Wilayah</span>
+                                                                                                        </label>
+                                                                                                        <select class="form-select" id="wilayahFilter">
+                                                                                                            <option value="">Semua Wilayah</option>
+                                                                                                            <!-- Will be populated dynamically
+                                                                                                        </select>
+                                                                                                    </div>
+                                                                                                    -->
                         </div>
 
                         <!-- Update table class and structure -->
@@ -677,7 +677,7 @@
                 }
             });
 
-            // Fetch available mahasiswa with AJAX - ADD CSRF AND HEADERS
+            // Fetch available mahasiswa with AJAX
             fetch('/api/magang/available', {
                     method: 'GET',
                     headers: {
@@ -685,7 +685,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
                         'Cache-Control': 'no-store, no-cache'
                     },
-                    credentials: 'same-origin' // Penting untuk mengirim cookies otentikasi
+                    credentials: 'same-origin'
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -698,18 +698,7 @@
                     Swal.close();
 
                     if (data.success) {
-                        // Show modal with data
-                        const mahasiswaSelect = document.getElementById('mahasiswaSelect');
-                        mahasiswaSelect.innerHTML = '';
-
                         if (data.data.length === 0) {
-                            mahasiswaSelect.innerHTML = '<option disabled>Tidak ada mahasiswa yang tersedia</option>';
-                            document.getElementById('saveAssignBtn').disabled = true;
-
-                            // Show modal with warning
-                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                            modal.show();
-
                             // Show notification about no available students
                             Swal.fire({
                                 title: 'Perhatian',
@@ -717,23 +706,8 @@
                                 icon: 'info'
                             });
                         } else {
-                            document.getElementById('saveAssignBtn').disabled = false;
-
-                            data.data.forEach(item => {
-                                const option = document.createElement('option');
-                                option.value = item.id_magang; // This is actually id_lamaran with alias
-
-                                // Handle potential null values with fallbacks
-                                const mahasiswaName = item.name || 'Tidak diketahui';
-                                const perusahaanName = item.nama_perusahaan || 'Tidak diketahui';
-
-                                option.textContent = `${mahasiswaName} - ${perusahaanName}`;
-                                mahasiswaSelect.appendChild(option);
-                            });
-
-                            // Show the modal after populating data
-                            const modal = new bootstrap.Modal(document.getElementById('assignModal'));
-                            modal.show();
+                            // ✅ BARU: Show table-based selection in SweetAlert
+                            showMahasiswaTableSelection(data.data, dosenId);
                         }
                     } else {
                         Swal.fire({
@@ -753,52 +727,322 @@
                 });
         }
 
-        document.getElementById('saveAssignBtn').addEventListener('click', function() {
-            const dosenId = document.getElementById('selectedDosenId').value;
-            const mahasiswaSelect = document.getElementById('mahasiswaSelect');
-            const selectedMahasiswaIds = Array.from(mahasiswaSelect.selectedOptions).map(opt => opt.value);
+        // ✅ BARU: Function untuk menampilkan tabel mahasiswa sederhana dalam SweetAlert
+        function showMahasiswaTableSelection(mahasiswaData, dosenId) {
+            // Extract unique companies for filter
+            const uniqueCompanies = [...new Set(mahasiswaData.map(item => item.nama_perusahaan || 'Tidak diketahui'))];
 
-            if (selectedMahasiswaIds.length === 0) {
-                Swal.fire({
-                    title: 'Perhatian!',
-                    text: 'Pilih minimal satu mahasiswa',
-                    icon: 'warning'
+            // Create company filter options
+            let companyFilterOptions = '<option value="">Semua Perusahaan</option>';
+            uniqueCompanies.forEach(company => {
+                companyFilterOptions += `<option value="${company}">${company}</option>`;
+            });
+
+            // Create simplified table HTML
+            let tableHtml = `
+                <div class="container-fluid px-0">
+                    <div class="row mb-3">
+                            <div class="form-check mb-2">
+                            </div>
+                      <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Filter Perusahaan:</label>
+                            </div>
+                            <div class="col-md-9">
+                                <select class="form-select form-select-sm" id="companyFilter">
+                                    ${companyFilterOptions}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllTableHeader">
+                                        </div>
+                                    </th>
+                                    <th>Nama Mahasiswa</th>
+                                    <th>Perusahaan</th>
+                                    <th>Wilayah</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mahasiswaTableBody">
+            `;
+
+            // Add each mahasiswa as a simplified table row
+            mahasiswaData.forEach((item, index) => {
+                const mahasiswaName = item.name || 'Tidak diketahui';
+                const perusahaanName = item.nama_perusahaan || 'Tidak diketahui';
+                const wilayahName = item.nama_kota || item.wilayah || 'Tidak diketahui';
+
+                tableHtml += `
+                    <tr class="mahasiswa-row" data-mahasiswa-id="${item.id_magang}" data-company="${perusahaanName}">
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input mahasiswa-checkbox" 
+                                       type="checkbox" 
+                                       value="${item.id_magang}" 
+                                       id="mhs_${item.id_magang}">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="fw-semibold">${mahasiswaName}</div>
+                                <small class="text-muted">${item.nim || '-'}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${perusahaanName}</div>
+                            <small class="text-muted">${item.judul_lowongan || 'Posisi tidak tersedia'}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary rounded-pill">${wilayahName}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="alert alert-info py-2 mb-0">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            Total: <span id="totalMahasiswa">${mahasiswaData.length}</span> mahasiswa tersedia | 
+                            Tampil: <span id="visibleCount">${mahasiswaData.length}</span> mahasiswa |
+                            Dipilih: <span id="selectedCount">0</span> mahasiswa
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Show SweetAlert with simplified table
+            Swal.fire({
+                title: '<i class="fas fa-users me-2"></i>Assign Mahasiswa',
+                html: tableHtml,
+                width: '800px',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-save me-1"></i>Simpan Penugasan',
+                cancelButtonText: '<i class="fas fa-times me-1"></i>Batal',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                customClass: {
+                    popup: 'swal-wide',
+                    content: 'swal-table-content'
+                },
+                preConfirm: () => {
+                    // Get selected mahasiswa IDs (only visible rows)
+                    const selectedCheckboxes = document.querySelectorAll('.mahasiswa-checkbox:checked');
+                    const visibleSelectedCheckboxes = Array.from(selectedCheckboxes).filter(cb => {
+                        return cb.closest('tr').style.display !== 'none';
+                    });
+                    const selectedIds = visibleSelectedCheckboxes.map(cb => cb.value);
+
+                    if (selectedIds.length === 0) {
+                        Swal.showValidationMessage('Pilih minimal satu mahasiswa');
+                        return false;
+                    }
+
+                    return selectedIds;
+                },
+                didOpen: () => {
+                    // Setup checkbox behaviors and filter after modal opens
+                    setupMahasiswaTableBehaviors();
+                    setupCompanyFilter();
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    // Process the assignment
+                    saveMahasiswaAssignment(dosenId, result.value);
+                }
+            });
+        }
+
+        // ✅ BARU: Setup company filter functionality
+        function setupCompanyFilter() {
+            const companyFilter = document.getElementById('companyFilter');
+            const allRows = document.querySelectorAll('.mahasiswa-row');
+            const visibleCountElement = document.getElementById('visibleCount');
+
+            if (companyFilter) {
+                companyFilter.addEventListener('change', function() {
+                    const selectedCompany = this.value;
+                    let visibleCount = 0;
+
+                    allRows.forEach(row => {
+                        const rowCompany = row.getAttribute('data-company');
+
+                        if (selectedCompany === '' || rowCompany === selectedCompany) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                            // Uncheck hidden rows
+                            const checkbox = row.querySelector('.mahasiswa-checkbox');
+                            if (checkbox) {
+                                checkbox.checked = false;
+                            }
+                        }
+                    });
+
+                    // Update visible count
+                    if (visibleCountElement) {
+                        visibleCountElement.textContent = visibleCount;
+                    }
+
+                    // Update selected count and select all state
+                    updateSelectedCountAndSelectAll();
                 });
-                return;
+            }
+        }
+
+        // ✅ UPDATE: Enhanced checkbox behaviors dengan filter support
+        function setupMahasiswaTableBehaviors() {
+            const selectAllMain = document.getElementById('selectAllMahasiswa');
+            const selectAllHeader = document.getElementById('selectAllTableHeader');
+            const selectedCountElement = document.getElementById('selectedCount');
+
+            // Function to get visible checkboxes only
+            function getVisibleCheckboxes() {
+                const allCheckboxes = document.querySelectorAll('.mahasiswa-checkbox');
+                return Array.from(allCheckboxes).filter(cb => {
+                    return cb.closest('tr').style.display !== 'none';
+                });
             }
 
-            // Disable button to prevent double-clicks
-            this.disabled = true;
-            this.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Menyimpan...`;
+            // Function to update selected count and select all state
+            function updateSelectedCountAndSelectAll() {
+                const visibleCheckboxes = getVisibleCheckboxes();
+                const checkedVisibleCount = visibleCheckboxes.filter(cb => cb.checked).length;
 
-            // AJAX request - notice this endpoint should handle t_lamaran IDs (aliased as magang_ids)
+                // Update selected count
+                if (selectedCountElement) {
+                    selectedCountElement.textContent = checkedVisibleCount;
+                }
+
+                // Update select all checkboxes state (only for visible items)
+                const allVisibleChecked = visibleCheckboxes.length > 0 && checkedVisibleCount === visibleCheckboxes.length;
+                const someVisibleChecked = checkedVisibleCount > 0;
+
+                if (selectAllMain) {
+                    selectAllMain.checked = allVisibleChecked;
+                    selectAllMain.indeterminate = someVisibleChecked && !allVisibleChecked;
+                }
+
+                if (selectAllHeader) {
+                    selectAllHeader.checked = allVisibleChecked;
+                    selectAllHeader.indeterminate = someVisibleChecked && !allVisibleChecked;
+                }
+            }
+
+            // Make updateSelectedCountAndSelectAll globally accessible
+            window.updateSelectedCountAndSelectAll = updateSelectedCountAndSelectAll;
+
+            // Select all functionality (only visible items)
+            function toggleAllVisibleCheckboxes(checked) {
+                const visibleCheckboxes = getVisibleCheckboxes();
+                visibleCheckboxes.forEach(checkbox => {
+                    checkbox.checked = checked;
+                });
+                updateSelectedCountAndSelectAll();
+            }
+
+            // Event listeners for select all checkboxes
+            if (selectAllMain) {
+                selectAllMain.addEventListener('change', function() {
+                    toggleAllVisibleCheckboxes(this.checked);
+                });
+            }
+
+            if (selectAllHeader) {
+                selectAllHeader.addEventListener('change', function() {
+                    toggleAllVisibleCheckboxes(this.checked);
+                });
+            }
+
+            // Event listeners for individual checkboxes
+            document.querySelectorAll('.mahasiswa-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedCountAndSelectAll);
+            });
+
+            // Initial count update
+            updateSelectedCountAndSelectAll();
+
+            // Row click to toggle checkbox (only for visible rows)
+            document.querySelectorAll('.mahasiswa-row').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Don't trigger if clicking on checkbox directly or if row is hidden
+                    if (e.target.type !== 'checkbox' && this.style.display !== 'none') {
+                        const checkbox = this.querySelector('.mahasiswa-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            updateSelectedCountAndSelectAll();
+                        }
+                    }
+                });
+
+                // Add hover effect
+                row.style.cursor = 'pointer';
+            });
+        }
+
+        // ✅ BARU: Function untuk save assignment dengan loading state
+        function saveMahasiswaAssignment(dosenId, selectedMahasiswaIds) {
+            // Show loading
+            Swal.fire({
+                title: 'Menyimpan...',
+                html: 'Sedang menyimpan penugasan mahasiswa',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // AJAX request to save assignments
             fetch(`/api/dosen/${dosenId}/assign-mahasiswa`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        magang_ids: selectedMahasiswaIds // These are actually t_lamaran.id_lamaran values
+                        magang_ids: selectedMahasiswaIds
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Close modal first
-                        bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
-
                         // Show success message
                         Swal.fire({
                             title: 'Berhasil!',
-                            text: 'Penugasan berhasil disimpan',
+                            html: `
+                        <div class="text-center">
+                            <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                            <p>Penugasan berhasil disimpan</p>
+                            <div class="alert alert-success py-2">
+                                <small><strong>${selectedMahasiswaIds.length}</strong> mahasiswa berhasil ditugaskan</small>
+                            </div>
+                        </div>
+                    `,
                             icon: 'success',
-                            timer: 2000,
+                            timer: 3000,
                             showConfirmButton: false
                         });
 
-                        // Reload data with AJAX instead of page refresh
+                        // Reload plotting data
                         loadPlottingData();
                     } else {
                         Swal.fire({
@@ -806,8 +1050,6 @@
                             text: data.message || 'Terjadi kesalahan tidak diketahui',
                             icon: 'error'
                         });
-                        this.disabled = false;
-                        this.textContent = 'Simpan';
                     }
                 })
                 .catch(error => {
@@ -817,35 +1059,39 @@
                         text: 'Terjadi kesalahan saat menyimpan penugasan: ' + error.message,
                         icon: 'error'
                     });
-                    this.disabled = false;
-                    this.textContent = 'Simpan';
                 });
-        });
+        }
 
-        // Remove assignments for dosen
+        // Add this function after saveMahasiswaAssignment function
+
+        // Function untuk menghapus semua penugasan satu dosen
         function removeAssignments(dosenId) {
+            // Confirm deletion first
             Swal.fire({
-                title: 'Konfirmasi',
-                text: 'Apakah Anda yakin ingin menghapus semua penugasan untuk dosen ini?',
+                title: 'Hapus Penugasan?',
+                html: 'Anda yakin ingin menghapus <strong>semua</strong> penugasan mahasiswa dari dosen ini?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: '<i class="fas fa-trash me-1"></i>Ya, Hapus Semua',
+                cancelButtonText: '<i class="fas fa-times me-1"></i>Batal',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading state
-                    const resetButtons = document.querySelectorAll(`.btn-outline-danger[onclick*="${dosenId}"]`);
-                    resetButtons.forEach(btn => {
-                        btn.disabled = true;
-                        btn.innerHTML =
-                            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resetting...`;
+                    // Show loading
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        html: 'Sedang menghapus penugasan mahasiswa',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
                     });
 
                     // AJAX request to remove assignments
-                    fetch(`/api/dosen/${dosenId}/assignments`, {
-                            method: 'DELETE',
+                    fetch(`/api/dosen/${dosenId}/remove-assignments`, {
+                            method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -855,27 +1101,27 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                // Show success message
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: 'Penugasan dosen berhasil dihapus',
+                                    html: `
+                            <div class="text-center">
+                                <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                                <p>Penugasan berhasil dihapus</p>
+                            </div>
+                        `,
                                     icon: 'success',
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
 
-                                // Reload data with AJAX instead of full page refresh
+                                // Reload plotting data
                                 loadPlottingData();
                             } else {
                                 Swal.fire({
                                     title: 'Gagal!',
                                     text: data.message || 'Terjadi kesalahan tidak diketahui',
                                     icon: 'error'
-                                });
-
-                                // Re-enable buttons
-                                resetButtons.forEach(btn => {
-                                    btn.disabled = false;
-                                    btn.innerHTML = `<i class="fas fa-trash me-1"></i>Reset`;
                                 });
                             }
                         })
@@ -886,798 +1132,9 @@
                                 text: 'Terjadi kesalahan saat menghapus penugasan: ' + error.message,
                                 icon: 'error'
                             });
-
-                            // Re-enable buttons
-                            resetButtons.forEach(btn => {
-                                btn.disabled = false;
-                                btn.innerHTML = `<i class="fas fa-trash me-1"></i>Reset`;
-                            });
                         });
                 }
             });
-        }
-
-        document.getElementById('autoPlotBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Konfirmasi Plotting Otomatis',
-                text: 'Apakah Anda yakin ingin melakukan plotting otomatis dengan metode SAW? Ini akan mengganti semua plotting manual yang ada.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, lakukan!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading state
-                    this.disabled = true;
-                    this.innerHTML =
-                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
-
-                    // Show progress with SweetAlert
-                    let timerInterval;
-                    Swal.fire({
-                        title: 'Memproses',
-                        html: 'Sedang melakukan plotting otomatis...',
-                        timerProgressBar: true,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    // AJAX request
-                    fetch('/api/plotting/auto', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Reset button state
-                            const btn = document.getElementById('autoPlotBtn');
-                            btn.disabled = false;
-                            btn.innerHTML = `<i class="fas fa-magic me-2"></i>Auto-Plot Dosen`;
-
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    html: `<p>Plotting otomatis berhasil dilakukan!</p>
-                                                                                                                                                                           <div class="mt-3">
-                                                                                                                                                                             <table class="table table-sm">
-                                                                                                                                                                               <tr><td>Total Dosen</td><td>${data.stats.total_dosen}</td></tr>
-                                                                                                                                                                    
-                                                                                                                                                                               <tr><td>Total Assignments</td><td>${data.stats.total_assignments}</td></tr>
-                                                                                                                                                                             </table>
-                                                                                                                                                                           </div>`,
-                                    icon: 'success'
-                                });
-
-                                // Reload data with AJAX - ADD THIS FUNCTION CALL
-                                loadPlottingData();
-
-                                // Also reload matrix data in case the matrix modal is open
-                                loadMatrixData();
-                            } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: data.message || 'Terjadi kesalahan tidak diketahui',
-                                    icon: 'error'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error during auto-plot:', error);
-
-                            // Reset button state
-                            const btn = document.getElementById('autoPlotBtn');
-                            btn.disabled = false;
-                            btn.innerHTML = `<i class="fas fa-magic me-2"></i>Auto-Plot Dosen`;
-
-                            Swal.fire({
-                                title: 'Error!',
-                                text: 'Terjadi kesalahan saat melakukan plotting otomatis: ' +
-                                    error.message,
-                                icon: 'error'
-                            });
-                        });
-                }
-            });
-        });
-
-        // Show matrix visualization
-        document.getElementById('showMatrixBtn').addEventListener('click', function() {
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('matrixModal'));
-            modal.show();
-
-            // Load matrix data for inactive unassigned internships
-            loadMatrixData();
-        });
-
-        // Modify the loadMatrixData function to also load wilayah data if not already loaded
-        function loadMatrixData() {
-            // Show loading state
-            document.getElementById('matrixContainer').innerHTML = `
-                                                                    <div class="text-center py-4">
-                                                                        <div class="d-flex justify-content-center">
-                                                                            <div class="spinner-grow text-primary mx-1" role="status" style="width: 1rem; height: 1rem;"></div>
-                                                                            <div class="spinner-grow text-secondary mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.2s"></div>
-                                                                            <div class="spinner-grow text-info mx-1" role="status" style="width: 1rem; height: 1rem; animation-delay: 0.4s"></div>
-                                                                        </div>
-                                                                        <p class="mt-3 text-muted">Memuat data matrix keputusan...</p>
-                                                                    </div>
-                                                                `;
-
-            // Check if we already have wilayah data, if not load it
-            if (!window.allWilayah || window.allWilayah.length === 0) {
-                // Load wilayah data first
-                fetch('/api/wilayah')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.allWilayah = data.data;
-                            // Now load the matrix data
-                            loadMatrixDataFromAPI();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading wilayah data:', error);
-                        // Continue anyway to load matrix data
-                        loadMatrixDataFromAPI();
-                    });
-            } else {
-                // We already have wilayah data, just load matrix data
-                loadMatrixDataFromAPI();
-            }
-        }
-
-        // Extract the matrix data loading to a separate function
-        function loadMatrixDataFromAPI() {
-            const timestamp = new Date().getTime();
-            fetch(`/api/plotting/matrix-decision?_=${timestamp}`, {
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server responded with status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then((data) => { // Added parentheses around 'data' parameter here
-                    console.log(`Matrix data loaded:`, data);
-
-                    if (data.success) {
-                        renderDecisionMatrix(data.data, data.weights);
-                    } else {
-                        document.getElementById('matrixContainer').innerHTML = `
-                                                                                <div class="alert alert-danger">
-                                                                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                                    Gagal memuat data matrix: ${data.message}
-                                                                                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
-                                                                                        <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                    </button>
-                                                                                </div>
-                                                                            `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading matrix data:', error);
-                    document.getElementById('matrixContainer').innerHTML = `
-                                                                            <div class="alert alert-danger">
-                                                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                                Terjadi kesalahan: ${error.message}
-                                                                                <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadMatrixData()">
-                                                                                    <i class="fas fa-sync-alt me-1"></i>Coba Lagi
-                                                                                </button>
-                                                                            </div>
-                                                                        `;
-                });
-        }
-
-        // Function to render decision matrix with improved UI
-        function renderDecisionMatrix(matrixData, weights) {
-            const container = document.getElementById('matrixContainer');
-            container.innerHTML = '';
-
-            // Add summary header with counts and improved design
-            const studentCount = Array.isArray(matrixData) ? matrixData.length : 0;
-
-            // Header card with summary data
-            const summaryHeader = `
-                                                     <div class="card mb-4 border-0 shadow-sm">
-                                            <div class="card-body p-0">
-                                                <div class="row g-0">
-                                                    <div class="col-md-8 bg-gradient-secondary p-4 text-white" style="background-color: #64748b;">
-                                                        <h5 class="mb-1 fw-bold"><i class="fas fa-chart-bar me-2"></i>Matrix Keputusan Pembimbing</h5>
-                                                        <p class="mb-0 opacity-8">Pemberian rekomendasi dosen pembimbing menggunakan metode SAW</p>
-                                                    </div>
-                                                    <div class="col-md-4 p-4 d-flex flex-column justify-content-center align-items-center bg-light">
-                                                        <div class="text-center">
-                                                            <h2 class="display-4 fw-bold mb-0" style="color: #64748b;">${studentCount}</h2>
-                                                            <span class="text-secondary">Mahasiswa belum memiliki pembimbing</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `;
-            container.insertAdjacentHTML('beforeend', summaryHeader);
-
-            // Add weights visualization for SAW criteria
-            if (weights) {
-                const minatWeight = Math.round((weights.minat || 0) * 100);
-                const skillWeight = Math.round((weights.skill || 0) * 100);
-                const bebanKerjaWeight = Math.round((weights.beban_kerja || 0) * 100);
-
-                const weightsCard = `
-                                                        <div class="card mb-4 shadow-sm border-0">
-                                        <div class="card-header bg-white py-3">
-                                            <h6 class="mb-0 fw-bold d-flex align-items-center">
-                                                <div class="icon-circle me-2" 
-                                                     style="width: 28px; height: 28px; border-radius: 50%; display: flex; 
-                                                            align-items: center; justify-content: center; background-color: #f1f5f9; color: #64748b;">
-                                                    <i class="fas fa-balance-scale"></i>
-                                                </div>
-                                                Kriteria dan Bobot SAW (Simple Additive Weighting)
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row g-12">
-                                                <!-- Minat Criterion -->
-                                                <div class="col-md-4">
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body p-3">
-                                                            <div class="d-flex align-items-center mb-3">
-                                                                <div class="icon-circle me-3" 
-                                                                     style="background-color: var(--color-minat-light); color: var(--color-minat);
-                                                                            width: 42px; height: 42px;">
-                                                                    <i class="fas fa-star"></i>
-                                                                </div>
-                                                                <div>
-                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-minat);">Minat</h6>
-                                                                    <p class="text-muted small mb-0">Kesamaan minat dosen dan mahasiswa</p>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <span class="text-dark">Bobot</span>
-                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-minat-light); color: var(--color-minat);">${minatWeight}%</span>
-                                                            </div>
-                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                                <div class="progress-bar" role="progressbar" 
-                                                                     style="width: ${minatWeight}%; border-radius: 10px; background-color: var(--color-minat);" 
-                                                                     aria-valuenow="${minatWeight}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Skill Criterion -->
-                                                <div class="col-md-4">
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body p-3">
-                                                            <div class="d-flex align-items-center mb-3">
-                                                                <div class="icon-circle me-3" 
-                                                                     style="background-color: var(--color-skill-light); color: var(--color-skill);
-                                                                            width: 42px; height: 42px;">
-                                                                    <i class="fas fa-code"></i>
-                                                                </div>
-                                                                <div>
-                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-skill);">Skill</h6>
-                                                                    <p class="text-muted small mb-0">Kecocokan skill dosen dan mahasiswa</p>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <span class="text-dark">Bobot</span>
-                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-skill-light); color: var(--color-skill);">${skillWeight}%</span>
-                                                            </div>
-                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                                <div class="progress-bar" role="progressbar"
-                                                                     style="width: ${skillWeight}%; border-radius: 10px; background-color: var(--color-skill);" 
-                                                                     aria-valuenow="${skillWeight}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Beban Kerja Criterion -->
-                                                <div class="col-md-4">
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body p-3">
-                                                            <div class="d-flex align-items-center mb-3">
-                                                                <div class="icon-circle me-3" 
-                                                                     style="background-color: var(--color-beban-light); color: var(--color-beban);
-                                                                            width: 42px; height: 42px;">
-                                                                    <i class="fas fa-users"></i>
-                                                                </div>
-                                                                <div>
-                                                                    <h6 class="mb-0 fw-bold" style="color: var(--color-beban);">Beban Kerja</h6>
-                                                                    <p class="text-muted small mb-0">Jumlah mahasiswa bimbingan</p>
-                                                                </div>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                <span class="text-dark">Bobot</span>
-                                                                <span class="badge px-3 py-2 rounded-pill" style="background-color: var(--color-beban-light); color: var(--color-beban);">${bebanKerjaWeight}%</span>
-                                                            </div>
-                                                            <div class="progress" style="height: 8px; border-radius: 10px; background-color: #f8fafc;">
-                                                                <div class="progress-bar" role="progressbar"
-                                                                     style="width: ${bebanKerjaWeight}%; border-radius: 10px; background-color: var(--color-beban);" 
-                                                                     aria-valuenow="${bebanKerjaWeight}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                container.insertAdjacentHTML('beforeend', weightsCard);
-            }
-
-            // Check if matrixData is valid
-            if (!Array.isArray(matrixData) || matrixData.length === 0) {
-                container.insertAdjacentHTML('beforeend', `
-                                                        <div class="card shadow-sm border-0">
-                                                            <div class="card-body text-center py-5">
-                                                                <img src="/assets/img/empty-data.svg" alt="No Data" style="height: 180px; opacity: 0.8;" 
-                                                                     onerror="this.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/icons/exclamation-circle.svg'; this.style.height='80px';">
-                                                                <h5 class="mt-4 text-muted">Tidak Ada Data</h5>
-                                                                <p class="text-muted">Tidak ada mahasiswa nonaktif yang membutuhkan penugasan dosen pembimbing.</p>
-                                                                <button class="btn btn-outline-primary mt-2" onclick="loadMatrixData()">
-                                                                    <i class="fas fa-sync-alt me-2"></i>Refresh Data
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    `);
-                return;
-            }
-
-            // Section title for recommendations
-            container.insertAdjacentHTML('beforeend', `
-                                                    <div class="d-flex align-items-center mb-3 mt-4">
-                                                        <div class="icon-circle bg-primary bg-opacity-10 text-primary me-2" 
-                                                             style="width: 32px; height: 32px; border-radius: 50%; display: flex; 
-                                                                    align-items: center; justify-content: center;">
-                                                        <i class="fas fa-user-check"></i>
-                                                        </div>
-                                                        <h5 class="mb-0 fw-bold">Rekomendasi Dosen Pembimbing</h5>
-                                                    </div>
-                                                `);
-
-            // Create row for student cards
-            const studentCardsRow = document.createElement('div');
-            studentCardsRow.className = 'row g-4';
-
-            // Process each mahasiswa
-            matrixData.forEach((item) => {
-                // Create column for this student card
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
-
-                // Get top 3 dosen matches
-                const topDosen = item.dosen_scores.slice(0, 3);
-
-                // Build dosen match list HTML
-                let dosenMatchesHtml = '<div class="list-group list-group-flush mb-3">';
-
-                // Process each of the top matches
-                topDosen.forEach((match, idx) => {
-                    // Calculate match percentage
-                    const matchPercent = Math.round(match.total_score * 100);
-                    let badgeColor = 'danger';
-
-                    if (matchPercent >= 80) {
-                        badgeColor = 'success';
-                    } else if (matchPercent >= 60) {
-                        badgeColor = 'info';
-                    } else if (matchPercent >= 40) {
-                        badgeColor = 'warning';
-                    }
-
-                    // Add highlight for best match
-                    const isTopMatch = idx === 0;
-
-                    // Format matched minat display with new style
-                    let matchedMinatHtml = '';
-                    if (match.matched_minat && match.matched_minat.length > 0) {
-                        matchedMinatHtml = `
-                        <div class="mt-2">
-                            <small class="text-muted d-block mb-1">Minat yang cocok:</small>
-                            <div class="d-flex flex-wrap gap-1">
-                                ${match.matched_minat.map(minat =>
-                            `<span class="badge-minat">${minat}</span>`
-                        ).join('')}
-                            </div>
-                        </div>
-                    `;
-                    }
-
-                    // Format matched skills display with new style
-                    let matchedSkillsHtml = '';
-                    if (match.matched_skills && match.matched_skills.length > 0) {
-                        matchedSkillsHtml = `
-                        <div class="mt-2">
-                            <small class="text-muted d-block mb-1">Skill yang cocok:</small>
-                            <div class="d-flex flex-wrap gap-1">
-                                ${match.matched_skills.map(skill =>
-                            `<span class="badge-skill">${skill}</span>`
-                        ).join('')}
-                            </div>
-                        </div>
-                    `;
-                    }
-
-                    // Add this lecturer match to the HTML with new styling
-                    dosenMatchesHtml += `
-                    <div class="list-group-item p-3 ${isTopMatch ? 'top-match' : ''} position-relative">
-                        <div class="d-flex mb-2">
-                            <div class="me-3 position-relative">
-                                <div class="circle-match circle-match-${badgeColor}" style="--percent: ${matchPercent}%">
-                                    <span>${matchPercent}%</span>
-                                </div>
-                                ${isTopMatch ? '<span class="position-absolute top-0 start-100 translate-middle badge top-badge rounded-pill">Top</span>' : ''}
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">${match.dosen_name}</h6>
-                                <small class="text-muted">${match.nip || '-'}</small>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 px-2">
-                            <div class="row g-2">
-                                <!-- Minat score -->
-                                <div class="col-6">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="fw-medium">Minat <span class="text-muted">(${Math.round(weights.minat * 100)}%)</span></small>
-                                        <small>${Math.round(match.minat_score * 100)}%</small>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-minat" role="progressbar" 
-                                            style="width: ${match.minat_score * 100}%" 
-                                            aria-valuenow="${match.minat_score * 100}" aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Skill score -->
-                                <div class="col-6">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="fw-medium">Skill <span class="text-muted">(${Math.round(weights.skill * 100)}%)</span></small>
-                                        <small>${Math.round(match.skill_score * 100)}%</small>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-skill" role="progressbar" 
-                                            style="width: ${match.skill_score * 100}%" 
-                                            aria-valuenow="${match.skill_score * 100}" aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Beban Kerja score -->
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="fw-medium">Beban Kerja <span class="text-muted">(${Math.round(weights.beban_kerja * 100)}%)</span></small>
-                                        <small title="${match.current_beban} mahasiswa bimbingan">${Math.round(match.beban_kerja_score * 100)}%</small>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-beban" role="progressbar" 
-                                            style="width: ${match.beban_kerja_score * 100}%" 
-                                            aria-valuenow="${match.beban_kerja_score * 100}" aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Matched minat display -->
-                        ${matchedMinatHtml}
-
-                        <!-- Matched skills display -->
-                        ${matchedSkillsHtml}
-
-                        <!-- Current workload info -->
-                        <div class="mt-2">
-                            <small class="text-muted d-flex align-items-center">
-                                <i class="fas fa-users me-1" style="color: var(--color-beban);"></i>
-                                Beban Kerja: 
-                                <span class="badge ${match.current_beban > 5 ? 'bg-danger' : 'bg-secondary'} bg-opacity-75 ms-1">
-                                    ${match.current_beban} mahasiswa
-                                </span>
-                            </small>
-                        </div>
-
-                        <!-- Assign button for top match -->
-      ${isTopMatch ? `
-                            <div class="text-center mt-3">
-                                <button class="btn btn-sm w-100 text-white" style="background-color: var(--color-primary);" onclick="assignDosenToMahasiswa('${item.id_lamaran}', '${match.dosen_id}')">
-                                    <i class="fas fa-user-check me-1"></i> Assign Dosen Ini
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-                });
-
-                // Close the list group
-                dosenMatchesHtml += '</div>';
-
-                // Create the student card with improved UI
-                col.innerHTML = `
-                                                        <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                                                            <div class="card-header bg-white p-0">
-                                                                <div class="d-flex">
-                                                                    <div class="bg-gradient-primary text-white p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                                                        <span class="fw-bold h4 mb-0">${item.mahasiswa_name.charAt(0).toUpperCase()}</span>
-                                                                    </div>
-                                                                    <div class="p-3">
-                                                                        <h6 class="card-title mb-0 fw-bold">${item.mahasiswa_name}</h6>
-                                                                        <span class="badge bg-warning text-dark rounded-pill">NONAKTIF</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="card-body pt-0">
-                                                                <!-- Student info section -->
-                                                                <div class="info-section mb-3">
-                                                                    <!-- Company info -->
-                                                                    <div class="d-flex py-2 border-bottom">
-                                                                        <div class="icon-box me-3">
-                                                                            <div class="icon-circle bg-primary bg-opacity-10 text-primary">
-                                                                                <i class="fas fa-building"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <small class="text-muted d-block">Perusahaan</small>
-                                                                            <div class="fw-semibold">${item.perusahaan_name}</div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Wilayah info -->
-                                                                    <div class="d-flex py-2">
-                                                                        <div class="icon-box me-3">
-                                                                            <div class="icon-circle bg-danger bg-opacity-10 text-danger">
-                                                                                <i class="fas fa-map-marker-alt"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <small class="text-muted d-block">Wilayah</small>
-                                                                            <div>
-                                                                                <span class="badge bg-dark bg-opacity-75 text-white rounded-pill">
-                                                                                    ${item.wilayah_name}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <h6 class="fw-bold mb-3 d-flex align-items-center border-top pt-3">
-                                                                    <i class="fas fa-star me-2 text-warning"></i> Rekomendasi Dosen
-                                                                </h6>
-
-                                                                <!-- Insert the dosen matches HTML we created -->
-                                                                ${dosenMatchesHtml}
-                                                            </div>
-                                                        </div>
-                                                    `;
-
-                // Add the student card to the row
-                studentCardsRow.appendChild(col);
-            });
-
-            // Add student cards row to container
-            container.appendChild(studentCardsRow);
-
-            // Add a little CSS to make the circle matches display properly
-            const style = document.createElement('style');
-            style.textContent = `
-                                           :root {
-                        /* Warna Utama - Earth tones */
-                        --color-primary: #4b6043;      /* Moss green - calming nature tone */
-                        --color-secondary: #7d8e7a;    /* Sage - lighter variant */
-                        --color-accent: #a9b7a1;       /* Light sage - subtle accent */
-
-                        /* Kriteria Colors */
-                        --color-minat: #546e7a;        /* Slate blue gray - soft and calm */
-                        --color-minat-light: #eceff1;  /* Very light blue gray */
-                        --color-minat-border: #cfd8dc; /* Light blue gray border */
-
-                        --color-skill: #5d6e5d;        /* Muted forest green */
-                        --color-skill-light: #eef3ee;  /* Very light green */
-                        --color-skill-border: #d1dcd1; /* Light green border */
-
-                        --color-beban: #73605b;        /* Muted brown - earthy tone */
-                        --color-beban-light: #f3efee;  /* Very light brown */
-                        --color-beban-border: #e0d6d3; /* Light brown border */
-
-                        /* Score Colors - natural, muted tones */
-                        --score-excellent: #667c66;    /* Muted green - natural and calming */
-                        --score-good: #607d8b;         /* Blue gray - professional and calm */
-                        --score-medium: #8d7e6b;       /* Taupe - warm neutral */
-                        --score-low: #96665c;          /* Muted terracotta - earthy but not alarming */
-
-                        /* Background tones */
-                        --bg-highlight: #f9f8f5;       /* Off-white cream - warm and soft */
-                        --bg-card: #ffffff;            /* Clean white */
-                        --bg-section: #f7f7f7;         /* Subtle light gray */
-                    }
-
-                    /* Card styling */
-                    .list-group-item {
-                        border-color: #f0f0f0;
-                        transition: all 0.2s ease;
-                    }
-
-                    .list-group-item:hover {
-                        background-color: var(--bg-highlight);
-                    }
-
-                    /* Score circle with more refined styling */
-                    .circle-match {
-                        width: 48px;
-                        height: 48px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        position: relative;
-                        font-weight: 600;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-                        background: conic-gradient(
-                            var(--color) var(--percent),
-                            #f7f7f7 var(--percent) 100%
-                        );
-                    }
-
-                    .circle-match::before {
-                        content: "";
-                        position: absolute;
-                        width: 36px;
-                        height: 36px;
-                        background: white;
-                        border-radius: 50%;
-                    }
-
-                    .circle-match span {
-                        position: relative;
-                        z-index: 1;
-                        font-size: 12px;
-                        color: #454545;
-                    }
-
-                    /* Refined match circles */
-                    .circle-match-success {
-                        --color: var(--score-excellent);
-                    }
-
-                    .circle-match-info {
-                        --color: var(--score-good);
-                    }
-
-                    .circle-match-warning {
-                        --color: var(--score-medium);
-                    }
-
-                    .circle-match-danger {
-                        --color: var(--score-low);
-                    }
-
-                    /* Top match styling */
-                    .top-match {
-                        background-color: rgba(247, 249, 245, 0.7) !important;
-                        border-left: 3px solid var(--score-excellent) !important;
-                    }
-
-                    /* Progress bars - more subtle and refined */
-                    .progress {
-                        height: 6px !important;
-                        background-color: #f0f0f0 !important;
-                        border-radius: 10px !important;
-                        overflow: hidden;
-                    }
-
-                    /* Progress bar colors */
-                    .progress-bar-minat {
-                        background-color: var(--color-minat) !important;
-                    }
-
-                    .progress-bar-skill {
-                        background-color: var(--color-skill) !important;
-                    }
-
-                    .progress-bar-beban {
-                        background-color: var(--color-beban) !important;
-                    }
-
-                    /* Badge styling */
-                    .badge-skill, .badge-minat {
-                        font-weight: 500;
-                        font-size: 0.75rem;
-                        border-radius: 4px;
-                        padding: 0.35em 0.65em;
-                    }
-
-                    .badge-minat {
-                        color: var(--color-minat);
-                        background-color: var(--color-minat-light);
-                        border: 1px solid var(--color-minat-border);
-                    }
-
-                    .badge-skill {
-                        color: var(--color-skill);
-                        background-color: var(--color-skill-light);
-                        border: 1px solid var(--color-skill-border);
-                    }
-
-                    /* Clean up header styles */
-                    .card-header {
-                        background-color: var(--bg-card);
-                        border-bottom: 1px solid rgba(0,0,0,0.05);
-                    }
-
-                    /* Top badge */
-                    .top-badge {
-                        background-color: var(--color-primary) !important;
-                        font-weight: 500;
-                    }
-                `;
-            document.head.appendChild(style);
-        }
-
-        function assignDosenToMahasiswa(lamaranId, dosenId) {
-            // Show loading
-            Swal.fire({
-                title: 'Memproses...',
-                html: 'Sedang menetapkan dosen pembimbing',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Use the existing API endpoint with CORRECTED PARAMETER NAME
-            fetch(`/api/magang/assign-dosen/${lamaranId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        dosen_id: dosenId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: 'Dosen pembimbing berhasil ditugaskan',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        // Reload matrix data
-                        loadMatrixData();
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: data.message || 'Gagal menetapkan dosen pembimbing',
-                            icon: 'error'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menetapkan dosen pembimbing',
-                        icon: 'error'
-                    });
-                });
         }
     </script>
 @endpush

@@ -22,6 +22,8 @@ class Mahasiswa extends Model
         'alamat',
         'no_telepon',
         'email',
+        'cv',
+        'cv_updated_at'
     ];
 
     public function user()

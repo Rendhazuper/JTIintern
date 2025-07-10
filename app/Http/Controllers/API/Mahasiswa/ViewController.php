@@ -161,118 +161,52 @@ class ViewController extends Controller
      */
     public function checkProfileCompletion($userId)
     {
-        $completion = [
-            'is_complete' => true,
-            'missing' => [],
-            'details' => [],
-            'completion_percentage' => 100
-        ];
-
-        $totalChecks = 3;
-        $completedChecks = 0;
-
+        $missingFields = [];
+        
         try {
-            // First, get mahasiswa data
             $mahasiswa = DB::table('m_mahasiswa')
                 ->where('id_user', $userId)
                 ->first();
 
             if (!$mahasiswa) {
-                Log::error('Mahasiswa not found for user_id: ' . $userId);
-                return $completion; // Return complete if no mahasiswa record
-            }
-
-            // 1. Check skills (t_skill_mahasiswa) - uses user_id
-            $hasSkills = DB::table('t_skill_mahasiswa')
-                ->where('user_id', $userId)
-                ->exists();
-
-            if ($hasSkills) {
-                $completedChecks++;
-                Log::info('Skills check passed for user: ' . $userId);
-            } else {
-                $completion['missing'][] = 'skill';
-                $completion['details']['skill'] = [
-                    'label' => 'Keahlian/Skill',
-                    'description' => 'Tambahkan keahlian yang Anda kuasai untuk mendapatkan rekomendasi lowongan yang sesuai dengan kemampuan Anda',
-                    'icon' => 'fas fa-tools',
-                    'action_text' => 'Tambah Keahlian'
+                return [
+                    'is_complete' => false,
+                    'missing_fields' => ['Data mahasiswa tidak ditemukan']
                 ];
-                Log::info('Skills missing for user: ' . $userId);
             }
 
-            // 2. Check interests/minat (t_minat_mahasiswa) - uses mahasiswa_id
-            $hasInterests = DB::table('t_minat_mahasiswa')
-                ->where('mahasiswa_id', $mahasiswa->id_mahasiswa)
-                ->exists();
-
-            if ($hasInterests) {
-                $completedChecks++;
-                Log::info('Interests check passed for user: ' . $userId);
-            } else {
-                $completion['missing'][] = 'minat';
-                $completion['details']['minat'] = [
-                    'label' => 'Minat Bidang Kerja',
-                    'description' => 'Pilih bidang kerja yang Anda minati untuk mendapatkan lowongan yang relevan dengan passion Anda',
-                    'icon' => 'fas fa-heart',
-                    'action_text' => 'Pilih Minat'
-                ];
-                Log::info('Interests missing for user: ' . $userId);
+            // Cek No HP/WhatsApp
+            if (!$mahasiswa->telp) {
+                $missingFields[] = 'No. HP/WhatsApp';
             }
 
-            // 3. Check location preference (wilayah_id in m_mahasiswa)
-            if ($mahasiswa->wilayah_id) {
-                $completedChecks++;
-                Log::info('Location preference check passed for user: ' . $userId);
-            } else {
-                $completion['missing'][] = 'wilayah';
-                $completion['details']['wilayah'] = [
-                    'label' => 'Preferensi Lokasi',
-                    'description' => 'Tentukan lokasi yang Anda inginkan untuk magang agar mendapat rekomendasi tempat magang terdekat',
-                    'icon' => 'fas fa-map-marker-alt',
-                    'action_text' => 'Pilih Lokasi'
-                ];
-                Log::info('Location preference missing for user: ' . $userId);
+            // Cek CV
+            if (!$mahasiswa->cv) {
+                $missingFields[] = 'CV';
             }
 
-            // Calculate completion percentage
-            $completion['completion_percentage'] = round(($completedChecks / $totalChecks) * 100);
-            $completion['is_complete'] = $completedChecks === $totalChecks;
-            $completion['completed_items'] = $completedChecks;
-            $completion['total_items'] = $totalChecks;
+            // Cek Alamat  
+            if (!$mahasiswa->alamat) {
+                $missingFields[] = 'Alamat';
+            }
 
-            Log::info('Profile completion check result:', [
-                'user_id' => $userId,
-                'mahasiswa_id' => $mahasiswa->id_mahasiswa,
-                'is_complete' => $completion['is_complete'],
-                'percentage' => $completion['completion_percentage'],
-                'missing' => $completion['missing'],
-                'completed_checks' => $completedChecks
-            ]);
+            // Cek IPK
+            if (!$mahasiswa->ipk) {
+                $missingFields[] = 'IPK';
+            }
+
+            return [
+                'is_complete' => empty($missingFields),
+                'missing_fields' => $missingFields
+            ];
 
         } catch (\Exception $e) {
-            Log::error('Error checking profile completion for user ' . $userId . ': ' . $e->getMessage());
-
-            // Return incomplete profile on error to trigger notification
-            $completion = [
-                'is_complete' => false,
-                'missing' => ['skill', 'minat', 'wilayah'],
-                'details' => [
-                    'skill' => [
-                        'label' => 'Keahlian/Skill',
-                        'description' => 'Tambahkan keahlian yang Anda kuasai',
-                        'icon' => 'fas fa-tools',
-                        'action_text' => 'Tambah Keahlian'
-                    ]
-                ],
-                'completion_percentage' => 0,
-                'completed_items' => 0,
-                'total_items' => 3,
-                'error' => true
+            Log::error('Error checking profile completion: ' . $e->getMessage());
+            return [
+                'is_complete' => false, 
+                'missing_fields' => ['Terjadi kesalahan sistem']
             ];
         }
-
-        return $completion;
     }
 
     public function profile()

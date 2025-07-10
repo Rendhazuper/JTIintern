@@ -682,15 +682,6 @@ class MahasiswaLowonganController extends Controller
             $user = Auth::user();
             $lowongan_id = $request->input('lowongan_id');
             
-            // Validasi input
-            $request->validate([
-                'lowongan_id' => 'required|exists:m_lowongan,id_lowongan',
-                'documents' => 'required|array|min:1|max:5',
-                'documents.*.file' => 'required|file|mimes:pdf,doc,docx|max:5120',
-                'documents.*.type' => 'required|string|max:255',
-                'documents.*.description' => 'nullable|string|max:1000'
-            ]);
-
             // Get mahasiswa data
             $mahasiswa = DB::table('m_mahasiswa')
                 ->where('id_user', $user->id_user)
@@ -701,6 +692,14 @@ class MahasiswaLowonganController extends Controller
                     'success' => false,
                     'message' => 'Data mahasiswa tidak ditemukan'
                 ], 404);
+            }
+
+            // Validate CV exists
+            if (!$mahasiswa->cv) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CV tidak ditemukan'
+                ], 400);
             }
 
             // Check if already applied
@@ -716,24 +715,11 @@ class MahasiswaLowonganController extends Controller
                 ], 400);
             }
 
-            // Check active magang
-            $activeMagang = DB::table('m_magang')
-                ->where('id_mahasiswa', $mahasiswa->id_mahasiswa)
-                ->where('status', 'aktif')
-                ->exists();
-
-            if ($activeMagang) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda sudah memiliki magang aktif'
-                ], 400);
-            }
-
             // Get lowongan details
             $lowongan = DB::table('m_lowongan as l')
                 ->join('m_perusahaan as p', 'l.perusahaan_id', '=', 'p.perusahaan_id')
                 ->where('l.id_lowongan', $lowongan_id)
-                ->select('l.*', 'p.nama_perusahaan', 'p.email as perusahaan_email')
+                ->select('l.*', 'p.nama_perusahaan')
                 ->first();
 
             if (!$lowongan) {
@@ -743,64 +729,22 @@ class MahasiswaLowonganController extends Controller
                 ], 404);
             }
 
-            $uploadedDocuments = [];
-
-            // Process and store documents
-            foreach ($request->file('documents') as $index => $documentData) {
-                $file = $documentData['file'];
-                $type = $request->input("documents.{$index}.type");
-                $description = $request->input("documents.{$index}.description", "Dokumen {$type} untuk lamaran");
-
-                // Generate unique filename
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-                $fileName = $originalName . '_' . time() . '_' . uniqid() . '.' . $extension;
-
-                // Store file
-                $filePath = $file->storeAs('documents/lamaran/' . $user->id_user, $fileName, 'public');
-
-                // Save to database
-                $document_id = DB::table('m_dokumen')->insertGetId([
-                    'id_user' => $user->id_user,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $filePath,
-                    'file_type' => $type,
-                    'description' => $description,
-                    'upload_date' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-
-                $uploadedDocuments[] = [
-                    'id_dokumen' => $document_id,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $type,
-                    'file_path' => $filePath
-                ];
-
-                Log::info("Document uploaded: {$file->getClientOriginalName()} for user {$user->id_user}");
-            }
-
-            // Insert lamaran dengan dokumen pertama sebagai referensi
+            // Insert lamaran
             $lamaran_id = DB::table('t_lamaran')->insertGetId([
                 'id_lowongan' => $lowongan_id,
                 'id_mahasiswa' => $mahasiswa->id_mahasiswa,
-                'id_dokumen' => $uploadedDocuments[0]['id_dokumen'], // Dokumen utama
                 'tanggal_lamaran' => now(),
                 'auth' => 'menunggu',
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
 
-            // ✅ TRIGGER NOTIFIKASI dengan info dokumen
+            // Add notification
             try {
-                $documentTypes = array_column($uploadedDocuments, 'file_type');
-                $documentTypesText = implode(', ', array_unique($documentTypes));
-
                 $this->notificationService->createNotification(
                     $user->id_user,
-                    'Lamaran dengan Dokumen Berhasil Dikirim! 📄',
-                    "Lamaran Anda untuk posisi {$lowongan->judul_lowongan} di {$lowongan->nama_perusahaan} telah berhasil dikirim dengan " . count($uploadedDocuments) . " dokumen ({$documentTypesText}). Tim HR akan meninjau lamaran dan dokumen Anda.",
+                    'Lamaran Berhasil Dikirim! ✅',
+                    "Lamaran Anda untuk posisi {$lowongan->judul_lowongan} di {$lowongan->nama_perusahaan} telah berhasil dikirim dengan CV yang terlampir.",
                     'lamaran',
                     'success',
                     false,
@@ -808,40 +752,26 @@ class MahasiswaLowonganController extends Controller
                         'lamaran_id' => $lamaran_id,
                         'lowongan_id' => $lowongan_id,
                         'perusahaan' => $lowongan->nama_perusahaan,
-                        'posisi' => $lowongan->judul_lowongan,
-                        'action' => 'submitted_with_documents',
-                        'documents_count' => count($uploadedDocuments),
-                        'document_types' => $documentTypes
+                        'posisi' => $lowongan->judul_lowongan
                     ],
-                    14 // 2 minggu
+                    14
                 );
-
             } catch (\Exception $notifError) {
-                Log::error('Error sending application notification: ' . $notifError->getMessage());
+                Log::error('Error sending notification: ' . $notifError->getMessage());
             }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Lamaran dengan dokumen berhasil dikirim!',
+                'message' => 'Lamaran berhasil dikirim!',
                 'data' => [
                     'lamaran_id' => $lamaran_id,
                     'lowongan' => $lowongan->judul_lowongan,
-                    'perusahaan' => $lowongan->nama_perusahaan,
-                    'documents_uploaded' => count($uploadedDocuments),
-                    'documents' => $uploadedDocuments,
-                    'status' => 'menunggu'
+                    'perusahaan' => $lowongan->nama_perusahaan
                 ]
             ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Data tidak valid',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error applying with documents: ' . $e->getMessage());
@@ -902,4 +832,54 @@ class MahasiswaLowonganController extends Controller
             ], 500);
         }
     }
+
+    public function getAvailableDocuments()
+{
+    try {
+        $user = auth()->user();
+        $mahasiswa = DB::table('m_mahasiswa')
+            ->where('id_user', $user->id_user)
+            ->first();
+
+        if (!$mahasiswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data mahasiswa tidak ditemukan'
+            ], 404);
+        }
+
+        // Log untuk debugging
+        Log::info('Checking CV for mahasiswa:', [
+            'mahasiswa_id' => $mahasiswa->id_mahasiswa,
+            'cv_path' => $mahasiswa->cv,
+            'has_cv' => !empty($mahasiswa->cv)
+        ]);
+
+        $documents = [];
+        
+        // Check if CV exists and add to documents array
+        if (!empty($mahasiswa->cv)) {
+            $documents[] = [
+                'id' => 'cv',
+                'type' => 'CV', 
+                'name' => 'Curriculum Vitae',
+                'url' => asset('storage/' . $mahasiswa->cv),
+                'uploaded_at' => $mahasiswa->cv_updated_at ?? null
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'has_cv' => !empty($mahasiswa->cv),
+            'documents' => $documents
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error getting available documents: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal memuat dokumen yang tersedia'
+        ], 500);
+    }
+}
 }

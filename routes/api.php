@@ -91,7 +91,11 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
         Route::post('/update', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'update']);
         Route::post('/avatar', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updateAvatar']);
         Route::post('/password', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'updatePassword']);
-        Route::get('/completion', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'checkCompletion']);
+        Route::post('/cv', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'uploadCv']);
+        Route::delete('/cv', [App\Http\Controllers\API\Mahasiswa\ProfileController::class, 'deleteCv']);
+
+        Route::get('/documents', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getAvailableDocuments']);
+
     });
 
     // Notifications routes
@@ -227,7 +231,7 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:admin,superadmin'])->grou
     Route::delete('/dosen/{id}', [DosenController::class, 'destroy']);
     Route::post('/dosen/import', [DosenController::class, 'import']);
     Route::get('/dosen/export/pdf', [DosenController::class, 'exportPDF']);
-    Route::delete('/dosen/{id}/assignments', [DosenController::class, 'removeAssignments']);
+    Route::post('/dosen/{id}/remove-assignments', [DosenController::class, 'removeAssignments']);
     Route::post('/dosen/{id}/assign-mahasiswa', [DosenController::class, 'assignMahasiswa']);
 
 
@@ -308,6 +312,7 @@ Route::middleware(['api', 'web', 'auth:sanctum', 'role:dosen'])->group(function 
     Route::get('/dosen/magang/{magangId}/evaluation-status', [DosenMaha::class, 'checkEvaluationStatus']);
     Route::get('/mahasiswa/{id}/info', [DosenMaha::class, 'getMahasiswaInfo']);
     Route::get('/mahasiswa/{id}/logbook', [DosenMaha::class, 'getMahasiswaLogbook']);
+    Route::get('/mahasiswa/{id}/logbook/{id_log}', [DosenMaha::class, 'getMahasiswaLogbook']); // Add this new route
     Route::get('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'getMahasiswaEvaluasi']);
     Route::post('/mahasiswa/{id}/evaluasi', [DosenMaha::class, 'storeMahasiswaEvaluasi']);
 });

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -528,29 +530,101 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Check profile completion status
-     */
-    public function checkCompletion()
-    {
-        try {
-            $user = auth()->user();
+    public function uploadCv(Request $request)
+{
+    try {
+        $user = Auth::user();
+        $mahasiswa = Mahasiswa::where('id_user', $user->id_user)->first();
+
+        if (!$mahasiswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data mahasiswa tidak ditemukan'
+            ], 404);
+        }
+
+        if ($request->hasFile('cv')) {
+            $file = $request->file('cv');
             
-            // Reuse the existing checkProfileCompletion method from ViewController
-            $viewController = new \App\Http\Controllers\API\Mahasiswa\ViewController();
-            $completion = $viewController->checkProfileCompletion($user->id_user);
+            // Validate file
+            $validator = Validator::make(['cv' => $file], [
+                'cv' => 'required|mimes:pdf|max:5120', // 5MB max
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            // Delete old CV if exists
+            if ($mahasiswa->cv) {
+                Storage::delete('public/' . $mahasiswa->cv);
+            }
+
+            // Store new CV
+            $path = $file->store('cv', 'public');
+            
+            // Update database
+            $mahasiswa->cv = $path; // Use 'cv' instead of 'cv_path'
+            $mahasiswa->cv_updated_at = now();
+            $mahasiswa->save();
 
             return response()->json([
                 'success' => true,
-                'data' => $completion
+                'message' => 'CV berhasil diupload',
+                'cv_url' => asset('storage/' . $path)
             ]);
+        }
 
-        } catch (\Exception $e) {
-            Log::error('Error checking profile completion: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'File tidak ditemukan'
+        ], 400);
+    } catch (\Exception $e) {
+        Log::error('Error uploading CV: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan saat mengupload CV'
+        ], 500);
+    }
+}
+
+public function deleteCv()
+{
+    try {
+        $user = Auth::user();
+        $mahasiswa = Mahasiswa::where('id_user', $user->id_user)->first();
+        
+        if (!$mahasiswa || !$mahasiswa->cv) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to check profile completion'
-            ], 500);
+                'message' => 'CV tidak ditemukan'
+            ], 404);
         }
+
+        // Delete CV file
+        Storage::disk('public')->delete($mahasiswa->cv);
+        
+        // Update database
+        $mahasiswa->update([
+            'cv' => null,
+            'cv_updated_at' => null
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'CV berhasil dihapus'
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error deleting CV: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus CV'
+        ], 500);
     }
+}
 }

@@ -198,95 +198,37 @@
     {{-- ✅ TAMBAH setelah modal detail lowongan --}}
 
     <!-- Modal Upload Dokumen untuk Lamaran -->
-    <div class="modal fade" id="uploadDocumentModal" tabindex="-1" aria-labelledby="uploadDocumentModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="uploadDocumentModal">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0">
                 <div class="modal-header bg-gradient-primary text-white">
-                    <h5 class="modal-title" id="uploadDocumentModalLabel">
-                        <i class="fas fa-file-upload me-2"></i>Upload Dokumen Lamaran
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <h5 class="modal-title">Detail Lamaran</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                <form id="documentUploadForm" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="application-info mb-4">
-                            <div class="alert alert-info border-0">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-info-circle me-3 fa-lg"></i>
-                                    <div>
-                                        <h6 class="mb-1">Lamaran untuk: <span id="applicationPosition"></span></h6>
-                                        <p class="mb-0 text-sm">Perusahaan: <span id="applicationCompany"></span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="upload-instructions mb-4">
-                            <h6 class="mb-3"><i class="fas fa-clipboard-list me-2"></i>Petunjuk Upload Dokumen</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Format: PDF, DOC, DOCX</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Ukuran maksimal: 5MB per file
-                                        </li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Minimal 1 dokumen wajib</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-star text-warning me-2"></i>CV/Resume (Wajib)</li>
-                                        <li><i class="fas fa-star text-warning me-2"></i>Surat Pengantar</li>
-                                        <li><i class="fas fa-star text-warning me-2"></i>Transkrip Nilai</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="documents-container">
-                            <h6 class="mb-3">
-                                <i class="fas fa-files me-2"></i>Dokumen yang akan diupload
-                                <span class="badge bg-secondary ms-2" id="documentCount">0</span>
-                            </h6>
-
-                            <!-- Document Upload Areas -->
-                            <div id="documentsList">
-                                <!-- Document items akan ditambahkan di sini -->
-                            </div>
-
-                            <!-- Add Document Button -->
-                            <div class="add-document-section mt-3">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="addDocumentBtn">
-                                    <i class="fas fa-plus me-2"></i>Tambah Dokumen
-                                </button>
-                                <small class="text-muted ms-2">Maksimal 5 dokumen</small>
-                            </div>
-                        </div>
-
-                        <!-- Progress Upload -->
-                        <div class="upload-progress mt-4 d-none" id="uploadProgress">
-                            <h6 class="mb-3">Status Upload</h6>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                    style="width: 0%"></div>
-                            </div>
-                            <div class="upload-status">
-                                <small class="text-muted">Mengupload dokumen...</small>
-                            </div>
-                        </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Berikut adalah CV yang akan dilampirkan pada lamaran Anda:
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Batal
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="submitApplicationBtn" disabled>
+                    <div id="documentsCheckboxList">
+                        <!-- CV akan ditampilkan di sini -->
+                    </div>
+
+                    <div class="alert alert-danger d-none" id="noCvAlert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Anda belum mengupload CV. Silakan upload CV terlebih dahulu di halaman profil.
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" id="submitApplicationBtn" class="btn btn-primary"
+                            onclick="submitApplication(currentLowonganId)">
                             <i class="fas fa-paper-plane me-2"></i>Kirim Lamaran
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -1111,627 +1053,169 @@
         }
 
         async function showUploadDocumentModal(lowonganId) {
-            // Verifikasi status aplikasi terlebih dahulu
-            const canProceed = await confirmApplicationStatus(lowonganId);
-            if (!canProceed) return;
-
-            // Lanjutkan dengan modal upload
-            currentLowonganId = lowonganId;
-            resetDocumentForm();
-            addDocumentItem();
-
-            const uploadModal = new bootstrap.Modal(document.getElementById('uploadDocumentModal'));
-            uploadModal.show();
-
-            // Close detail modal
-            const detailModal = bootstrap.Modal.getInstance(document.getElementById('lowonganDetailModal'));
-            if (detailModal) detailModal.hide();
-        }
-
-        function applyDirectly(lowonganId) {
-            Swal.fire({
-                title: 'Konfirmasi Lamaran',
-                text: 'Apakah Anda yakin ingin mengajukan lamaran untuk lowongan ini?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Ajukan',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitApplication(lowonganId);
-                }
-            });
-        }
-
-        async function submitApplication(lowonganId) {
-            try {
-                Swal.fire({
-                    title: 'Mengirim Lamaran...',
-                    text: 'Sedang memproses lamaran Anda',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                const response = await api.post(`/mahasiswa/apply/${lowonganId}`);
-
-                if (response.data.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Lamaran berhasil dikirim!',
-                        icon: 'success',
-                        timer: 3000
-                    });
-
-                    // Update user applications
-                    userApplications.push({
-                        id_lowongan: lowonganId,
-                        status: 'menunggu',
-                        tanggal_lamaran: new Date().toISOString()
-                    });
-
-                    // Close modal and reload
-                    bootstrap.Modal.getInstance(document.getElementById('lowonganDetailModal')).hide();
-                    setTimeout(() => loadLowongan(), 2000);
-
-                } else {
-                    throw new Error(response.data.message || 'Gagal mengirim lamaran');
-                }
-
-            } catch (error) {
-                console.error('Error submitting application:', error);
-
-                let errorMessage = 'Terjadi kesalahan saat mengirim lamaran';
-                if (error.response && error.response.data && error.response.data.message) {
-                    errorMessage = error.response.data.message;
-                }
-
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: errorMessage,
-                    icon: 'error'
-                });
-            }
-        }
-
-        // ✅ TAMBAH SEMUA FUNGSI UPLOAD DOKUMEN YANG HILANG
-
-        function resetDocumentForm() {
-            uploadedDocuments = [];
-            documentCounter = 0;
-
-            const documentsList = document.getElementById('documentsList');
-            if (documentsList) {
-                documentsList.innerHTML = '';
-            }
-
-            const submitBtn = document.getElementById('submitApplicationBtn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-            }
-
-            updateDocumentCount();
-            hideUploadProgress();
-
-            console.log('📝 Document form reset');
-        }
-
-        function addDocumentItem() {
-            if (documentCounter >= 5) {
-                Swal.fire({
-                    title: 'Batas Maksimal',
-                    text: 'Maksimal 5 dokumen yang dapat diupload',
-                    icon: 'warning'
-                });
-                return;
-            }
-
-            documentCounter++;
-            const documentId = `document-${documentCounter}`;
-
-            const documentItem = document.createElement('div');
-            documentItem.className = 'document-upload-item';
-            documentItem.id = documentId;
-
-            documentItem.innerHTML = `
-                        <div class="upload-area" onclick="triggerFileInput('${documentId}')">
-                            <div class="upload-icon">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
-                            <div class="upload-text">
-                                <strong>Klik untuk memilih file</strong><br>
-                                <small>atau drag & drop file di sini</small>
-                            </div>
-                        </div>
-
-                        <input type="file" 
-                               class="d-none" 
-                               id="fileInput-${documentId}" 
-                               accept=".pdf,.doc,.docx" 
-                               onchange="handleFileSelect(event, '${documentId}')">
-
-                        <div class="document-info">
-                            <div class="document-type-select">
-                                <label class="form-label small">Jenis Dokumen</label>
-                                <select class="form-select form-select-sm" id="docType-${documentId}" required onchange="validateForm()">
-                                    <option value="">Pilih jenis dokumen</option>
-                                    <option value="CV">CV/Resume</option>
-                                    <option value="Surat Pengantar">Surat Pengantar</option>
-                                    <option value="Transkrip">Transkrip Nilai</option>
-                                    <option value="Sertifikat">Sertifikat</option>
-                                    <option value="Portofolio">Portofolio</option>
-                                    <option value="Lainnya">Lainnya</option>
-                                </select>
-                            </div>
-
-                            <div class="document-meta mt-2">
-                                <div class="file-details">
-                                    <span class="file-name" id="fileName-${documentId}"></span>
-                                    <span class="file-size" id="fileSize-${documentId}"></span>
-                                </div>
-                                <div class="document-actions">
-                                    <button type="button" class="btn-remove-document" onclick="removeDocumentItem('${documentId}')">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-            const documentsList = document.getElementById('documentsList');
-            if (documentsList) {
-                documentsList.appendChild(documentItem);
-                updateDocumentCount();
-                setupDragAndDrop(documentId);
-                console.log('➕ Document item added:', documentId);
-            }
-        }
-
-        function triggerFileInput(documentId) {
-            const fileInput = document.getElementById(`fileInput-${documentId}`);
-            if (fileInput) {
-                fileInput.click();
-            }
-        }
-
-        function handleFileSelect(event, documentId) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            console.log('📄 File selected:', file.name, 'for', documentId);
-
-            // Validate file
-            if (!validateFile(file, documentId)) {
-                return;
-            }
-
-            // Update UI
-            updateDocumentItemUI(documentId, file);
-
-            // Store file reference
-            const documentItem = document.getElementById(documentId);
-            if (documentItem) {
-                documentItem.fileData = file;
-            }
-
-            validateForm();
-        }
-
-        function validateFile(file, documentId) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const allowedTypes = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ];
-
-            // Check file size
-            if (file.size > maxSize) {
-                showDocumentError(documentId, 'File terlalu besar. Maksimal 5MB');
-                return false;
-            }
-
-            // Check file type
-            if (!allowedTypes.includes(file.type)) {
-                showDocumentError(documentId, 'Format file tidak didukung. Gunakan PDF, DOC, atau DOCX');
-                return false;
-            }
-
-            return true;
-        }
-
-        function updateDocumentItemUI(documentId, file) {
-            const documentItem = document.getElementById(documentId);
-            if (!documentItem) return;
-
-            const uploadArea = documentItem.querySelector('.upload-area');
-
-            // Update classes
-            documentItem.classList.add('has-file');
-            documentItem.classList.remove('error');
-
-            // Update upload area
-            if (uploadArea) {
-                uploadArea.innerHTML = `
-                            <div class="upload-icon">
-                                <i class="fas fa-file-check"></i>
-                            </div>
-                            <div class="upload-text">
-                                <strong>File berhasil dipilih</strong><br>
-                                <small>Klik untuk mengganti file</small>
-                            </div>
-                        `;
-            }
-
-            // Update file info
-            const fileNameElement = document.getElementById(`fileName-${documentId}`);
-            const fileSizeElement = document.getElementById(`fileSize-${documentId}`);
-
-            if (fileNameElement) fileNameElement.textContent = file.name;
-            if (fileSizeElement) fileSizeElement.textContent = formatFileSize(file.size);
-
-            console.log('✅ Document UI updated for:', documentId);
-        }
-
-        function showDocumentError(documentId, message) {
-            const documentItem = document.getElementById(documentId);
-            if (documentItem) {
-                documentItem.classList.add('error');
-            }
-
-            Swal.fire({
-                title: 'Error File',
-                text: message,
-                icon: 'error',
-                timer: 3000
-            });
-        }
-
-        function removeDocumentItem(documentId) {
-            const documentItem = document.getElementById(documentId);
-            if (!documentItem) return;
-
-            // Animate out
-            documentItem.style.transition = 'all 0.3s ease';
-            documentItem.style.opacity = '0';
-            documentItem.style.transform = 'translateY(-20px)';
-
-            setTimeout(() => {
-                documentItem.remove();
-                updateDocumentCount();
-                validateForm();
-                console.log('❌ Document item removed:', documentId);
-            }, 300);
-        }
-
-        function setupDragAndDrop(documentId) {
-            const documentItem = document.getElementById(documentId);
-            if (!documentItem) return;
-
-            const uploadArea = documentItem.querySelector('.upload-area');
-            if (!uploadArea) return;
-
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                documentItem.style.borderColor = '#007bff';
-                documentItem.style.background = '#f8f9fa';
-            });
-
-            uploadArea.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                documentItem.style.borderColor = '#dee2e6';
-                documentItem.style.background = '#fff';
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                documentItem.style.borderColor = '#dee2e6';
-                documentItem.style.background = '#fff';
-
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    const fileInput = document.getElementById(`fileInput-${documentId}`);
-                    if (fileInput) {
-                        // Create a new FileList object
-                        const dt = new DataTransfer();
-                        dt.items.add(files[0]);
-                        fileInput.files = dt.files;
-
-                        handleFileSelect({
-                            target: {
-                                files: files
-                            }
-                        }, documentId);
-                    }
-                }
-            });
-
-            console.log('🎯 Drag & drop setup for:', documentId);
-        }
-
-        function updateDocumentCount() {
-            const count = document.querySelectorAll('.document-upload-item').length;
-            const documentCountElement = document.getElementById('documentCount');
-
-            if (documentCountElement) {
-                documentCountElement.textContent = count;
-            }
-
-            // Toggle add button
-            const addBtn = document.getElementById('addDocumentBtn');
-            if (addBtn) {
-                addBtn.style.display = count >= 5 ? 'none' : 'inline-block';
-            }
-
-            console.log('📊 Document count updated:', count);
-        }
-
-        function validateForm() {
-            const documentItems = document.querySelectorAll('.document-upload-item.has-file');
-            const submitBtn = document.getElementById('submitApplicationBtn');
-
-            let isValid = documentItems.length > 0;
-
-            // Check if all documents have type selected
-            documentItems.forEach(item => {
-                const typeSelect = item.querySelector('select');
-                if (!typeSelect || !typeSelect.value) {
-                    isValid = false;
-                }
-            });
-
-            if (submitBtn) {
-                submitBtn.disabled = !isValid;
-            }
-
-            console.log('✓ Form validation:', isValid ? 'VALID' : 'INVALID', '- Documents:', documentItems.length);
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        function showUploadProgress() {
-            const uploadProgress = document.getElementById('uploadProgress');
-            if (uploadProgress) {
-                uploadProgress.classList.remove('d-none');
-            }
-        }
-
-        function hideUploadProgress() {
-            const uploadProgress = document.getElementById('uploadProgress');
-            if (uploadProgress) {
-                uploadProgress.classList.add('d-none');
-            }
-        }
-
-        function updateUploadProgress(percentage, status) {
-            const progressBar = document.querySelector('#uploadProgress .progress-bar');
-            const statusText = document.querySelector('#uploadProgress .upload-status small');
-
-            if (progressBar) progressBar.style.width = percentage + '%';
-            if (statusText) statusText.textContent = status;
-        }
-
-        // ✅ NEW: Handle form submission dengan multiple documents
-        async function handleDocumentFormSubmit(event) {
-            event.preventDefault();
-
-            if (!currentLowonganId) {
-                Swal.fire('Error', 'ID Lowongan tidak valid', 'error');
-                return;
-            }
-
-            const documentItems = document.querySelectorAll('.document-upload-item.has-file');
-
-            if (documentItems.length === 0) {
-                Swal.fire('Error', 'Minimal 1 dokumen harus diupload', 'error');
-                return;
-            }
-
-            try {
-                console.log('📤 Starting document upload for lowongan:', currentLowonganId);
-
-                // Show loading
-                Swal.fire({
-                    title: 'Memproses Lamaran...',
-                    text: 'Mengupload dokumen dan mengirim lamaran',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                showUploadProgress();
-                updateUploadProgress(10, 'Mempersiapkan upload...');
-
-                // Prepare form data
-                const formData = new FormData();
-
-                // PENTING: Tambahkan lowongan_id ke FormData
-                formData.append('lowongan_id', currentLowonganId);
-
-                // Debug: Log lowongan_id
-                console.log('Adding lowongan_id to request:', currentLowonganId);
-
-                let documentIndex = 0;
-                for (const item of documentItems) {
-                    const file = item.fileData;
-                    const typeSelect = item.querySelector('select');
-                    const type = typeSelect ? typeSelect.value : 'Lainnya';
-
-                    if (!file) {
-                        throw new Error('File tidak ditemukan untuk dokumen #' + (documentIndex + 1));
-                    }
-
-                    // Tambahkan file dan metadata ke FormData dengan format yang benar
-                    formData.append(`documents[${documentIndex}][file]`, file);
-                    formData.append(`documents[${documentIndex}][type]`, type);
-                    formData.append(`documents[${documentIndex}][description]`, `Dokumen ${type} untuk lamaran`);
-
-                    documentIndex++;
-                    updateUploadProgress(20 + (documentIndex * 15), `Mempersiapkan ${file.name}...`);
-                }
-
-                // Debug: Log semua data yang akan dikirim
-                console.log('Form data contents:');
-                for (const pair of formData.entries()) {
-                    console.log(pair[0], pair[1]);
-                }
-
-                updateUploadProgress(60, 'Mengirim dokumen ke server...');
-
-                // Kirim ke server
-                const response = await api.post('/mahasiswa/apply-with-documents', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    },
-                    onUploadProgress: (progressEvent) => {
-                        const percentage = Math.round((progressEvent.loaded * 40) / progressEvent.total) +
-                            60;
-                        updateUploadProgress(percentage, 'Mengupload dokumen...');
-                    }
-                });
-
-                updateUploadProgress(100, 'Lamaran berhasil dikirim!');
-
-                if (response.data.success) {
-                    // Close modal
-                    const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadDocumentModal'));
-                    if (uploadModal) uploadModal.hide();
-
-                    // Show success
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Lamaran dengan dokumen berhasil dikirim!',
-                        icon: 'success',
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-
-                    // Update user applications
-                    userApplications.push({
-                        id_lowongan: currentLowonganId,
-                        status: 'menunggu',
-                        tanggal_lamaran: new Date().toISOString()
-                    });
-
-                    // Reload lowongan data
-                    setTimeout(() => loadLowongan(), 3000);
-                } else {
-                    throw new Error(response.data.message || 'Gagal mengirim lamaran');
-                }
-
-            } catch (error) {
-                console.error('❌ Error submitting application:', error);
-
-                let errorMessage = 'Terjadi kesalahan saat mengirim lamaran';
-
-                // Handle validation errors
-                if (error.response?.data?.errors) {
-                    const errors = error.response.data.errors;
-                    errorMessage = '<div class="text-start">Validasi gagal:<br>';
-                    for (const field in errors) {
-                        errorMessage += `• ${errors[field].join('<br>• ')}<br>`;
-                    }
-                    errorMessage += '</div>';
-                } else if (error.response?.data?.message) {
-                    errorMessage = error.response.data.message;
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-
-                Swal.fire({
-                    title: 'Gagal!',
-                    html: errorMessage,
-                    icon: 'error'
-                });
-
-                hideUploadProgress();
-            }
-        }
-
-        // ✅ ENHANCED: showUploadDocumentModal function yang lengkap
-        function showUploadDocumentModal(lowonganId) {
             console.log('🔄 Opening upload document modal for lowongan:', lowonganId);
 
             currentLowonganId = lowonganId;
-
-            // Get lowongan data untuk display dari modal yang sedang terbuka
-            const modalContent = document.getElementById('lowonganDetailContent');
-            const title = modalContent?.querySelector('.modal-hero-title')?.textContent || 'Lowongan';
-            const company = modalContent?.querySelector('.modal-hero-company')?.textContent || 'Perusahaan';
-
-            // Set application info
-            const applicationPosition = document.getElementById('applicationPosition');
-            const applicationCompany = document.getElementById('applicationCompany');
-
-            if (applicationPosition) applicationPosition.textContent = title;
-            if (applicationCompany) applicationCompany.textContent = company;
-
-            // Reset form
-            resetDocumentForm();
-
-            // Add first document item
-            addDocumentItem();
 
             // Show modal
             const uploadModal = new bootstrap.Modal(document.getElementById('uploadDocumentModal'));
             uploadModal.show();
 
-            // Close detail modal
+            // Load available documents
+            loadAvailableDocuments();
+
+            // Close detail modal if needed
             const detailModal = bootstrap.Modal.getInstance(document.getElementById('lowonganDetailModal'));
             if (detailModal) detailModal.hide();
 
             console.log('✅ Upload document modal opened successfully');
         }
 
-        // ✅ SETUP EVENT LISTENERS untuk Document Upload
-        function setupDocumentUploadListeners() {
-            console.log('🎧 Setting up document upload listeners...');
+        // Move loadAvailableDocuments outside to be a standalone function
+        async function loadAvailableDocuments() {
+            try {
+                const container = document.getElementById('documentsCheckboxList');
+                const noCvAlert = document.getElementById('noCvAlert');
+                const submitBtn = document.getElementById('submitApplicationBtn');
 
-            // Add document button
-            const addDocumentBtn = document.getElementById('addDocumentBtn');
-            if (addDocumentBtn) {
-                addDocumentBtn.addEventListener('click', addDocumentItem);
-                console.log('✅ Add document button listener added');
+                container.innerHTML =
+                    '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary me-2"></div><span>Memuat dokumen...</span></div>';
+
+                const response = await api.get('/mahasiswa/profile/documents');
+                console.log('Documents response:', response.data);
+
+                if (!response.data.success) {
+                    container.innerHTML = '<div class="alert alert-danger">Gagal memuat dokumen.</div>';
+                    return;
+                }
+
+                if (!response.data.has_cv) {
+                    noCvAlert.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                    container.innerHTML = `
+                        <div class="alert alert-warning">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle fs-4 me-2"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-1">CV Belum Tersedia</h6>
+                                    <p class="mb-0">Anda belum mengupload CV. Silakan upload CV terlebih dahulu di halaman profil.</p>
+                                    <a href="/mahasiswa/profile" class="btn btn-sm btn-warning mt-2">
+                                        <i class="fas fa-upload me-1"></i>Upload CV di Profil
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                noCvAlert.classList.add('d-none');
+                submitBtn.disabled = false;
+
+                const cv = response.data.documents[0];
+                container.innerHTML = `
+            <div class="card border">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                Curriculum Vitae (CV)
+                            </h6>
+                            ${cv.uploaded_at ? `
+                                        <small class="text-muted">
+                                            Diupload: ${new Date(cv.uploaded_at).toLocaleDateString()}
+                                        </small>
+                                    ` : ''}
+                        </div>
+                        <a href="${cv.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>Lihat CV
+                        </a>
+                    </div>
+                </div>
+            </div>`;
+
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsCheckboxList').innerHTML =
+                    '<div class="alert alert-danger">Terjadi kesalahan saat memuat dokumen.</div>';
             }
+        }
 
-            // Form submission
-            const documentUploadForm = document.getElementById('documentUploadForm');
-            if (documentUploadForm) {
-                documentUploadForm.addEventListener('submit', handleDocumentFormSubmit);
-                console.log('✅ Document upload form listener added');
+        // Move updateSubmitButton outside to be a standalone function
+        function updateSubmitButton() {
+            const checkedDocs = document.querySelectorAll('.document-checkbox:checked');
+            const submitBtn = document.getElementById('submitApplicationBtn');
+            submitBtn.disabled = checkedDocs.length === 0;
+        }
+
+        // Only have one DOMContentLoaded event listener at the top level
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM Content Loaded, starting initialization...');
+            initializePage();
+
+            // Add event listener for upload modal
+            const uploadModal = document.getElementById('uploadDocumentModal');
+            if (uploadModal) {
+                uploadModal.addEventListener('shown.bs.modal', function() {
+                    loadAvailableDocuments();
+                });
             }
+        });
 
-            // Document type change validation
-            document.addEventListener('change', function(e) {
-                if (e.target.matches('select[id^="docType-"]')) {
-                    validateForm();
+        // Function to submit application without using async/await
+        function submitApplication(lowonganId) {
+            // Show loading state
+            Swal.fire({
+                title: 'Mengirim Lamaran...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
                 }
             });
 
-            console.log('✅ Document upload listeners setup completed');
+            console.log('📤 Submitting application for lowongan:', lowonganId);
+
+            // Submit lamaran using promise syntax
+            api.post(`/mahasiswa/apply-with-documents`, {
+                    lowongan_id: lowonganId
+                })
+                .then(function(response) {
+                    console.log('📥 Application response:', response.data);
+
+                    if (response.data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('uploadDocumentModal'));
+                        modal.hide();
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Lamaran Anda telah berhasil dikirim',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Reload lowongan data
+                        setTimeout(function() {
+                            loadLowongan();
+                        }, 2000);
+                    } else {
+                        throw new Error(response.data.message || 'Gagal mengirim lamaran');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('❌ Error submitting application:', error);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Mengirim Lamaran',
+                        text: error.response?.data?.message || 'Terjadi kesalahan saat mengirim lamaran',
+                        confirmButtonText: 'Tutup'
+                    });
+                });
         }
-
-        // ✅ DEBUG: START PAGE INITIALIZATION WHEN DOM IS READY
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 DOM Content Loaded, starting initialization...');
-
-            // Initialize page
-            initializePage();
-
-            // Setup document upload listeners setelah delay
-            setTimeout(() => {
-                setupDocumentUploadListeners();
-            }, 1000);
-        });
     </script>
 @endpush

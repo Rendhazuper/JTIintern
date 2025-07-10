@@ -288,10 +288,11 @@ class DosenMahasiswaController extends Controller
     }
 
     // ✅ ADD: Method untuk mendapatkan logbook mahasiswa
-    public function getMahasiswaLogbook($id_mahasiswa)
+    public function getMahasiswaLogbook($id_mahasiswa, Request $request)
     {
         try {
-            Log::info("Attempting to get logbook for mahasiswa ID: {$id_mahasiswa}");
+            $id_log = $request->get('id_log'); // Get specific log ID if provided
+            Log::info("Attempting to get logbook for mahasiswa ID: {$id_mahasiswa}" . ($id_log ? ", log ID: {$id_log}" : ""));
 
             $user = Auth::user();
             if (!$user) {
@@ -324,7 +325,68 @@ class DosenMahasiswaController extends Controller
                 ], 403);
             }
 
-            // ✅ PERBAIKI: Cek dulu struktur tabel t_log
+            // If specific log entry is requested
+            if ($id_log) {
+                $logEntry = DB::table('t_log as tl')
+                    ->join('m_magang as mg', 'tl.id_magang', '=', 'mg.id_magang')
+                    ->where('tl.id_log', $id_log)
+                    ->where('mg.id_mahasiswa', $id_mahasiswa)
+                    ->where('mg.id_dosen', $dosen->id_dosen)
+                    ->select(
+                        'tl.id_log as id',
+                        'tl.tanggal',
+                        'tl.log_aktivitas as deskripsi',
+                        'tl.foto',
+                        'tl.created_at'
+                    )
+                    ->first();
+
+                if (!$logEntry) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Data log tidak ditemukan atau Anda tidak memiliki akses'
+                    ], 404);
+                }
+
+                // Process photo
+                $photoPath = null;
+                $hasFoto = false;
+
+                if ($logEntry->foto && !empty($logEntry->foto)) {
+                    $fullPath = storage_path('app/public/' . $logEntry->foto);
+                    if (file_exists($fullPath)) {
+                        $photoPath = asset('storage/' . $logEntry->foto);
+                        $hasFoto = true;
+                    } else {
+                        Log::warning("Photo file not found: {$fullPath}");
+                    }
+                }
+
+                $date = \Carbon\Carbon::parse($logEntry->tanggal);
+                $formattedEntry = [
+                    'id' => $logEntry->id,
+                    'id_mahasiswa' => $id_mahasiswa,
+                    'tanggal' => $logEntry->tanggal,
+                    'tanggal_formatted' => $date->format('d M Y'),
+                    'tanggal_hari' => $date->format('l'),
+                    'deskripsi' => $logEntry->deskripsi ?? '',
+                    'foto' => $photoPath,
+                    'has_foto' => $hasFoto,
+                    'time_ago' => $date->diffForHumans(),
+                    'created_at' => $logEntry->created_at
+                ];
+
+                Log::info("Successfully retrieved specific logbook entry with ID: {$id_log}");
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $formattedEntry,
+                    'message' => 'Data log berhasil diambil',
+                    'is_single' => true
+                ]);
+            }
+
+            // ✅ Default behavior: get all logbook entries
             $logbook = DB::table('t_log as tl')
                 ->join('m_magang as mg', 'tl.id_magang', '=', 'mg.id_magang')
                 ->where('mg.id_mahasiswa', $id_mahasiswa)
@@ -332,7 +394,7 @@ class DosenMahasiswaController extends Controller
                 ->select(
                     'tl.id_log as id',
                     'tl.tanggal',
-                    'tl.log_aktivitas as deskripsi', // ✅ KEMUNGKINAN: ganti 'deskripsi' dengan 'kegiatan' atau kolom yang sesuai
+                    'tl.log_aktivitas as deskripsi',
                     'tl.foto',
                     'tl.created_at'
                 )
@@ -349,7 +411,7 @@ class DosenMahasiswaController extends Controller
                 ]);
             }
 
-            // Group by month and format data
+            // Group by month and format data (same as before)
             $groupedData = [];
             $monthGroups = [];
 
@@ -366,7 +428,6 @@ class DosenMahasiswaController extends Controller
                     $hasFoto = false;
 
                     if ($entry->foto && !empty($entry->foto)) {
-                        // ✅ PERBAIKI: Check if file exists
                         $fullPath = storage_path('app/public/' . $entry->foto);
                         if (file_exists($fullPath)) {
                             $photoPath = asset('storage/' . $entry->foto);
@@ -378,6 +439,7 @@ class DosenMahasiswaController extends Controller
 
                     $monthGroups[$monthKey][] = [
                         'id' => $entry->id,
+                        'id_mahasiswa' => $id_mahasiswa, // Add mahasiswa ID for reference
                         'tanggal' => $entry->tanggal,
                         'tanggal_formatted' => $date->format('d M Y'),
                         'tanggal_hari' => $date->format('l'),
@@ -407,7 +469,8 @@ class DosenMahasiswaController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $groupedData,
-                'message' => 'Data logbook berhasil diambil'
+                'message' => 'Data logbook berhasil diambil',
+                'is_single' => false
             ]);
 
         } catch (\Exception $e) {

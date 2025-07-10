@@ -361,15 +361,27 @@ class DosenController extends Controller
             // Log the request for debugging
             Log::info('Removing assignments for dosen ID: ' . $id);
 
-            // Find all magang records where id_dosen matches $id and reset them
-            $count = Lamaran::where('id_dosen', $id)->update(['id_dosen' => null]);
+            // Count for tracking how many assignments were removed
+            $count = 0;
 
-            Log::info('Removed ' . $count . ' assignments for dosen ID: ' . $id);
+            // Remove from Lamaran table (pending applications)
+            $lamaranCount = Lamaran::where('id_dosen', $id)->update(['id_dosen' => null]);
+            $count += $lamaranCount;
+            Log::info('Removed ' . $lamaranCount . ' assignments from Lamaran table for dosen ID: ' . $id);
+
+            // Also remove from Magang table (active internships)
+            $magangCount = Magang::where('id_dosen', $id)->update(['id_dosen' => null]);
+            $count += $magangCount;
+            Log::info('Removed ' . $magangCount . ' assignments from Magang table for dosen ID: ' . $id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Assignments removed successfully',
-                'count' => $count
+                'count' => $count,
+                'details' => [
+                    'lamaran' => $lamaranCount,
+                    'magang' => $magangCount
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error removing assignments: ' . $e->getMessage());

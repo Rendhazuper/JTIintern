@@ -129,8 +129,8 @@
                         </div>
                         <h5 class="text-danger">${message}</h5>
                         ${isSystemError ? `
-                                                                                                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                                                                                            ` : ''}
                         <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
                             <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                         </button>
@@ -339,27 +339,22 @@
                     }
                 }
 
-                // Determine card style based on evaluation status
                 let cardStyles = '';
                 let statusMessage = '';
 
                 if (item.status && item.status.toLowerCase() === 'selesai') {
                     const evalStatus = await checkEvaluationStatus(item.id_magang);
 
-                    // Check evaluation states
                     needsDosenEvaluation = evalStatus.needs_dosen_evaluation || false;
                     hasEvaluation = evalStatus.has_evaluation && !needsDosenEvaluation;
 
-                    // ✅ ADD: Check if waiting for company evaluation
                     const waitingForCompany = !evalStatus.has_evaluation;
 
-                    // Determine card style and status message
                     if (needsDosenEvaluation) {
                         cardStyles = 'border: 2px solid #ffc107; box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);';
                     } else if (hasEvaluation) {
                         cardStyles = 'border: 2px solid #28a745; box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);';
                     } else if (waitingForCompany) {
-                        // ✅ ADD: Style for waiting company evaluation
                         cardStyles = 'border: 2px solid #17a2b8; box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);';
                         statusMessage = `
                             <div class="evaluation-alert" 
@@ -388,18 +383,18 @@
                         ${statusMessage}
                         
                         ${needsDosenEvaluation ? `
-                                            <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); z-index: 10; animation: pulse 2s infinite;">
-                                                <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
-                                                Perlu Evaluasi Dosen
-                                            </div>
-                                        ` : ''}
+                                                <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); z-index: 10; animation: pulse 2s infinite;">
+                                                    <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
+                                                    Perlu Evaluasi Dosen
+                                                </div>
+                                            ` : ''}
 
                         ${hasEvaluation && evaluationGrade ? `
-                                            <div class="evaluation-grade" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); z-index: 10;">
-                                                <i class="fas fa-trophy" style="margin-right: 4px;"></i>
-                                                Grade: ${evaluationGrade}
-                                            </div>
-                                        ` : ''}
+                                                <div class="evaluation-grade" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); z-index: 10;">
+                                                    <i class="fas fa-trophy" style="margin-right: 4px;"></i>
+                                                    Grade: ${evaluationGrade}
+                                                </div>
+                                            ` : ''}
 
                         <!-- Status Badge -->
                         <div data-property-1="Status" style="height: 29px; display: inline-flex; align-items: center; gap: 10px;">
@@ -436,8 +431,8 @@
                             </button>
                             
                             ${item.status && item.status.toLowerCase() === 'selesai' ? `
-                        <!-- Button container for completed internships -->
-                        ${needsDosenEvaluation ? `
+                            <!-- Button container for completed internships -->
+                            ${needsDosenEvaluation ? `
         <!-- Show active evaluation button when dosen needs to evaluate -->
         <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}', '${item.id_magang || ''}')" 
                 class="btn btn-warning" 
@@ -474,19 +469,19 @@
             <span style="color: #adb5bd;">Sudah Dievaluasi</span>
         </button>
     `}
-                    ` : `
-                        <!-- Show disabled button for non-completed internships -->
-                        <button disabled class="btn" 
-                                style="flex: 1; padding: 8px 12px; 
-                                       background: #f8f9fa; border-radius: 6px; 
-                                       border: 1.5px solid #e9ecef; 
-                                       display: flex; align-items: center; justify-content: center; 
-                                       gap: 8px; font-size: 12px; font-weight: 600; 
-                                       opacity: 0.6; cursor: not-allowed;">
-                            <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
-                            <span style="color: #adb5bd;">Evaluasi</span>
-                        </button>
-                    `}
+                        ` : `
+                            <!-- Show disabled button for non-completed internships -->
+                            <button disabled class="btn" 
+                                    style="flex: 1; padding: 8px 12px; 
+                                           background: #f8f9fa; border-radius: 6px; 
+                                           border: 1.5px solid #e9ecef; 
+                                           display: flex; align-items: center; justify-content: center; 
+                                           gap: 8px; font-size: 12px; font-weight: 600; 
+                                           opacity: 0.6; cursor: not-allowed;">
+                                <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
+                                <span style="color: #adb5bd;">Evaluasi</span>
+                            </button>
+                        `}
                         </div>
                     </div>
                 `;
@@ -796,7 +791,7 @@
             filterState.page = page;
             loadMahasiswaData(filterState);
         }
-        // ✅ TAMBAH: Function untuk handle debug
+
         function debugModal() {
             console.log('🐛 Testing modal functionality...');
 
@@ -811,7 +806,7 @@
             }
         }
 
-        // ✅ TAMBAH: Debugging untuk script loading
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM Content Loaded');
             console.log('📋 Checking if logAktivitas function exists:', typeof logAktivitas);

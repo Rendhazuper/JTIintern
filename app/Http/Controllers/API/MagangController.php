@@ -191,42 +191,37 @@ class MagangController extends Controller
 
             // ✅ ENHANCED: Ambil dokumen mahasiswa yang dinamis
             $dokumen = [];
-            if ($lamaran->id_user) {
+            if ($lamaran->id_mahasiswa) {
                 try {
-                    $documents = DB::table('m_dokumen')
-                        ->where('id_user', $lamaran->id_user)
-                        ->select([
-                            'id_dokumen',
-                            'file_name',
-                            'file_path',
-                            'file_type',
-                            'description',
-                            'upload_date'
-                        ])
-                        ->get();
-
-                    $dokumen = $documents->map(function($doc) {
-                        // ✅ CALCULATE: File size jika file ada
-                        $filePath = storage_path('app/public/' . $doc->file_path);
+                    // Get CV from m_mahasiswa table
+                    $cv = DB::table('m_mahasiswa')
+                        ->where('id_mahasiswa', $lamaran->id_mahasiswa)
+                        ->select('cv', 'cv_updated_at')
+                        ->first();
+                    
+                    if ($cv && $cv->cv) {
+                        // Calculate file size if available
+                        $filePath = storage_path('app/public/' . $cv->cv);
                         $fileSize = 'Unknown';
                         
                         if (file_exists($filePath)) {
                             $bytes = filesize($filePath);
                             $fileSize = $this->formatFileSize($bytes);
                         }
-
-                        return [
-                            'file_type' => $doc->file_type,
-                            'file_name' => $doc->file_name,
-                            'description' => $doc->description,
-                            'upload_date' => \Carbon\Carbon::parse($doc->upload_date)->format('d M Y'),
+                        
+                        $dokumen[] = [
+                            'file_type' => 'CV',
+                            'file_name' => basename($cv->cv),
+                            'description' => 'Curriculum Vitae (CV)',
+                            'upload_date' => $cv->cv_updated_at ? \Carbon\Carbon::parse($cv->cv_updated_at)->format('d M Y') : 'Tidak diketahui',
                             'file_size' => $fileSize,
-                            'file_url' => asset('storage/' . $doc->file_path)
+                            'file_url' => asset('storage/' . $cv->cv)
                         ];
-                    })->toArray();
-                } catch (\Exception $docError) {
-                    Log::warning('Could not fetch documents: ' . $docError->getMessage());
-                    $dokumen = [];
+                    } else {
+                        Log::warning('No CV found for mahasiswa', ['id_mahasiswa' => $lamaran->id_mahasiswa]);
+                    }
+                } catch (\Exception $cvError) {
+                    Log::warning('Could not fetch CV: ' . $cvError->getMessage());
                 }
             }
 

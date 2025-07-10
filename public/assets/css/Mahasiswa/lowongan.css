@@ -1256,3 +1256,21 @@ body {
     backface-visibility: hidden;
     transform: translateZ(0);
 }
+
+.document-item {
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.document-item:hover {
+    background: #f8f9fa;
+    border-color: #0d6efd !important;
+}
+
+.document-checkbox:checked + label {
+    color: #0d6efd;
+}
+
+.selected-document-item {
+    border-left: 3px solid #0d6efd;
+}
