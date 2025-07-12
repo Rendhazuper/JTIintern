@@ -5,7 +5,7 @@
                 <div class="d-flex align-items-center">
                     <div class="icon-box me-3"
                         style="background: linear-gradient(135deg, #5988FF, #4c7bef); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-clipboard-list text-white"></i>
+                        <span id="studentInitial" class="text-white">M</span> <!-- Tambahkan elemen ini -->
                     </div>
                     <div>
                         <h5 class="modal-title mb-0" id="logAktivitasModalLabel">Log Aktivitas Mahasiswa</h5>
@@ -40,7 +40,7 @@
                 <!-- Empty State -->
                 <div id="logAktivitasEmpty" class="p-5 text-center d-none">
                     <div class="mb-3">
-                        <i class="fas fa-journal-text text-muted" style="font-size: 3rem;"></i>
+                        <i class="fas fa-clipboard-list text-muted" style="font-size: 3rem;"></i>
                     </div>
                     <h6>Belum Ada Aktivitas</h6>
                     <p class="text-muted">Mahasiswa belum mencatat aktivitas magang</p>
@@ -48,6 +48,24 @@
 
                 <!-- Content -->
                 <div id="logAktivitasContent" class="d-none">
+                    <!-- Magang selector if multiple magang exist -->
+                    <div id="magangSelector" class="px-4 pt-4 d-none">
+                        <div class="alert alert-info mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 small">Mahasiswa ini memiliki beberapa magang. Pilih magang untuk
+                                        menampilkan log aktivitas tertentu:</p>
+                                </div>
+                                <select id="selectMagang" class="form-select form-select-sm ms-3"
+                                    style="width: auto; min-width: 180px;">
+                                    <option value="">Semua Magang</option>
+                                    <!-- Options will be filled dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Stats Cards -->
                     <div class="row g-3 p-4 pb-0">
                         <div class="col-md-3">
@@ -165,332 +183,180 @@
     </div>
 </div>
 
+<style>
+    /* Timeline styles for dosen view */
+    .timeline-dosen {
+        position: relative;
+        padding: 0;
+    }
+
+    .timeline-month-dosen {
+        margin-bottom: 30px;
+    }
+
+    .month-label-dosen {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        color: #8898aa;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 15px;
+    }
+
+    .timeline-item-dosen {
+        padding-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item-dosen.filtered-out {
+        display: none;
+    }
+
+    .timeline-item-dosen.filtered-in {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .timeline-card-dosen {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+
+    .timeline-card-dosen:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .timeline-header-dosen {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .timeline-date-dosen {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #344767;
+    }
+
+    .timeline-day-dosen {
+        font-size: 0.8rem;
+        color: #8898aa;
+    }
+
+    .timeline-time-dosen {
+        font-size: 0.75rem;
+        color: #8898aa;
+    }
+
+    .timeline-description-dosen {
+        font-size: 0.9rem;
+        color: #344767;
+        white-space: pre-line;
+        margin-bottom: 10px;
+    }
+
+    .timeline-photo-dosen {
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    .timeline-photo-dosen img {
+        max-height: 200px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .timeline-photo-dosen img:hover {
+        transform: scale(1.02);
+    }
+
+    .timeline-actions-dosen {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        height: 100%;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(89, 136, 255, 0.1);
+        color: #5988FF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 767.98px) {
+        .timeline-month-dosen {
+            margin-bottom: 20px;
+        }
+
+        .timeline-item-dosen {
+            padding-bottom: 15px;
+        }
+    }
+</style>
+
 <script>
-    // ✅ GLOBAL VARIABLES untuk Log Aktivitas
-    let currentMahasiswaId = null;
-    let logAktivitasData = [];
-    let filteredLogData = [];
+    // Helper function untuk mendapatkan warna status
+    function getStatusColor(status) {
+        if (!status) return 'secondary';
 
-    // ✅ MAIN LOG AKTIVITAS FUNCTION
-    function logAktivitas(id_mahasiswa) {
-        console.log('📋 Opening log aktivitas for mahasiswa:', id_mahasiswa);
-
-        currentMahasiswaId = id_mahasiswa;
-
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('logAktivitasModal'));
-        modal.show();
-
-        // Reset modal states
-        resetLogAktivitasModal();
-
-        // Load data
-        loadLogAktivitasData(id_mahasiswa);
-    }
-
-    function resetLogAktivitasModal() {
-        // Show loading, hide others
-        document.getElementById('logAktivitasLoading').classList.remove('d-none');
-        document.getElementById('logAktivitasError').classList.add('d-none');
-        document.getElementById('logAktivitasEmpty').classList.add('d-none');
-        document.getElementById('logAktivitasContent').classList.add('d-none');
-
-        // Reset info
-        document.getElementById('mahasiswaInfo').textContent = 'Memuat informasi mahasiswa...';
-
-        // Reset filters
-        document.getElementById('searchLogAktivitas').value = '';
-        document.getElementById('filterMonth').innerHTML = '<option value="">Semua Bulan</option>';
-        document.getElementById('filterHasPhoto').value = '';
-    }
-
-    async function loadLogAktivitasData(id_mahasiswa) {
-        try {
-            console.log('🔍 Loading log aktivitas data for:', id_mahasiswa);
-
-            // Get mahasiswa info and log data
-            const [mahasiswaResponse, logResponse] = await Promise.all([
-                api.get(`/mahasiswa/${id_mahasiswa}/info`),
-                api.get(`/mahasiswa/${id_mahasiswa}/logbook`)
-            ]);
-
-            // Handle mahasiswa info
-            if (mahasiswaResponse.data.success) {
-                const mahasiswa = mahasiswaResponse.data.data;
-                document.getElementById('mahasiswaInfo').textContent =
-                    `${mahasiswa.name} (${mahasiswa.nim}) - ${mahasiswa.nama_kelas}`;
-            }
-
-            // Handle log data
-            if (logResponse.data.success) {
-                logAktivitasData = logResponse.data.data || [];
-
-                if (logAktivitasData.length === 0) {
-                    showEmptyLogState();
-                } else {
-                    showLogContent();
-                    populateLogTimeline(logAktivitasData);
-                    updateLogStats(logAktivitasData);
-                    populateMonthFilter(logAktivitasData);
-                }
-            } else {
-                throw new Error(logResponse.data.message || 'Gagal memuat data log');
-            }
-
-        } catch (error) {
-            console.error('❌ Error loading log aktivitas:', error);
-            showLogError(error.message || 'Terjadi kesalahan saat memuat data');
+        switch (status.toLowerCase()) {
+            case 'aktif':
+                return 'success';
+            case 'selesai':
+                return 'warning';
+            case 'menunggu':
+                return 'info';
+            case 'ditolak':
+                return 'danger';
+            case 'dibatalkan':
+                return 'danger';
+            case 'pending':
+                return 'warning';
+            default:
+                return 'secondary';
         }
     }
-
-    function showEmptyLogState() {
-        document.getElementById('logAktivitasLoading').classList.add('d-none');
-        document.getElementById('logAktivitasEmpty').classList.remove('d-none');
-    }
-
-    function showLogError(message) {
-        document.getElementById('logAktivitasLoading').classList.add('d-none');
-        document.getElementById('logAktivitasError').classList.remove('d-none');
-        document.getElementById('errorMessage').textContent = message;
-    }
-
-    function showLogContent() {
-        document.getElementById('logAktivitasLoading').classList.add('d-none');
-        document.getElementById('logAktivitasContent').classList.remove('d-none');
-    }
-
-    function populateLogTimeline(data) {
-        const timeline = document.getElementById('timelineLogAktivitas');
-        if (!timeline || !data || data.length === 0) return;
-
-        let timelineHTML = '';
-
-        data.forEach(monthGroup => {
-            timelineHTML += `
-            <div class="timeline-month-dosen">
-                <h6 class="month-label-dosen">${monthGroup.month}</h6>
-                <div class="timeline-entries-dosen">
-        `;
-
-            monthGroup.entries.forEach(entry => {
-                const photoHTML = entry.has_foto ? `
-                <div class="timeline-photo-dosen">
-                    <img src="${entry.foto}" alt="Foto aktivitas" 
-                         onclick="showPhotoDetail('${entry.foto}', '${entry.tanggal_formatted}', '${entry.deskripsi}')">
-                </div>
-            ` : '';
-
-                timelineHTML += `
-                <div class="timeline-item-dosen" data-entry-id="${entry.id}" data-month="${monthGroup.month}" data-has-photo="${entry.has_foto ? 'yes' : 'no'}">
-                    <div class="timeline-card-dosen">
-                        <div class="timeline-header-dosen">
-                            <div>
-                                <div class="timeline-date-dosen">${entry.tanggal_formatted}</div>
-                                <div class="timeline-day-dosen">${entry.tanggal_hari}</div>
-                            </div>
-                            <div class="timeline-time-dosen">${entry.time_ago}</div>
-                        </div>
-                        <div class="timeline-description-dosen">
-                            ${entry.deskripsi}
-                        </div>
-                        ${photoHTML}
-                        <div class="timeline-actions-dosen">
-                            ${entry.has_foto ? `
-                                <button class="btn btn-sm btn-outline-primary" onclick="showPhotoDetail('${entry.foto}', '${entry.tanggal_formatted}', '${entry.deskripsi}')">
-                                    <i class="fas fa-image me-1"></i>Lihat Foto
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            });
-
-            timelineHTML += `
-                </div>
-            </div>
-        `;
-        });
-
-        timeline.innerHTML = timelineHTML;
-    }
-
-    function updateLogStats(data) {
-        let totalDays = 0;
-        let totalActivities = 0;
-        let totalPhotos = 0;
-        let lastActivityDate = null;
-
-        data.forEach(monthGroup => {
-            monthGroup.entries.forEach(entry => {
-                totalActivities++;
-                if (entry.has_foto) totalPhotos++;
-
-                if (!lastActivityDate || new Date(entry.tanggal) > new Date(lastActivityDate)) {
-                    lastActivityDate = entry.tanggal_formatted;
-                }
-            });
-            totalDays += monthGroup.entries.length;
-        });
-
-        document.getElementById('totalDays').textContent = totalDays;
-        document.getElementById('totalActivities').textContent = totalActivities;
-        document.getElementById('totalPhotos').textContent = totalPhotos;
-        document.getElementById('lastActivity').textContent = lastActivityDate || '-';
-    }
-
-    function populateMonthFilter(data) {
-        const filterMonth = document.getElementById('filterMonth');
-        const months = [...new Set(data.map(monthGroup => monthGroup.month))];
-
-        filterMonth.innerHTML = '<option value="">Semua Bulan</option>';
-        months.forEach(month => {
-            filterMonth.innerHTML += `<option value="${month}">${month}</option>`;
-        });
-    }
-
-    function showPhotoDetail(photoUrl, tanggal, deskripsi) {
-        const modal = new bootstrap.Modal(document.getElementById('photoDetailModal'));
-        document.getElementById('photoDetailTitle').textContent = `Foto Aktivitas - ${tanggal}`;
-        document.getElementById('photoDetailImage').src = photoUrl;
-        document.getElementById('photoDetailDescription').textContent = deskripsi;
-        modal.show();
-    }
-
-    function viewActivityDetail(entryId) {
-        // Find the entry in data
-        let entry = null;
-        logAktivitasData.forEach(monthGroup => {
-            const found = monthGroup.entries.find(e => e.id === entryId);
-            if (found) entry = found;
-        });
-
-        if (!entry) return;
-
-        Swal.fire({
-            title: `Detail Aktivitas - ${entry.tanggal_formatted}`,
-            html: `
-            <div class="text-start">
-                <div class="mb-3">
-                    <strong>Tanggal:</strong> ${entry.tanggal_formatted} (${entry.tanggal_hari})
-                </div>
-                <div class="mb-3">
-                    <strong>Deskripsi:</strong><br>
-                    <div class="bg-light p-3 rounded mt-2">${entry.deskripsi}</div>
-                </div>
-                ${entry.has_foto ? `
-                    <div class="mb-3">
-                        <strong>Foto:</strong><br>
-                        <img src="${entry.foto}" class="img-fluid rounded mt-2" style="max-height: 200px;">
-                    </div>
-                ` : ''}
-                <div class="mb-3">
-                    <strong>Dicatat:</strong> ${entry.time_ago}
-                </div>
-            </div>
-        `,
-            width: '600px',
-            showConfirmButton: false,
-            showCloseButton: true,
-            customClass: {
-                container: 'activity-detail-modal'
-            }
-        });
-    }
-
-    function retryLoadLogAktivitas() {
-        if (currentMahasiswaId) {
-            resetLogAktivitasModal();
-            loadLogAktivitasData(currentMahasiswaId);
-        }
-    }
-
-    function exportLogAktivitas() {
-        if (!currentMahasiswaId) return;
-
-        Swal.fire({
-            title: 'Export Log Aktivitas',
-            text: 'Fitur export PDF akan segera tersedia',
-            icon: 'info',
-            confirmButtonText: 'Ok'
-        });
-    }
-
-    function filterLogActivities() {
-        const searchTerm = document.getElementById('searchLogAktivitas').value.toLowerCase();
-        const selectedMonth = document.getElementById('filterMonth').value;
-        const photoFilter = document.getElementById('filterHasPhoto').value;
-
-        const timelineItems = document.querySelectorAll('.timeline-item-dosen');
-
-        timelineItems.forEach(item => {
-            const description = item.querySelector('.timeline-description-dosen').textContent.toLowerCase();
-            const date = item.querySelector('.timeline-date-dosen').textContent.toLowerCase();
-            const month = item.getAttribute('data-month');
-            const hasPhoto = item.getAttribute('data-has-photo');
-
-            let showItem = true;
-
-            // Search filter
-            if (searchTerm && !description.includes(searchTerm) && !date.includes(searchTerm)) {
-                showItem = false;
-            }
-
-            // Month filter
-            if (selectedMonth && month !== selectedMonth) {
-                showItem = false;
-            }
-
-            // Photo filter
-            if (photoFilter) {
-                if (photoFilter === 'with' && hasPhoto !== 'yes') {
-                    showItem = false;
-                } else if (photoFilter === 'without' && hasPhoto !== 'no') {
-                    showItem = false;
-                }
-            }
-
-            if (showItem) {
-                item.classList.remove('filtered-out');
-                item.classList.add('filtered-in');
-            } else {
-                item.classList.remove('filtered-in');
-                item.classList.add('filtered-out');
-            }
-        });
-
-        // Hide/show month groups if all items are hidden
-        const monthGroups = document.querySelectorAll('.timeline-month-dosen');
-        monthGroups.forEach(group => {
-            const visibleItems = group.querySelectorAll('.timeline-item-dosen.filtered-in');
-            if (visibleItems.length === 0) {
-                group.style.display = 'none';
-            } else {
-                group.style.display = 'block';
-            }
-        });
-    }
-
-    // ✅ Event listeners for filters
-    document.addEventListener('DOMContentLoaded', function() {
-        // Search filter
-        const searchInput = document.getElementById('searchLogAktivitas');
-        if (searchInput) {
-            searchInput.addEventListener('input', debounce(function() {
-                filterLogActivities();
-            }, 300));
-        }
-
-        // Month filter
-        const monthFilter = document.getElementById('filterMonth');
-        if (monthFilter) {
-            monthFilter.addEventListener('change', filterLogActivities);
-        }
-
-        // Photo filter
-        const photoFilter = document.getElementById('filterHasPhoto');
-        if (photoFilter) {
-            photoFilter.addEventListener('change', filterLogActivities);
-        }
-    });
 </script>

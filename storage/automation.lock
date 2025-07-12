@@ -1,1 +1,1 @@
-{"pid":"unknown","started_at":"2025-07-10 04:40:21","interval":120,"command":"start \/B php \"C:\\laragon\\www\\JTIintern\\artisan\" automation:daemon --interval=120 --auto-start"}
+{"pid":"unknown","started_at":"2025-07-12 14:49:26","interval":120,"command":"start \/B php \"C:\\laragon\\www\\JTIintern\\artisan\" automation:daemon --interval=120 --auto-start"}

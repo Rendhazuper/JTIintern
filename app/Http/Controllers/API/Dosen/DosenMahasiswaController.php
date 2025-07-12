@@ -292,7 +292,11 @@ class DosenMahasiswaController extends Controller
     {
         try {
             $id_log = $request->get('id_log'); // Get specific log ID if provided
-            Log::info("Attempting to get logbook for mahasiswa ID: {$id_mahasiswa}" . ($id_log ? ", log ID: {$id_log}" : ""));
+            $id_magang = $request->get('id_magang'); // Get specific magang ID
+            
+            Log::info("Attempting to get logbook for mahasiswa ID: {$id_mahasiswa}" . 
+                ($id_log ? ", log ID: {$id_log}" : "") . 
+                ($id_magang ? ", magang ID: {$id_magang}" : ""));
 
             $user = Auth::user();
             if (!$user) {
@@ -312,18 +316,27 @@ class DosenMahasiswaController extends Controller
                 ], 404);
             }
 
-            // ✅ PERBAIKI: Verify mahasiswa belongs to this dosen
-            $mahasiswaBimbingan = DB::table('m_magang')
+            // Verify mahasiswa belongs to this dosen
+            $magangQuery = DB::table('m_magang')
                 ->where('id_dosen', $dosen->id_dosen)
-                ->where('id_mahasiswa', $id_mahasiswa)
-                ->first();
+                ->where('id_mahasiswa', $id_mahasiswa);
+                
+            // Add filter by id_magang if provided
+            if ($id_magang) {
+                $magangQuery->where('id_magang', $id_magang);
+            }
+            
+            $mahasiswaBimbingan = $magangQuery->get();
 
-            if (!$mahasiswaBimbingan) {
+            if ($mahasiswaBimbingan->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Mahasiswa tidak ditemukan dalam bimbingan Anda'
                 ], 403);
             }
+            
+            // Get all magang IDs for this mahasiswa under this dosen
+            $magangIds = $mahasiswaBimbingan->pluck('id_magang')->toArray();
 
             // If specific log entry is requested
             if ($id_log) {
@@ -332,8 +345,10 @@ class DosenMahasiswaController extends Controller
                     ->where('tl.id_log', $id_log)
                     ->where('mg.id_mahasiswa', $id_mahasiswa)
                     ->where('mg.id_dosen', $dosen->id_dosen)
+                    ->whereIn('tl.id_magang', $magangIds)
                     ->select(
                         'tl.id_log as id',
+                        'tl.id_magang', // Add id_magang to response
                         'tl.tanggal',
                         'tl.log_aktivitas as deskripsi',
                         'tl.foto',
@@ -366,6 +381,7 @@ class DosenMahasiswaController extends Controller
                 $formattedEntry = [
                     'id' => $logEntry->id,
                     'id_mahasiswa' => $id_mahasiswa,
+                    'id_magang' => $logEntry->id_magang, // Include id_magang in response
                     'tanggal' => $logEntry->tanggal,
                     'tanggal_formatted' => $date->format('d M Y'),
                     'tanggal_hari' => $date->format('l'),
@@ -386,13 +402,22 @@ class DosenMahasiswaController extends Controller
                 ]);
             }
 
-            // ✅ Default behavior: get all logbook entries
-            $logbook = DB::table('t_log as tl')
+            // Default behavior: get logbook entries filtered by magang_id if provided
+            $logbookQuery = DB::table('t_log as tl')
                 ->join('m_magang as mg', 'tl.id_magang', '=', 'mg.id_magang')
                 ->where('mg.id_mahasiswa', $id_mahasiswa)
-                ->where('mg.id_dosen', $dosen->id_dosen)
-                ->select(
+                ->where('mg.id_dosen', $dosen->id_dosen);
+            
+            // Filter by specific magang if requested
+            if ($id_magang) {
+                $logbookQuery->where('tl.id_magang', $id_magang);
+            } else {
+                $logbookQuery->whereIn('tl.id_magang', $magangIds);
+            }
+            
+            $logbook = $logbookQuery->select(
                     'tl.id_log as id',
+                    'tl.id_magang', // Include id_magang in the result
                     'tl.tanggal',
                     'tl.log_aktivitas as deskripsi',
                     'tl.foto',
@@ -401,17 +426,19 @@ class DosenMahasiswaController extends Controller
                 ->orderBy('tl.tanggal', 'desc')
                 ->get();
 
-            Log::info("Found {$logbook->count()} logbook entries for mahasiswa {$id_mahasiswa}");
+            $magangCount = count($magangIds);
+            Log::info("Found {$logbook->count()} logbook entries for mahasiswa {$id_mahasiswa} across {$magangCount} magang records");
 
             if ($logbook->isEmpty()) {
                 return response()->json([
                     'success' => true,
                     'data' => [],
+                    'magang_ids' => $magangIds, // Return magang IDs for frontend reference
                     'message' => 'Belum ada data logbook'
                 ]);
             }
 
-            // Group by month and format data (same as before)
+            // Group by month and format data
             $groupedData = [];
             $monthGroups = [];
 
@@ -439,7 +466,8 @@ class DosenMahasiswaController extends Controller
 
                     $monthGroups[$monthKey][] = [
                         'id' => $entry->id,
-                        'id_mahasiswa' => $id_mahasiswa, // Add mahasiswa ID for reference
+                        'id_mahasiswa' => $id_mahasiswa,
+                        'id_magang' => $entry->id_magang, // Include id_magang in each entry
                         'tanggal' => $entry->tanggal,
                         'tanggal_formatted' => $date->format('d M Y'),
                         'tanggal_hari' => $date->format('l'),
@@ -469,6 +497,8 @@ class DosenMahasiswaController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $groupedData,
+                'magang_ids' => $magangIds, // Return magang IDs for frontend reference
+                'current_magang_id' => $id_magang, // Return current magang ID if filtered
                 'message' => 'Data logbook berhasil diambil',
                 'is_single' => false
             ]);

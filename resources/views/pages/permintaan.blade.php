@@ -528,10 +528,10 @@
                                         <i class="fas fa-calendar me-1"></i>${doc.upload_date}
                                     </small>
                                     ${doc.file_size ? `
-                                            <small class="text-muted ms-3">
-                                                <i class="fas fa-weight me-1"></i>${doc.file_size}
-                                            </small>
-                                        ` : ''}
+                                                            <small class="text-muted ms-3">
+                                                                <i class="fas fa-weight me-1"></i>${doc.file_size}
+                                                            </small>
+                                                        ` : ''}
                                 </div>
                             </div>
                             <div class="document-actions">
@@ -608,10 +608,8 @@
             }
         }
 
-        // Pindahkan definisi acceptRequest ke bagian atas script
-        // untuk memastikan tersedia sebelum digunakan oleh event handler
+        // Fungsi acceptRequest (tetap sama)
         function acceptRequest(id) {
-            // First, check if this magang has an assigned dosen
             fetch(`/api/magang/${id}/check-dosen`, {
                     method: 'GET',
                     headers: {
@@ -622,10 +620,8 @@
                 .then(response => response.json())
                 .then(response => {
                     if (response.has_dosen) {
-                        // Proceed with acceptance - dosen is assigned
                         proceedWithAcceptance(id);
                     } else {
-                        // Show warning with plotting link
                         Swal.fire({
                             title: 'Tidak Dapat Menerima!',
                             text: 'Magang tidak dapat diterima karena belum memiliki dosen pembimbing.',
@@ -637,7 +633,6 @@
                             cancelButtonText: 'Tutup'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // Navigate to plotting page
                                 window.location.href = '/plotting';
                             }
                         });
@@ -649,13 +644,63 @@
                 });
         }
 
-        // Pastikan fungsi proceedWithAcceptance juga dideklarasikan di atas
+        // Perbaikan fungsi proceedWithAcceptance
         function proceedWithAcceptance(id) {
-            // ...kode yang sudah ada...
-        }
+            Swal.fire({
+                title: 'Terima Permintaan Magang?',
+                text: "Permintaan ini akan diterima dan mahasiswa akan memulai magang sesuai periode yang telah ditentukan",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Terima',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Sedang memproses permintaan',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-        function processAcceptanceWithDates(id, tglMulai, tglSelesai) {
-            // ...kode yang sudah ada...
+                    fetch(`/api/magang/${id}/accept`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            },
+                            body: JSON.stringify({
+                                status: 'aktif'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(response => {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Permintaan magang telah diterima',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    loadPermintaanData();
+                                });
+                            } else {
+                                Swal.fire('Gagal!', response.message ||
+                                    'Terjadi kesalahan saat menerima permintaan.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error!', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+                        });
+                }
+            });
         }
 
         // Fungsi rejectRequest juga perlu dipastikan tersedia

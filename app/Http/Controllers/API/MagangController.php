@@ -415,68 +415,21 @@ class MagangController extends Controller
     {
         try {
             DB::beginTransaction();
-
-            // ✅ VALIDASI: Ambil dan validasi tanggal dari request
-            $request = request();
-            $tglMulai = $request->input('tgl_mulai');
-            $tglSelesai = $request->input('tgl_selesai');
-
-            // ✅ VALIDASI: Pastikan tanggal diisi
-            if (!$tglMulai || !$tglSelesai) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tanggal mulai dan selesai magang harus diisi.'
-                ], 400);
-            }
-
-            // ✅ VALIDASI: Format tanggal
-            try {
-                $startDate = \Carbon\Carbon::parse($tglMulai);
-                $endDate = \Carbon\Carbon::parse($tglSelesai);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Format tanggal tidak valid.'
-                ], 400);
-            }
-
-            // ✅ VALIDASI: Tanggal selesai harus setelah tanggal mulai
-            if ($endDate->lte($startDate)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tanggal selesai harus setelah tanggal mulai.'
-                ], 400);
-            }
-
-            // ✅ VALIDASI: Durasi minimal dan maksimal
-            $durasiHari = $startDate->diffInDays($endDate);
-            if ($durasiHari < 30) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Durasi magang minimal 30 hari.'
-                ], 400);
-            }
-
-            if ($durasiHari > 180) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Durasi magang maksimal 180 hari (6 bulan).'
-                ], 400);
-            }
-
-            // Find the lamaran entry
-            $lamaran = DB::table('t_lamaran')
-                ->where('id_lamaran', $id)
-                ->join('m_mahasiswa', 't_lamaran.id_mahasiswa', '=', 'm_mahasiswa.id_mahasiswa')
-                ->join('m_user', 'm_mahasiswa.id_user', '=', 'm_user.id_user')
-                ->join('m_lowongan', 't_lamaran.id_lowongan', '=', 'm_lowongan.id_lowongan')
-                ->join('m_perusahaan', 'm_lowongan.perusahaan_id', '=', 'm_perusahaan.perusahaan_id')
+            
+            // Get lamaran with periode dates and other needed data
+            $lamaran = DB::table('t_lamaran as l')
+                ->join('m_lowongan as low', 'l.id_lowongan', '=', 'low.id_lowongan')
+                ->join('m_periode as p', 'low.periode_id', '=', 'p.periode_id')
+                ->join('m_mahasiswa as m', 'l.id_mahasiswa', '=', 'm.id_mahasiswa')
+                ->join('m_perusahaan as per', 'low.perusahaan_id', '=', 'per.perusahaan_id')
+                ->where('l.id_lamaran', $id)
                 ->select(
-                    't_lamaran.*',
-                    'm_mahasiswa.id_user',
-                    'm_user.name as mahasiswa_name',
-                    'm_lowongan.judul_lowongan',
-                    'm_perusahaan.nama_perusahaan'
+                    'l.*',
+                    'low.judul_lowongan',
+                    'per.nama_perusahaan',
+                    'p.tgl_mulai',
+                    'p.tgl_selesai',
+                    'm.id_user'
                 )
                 ->first();
 
@@ -487,105 +440,59 @@ class MagangController extends Controller
                 ], 404);
             }
 
-            $id_lowongan = $lamaran->id_lowongan;
-            $id_mahasiswa = $lamaran->id_mahasiswa;
+            // Calculate duration
+            $startDate = \Carbon\Carbon::parse($lamaran->tgl_mulai);
+            $endDate = \Carbon\Carbon::parse($lamaran->tgl_selesai);
+            $durasiHari = $startDate->diffInDays($endDate);
 
-            // Check capacity first
-            if (!$this->kapasitasService->hasAvailableCapacity($id_lowongan)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak dapat menerima permintaan magang karena kapasitas sudah penuh.'
-                ], 400);
-            }
-
-            // Check if dosen is already assigned in the lamaran
-            $id_dosen = $lamaran->id_dosen ?? null;
-
-            // ✅ UPDATE: Create new entry in m_magang dengan tanggal
+            // Insert into m_magang table
             $magang_id = DB::table('m_magang')->insertGetId([
-                'id_lowongan' => $id_lowongan,
-                'id_mahasiswa' => $id_mahasiswa,
-                'id_dosen' => $id_dosen,
+                'id_lowongan' => $lamaran->id_lowongan,
+                'id_mahasiswa' => $lamaran->id_mahasiswa,
+                'id_dosen' => $lamaran->id_dosen,
                 'status' => 'aktif',
-                'tgl_mulai' => $startDate->format('Y-m-d'),      // ✅ TAMBAHAN
-                'tgl_selesai' => $endDate->format('Y-m-d'),      // ✅ TAMBAHAN
+                'tgl_mulai' => $startDate->format('Y-m-d'),
+                'tgl_selesai' => $endDate->format('Y-m-d'),
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
 
-            Log::info('Created new magang entry with dates', [
-                'magang_id' => $magang_id,
-                'tgl_mulai' => $startDate->format('Y-m-d'),
-                'tgl_selesai' => $endDate->format('Y-m-d'),
-                'durasi_hari' => $durasiHari
-            ]);
-
-            // ✅ ENHANCED: Trigger notifikasi dengan info tanggal
-            try {
-                $this->notificationService->lamaranDiterima(
-                    $lamaran->id_user,
-                    $lamaran->nama_perusahaan,
-                    $lamaran->judul_lowongan,
-                    $lamaran->id_lamaran
-                );
-
-                // ✅ ENHANCED: Trigger notifikasi welcome magang dengan info jadwal
-                $this->notificationService->createNotification(
-                    $lamaran->id_user,
-                    'Jadwal Magang Telah Ditetapkan 📅',
-                    "Selamat! Magang Anda di {$lamaran->nama_perusahaan} untuk posisi {$lamaran->judul_lowongan} akan dimulai pada " . 
-                    $startDate->format('d M Y') . " dan berakhir pada " . $endDate->format('d M Y') . 
-                    " (durasi {$durasiHari} hari). Bersiaplah untuk pengalaman yang menantang!",
-                    'magang',
-                    'success',
-                    true,
-                    [
-                        'magang_id' => $magang_id,
-                        'perusahaan' => $lamaran->nama_perusahaan,
-                        'posisi' => $lamaran->judul_lowongan,
-                        'tgl_mulai' => $startDate->format('Y-m-d'),
-                        'tgl_selesai' => $endDate->format('Y-m-d'),
-                        'durasi_hari' => $durasiHari
-                    ],
-                    30 // 1 bulan
-                );
-
-                Log::info('Notifications sent successfully with schedule info', [
-                    'user_id' => $lamaran->id_user,
-                    'magang_id' => $magang_id,
-                    'schedule' => [
-                        'start' => $startDate->format('Y-m-d'),
-                        'end' => $endDate->format('Y-m-d')
-                    ]
-                ]);
-            } catch (\Exception $notifError) {
-                Log::error('Error sending notifications: ' . $notifError->getMessage());
-                // Don't rollback transaction just because notification failed
-            }
-
-            // Delete ALL entries in t_lamaran for this student
-            $deletedLamaran = DB::table('t_lamaran')
-                ->where('id_mahasiswa', $id_mahasiswa)
+            // Delete ALL lamaran entries for this student
+            DB::table('t_lamaran')
+                ->where('id_mahasiswa', $lamaran->id_mahasiswa)
                 ->delete();
 
-            Log::info('Deleted ' . $deletedLamaran . ' lamaran entries for student #' . $id_mahasiswa);
+            // Decrement lowongan capacity if service exists
+            if (isset($this->kapasitasService)) {
+                $capacityUpdated = $this->kapasitasService->decrementKapasitas($lamaran->id_lowongan);
+                if (!$capacityUpdated) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal memperbarui kapasitas tersedia.'
+                    ], 500);
+                }
+            }
 
-            // Decrement available capacity
-            $capacityUpdated = $this->kapasitasService->decrementKapasitas($id_lowongan);
-
-            if (!$capacityUpdated) {
-                DB::rollBack();
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal memperbarui kapasitas tersedia.'
-                ], 500);
+            // Send notifications if service exists
+            if (isset($this->notificationService)) {
+                try {
+                    $this->notificationService->lamaranDiterima(
+                        $lamaran->id_user,
+                        $lamaran->nama_perusahaan,
+                        $lamaran->judul_lowongan,
+                        $lamaran->id_lamaran
+                    );
+                } catch (\Exception $notifError) {
+                    Log::error('Error sending notification: ' . $notifError->getMessage());
+                }
             }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Permintaan magang berhasil diterima dan jadwal telah ditetapkan.',
+                'message' => 'Permintaan magang berhasil diterima.',
                 'magang_id' => $magang_id,
                 'schedule' => [
                     'tgl_mulai' => $startDate->format('d M Y'),
@@ -593,6 +500,7 @@ class MagangController extends Controller
                     'durasi_hari' => $durasiHari
                 ]
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error accepting magang: ' . $e->getMessage());

@@ -9,9 +9,6 @@
                     <div class="card-header pb-0">
                         <div class="d-flex justify-content-between">
                             <h6>Plotting Manual Dosen</h6>
-                            <button type="button" class="btn btn-sm btn-info" id="showMatrixBtn">
-                                <i class="bi bi-graph-up me-2"></i>Lihat Matrix Keputusan
-                            </button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -33,17 +30,17 @@
                                 </div>
                             </div>
                             <!-- Remove or comment out wilayah filter section
-                                                                                                    <div class="col-md-6">
-                                                                                                        <label class="form-label d-flex align-items-center">
-                                                                                                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                                                                                            <span>Filter Wilayah</span>
-                                                                                                        </label>
-                                                                                                        <select class="form-select" id="wilayahFilter">
-                                                                                                            <option value="">Semua Wilayah</option>
-                                                                                                            <!-- Will be populated dynamically
-                                                                                                        </select>
-                                                                                                    </div>
-                                                                                                    -->
+                                                                                                                    <div class="col-md-6">
+                                                                                                                        <label class="form-label d-flex align-items-center">
+                                                                                                                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                                                                                                            <span>Filter Wilayah</span>
+                                                                                                                        </label>
+                                                                                                                        <select class="form-select" id="wilayahFilter">
+                                                                                                                            <option value="">Semua Wilayah</option>
+                                                                                                                            <!-- Will be populated dynamically
+                                                                                                                        </select>
+                                                                                                                    </div>
+                                                                                                                    -->
                         </div>
 
                         <!-- Update table class and structure -->
@@ -131,31 +128,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" id="saveAssignBtn">Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Matrix Keputusan -->
-    <div class="modal fade" id="matrixModal" tabindex="-1" aria-labelledby="matrixModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="matrixModalLabel">
-                        <i class="fas fa-chart-bar me-2"></i>Matrix Keputusan Pembimbing
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="matrixContainer">
-                        <!-- Matrix content will be loaded here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" onclick="loadMatrixData()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh Data
-                    </button>
                 </div>
             </div>
         </div>
@@ -1135,6 +1107,196 @@
                         });
                 }
             });
+        }
+
+        // 2. Event Listeners untuk Matrix dan Auto Plot
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Event listener untuk Auto Plot button
+            const autoPlotBtn = document.getElementById('autoPlotBtn');
+            if (autoPlotBtn) {
+                autoPlotBtn.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Konfirmasi Plotting Otomatis',
+                        text: 'Apakah Anda yakin ingin melakukan plotting otomatis dengan metode SAW? Ini akan mengganti semua plotting manual yang ada.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, lakukan!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleAutoPlot();
+                        }
+                    });
+                });
+            }
+
+            // Event listeners untuk tabs
+            document.getElementById('active-tab')?.addEventListener('click', () => loadMatrixData('active'));
+            document.getElementById('pending-tab')?.addEventListener('click', () => loadMatrixData('pending'));
+        });
+
+        // 3. Function untuk handle auto plot
+        function handleAutoPlot() {
+            const btn = document.getElementById('autoPlotBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Memproses...`;
+
+            Swal.fire({
+                title: 'Memproses',
+                html: 'Sedang melakukan plotting otomatis...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('/api/plotting/auto', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-magic me-2"></i>Auto-Plot Dosen`;
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            html: `
+                            <p>Plotting otomatis berhasil dilakukan!</p>
+                            <div class="mt-3">
+                                <table class="table table-sm">
+                                    <tr><td>Total Dosen</td><td>${data.stats.total_dosen}</td></tr>
+                                    <tr><td>Total Magang</td><td>${data.stats.total_magang}</td></tr>
+                                    <tr><td>Total Assignments</td><td>${data.stats.total_assignments}</td></tr>
+                                </table>
+                            </div>
+                        `,
+                            icon: 'success'
+                        });
+                        loadPlottingData(); // Reload data setelah berhasil
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: data.message || 'Terjadi kesalahan tidak diketahui',
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during auto-plot:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-magic me-2"></i>Auto-Plot Dosen`;
+
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat melakukan plotting otomatis: ' + error.message,
+                        icon: 'error'
+                    });
+                });
+        }
+
+        // Perbaikan fungsi loadMatrixData
+        function loadMatrixData() {
+            const container = document.getElementById('matrixContainer');
+
+            if (!container) {
+                console.error('Matrix container not found');
+                return;
+            }
+
+            const spinnerHtml = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-secondary">Memuat perhitungan matrix SAW...</p>
+                </div>
+            `;
+
+            container.innerHTML = spinnerHtml;
+
+            // Update endpoint untuk mendapatkan hanya mahasiswa yang belum di-assign
+            fetch('/api/matrix/unassigned', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderMatrixCalculation(data.data, data.weights);
+                    } else {
+                        container.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Semua mahasiswa sudah memiliki dosen pembimbing
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading matrix data:', error);
+                    container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Terjadi kesalahan saat memuat data: ${error.message}
+                    </div>
+                `;
+                });
+        }
+
+        function renderMatrixTable(matrixData, containerId) {
+            if (!Array.isArray(matrixData) || matrixData.length === 0) {
+                document.getElementById(containerId).innerHTML = `
+                    <div class="text-center py-5">
+                        <p class="text-muted">Tidak ada data untuk ditampilkan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                            <tr>
+            `;
+
+            // Generate table headers
+            Object.keys(matrixData[0]).forEach(key => {
+                html += `<th class="text-center">${key}</th>`;
+            });
+
+            html += `
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            // Generate table rows
+            matrixData.forEach(row => {
+                html += `<tr>`;
+                Object.values(row).forEach(value => {
+                    html += `<td class="text-center">${value}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById(containerId).innerHTML = html;
         }
     </script>
 @endpush
