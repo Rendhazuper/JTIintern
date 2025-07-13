@@ -356,7 +356,13 @@
                                 </div>
                             </div>
                             
-                            <p class="mb-0 text-sm">${item.komentar}</p>
+                            <p class="mb-3 text-sm">${item.komentar}</p>
+                            
+                            <!-- Tombol Log Aktivitas -->
+                            <button onclick="showLogAktivitas('${item.id_mahasiswa}', '${item.id_magang}')" 
+                                    class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-clipboard-list me-2"></i>Lihat Log Aktivitas
+                            </button>
                         </div>
                     </div>
                 `;
@@ -507,5 +513,138 @@
                 loadEvaluations();
             }, 300);
         });
+
+        // Add these functions after renderEvaluations function
+        function showLogAktivitas(id_mahasiswa, id_magang) {
+            // Show loading first
+            Swal.fire({
+                title: 'Memuat Log Aktivitas',
+                text: 'Mohon tunggu sebentar...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            console.log('Fetching logs for mahasiswa:', id_mahasiswa, 'magang:', id_magang);
+
+            if (!id_magang) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID Magang tidak ditemukan'
+                });
+                return;
+            }
+
+            // Make API call to get logbook data
+            api.get(`/mahasiswa/${id_mahasiswa}/logbook`, {
+                    params: {
+                        id_magang: id_magang
+                    }
+                })
+                .then(response => {
+                    if (response.data.success) {
+                        // Get the modal element
+                        const modal = new bootstrap.Modal(document.getElementById('logAktivitasModal'));
+                        const modalBody = document.querySelector('#logAktivitasModal .modal-body');
+                        const modalTitle = document.querySelector('#logAktivitasModal .modal-title');
+
+                        // Update modal title
+                        modalTitle.textContent = `Log Aktivitas`;
+
+                        // Generate content based on the data
+                        if (response.data.data.length === 0) {
+                            modalBody.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-clipboard text-muted mb-3" style="font-size: 3rem;"></i>
+                                <p class="text-muted mb-0">Belum ada log aktivitas yang tercatat</p>
+                            </div>
+                        `;
+                        } else {
+                            // Sort and group logs by month
+                            const groupedLogs = response.data.data;
+                            let logsHTML = '';
+
+                            groupedLogs.forEach(group => {
+                                logsHTML += `
+                                <div class="month-group mb-4">
+                                    <h6 class="text-primary mb-3">${group.month}</h6>
+                                    <div class="timeline">
+                                        ${group.entries.map(log => `
+                                                    <div class="timeline-item mb-3">
+                                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                                            <div>
+                                                                <span class="badge bg-info">${log.tanggal_hari}</span>
+                                                                <span class="text-muted ms-2">${log.tanggal_formatted}</span>
+                                                            </div>
+                                                            <small class="text-muted">${log.time_ago}</small>
+                                                        </div>
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <p class="mb-0">${log.deskripsi}</p>
+                                                                ${log.has_foto ? `
+                                                            <div class="mt-2">
+                                                                <img src="${log.foto}" class="img-fluid rounded" 
+                                                                     style="max-height: 200px; cursor: pointer"
+                                                                     onclick="showFullImage('${log.foto}')"
+                                                                     alt="Dokumentasi aktivitas">
+                                                            </div>
+                                                        ` : ''}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                            });
+
+                            modalBody.innerHTML = logsHTML;
+                        }
+
+                        // Hide loading and show modal
+                        Swal.close();
+                        modal.show();
+                    } else {
+                        throw new Error(response.data.message || 'Gagal memuat log aktivitas');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching log aktivitas:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Terjadi kesalahan saat memuat log aktivitas'
+                    });
+                });
+        }
+
+        // Helper function to show full image
+        function showFullImage(imageUrl) {
+            Swal.fire({
+                imageUrl: imageUrl,
+                imageAlt: 'Dokumentasi aktivitas',
+                width: '80%',
+                showConfirmButton: false,
+                showCloseButton: true
+            });
+        }
     </script>
 @endpush
+
+<!-- Log Aktivitas Modal -->
+<div class="modal fade" id="logAktivitasModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Aktivitas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>

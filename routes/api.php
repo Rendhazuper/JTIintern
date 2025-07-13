@@ -73,6 +73,7 @@ Route::middleware(['web', 'auth', 'role:mahasiswa'])->prefix('mahasiswa')->group
     Route::post('/apply-with-documents', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'applyWithDocuments']);
      Route::get('lowongan/{lowongan_id}/application-status', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'checkApplicationStatus']);
       Route::get('/applications/user', [App\Http\Controllers\API\Mahasiswa\MahasiswaLowonganController::class, 'getUserApplications']);
+      Route::get('/{id_mahasiswa}/logbook', [App\Http\Controllers\API\Mahasiswa\LogbookController::class, 'getByMahasiswa']);
 
 
     // Profile management routes

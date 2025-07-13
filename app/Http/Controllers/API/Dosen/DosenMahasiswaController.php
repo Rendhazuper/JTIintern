@@ -11,6 +11,25 @@ use Illuminate\Support\Facades\Auth;
 
 class DosenMahasiswaController extends Controller
 {
+    protected $dosen;
+    
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            $this->dosen = Dosen::where('user_id', $user->id_user)->first();
+            
+            if (!$this->dosen) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data dosen tidak ditemukan'
+                ], 404);
+            }
+            
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         // Get the authenticated user's dosen data
@@ -291,200 +310,96 @@ class DosenMahasiswaController extends Controller
     public function getMahasiswaLogbook($id_mahasiswa, Request $request)
     {
         try {
-            $id_log = $request->get('id_log'); // Get specific log ID if provided
-            $id_magang = $request->get('id_magang'); // Get specific magang ID
+            $id_magang = $request->get('id_magang');
             
-            Log::info("Attempting to get logbook for mahasiswa ID: {$id_mahasiswa}" . 
-                ($id_log ? ", log ID: {$id_log}" : "") . 
-                ($id_magang ? ", magang ID: {$id_magang}" : ""));
+            Log::info("Getting logbook - mahasiswa_id: {$id_mahasiswa}, magang_id: {$id_magang}");
 
-            $user = Auth::user();
-            if (!$user) {
-                Log::error('User not authenticated');
+            if (!$id_magang) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User tidak terautentikasi'
-                ], 401);
+                    'message' => 'ID Magang diperlukan'
+                ], 400);
             }
 
-            $dosen = Dosen::where('user_id', $user->id_user)->first();
-            if (!$dosen) {
-                Log::error("Dosen not found for user ID: {$user->id_user}");
+            // Verify magang exists and belongs to the correct dosen and mahasiswa
+            $magang = DB::table('m_magang')
+                ->where('id_magang', $id_magang)
+                ->where('id_mahasiswa', $id_mahasiswa)
+                ->where('id_dosen', $this->dosen->id_dosen)
+                ->first();
+
+            if (!$magang) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data dosen tidak ditemukan'
-                ], 404);
-            }
-
-            // Verify mahasiswa belongs to this dosen
-            $magangQuery = DB::table('m_magang')
-                ->where('id_dosen', $dosen->id_dosen)
-                ->where('id_mahasiswa', $id_mahasiswa);
-                
-            // Add filter by id_magang if provided
-            if ($id_magang) {
-                $magangQuery->where('id_magang', $id_magang);
-            }
-            
-            $mahasiswaBimbingan = $magangQuery->get();
-
-            if ($mahasiswaBimbingan->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Mahasiswa tidak ditemukan dalam bimbingan Anda'
+                    'message' => 'Data magang tidak ditemukan atau tidak memiliki akses'
                 ], 403);
             }
-            
-            // Get all magang IDs for this mahasiswa under this dosen
-            $magangIds = $mahasiswaBimbingan->pluck('id_magang')->toArray();
 
-            // If specific log entry is requested
-            if ($id_log) {
-                $logEntry = DB::table('t_log as tl')
-                    ->join('m_magang as mg', 'tl.id_magang', '=', 'mg.id_magang')
-                    ->where('tl.id_log', $id_log)
-                    ->where('mg.id_mahasiswa', $id_mahasiswa)
-                    ->where('mg.id_dosen', $dosen->id_dosen)
-                    ->whereIn('tl.id_magang', $magangIds)
-                    ->select(
-                        'tl.id_log as id',
-                        'tl.id_magang', // Add id_magang to response
-                        'tl.tanggal',
-                        'tl.log_aktivitas as deskripsi',
-                        'tl.foto',
-                        'tl.created_at'
-                    )
-                    ->first();
-
-                if (!$logEntry) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Data log tidak ditemukan atau Anda tidak memiliki akses'
-                    ], 404);
-                }
-
-                // Process photo
-                $photoPath = null;
-                $hasFoto = false;
-
-                if ($logEntry->foto && !empty($logEntry->foto)) {
-                    $fullPath = storage_path('app/public/' . $logEntry->foto);
-                    if (file_exists($fullPath)) {
-                        $photoPath = asset('storage/' . $logEntry->foto);
-                        $hasFoto = true;
-                    } else {
-                        Log::warning("Photo file not found: {$fullPath}");
-                    }
-                }
-
-                $date = \Carbon\Carbon::parse($logEntry->tanggal);
-                $formattedEntry = [
-                    'id' => $logEntry->id,
-                    'id_mahasiswa' => $id_mahasiswa,
-                    'id_magang' => $logEntry->id_magang, // Include id_magang in response
-                    'tanggal' => $logEntry->tanggal,
-                    'tanggal_formatted' => $date->format('d M Y'),
-                    'tanggal_hari' => $date->format('l'),
-                    'deskripsi' => $logEntry->deskripsi ?? '',
-                    'foto' => $photoPath,
-                    'has_foto' => $hasFoto,
-                    'time_ago' => $date->diffForHumans(),
-                    'created_at' => $logEntry->created_at
-                ];
-
-                Log::info("Successfully retrieved specific logbook entry with ID: {$id_log}");
-
-                return response()->json([
-                    'success' => true,
-                    'data' => $formattedEntry,
-                    'message' => 'Data log berhasil diambil',
-                    'is_single' => true
-                ]);
-            }
-
-            // Default behavior: get logbook entries filtered by magang_id if provided
-            $logbookQuery = DB::table('t_log as tl')
-                ->join('m_magang as mg', 'tl.id_magang', '=', 'mg.id_magang')
-                ->where('mg.id_mahasiswa', $id_mahasiswa)
-                ->where('mg.id_dosen', $dosen->id_dosen);
-            
-            // Filter by specific magang if requested
-            if ($id_magang) {
-                $logbookQuery->where('tl.id_magang', $id_magang);
-            } else {
-                $logbookQuery->whereIn('tl.id_magang', $magangIds);
-            }
-            
-            $logbook = $logbookQuery->select(
-                    'tl.id_log as id',
-                    'tl.id_magang', // Include id_magang in the result
-                    'tl.tanggal',
-                    'tl.log_aktivitas as deskripsi',
-                    'tl.foto',
-                    'tl.created_at'
+            // PERBAIKAN: Gunakan query yang sederhana dan spesifik
+            $logbook = DB::table('t_log')
+                ->where('id_magang', '=', $id_magang)  // Filter hanya berdasarkan id_magang
+                ->select(
+                    'id_log as id',
+                    'tanggal',
+                    'log_aktivitas as deskripsi',
+                    'foto',
+                    'created_at',
+                    'id_magang'  // Tambahkan ini untuk debug
                 )
-                ->orderBy('tl.tanggal', 'desc')
+                ->orderBy('tanggal', 'desc')
                 ->get();
 
-            $magangCount = count($magangIds);
-            Log::info("Found {$logbook->count()} logbook entries for mahasiswa {$id_mahasiswa} across {$magangCount} magang records");
+            // Debug log untuk membantu troubleshooting
+            Log::info("Query result for magang_id {$id_magang}: found {$logbook->count()} logs");
+            foreach ($logbook as $log) {
+                Log::info("Log ID: {$log->id}, Magang ID: {$log->id_magang}");
+            }
 
             if ($logbook->isEmpty()) {
                 return response()->json([
                     'success' => true,
                     'data' => [],
-                    'magang_ids' => $magangIds, // Return magang IDs for frontend reference
                     'message' => 'Belum ada data logbook'
                 ]);
             }
 
-            // Group by month and format data
-            $groupedData = [];
+            // Process and group the logs
             $monthGroups = [];
-
             foreach ($logbook as $entry) {
-                try {
-                    $date = \Carbon\Carbon::parse($entry->tanggal);
-                    $monthKey = $date->format('F Y');
-                    
-                    if (!isset($monthGroups[$monthKey])) {
-                        $monthGroups[$monthKey] = [];
-                    }
-
-                    $photoPath = null;
-                    $hasFoto = false;
-
-                    if ($entry->foto && !empty($entry->foto)) {
-                        $fullPath = storage_path('app/public/' . $entry->foto);
-                        if (file_exists($fullPath)) {
-                            $photoPath = asset('storage/' . $entry->foto);
-                            $hasFoto = true;
-                        } else {
-                            Log::warning("Photo file not found: {$fullPath}");
-                        }
-                    }
-
-                    $monthGroups[$monthKey][] = [
-                        'id' => $entry->id,
-                        'id_mahasiswa' => $id_mahasiswa,
-                        'id_magang' => $entry->id_magang, // Include id_magang in each entry
-                        'tanggal' => $entry->tanggal,
-                        'tanggal_formatted' => $date->format('d M Y'),
-                        'tanggal_hari' => $date->format('l'),
-                        'deskripsi' => $entry->deskripsi ?? '',
-                        'foto' => $photoPath,
-                        'has_foto' => $hasFoto,
-                        'time_ago' => $date->diffForHumans(),
-                        'created_at' => $entry->created_at
-                    ];
-
-                } catch (\Exception $dateError) {
-                    Log::error("Error processing logbook entry: " . $dateError->getMessage());
-                    continue; // Skip this entry
+                $date = \Carbon\Carbon::parse($entry->tanggal);
+                $monthKey = $date->format('F Y');
+                
+                if (!isset($monthGroups[$monthKey])) {
+                    $monthGroups[$monthKey] = [];
                 }
+
+                // Process photo if exists
+                $photoPath = null;
+                $hasFoto = false;
+                if ($entry->foto && !empty($entry->foto)) {
+                    $fullPath = storage_path('app/public/' . $entry->foto);
+                    if (file_exists($fullPath)) {
+                        $photoPath = asset('storage/' . $entry->foto);
+                        $hasFoto = true;
+                    }
+                }
+
+                $monthGroups[$monthKey][] = [
+                    'id' => $entry->id,
+                    'id_mahasiswa' => $id_mahasiswa,
+                    'tanggal' => $entry->tanggal,
+                    'tanggal_formatted' => $date->format('d M Y'),
+                    'tanggal_hari' => $date->isoFormat('dddd'),
+                    'deskripsi' => $entry->deskripsi ?? '',
+                    'foto' => $photoPath,
+                    'has_foto' => $hasFoto,
+                    'time_ago' => $date->diffForHumans(),
+                    'created_at' => $entry->created_at
+                ];
             }
 
-            // Convert to array format expected by frontend
+            // Convert to array format for frontend
+            $groupedData = [];
             foreach ($monthGroups as $month => $entries) {
                 $groupedData[] = [
                     'month' => $month,
@@ -492,25 +407,17 @@ class DosenMahasiswaController extends Controller
                 ];
             }
 
-            Log::info("Successfully processed logbook data with " . count($groupedData) . " month groups");
-
             return response()->json([
                 'success' => true,
                 'data' => $groupedData,
-                'magang_ids' => $magangIds, // Return magang IDs for frontend reference
-                'current_magang_id' => $id_magang, // Return current magang ID if filtered
-                'message' => 'Data logbook berhasil diambil',
-                'is_single' => false
+                'message' => 'Data logbook berhasil diambil'
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error in getMahasiswaLogbook: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memuat data logbook: ' . $e->getMessage(),
-                'error_details' => config('app.debug') ? $e->getTraceAsString() : null
+                'message' => 'Gagal memuat data logbook: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -692,12 +599,7 @@ class DosenMahasiswaController extends Controller
         }
     }
 
-    /**
-     * Calculate letter grade based on final score
-     * 
-     * @param float $nilai_akhir
-     * @return string
-     */
+
     private function calculateGrade($nilai_akhir)
     {
         if ($nilai_akhir >= 81 && $nilai_akhir <= 100) {

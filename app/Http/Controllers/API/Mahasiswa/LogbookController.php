@@ -361,4 +361,112 @@ class LogbookController extends Controller
 
         return $magangAktif;
     }
+
+    public function getByMahasiswa($id_mahasiswa, Request $request)
+    {
+        try {
+            $id_magang = $request->get('id_magang');
+            
+            // Log untuk debugging
+            Log::info("Getting logbook for mahasiswa ID: {$id_mahasiswa}, magang ID: {$id_magang}");
+
+            if (!$id_magang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID Magang diperlukan'
+                ], 400);
+            }
+
+            // Verify magang exists and belongs to the correct mahasiswa
+            $magang = DB::table('m_magang')
+                ->where('id_magang', $id_magang)
+                ->where('id_mahasiswa', $id_mahasiswa)
+                ->first();
+
+            if (!$magang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data magang tidak ditemukan atau tidak memiliki akses'
+                ], 403);
+            }
+
+            // Get logs specific to this magang
+            $logbook = DB::table('t_log')
+                ->where('id_magang', '=', $id_magang)
+                ->select(
+                    'id_log as id',
+                    'tanggal',
+                    'log_aktivitas as deskripsi',
+                    'foto',
+                    'created_at'
+                )
+                ->orderBy('tanggal', 'desc')
+                ->get();
+
+            if ($logbook->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [],
+                    'message' => 'Belum ada data logbook'
+                ]);
+            }
+
+            // Process and group the logs
+            $monthGroups = [];
+            foreach ($logbook as $entry) {
+                $date = \Carbon\Carbon::parse($entry->tanggal);
+                $monthKey = $date->format('F Y');
+                
+                if (!isset($monthGroups[$monthKey])) {
+                    $monthGroups[$monthKey] = [];
+                }
+
+                // Process photo if exists
+                $photoPath = null;
+                $hasFoto = false;
+                if ($entry->foto && !empty($entry->foto)) {
+                    $fullPath = storage_path('app/public/' . $entry->foto);
+                    if (file_exists($fullPath)) {
+                        $photoPath = asset('storage/' . $entry->foto);
+                        $hasFoto = true;
+                    }
+                }
+
+                $monthGroups[$monthKey][] = [
+                    'id' => $entry->id,
+                    'id_mahasiswa' => $id_mahasiswa,
+                    'tanggal' => $entry->tanggal,
+                    'tanggal_formatted' => $date->format('d M Y'),
+                    'tanggal_hari' => $date->isoFormat('dddd'),
+                    'deskripsi' => $entry->deskripsi ?? '',
+                    'foto' => $photoPath,
+                    'has_foto' => $hasFoto,
+                    'time_ago' => $date->diffForHumans(),
+                    'created_at' => $entry->created_at
+                ];
+            }
+
+            // Convert to array format for frontend
+            $groupedData = [];
+            foreach ($monthGroups as $month => $entries) {
+                $groupedData[] = [
+                    'month' => $month,
+                    'entries' => $entries
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $groupedData,
+                'message' => 'Data logbook berhasil diambil'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error in getByMahasiswa logbook: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data logbook: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

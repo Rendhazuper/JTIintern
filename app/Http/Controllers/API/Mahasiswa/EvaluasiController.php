@@ -60,7 +60,8 @@ class EvaluasiController extends Controller
                     'dosen_user.name as nama_dosen',
                     'm_perusahaan.perusahaan_id',
                     'm_perusahaan.nama_perusahaan',
-                    'm_lowongan.judul_lowongan'
+                    'm_lowongan.judul_lowongan',
+                    'm_magang.id_mahasiswa' // Tambahkan id_mahasiswa
                 )
                 ->where('m_magang.id_mahasiswa', $mahasiswa->id_mahasiswa)
                 ->whereNotNull('t_evaluasi.nilai_dosen') // Only show completed evaluations
@@ -98,6 +99,8 @@ class EvaluasiController extends Controller
                 
                 return [
                     'id' => $item->id_evaluasi,
+                    'id_mahasiswa' => $item->id_mahasiswa, // Tambahkan ini
+                    'id_magang' => $item->id_magang, // Tambahkan ini
                     'score' => $item->nilai_akhir ?: 'Belum dinilai',
                     'grade' => $item->grade ?: '-',
                     'nilai_dosen' => $item->nilai_dosen,

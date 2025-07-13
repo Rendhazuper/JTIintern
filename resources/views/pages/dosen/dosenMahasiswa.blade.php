@@ -84,7 +84,6 @@
                 showSkeletonLoading();
                 showFiltersSkeleton();
 
-                
                 loadMahasiswaData(filterState);
 
                 loadPeriodeOptions().then(() => {
@@ -130,8 +129,8 @@
                         </div>
                         <h5 class="text-danger">${message}</h5>
                         ${isSystemError ? `
-                                                                                                                                                                                            <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
-                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                                <p class="text-muted mt-2 mb-3">Coba muat ulang halaman atau hubungi administrator</p>
+                                                                                                                                                                                                                                                            ` : ''}
                         <button class="btn btn-sm btn-primary mt-2" onclick="window.location.reload()">
                             <i class="fas fa-sync-alt me-1"></i>Coba Lagi
                         </button>
@@ -379,23 +378,26 @@
                 }
 
                 card.innerHTML = `
-                    <div class="mahasiswa-card" style="width: 100%; height: 100%; padding: 20px; background: white; border-radius: 5px; outline: 1px #E8EDF5 solid; display: flex; flex-direction: column; gap: 15px; position: relative; ${cardStyles}">
+                    <div class="mahasiswa-card" 
+                         data-mahasiswa-id="${item.id_mahasiswa}"
+                         data-magang-id="${item.id_magang}"
+                         style="width: 100%; height: 100%; padding: 20px; background: white; border-radius: 5px; outline: 1px #E8EDF5 solid; display: flex; flex-direction: column; gap: 15px; position: relative; ${cardStyles}">
                         
                         ${statusMessage}
                         
                         ${needsDosenEvaluation ? `
-                                                            <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); z-index: 10; animation: pulse 2s infinite;">
-                                                                <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
-                                                                Perlu Evaluasi Dosen
-                                                            </div>
-                                                        ` : ''}
+                                    <div class="evaluation-alert" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); z-index: 10; animation: pulse 2s infinite;">
+                                        <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
+                                        Perlu Evaluasi Dosen
+                                    </div>
+                                ` : ''}
 
                         ${hasEvaluation && evaluationGrade ? `
-                                                            <div class="evaluation-grade" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); z-index: 10;">
-                                                                <i class="fas fa-trophy" style="margin-right: 4px;"></i>
-                                                                Grade: ${evaluationGrade}
-                                                            </div>
-                                                        ` : ''}
+                                                                                                                                <div class="evaluation-grade" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 700; box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); z-index: 10;">
+                                                                                                                                    <i class="fas fa-trophy" style="margin-right: 4px;"></i>
+                                                                                                                                    Grade: ${evaluationGrade}
+                                                                                                                                </div>
+                                                                                                                            ` : ''}
 
                         <!-- Status Badge -->
                         <div data-property-1="Status" style="height: 29px; display: inline-flex; align-items: center; gap: 10px;">
@@ -426,14 +428,14 @@
                         
                         <!-- Action Buttons Container -->
                         <div class="action-buttons" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 5px;">
-                            <button onclick="logAktivitas('${item.id_mahasiswa}')" class="btn btn-primary" style="flex: 1; padding: 8px 12px; background: linear-gradient(135deg, #5988FF, #4c7bef); border-radius: 6px; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: all 0.3s ease;">
-                                <i class="fas fa-clipboard-list" style="font-size: 12px;"></i>
-                                <span style="color: white;">Log Aktivitas</span>
+                            <button onclick="logAktivitas('${item.id_mahasiswa}', '${item.id_magang}')" class="btn btn-primary">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span>Log Aktivitas</span>
                             </button>
                             
                             ${item.status && item.status.toLowerCase() === 'selesai' ? `
-                                        <!-- Button container for completed internships -->
-                                        ${needsDosenEvaluation ? `
+                                                                                                            <!-- Button container for completed internships -->
+                                                                                                            ${needsDosenEvaluation ? `
         <!-- Show active evaluation button when dosen needs to evaluate -->
         <button onclick="evaluasiMahasiswa('${item.id_mahasiswa}', '${item.id_magang || ''}')" 
                 class="btn btn-warning" 
@@ -470,19 +472,19 @@
             <span style="color: #adb5bd;">Sudah Dievaluasi</span>
         </button>
     `}
-                                    ` : `
-                                        <!-- Show disabled button for non-completed internships -->
-                                        <button disabled class="btn" 
-                                                style="flex: 1; padding: 8px 12px; 
-                                                       background: #f8f9fa; border-radius: 6px; 
-                                                       border: 1.5px solid #e9ecef; 
-                                                       display: flex; align-items: center; justify-content: center; 
-                                                       gap: 8px; font-size: 12px; font-weight: 600; 
-                                                       opacity: 0.6; cursor: not-allowed;">
-                                            <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
-                                            <span style="color: #adb5bd;">Evaluasi</span>
-                                        </button>
-                                    `}
+                                                                                                        ` : `
+                                                                                                            <!-- Show disabled button for non-completed internships -->
+                                                                                                            <button disabled class="btn" 
+                                                                                                                    style="flex: 1; padding: 8px 12px; 
+                                                                                                                           background: #f8f9fa; border-radius: 6px; 
+                                                                                                                           border: 1.5px solid #e9ecef; 
+                                                                                                                           display: flex; align-items: center; justify-content: center; 
+                                                                                                                           gap: 8px; font-size: 12px; font-weight: 600; 
+                                                                                                                           opacity: 0.6; cursor: not-allowed;">
+                                                                                                                <i class="fas fa-star" style="color: #adb5bd; font-size: 12px;"></i>
+                                                                                                                <span style="color: #adb5bd;">Evaluasi</span>
+                                                                                                            </button>
+                                                                                                        `}
                         </div>
                     </div>
                 `;
@@ -689,6 +691,7 @@
         </form>
     `;
         }
+
         // Add missing helper functions
         function getStatusStyles(status) {
             if (!status) return 'background: #f8f9fa; border-radius: 3px;';
@@ -817,450 +820,138 @@
             // ... existing DOMContentLoaded code ...
         });
 
-        function logAktivitas(id_mahasiswa) {
-            console.log('📋 Opening log aktivitas for mahasiswa:', id_mahasiswa);
-            currentMahasiswaId = id_mahasiswa; // Simpan ID mahasiswa yang sedang aktif
+        // Add this function in your JavaScript code right after your filterState declaration
+        function logAktivitas(id_mahasiswa, id_magang) {
+            // Gunakan parameter id_magang yang diteruskan langsung dari tombol
+            console.log('Fetching logs for mahasiswa:', id_mahasiswa, 'magang:', id_magang);
 
-            // Initialize modal
-            const modalElement = document.getElementById('logAktivitasModal');
-            if (!modalElement) {
-                console.error('Modal element not found!');
-                return;
-            }
-
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-
-            // Show loading state, hide all other states
-            document.getElementById('logAktivitasLoading').style.display = 'block';
-            document.getElementById('logAktivitasContent').style.display = 'none';
-            document.getElementById('logAktivitasError').classList.add('d-none');
-            document.getElementById('logAktivitasEmpty').classList.add('d-none');
-
-            // Reset timeline content
-            const timelineEl = document.getElementById('timelineLogAktivitas');
-            if (timelineEl) timelineEl.innerHTML = '';
-
-            // First, get mahasiswa info for display
-            api.get(`/mahasiswa/${id_mahasiswa}/info`)
-                .then(response => {
-                    if (response.data.success) {
-                        const mahasiswa = response.data.data;
-                        displayMahasiswaInfo(mahasiswa);
-
-                        // Then load the logbook data
-                        loadLogbookData(id_mahasiswa);
-                    } else {
-                        throw new Error(response.data.message || 'Gagal memuat informasi mahasiswa');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading mahasiswa info:', error);
-                    document.getElementById('logAktivitasLoading').style.display = 'none';
-                    document.getElementById('logAktivitasError').classList.remove('d-none');
-                    document.getElementById('errorMessage').textContent = error.message ||
-                        'Terjadi kesalahan saat memuat data mahasiswa';
-                });
-        }
-
-        function displayMahasiswaInfo(mahasiswa) {
-            // Cek apakah elemen studentInfo ada
-            const studentInfoEl = document.getElementById('mahasiswaInfo');
-            const studentInitialEl = document.getElementById('studentInitial');
-
-            if (!studentInfoEl || !studentInitialEl) {
-                console.error('Student info elements not found:', {
-                    studentInfoEl,
-                    studentInitialEl
+            if (!id_magang) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID Magang tidak ditemukan'
                 });
                 return;
             }
 
-            // Update student initial
-            studentInitialEl.textContent = mahasiswa.name.charAt(0);
-
-            // Update student info
-            studentInfoEl.innerHTML = `
-                ${mahasiswa.name} <br>
-                <small class="text-muted">${mahasiswa.nim} - ${mahasiswa.nama_kelas}</small>
-                <div class="mt-1">
-                    <span class="badge bg-${getStatusColor(mahasiswa.status)}">${mahasiswa.status || 'Belum Magang'}</span>
-                    <span class="badge bg-info ms-1">${mahasiswa.nama_perusahaan || 'Belum ada perusahaan'}</span>
-                </div>
-            `;
-        }
-
-        function loadLogbookData(id_mahasiswa, id_magang = null) {
-            // Prepare URL with optional magang ID
-            const url = id_magang ?
-                `/mahasiswa/${id_mahasiswa}/logbook?id_magang=${id_magang}` :
-                `/mahasiswa/${id_mahasiswa}/logbook`;
-
-            // Show loading for logbook data
-            const timelineEl = document.getElementById('timelineLogAktivitas');
-            if (timelineEl) timelineEl.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                    <p class="text-muted small mt-2">Memuat data log aktivitas...</p>
-                </div>
-            `;
-
-            api.get(url)
-                .then(response => {
-                    // Hide loading indicator
-                    document.getElementById('logAktivitasLoading').style.display = 'none';
-                    document.getElementById('logAktivitasContent').style.display = 'block';
-
-                    if (response.data.success) {
-                        // Store available magang IDs for this mahasiswa
-                        mahasiswaMagangIds = response.data.magang_ids || [];
-
-                        // Update stats
-                        updateLogStats(response.data);
-
-                        // Check if we need to display magang selector (if multiple magang records exist)
-                        const magangSelector = document.getElementById('magangSelector');
-                        if (magangSelector && mahasiswaMagangIds.length > 1) {
-                            // Populate magang selector
-                            const selectElement = document.getElementById('selectMagang');
-                            if (selectElement) {
-                                selectElement.innerHTML = ''; // Clear existing options
-
-                                // Add "All" option
-                                const allOption = document.createElement('option');
-                                allOption.value = '';
-                                allOption.textContent = 'Semua Magang';
-                                selectElement.appendChild(allOption);
-
-                                // Add options for each magang ID
-                                mahasiswaMagangIds.forEach(magangId => {
-                                    const option = document.createElement('option');
-                                    option.value = magangId;
-                                    option.textContent = `Magang #${magangId}`;
-
-                                    // Set selected if this is the current filtered magang
-                                    if (id_magang && id_magang == magangId) {
-                                        option.selected = true;
-                                    }
-
-                                    selectElement.appendChild(option);
-                                });
-
-                                // Add event listener to handle magang selection
-                                selectElement.onchange = function() {
-                                    loadLogbookData(id_mahasiswa, this.value);
-                                };
-
-                                // Show the selector
-                                magangSelector.classList.remove('d-none');
-                            }
-                        } else if (magangSelector) {
-                            // Hide selector if only one or no magang
-                            magangSelector.classList.add('d-none');
-                        }
-
-                        const logData = response.data.data;
-                        const noLogMessage = document.getElementById('logAktivitasEmpty');
-                        const timelineEl = document.getElementById('timelineLogAktivitas');
-
-                        // Check if there are any log entries
-                        if (!logData || logData.length === 0) {
-                            if (noLogMessage) noLogMessage.classList.remove('d-none');
-                            if (timelineEl) timelineEl.innerHTML = '';
-                            return;
-                        }
-
-                        if (noLogMessage) noLogMessage.classList.add('d-none');
-
-                        // Render log entries grouped by month
-                        renderLogEntries(logData);
-
-                    } else {
-                        throw new Error(response.data.message || 'Failed to load logbook data');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading logbook data:', error);
-                    document.getElementById('logAktivitasLoading').style.display = 'none';
-                    document.getElementById('logAktivitasError').classList.remove('d-none');
-                    document.getElementById('errorMessage').textContent = error.message ||
-                        'Terjadi kesalahan saat memuat data log';
-                });
-        }
-
-        // Function to update stats display
-        function updateLogStats(responseData) {
-            try {
-                const totalEntries = responseData.data ? responseData.data.reduce((sum, month) => sum + month.entries
-                    .length, 0) : 0;
-
-                // Calculate total photos
-                const totalPhotos = responseData.data ? responseData.data.reduce((sum, month) => {
-                    return sum + month.entries.filter(entry => entry.has_foto).length;
-                }, 0) : 0;
-
-                // Get unique days
-                const uniqueDays = new Set();
-                if (responseData.data) {
-                    responseData.data.forEach(month => {
-                        month.entries.forEach(entry => {
-                            uniqueDays.add(entry.tanggal);
-                        });
-                    });
-                }
-
-                // Last activity
-                let lastActivity = '-';
-                if (responseData.data && responseData.data.length > 0 && responseData.data[0].entries.length > 0) {
-                    lastActivity = responseData.data[0].entries[0].tanggal_formatted || '-';
-                }
-
-                // Update DOM elements
-                document.getElementById('totalDays').textContent = uniqueDays.size;
-                document.getElementById('totalActivities').textContent = totalEntries;
-                document.getElementById('totalPhotos').textContent = totalPhotos;
-                document.getElementById('lastActivity').textContent = lastActivity;
-            } catch (error) {
-                console.error('Error updating stats:', error);
-            }
-        }
-
-        function renderLogEntries(logData) {
-            const timelineEl = document.getElementById('timelineLogAktivitas');
-            if (!timelineEl) {
-                console.error('Timeline element not found');
-                return;
-            }
-
-            timelineEl.innerHTML = '';
-
-            // Populate the filter month dropdown
-            populateMonthFilter(logData);
-
-            // Iterate through each month group
-            logData.forEach(monthGroup => {
-                const monthSection = document.createElement('div');
-                monthSection.className = 'timeline-month-dosen';
-                monthSection.setAttribute('data-month', monthGroup.month);
-
-                // Month header
-                const monthHeader = document.createElement('h6');
-                monthHeader.className = 'month-label-dosen';
-                monthHeader.innerHTML = `<i class="fas fa-calendar me-2"></i>${monthGroup.month}`;
-                monthSection.appendChild(monthHeader);
-
-                // Log entries for this month
-                monthGroup.entries.forEach(entry => {
-                    const logEntryItem = document.createElement('div');
-                    logEntryItem.className = 'timeline-item-dosen';
-                    logEntryItem.setAttribute('data-log-id', entry.id);
-                    logEntryItem.setAttribute('data-magang-id', entry.id_magang);
-                    logEntryItem.setAttribute('data-has-photo', entry.has_foto ? 'true' : 'false');
-
-                    const logEntryCard = document.createElement('div');
-                    logEntryCard.className = 'timeline-card-dosen';
-
-                    // Card header with date and time
-                    const cardHeader = document.createElement('div');
-                    cardHeader.className = 'timeline-header-dosen';
-                    cardHeader.innerHTML = `
-                        <div>
-                            <div class="timeline-date-dosen">${entry.tanggal_formatted}</div>
-                            <div class="timeline-day-dosen">${entry.tanggal_hari}</div>
-                        </div>
-                        <div class="timeline-time-dosen">${entry.time_ago}</div>
-                    `;
-
-                    // Card body with description and photo
-                    const cardBody = document.createElement('div');
-                    cardBody.innerHTML = `
-                        <p class="timeline-description-dosen">${entry.deskripsi}</p>
-                        ${entry.has_foto ? `
-                                <div class="timeline-photo-dosen">
-                                    <img src="${entry.foto}" alt="Foto aktivitas" onclick="showPhotoDetail('${entry.foto}', '${entry.deskripsi.replace(/'/g, "\\'")}')">
-                                </div>
-                            ` : ''}
-                        
-                        ${mahasiswaMagangIds.length > 1 ? `
-                                <div class="text-end mt-1">
-                                    <span class="badge bg-info text-white">Magang #${entry.id_magang}</span>
-                                </div>
-                            ` : ''}
-                    `;
-
-                    // Append header and body to card
-                    logEntryCard.appendChild(cardHeader);
-                    logEntryCard.appendChild(cardBody);
-
-                    // Append card to item
-                    logEntryItem.appendChild(logEntryCard);
-
-                    // Append item to month section
-                    monthSection.appendChild(logEntryItem);
-                });
-
-                // Append month section to timeline
-                timelineEl.appendChild(monthSection);
-            });
-
-            // Add search functionality
-            setupSearchFilter();
-        }
-
-        function showPhotoDetail(photoUrl, description) {
-            const modalElement = document.getElementById('photoDetailModal');
-            if (!modalElement) return;
-
-            const modal = new bootstrap.Modal(modalElement);
-
-            // Set image and description
-            document.getElementById('photoDetailImage').src = photoUrl;
-            document.getElementById('photoDetailDescription').textContent = description;
-
-            modal.show();
-        }
-
-        function populateMonthFilter(logData) {
-            const filterMonth = document.getElementById('filterMonth');
-            if (!filterMonth) return;
-
-            // Clear existing options except first one
-            while (filterMonth.options.length > 1) {
-                filterMonth.remove(1);
-            }
-
-            // Add options for each month
-            logData.forEach(monthGroup => {
-                const option = document.createElement('option');
-                option.value = monthGroup.month;
-                option.textContent = monthGroup.month;
-                filterMonth.appendChild(option);
-            });
-        }
-
-        function setupSearchFilter() {
-            const searchInput = document.getElementById('searchLogAktivitas');
-            const filterMonth = document.getElementById('filterMonth');
-            const filterHasPhoto = document.getElementById('filterHasPhoto');
-
-            if (searchInput) {
-                searchInput.addEventListener('input', filterLogEntries);
-            }
-
-            if (filterMonth) {
-                filterMonth.addEventListener('change', filterLogEntries);
-            }
-
-            if (filterHasPhoto) {
-                filterHasPhoto.addEventListener('change', filterLogEntries);
-            }
-        }
-
-        function filterLogEntries() {
-            const searchInput = document.getElementById('searchLogAktivitas');
-            const filterMonth = document.getElementById('filterMonth');
-            const filterHasPhoto = document.getElementById('filterHasPhoto');
-
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            const selectedMonth = filterMonth ? filterMonth.value : '';
-            const photoFilter = filterHasPhoto ? filterHasPhoto.value : '';
-
-            // Get all log entries
-            const logEntries = document.querySelectorAll('.timeline-item-dosen');
-
-            // Counter for visible items
-            let visibleCount = 0;
-
-            // Get all month sections
-            const monthSections = document.querySelectorAll('.timeline-month-dosen');
-
-            // First, hide all month sections
-            monthSections.forEach(section => {
-                section.style.display = 'none';
-            });
-
-            // Filter each entry
-            logEntries.forEach(entry => {
-                // Get description text
-                const description = entry.querySelector('.timeline-description-dosen').textContent.toLowerCase();
-
-                // Get month of this entry
-                const monthSection = entry.closest('.timeline-month-dosen');
-                const month = monthSection ? monthSection.getAttribute('data-month') : '';
-
-                // Get has-photo attribute
-                const hasPhoto = entry.getAttribute('data-has-photo') === 'true';
-
-                // Apply filters
-                const matchesSearch = !searchTerm || description.includes(searchTerm);
-                const matchesMonth = !selectedMonth || month === selectedMonth;
-                const matchesPhotoFilter = photoFilter === '' ||
-                    (photoFilter === 'with' && hasPhoto) ||
-                    (photoFilter === 'without' && !hasPhoto);
-
-                // Show/hide based on filters
-                if (matchesSearch && matchesMonth && matchesPhotoFilter) {
-                    entry.style.display = 'block';
-                    monthSection.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    entry.style.display = 'none';
-                }
-            });
-
-            // Show empty message if no entries match
-            const emptyMessage = document.getElementById('logAktivitasEmpty');
-            if (emptyMessage) {
-                emptyMessage.classList.toggle('d-none', visibleCount > 0);
-            }
-        }
-
-        function retryLoadLogAktivitas() {
-            if (currentMahasiswaId) {
-                document.getElementById('logAktivitasError').classList.add('d-none');
-                logAktivitas(currentMahasiswaId);
-            }
-        }
-
-        function exportLogAktivitas() {
-            if (!currentMahasiswaId) {
-                Swal.fire('Error', 'Tidak ada data log aktivitas untuk diekspor', 'error');
-                return;
-            }
-
-            // Get current magang ID filter if any
-            const selectMagang = document.getElementById('selectMagang');
-            const currentMagangId = selectMagang ? selectMagang.value : null;
-
-            // Show loading notification
+            // Show loading first
             Swal.fire({
-                title: 'Mengekspor data...',
-                text: 'Mohon tunggu sebentar',
+                title: 'Memuat Log Aktivitas',
+                text: 'Mohon tunggu sebentar...',
                 allowOutsideClick: false,
-                didOpen: () => {
+                showConfirmButton: false,
+                willOpen: () => {
                     Swal.showLoading();
                 }
             });
 
-            // Build export URL
-            let exportUrl = `/export-logbook/${currentMahasiswaId}`;
-            if (currentMagangId) {
-                exportUrl += `?id_magang=${currentMagangId}`;
-            }
+            // Make the API call with both IDs directly from parameters
+            api.get(`/mahasiswa/${id_mahasiswa}/logbook`, {
+                    params: {
+                        id_magang: id_magang
+                    }
+                })
+                .then(response => {
+                    if (response.data.success) {
+                        // Get the modal element
+                        const modal = new bootstrap.Modal(document.getElementById('logAktivitasModal'));
+                        const modalBody = document.querySelector('#logAktivitasModal .modal-body');
+                        const modalTitle = document.querySelector('#logAktivitasModal .modal-title');
 
-            // Create temporary anchor element and trigger download
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = exportUrl;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+                        // Update modal title
+                        modalTitle.textContent = `Log Aktivitas`;
 
-            // Close loading notification
-            setTimeout(() => {
-                Swal.close();
-            }, 1000);
+                        // Generate content based on the data
+                        if (response.data.data.length === 0) {
+                            modalBody.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-clipboard text-muted mb-3" style="font-size: 3rem;"></i>
+                                <p class="text-muted mb-0">Belum ada log aktivitas yang tercatat</p>
+                            </div>
+                        `;
+                        } else {
+                            // Sort and group logs by month
+                            const groupedLogs = response.data.data;
+                            let logsHTML = '';
+
+                            groupedLogs.forEach(group => {
+                                logsHTML += `
+                                <div class="month-group mb-4">
+                                    <h6 class="text-primary mb-3">${group.month}</h6>
+                                    <div class="timeline">
+                                        ${group.entries.map(log => `
+                                                <div class="timeline-item mb-3">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <div>
+                                                            <span class="badge bg-info">${log.tanggal_hari}</span>
+                                                            <span class="text-muted ms-2">${log.tanggal_formatted}</span>
+                                                        </div>
+                                                        <small class="text-muted">${log.time_ago}</small>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <p class="mb-0">${log.deskripsi}</p>
+                                                            ${log.has_foto ? `
+                                                            <div class="mt-2">
+                                                                <img src="${log.foto}" class="img-fluid rounded" 
+                                                                     style="max-height: 200px; cursor: pointer"
+                                                                     onclick="showFullImage('${log.foto}')"
+                                                                     alt="Dokumentasi aktivitas">
+                                                            </div>
+                                                        ` : ''}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                            });
+
+                            modalBody.innerHTML = logsHTML;
+                        }
+
+                        // Hide loading and show modal
+                        Swal.close();
+                        modal.show();
+                    } else {
+                        throw new Error(response.data.message || 'Gagal memuat log aktivitas');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching log aktivitas:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Terjadi kesalahan saat memuat log aktivitas'
+                    });
+                });
+        }
+
+        // Helper function to show full image
+        function showFullImage(imageUrl) {
+            Swal.fire({
+                imageUrl: imageUrl,
+                imageAlt: 'Dokumentasi aktivitas',
+                width: '80%',
+                showConfirmButton: false,
+                showCloseButton: true
+            });
         }
     </script>
 @endpush
+
+<!-- Add this to your page, after your main content -->
+<div class="modal fade" id="logAktivitasModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Aktivitas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
