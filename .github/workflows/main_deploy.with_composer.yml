@@ -3,7 +3,7 @@ name: Build and deploy Laravel app to Azure Web App - JTIntern
 on:
   push:
     branches:
-      - master # ganti ke 'main' jika default branch kamu main
+      - master   # ganti ke 'main' jika default branch kamu main
   workflow_dispatch:
 
 jobs:
