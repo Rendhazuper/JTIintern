@@ -22,7 +22,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Optional: Build frontend only if package.json exists (Vite, etc.)
+      # Extract release if exists (should be before other steps)
+      - name: Extract and prepare release
+        run: |
+          if [ -f release.zip ]; then
+            echo "Extracting release.zip..."
+            unzip -oq release.zip || {
+              echo "Standard unzip failed, trying with different options..."
+              unzip -o release.zip
+            }
+            echo "Extraction completed"
+          else
+            echo "No release.zip found, skipping extraction"
+          fi
+
       - name: Detect frontend
         id: has-node
         run: |
@@ -42,19 +55,10 @@ jobs:
         if: steps.has-node.outputs.HAS_NODE == 'true'
         run: |
           npm ci
-          # Check if all imports can be resolved
-          npm run build || {
-            echo "Build failed, possibly due to missing dependencies"
-            echo "Installing commonly missing packages..."
-            npm install perfect-scrollbar
-            npm run build
-          }
+          npm install perfect-scrollbar
+          npm audit fix --force || echo "Some audit fixes failed, continuing..."
+          npm run build
 
-      # Server-side build via Oryx on Azure (recommended for PHP on App Service)
-      # Make sure the following app settings exist on the Web App:
-      # SCM_DO_BUILD_DURING_DEPLOYMENT=1
-      # PHP_VERSION=8.2
-      # COMPOSER_VERSION=2.7.x
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -62,7 +66,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Ensure required app settings for build/runtime exist
       - name: Ensure App Settings
         uses: azure/appservice-settings@v1
         with:
@@ -75,26 +78,10 @@ jobs:
               { "name": "COMPOSER_VERSION", "value": "2.7.7", "slotSetting": false }
             ]
 
-      # Deploy repository content; Oryx on App Service will run composer install, etc.
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: JTIntern
           slot-name: Production
           publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
-          package: ..
-
-      - name: Extract and prepare release
-        run: |
-          if [ -f release.zip ]; then
-            echo "Extracting release.zip..."
-            # Use -o for overwrite, -q for quiet mode
-            unzip -oq release.zip || {
-              echo "Standard unzip failed, trying with different options..."
-              # Alternative: use -j to junk paths if needed
-              unzip -o release.zip
-            }
-            echo "Extraction completed"
-          else
-            echo "No release.zip found, skipping extraction"
-          fi
+          package: .
