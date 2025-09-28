@@ -42,7 +42,13 @@ jobs:
         if: steps.has-node.outputs.HAS_NODE == 'true'
         run: |
           npm ci
-          npm run build
+          # Check if all imports can be resolved
+          npm run build || {
+            echo "Build failed, possibly due to missing dependencies"
+            echo "Installing commonly missing packages..."
+            npm install perfect-scrollbar
+            npm run build
+          }
 
       # Server-side build via Oryx on Azure (recommended for PHP on App Service)
       # Make sure the following app settings exist on the Web App:
