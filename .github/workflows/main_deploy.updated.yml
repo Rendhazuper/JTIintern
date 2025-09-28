@@ -77,3 +77,18 @@ jobs:
           slot-name: Production
           publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
           package: ..
+
+      - name: Extract and prepare release
+        run: |
+          if [ -f release.zip ]; then
+            echo "Extracting release.zip..."
+            # Use -o for overwrite, -q for quiet mode
+            unzip -oq release.zip || {
+              echo "Standard unzip failed, trying with different options..."
+              # Alternative: use -j to junk paths if needed
+              unzip -o release.zip
+            }
+            echo "Extraction completed"
+          else
+            echo "No release.zip found, skipping extraction"
+          fi
