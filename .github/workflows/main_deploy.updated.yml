@@ -1,0 +1,79 @@
+name: Build and deploy Laravel app to Azure Web App - JTIntern
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      AZURE_WEBAPP_NAME: JTIntern
+      AZURE_WEBAPP_SLOT: Production
+      PHP_VERSION: "8.2"
+      NODE_VERSION: "20"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Optional: Build frontend only if package.json exists (Vite, etc.)
+      - name: Detect frontend
+        id: has-node
+        run: |
+          if [ -f package.json ]; then
+            echo "HAS_NODE=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_NODE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node
+        if: steps.has-node.outputs.HAS_NODE == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install frontend deps
+        if: steps.has-node.outputs.HAS_NODE == 'true'
+        run: |
+          npm ci
+          npm run build
+
+      # Server-side build via Oryx on Azure (recommended for PHP on App Service)
+      # Make sure the following app settings exist on the Web App:
+      # SCM_DO_BUILD_DURING_DEPLOYMENT=1
+      # PHP_VERSION=8.2
+      # COMPOSER_VERSION=2.7.x
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Ensure required app settings for build/runtime exist
+      - name: Ensure App Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ env.AZURE_WEBAPP_SLOT }}
+          app-settings-json: |
+            [
+              { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "1", "slotSetting": false },
+              { "name": "PHP_VERSION", "value": "${{ env.PHP_VERSION }}", "slotSetting": false },
+              { "name": "COMPOSER_VERSION", "value": "2.7.7", "slotSetting": false }
+            ]
+
+      # Deploy repository content; Oryx on App Service will run composer install, etc.
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: JTIntern
+          slot-name: Production
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
+          package: ..
