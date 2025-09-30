@@ -48,7 +48,7 @@ class DosenMahasiswaController extends Controller
             Log::warning("User with ID {$user->id_user} has dosen role but no dosen record");
         }
         
-        return view('pages.dosen.DosenMahasiswa', [
+        return view('pages.dosen.dosenMahasiswa', [
             'title' => 'Data Mahasiswa',
             'dosen_id' => $dosen ? $dosen->id_dosen : null,
         ]);

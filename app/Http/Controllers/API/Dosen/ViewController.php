@@ -23,7 +23,7 @@ class ViewController extends Controller
 
     public function mahasiswa()
     {
-        return view('pages.dosen.DosenMahasiswa', [
+        return view('pages.dosen.dosenMahasiswa', [
             'title' => 'Data Mahasiswa'
         ]);
     }
