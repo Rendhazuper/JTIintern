@@ -1,5 +1,5 @@
 <?php
-// filepath: d:\laragon\www\JTIintern\app\Http\Controllers\API\EvaluasiController.php
+// filepath: c:\laragon\www\JTIintern\app\Http\Controllers\API\EvaluasiController.php
 
 namespace App\Http\Controllers\API;
 
@@ -38,7 +38,7 @@ class EvaluasiController extends Controller
         try {
             Log::info('Fetching evaluations data...');
             
-            // Query untuk mendapatkan evaluasi dengan join tabel lain untuk data tambahan
+            // Full query with all required fields
             $evaluations = DB::table('t_evaluasi AS e')
                 ->leftJoin('m_magang AS m', 'e.id_magang', '=', 'm.id_magang')
                 ->leftJoin('m_mahasiswa AS mhs', 'm.id_mahasiswa', '=', 'mhs.id_mahasiswa')
@@ -50,13 +50,11 @@ class EvaluasiController extends Controller
                 ->select([
                     'e.id_evaluasi',
                     'e.id_magang',
-                    'e.nilai_akhir AS nilai',
-                    'e.catatan_dosen AS eval',
-                    'e.grade',
-                    'e.nilai_perusahaan',
-                    'e.nilai_dosen',
-                    'e.status_evaluasi',
-                    'e.tanggal_evaluasi_dosen',
+                    'e.nilai_akhir AS nilai',  // This is the field your frontend uses
+                    'e.catatan_dosen AS eval', // This maps to your frontend's "evaluasi" variable
+                    'e.grade',                 // Adding grade
+                    'e.nilai_perusahaan',      // Adding nilai_perusahaan
+                    'e.nilai_dosen',           // Adding nilai_dosen
                     'e.created_at',
                     'e.updated_at',
                     'u_mhs.name AS nama_mahasiswa',
@@ -74,18 +72,18 @@ class EvaluasiController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $evaluations,
-                'message' => 'Data evaluasi berhasil ditemukan',
-                'count' => count($evaluations)
+                'message' => 'Data evaluasi berhasil ditemukan'
             ]);
         } catch (\Exception $e) {
-            // Log error untuk debug
+            // Enhanced error logging
             Log::error('Error fetching evaluations: ' . $e->getMessage());
             Log::error('Error trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat data evaluasi',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => env('APP_DEBUG') ? $e->getTraceAsString() : null
             ], 500);
         }
     }

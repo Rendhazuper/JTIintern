@@ -1,5 +1,5 @@
 <!-- filepath: d:\laragon\www\JTIintern\resources\views\pages\evaluasi.blade.php -->
-@extends('layouts.app',  ['class' => 'g-sidenav-show bg-gray-100'])
+@extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Evaluasi Dosen'])
@@ -231,7 +231,7 @@
         }
 
         // Load data evaluasi saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             loadEvaluationData();
 
             // Event listener untuk filter
@@ -287,7 +287,8 @@
                                 document.getElementById('evaluasi-container').classList.remove('d-none');
                             } catch (renderError) {
                                 console.error('Error rendering evaluations:', renderError);
-                                document.getElementById('error-message').textContent = 'Error rendering data: ' + renderError.message;
+                                document.getElementById('error-message').textContent = 'Error rendering data: ' +
+                                    renderError.message;
                                 document.getElementById('loading-container').classList.add('d-none');
                                 document.getElementById('error-container').classList.remove('d-none');
                             }
@@ -394,7 +395,8 @@
 
             // Update UI
             if (filteredEvaluations.length === 0) {
-                document.getElementById('empty-message').textContent = 'Tidak ada data yang sesuai dengan filter yang dipilih';
+                document.getElementById('empty-message').textContent =
+                    'Tidak ada data yang sesuai dengan filter yang dipilih';
                 document.getElementById('empty-container').classList.remove('d-none');
                 document.getElementById('evaluasi-container').classList.add('d-none');
             } else {
@@ -548,7 +550,7 @@
             prevLink.innerHTML = '<i class="fas fa-chevron-left"></i>';
 
             if (currentPage !== 1) {
-                prevLink.onclick = function (e) {
+                prevLink.onclick = function(e) {
                     e.preventDefault();
                     currentPage--;
                     renderEvaluations(filteredEvaluations);
@@ -580,11 +582,14 @@
                 pageLink.textContent = i;
 
                 if (i !== currentPage) {
-                    pageLink.onclick = function (e) {
+                    pageLink.onclick = function(e) {
                         e.preventDefault();
                         currentPage = i;
                         renderEvaluations(filteredEvaluations);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
                     };
                 }
 
@@ -602,11 +607,14 @@
             nextLink.innerHTML = '<i class="fas fa-chevron-right"></i>';
 
             if (currentPage !== totalPages) {
-                nextLink.onclick = function (e) {
+                nextLink.onclick = function(e) {
                     e.preventDefault();
                     currentPage++;
                     renderEvaluations(filteredEvaluations);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
                 };
             }
 

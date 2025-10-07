@@ -16,7 +16,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\dataMhsController;
-use App\Http\Controllers\PerusahaanController;
+use App\Http\Controllers\perusahaanController;
 
 use App\Http\Controllers\ErrorController;
 
